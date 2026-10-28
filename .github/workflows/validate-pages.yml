@@ -37,5 +37,11 @@ jobs:
             const html=fs.readFileSync(file,'utf8');
             for(const needle of needles)if(!html.includes(needle))throw new Error(file+' missing '+needle);
           }
-          console.log('Validated '+pages.length+' pages and '+checked+' inline scripts.');
+          const builder=fs.readFileSync('builder.html','utf8');
+          const viewer=fs.readFileSync('site.html','utf8');
+          if(!builder.includes('status:"published",slug'))throw new Error('Publishing status missing');
+          if(!builder.includes('.update({status:"draft"'))throw new Error('Unpublish status missing');
+          if(!viewer.includes('.eq("status","published")'))throw new Error('Public viewer status filter missing');
+          if(!viewer.includes('textContent=c.business'))throw new Error('Safe public text rendering missing');
+          console.log('Validated '+pages.length+' pages and '+checked+' inline scripts plus publishing invariants.');
           NODE
