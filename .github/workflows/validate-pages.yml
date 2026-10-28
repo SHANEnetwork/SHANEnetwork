@@ -42,6 +42,6 @@ jobs:
           if(!builder.includes('status:"published",slug'))throw new Error('Publishing status missing');
           if(!builder.includes('.update({status:"draft"'))throw new Error('Unpublish status missing');
           if(!viewer.includes('.eq("status","published")'))throw new Error('Public viewer status filter missing');
-          if(!viewer.includes('textContent=c.business'))throw new Error('Safe public text rendering missing');
+          if(!viewer.includes('textContent=c.business||c.name||data.name'))throw new Error('Safe public text rendering missing');
           console.log('Validated '+pages.length+' pages and '+checked+' inline scripts plus publishing invariants.');
           NODE
