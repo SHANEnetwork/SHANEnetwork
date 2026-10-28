@@ -16,7 +16,7 @@ jobs:
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           import {spawnSync} from 'node:child_process';
-          const pages=['index.html','builder.html','members.html','site.html','campaigns.html','payments.html'];
+          const pages=['index.html','builder.html','members.html','site.html','campaigns.html','payments.html','request-build.html'];
           let checked=0;
           for(const file of pages){
             if(!fs.existsSync(file))throw new Error('Missing '+file);
@@ -30,9 +30,10 @@ jobs:
             }
           }
           for(const [file,needles] of Object.entries({
-            'builder.html':['id="publishSite"','id="unpublishSite"','shane_sites','site.html'],
             'site.html':['shane_sites','status','published'],
-            'members.html':['shane_collaboration_messages','shane_collaboration_requests']
+            'members.html':['shane_collaboration_messages','shane_collaboration_requests'],
+            'index.html':['id="shaneWelcome"','id="welcomePreview"','shane-welcome-v1','request-build.html'],
+            'builder.html':['id="publishSite"','id="unpublishSite"','shane_sites','site.html','shane-welcome-v1','shane_endeavor_milestones']
           })){
             const html=fs.readFileSync(file,'utf8');
             for(const needle of needles)if(!html.includes(needle))throw new Error(file+' missing '+needle);
