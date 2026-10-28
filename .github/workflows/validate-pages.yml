@@ -15,7 +15,7 @@ jobs:
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
-          import vm from 'node:vm';
+          import {spawnSync} from 'node:child_process';
           const pages=['index.html','builder.html','members.html','site.html','campaigns.html','payments.html'];
           let checked=0;
           for(const file of pages){
@@ -24,8 +24,8 @@ jobs:
             for(const match of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)){
               const [,attrs,code]=match;
               if(!code.trim()||/\bsrc\s*=/.test(attrs))continue;
-              const cleaned=code.replace(/^\s*import\s*[^;]+;?/gm,'');
-              try{new vm.Script(cleaned,{filename:file})}catch(e){throw new Error(file+': '+e.message)}
+              const result=spawnSync(process.execPath,['--check','--input-type=module'],{input:code,encoding:'utf8'});
+              if(result.status!==0)throw new Error(file+': '+result.stderr);
               checked++;
             }
           }
