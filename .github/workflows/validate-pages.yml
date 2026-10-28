@@ -1,0 +1,41 @@
+name: Validate SHANE pages
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check inline JavaScript syntax and basic page wiring
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import vm from 'node:vm';
+          const pages=['index.html','builder.html','members.html','site.html','campaigns.html','payments.html'];
+          let checked=0;
+          for(const file of pages){
+            if(!fs.existsSync(file))throw new Error('Missing '+file);
+            const html=fs.readFileSync(file,'utf8');
+            for(const match of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)){
+              const [,attrs,code]=match;
+              if(!code.trim()||/\bsrc\s*=/.test(attrs))continue;
+              const cleaned=code.replace(/^\s*import\s*[^;]+;?/gm,'');
+              try{new vm.Script(cleaned,{filename:file})}catch(e){throw new Error(file+': '+e.message)}
+              checked++;
+            }
+          }
+          for(const [file,needles] of Object.entries({
+            'builder.html':['id="publishSite"','id="unpublishSite"','shane_sites','site.html'],
+            'site.html':['shane_sites','status','published'],
+            'members.html':['shane_collaboration_messages','shane_collaboration_requests']
+          })){
+            const html=fs.readFileSync(file,'utf8');
+            for(const needle of needles)if(!html.includes(needle))throw new Error(file+' missing '+needle);
+          }
+          console.log('Validated '+pages.length+' pages and '+checked+' inline scripts.');
+          NODE
