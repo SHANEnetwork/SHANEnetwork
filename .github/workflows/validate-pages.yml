@@ -43,5 +43,14 @@ jobs:
           if(!builder.includes('.update({status:"draft"'))throw new Error('Unpublish status missing');
           if(!viewer.includes('.eq("status","published")'))throw new Error('Public viewer status filter missing');
           if(!viewer.includes('textContent=c.business||c.name||data.name'))throw new Error('Safe public text rendering missing');
+          for(const file of pages){
+            const html=fs.readFileSync(file,'utf8');
+            const ids=[...html.matchAll(/\bid=["']([^"']+)["']/g)].map(m=>m[1]);
+            const duplicates=ids.filter((id,i)=>ids.indexOf(id)!==i);
+            if(duplicates.length)throw new Error(file+' has duplicate element IDs: '+[...new Set(duplicates)].join(', '));
+            for(const m of html.matchAll(/document\.getElementById\(["']([^"']+)["']\)/g)){
+              if(!ids.includes(m[1]))throw new Error(file+' refers to missing element ID '+m[1]);
+            }
+          }
           console.log('Validated '+pages.length+' pages and '+checked+' inline scripts plus publishing invariants.');
           NODE
