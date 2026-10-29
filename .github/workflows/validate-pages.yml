@@ -161,6 +161,8 @@ jobs:
           const check=spawnSync('python3',['-c','import zipfile; z=zipfile.ZipFile("/tmp/shane-ci-export.zip"); assert z.testzip() is None; assert set(z.namelist())=={"index.html","portfolio.html","events.html"}; assert b"Portfolio content" in z.read("portfolio.html"); assert b"Events content" in z.read("events.html")'],{encoding:'utf8'});
           if(check.status!==0)throw new Error('ZIP archive failed extraction test: '+check.stderr);
           if(!builder.includes('id="confirmPublicContent"')||!builder.includes('confirmPublicContent").checked'))throw new Error('Publishing requires public-content review confirmation');
+          if(!builder.includes('const approvedContent=JSON.stringify(getSite())')||!builder.includes('if(!reviewStillValid())'))throw new Error('Publishing must reject stale or switched reviewed content');
+
           if(!builder.includes('status:"published",slug'))throw new Error('Publishing status missing');
           if(!builder.includes('.update({status:"draft"'))throw new Error('Unpublish status missing');
           if(!viewer.includes('.eq("status","published")'))throw new Error('Public viewer status filter missing');
