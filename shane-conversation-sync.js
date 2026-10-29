@@ -33,7 +33,10 @@ async function save(){
     try{
      const organizationKey="shane_org_for_endeavor_v1";
      const savedOrg=JSON.parse(sessionStorage.getItem(organizationKey)||"null");
-     const organization=await window.SHANEOrganizationProvision.provision(client,{spec:inferred.spec,vision,organizationId:savedOrg?.endeavorId===result.id?savedOrg.organizationId:undefined});
+     let organizationId=savedOrg?.endeavorId===result.id?savedOrg.organizationId:undefined;
+     if(!organizationId){const saved=await window.SHANEEndeavorStore.load(client,result.id);organizationId=saved.linkedOrganizationId||undefined}
+     const organization=await window.SHANEOrganizationProvision.provision(client,{spec:inferred.spec,vision,organizationId});
+     await window.SHANEEndeavorStore.linkOrganization(client,result.id,organization.organizationId);
      sessionStorage.setItem(organizationKey,JSON.stringify({endeavorId:result.id,organizationId:organization.organizationId}));
      status("Your conversation, private website, and community foundation are saved. No invitations or public posts were sent.");
     }catch(orgError){
@@ -59,6 +62,7 @@ async function resume(){
   document.dispatchEvent(new CustomEvent("shane:conversation-restore",{detail:{turns:result.conversation,draftReady:false}}));
   window.SHANECurrentComposition={spec:result.spec,sourceVision:result.vision,provisioningStatus:"not_provisioned"};
   if(result.linkedSiteId)sessionStorage.setItem(siteKey,JSON.stringify({endeavorId:result.id,siteId:result.linkedSiteId}));
+  if(result.linkedOrganizationId)sessionStorage.setItem("shane_org_for_endeavor_v1",JSON.stringify({endeavorId:result.id,organizationId:result.linkedOrganizationId}));
   status("Your private conversation has been restored. The website draft remains separate.");
  }catch(e){status("Could not resume: "+e.message)}
 }
