@@ -109,3 +109,14 @@ assert.ok(recovery.includes("sb.auth.verifyOtp("), 'Recovery page must support t
 assert.ok(recovery.includes("sb.auth.updateUser({password})"), 'Recovery page must allow updating the password');
 assert.ok(recovery.includes("if(!recoveryAuthorized)"), 'Password changes must be gated on recovery authorization');
 console.log('PASS password recovery integration contracts');
+
+for (const id of ['visionPrompt','visionGuide','visionAI','visionPreview','visionSave','visionPublish','publishChecklist','confirmPublicContent','generateAI','saveSite','publishSite']) {
+  assert.ok(builder.includes('id="'+id+'"'), 'Builder is missing required control: '+id);
+}
+assert.ok(builder.includes("$('generateAI').click()"), 'Vision-first AI must actually start generation');
+assert.ok(builder.includes("$('preview').click()"), 'Vision-first preview must refresh the website');
+assert.ok(builder.includes("$('saved-projects').scrollIntoView"), 'Vision-first save must reach project controls');
+assert.ok(builder.includes("$('publishChecklist').scrollIntoView"), 'Vision-first publish must reach the publication checklist');
+assert.ok(builder.includes('JSON.stringify(getSite())!==editorSnapshot'), 'AI must not overwrite manual edits made during generation');
+assert.ok(builder.includes('if(!confirm("Review AI revision'), 'AI revisions must request confirmation');
+console.log('PASS vision-first workflow, publication navigation, and AI edit protections');
