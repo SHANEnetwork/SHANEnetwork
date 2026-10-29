@@ -20,7 +20,23 @@
    if(existing.status!=="draft")throw Error("A published website cannot be overwritten by automatic draft setup");
    content={...(existing.content&&typeof existing.content==="object"&&!Array.isArray(existing.content)?existing.content:{})};
   }
-  content.shaneComposition=composition;
+  // The generated landing page is an editable draft, not a replacement for authored pages.
+  if(!Array.isArray(content.pages)||content.pages.length===0)content.pages=[{title:"Home",slug:"home",draft:true}];
+  const existingHome=content.pages.find(page=>page&&page.slug==="home");
+  const plainVision=String(vision||"").trim().slice(0,12000);
+  const homeTitle=String(spec.title||"My Endeavor").trim().slice(0,120);
+  if(existingHome){
+   if(!existingHome.title)existingHome.title=homeTitle;
+   if(!existingHome.intro&&!existingHome.body&&!existingHome.html){
+    existingHome.intro=plainVision;
+    existingHome.shaneGenerated=true;
+   }else if(existingHome.shaneGenerated){
+    existingHome.intro=plainVision;
+   }
+  }else{
+   content.pages.unshift({title:homeTitle,slug:"home",draft:true,intro:plainVision,shaneGenerated:true});
+  }
+    content.shaneComposition=composition;
   content.sourceVision=String(vision||"").slice(0,12000);
   const payload={owner_id:ownerId,name:spec.title,content,status:"draft"};
   const query=siteId
