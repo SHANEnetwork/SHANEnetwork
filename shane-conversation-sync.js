@@ -14,6 +14,8 @@ async function save(){
  if(!vision.trim()){status("Describe your idea to SHANE before saving the conversation.");return}
  const current=window.SHANECurrentComposition;
  const inferred=window.SHANEVision.interpret(vision);
+ const previousSpec=window.SHANECurrentComposition?.spec;
+ if(previousSpec?.title&&inferred.spec.title==="My Endeavor")inferred.spec.title=previousSpec.title;
  const title=(get("siteName")?.value||get("name")?.value||inferred.spec.title||"My Endeavor").trim();
  const existing=sessionStorage.getItem(key);
  const savedState=existing?await window.SHANEEndeavorStore.load(client,existing).catch(()=>null):null;
