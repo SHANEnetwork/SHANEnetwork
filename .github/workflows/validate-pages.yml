@@ -138,7 +138,7 @@ jobs:
           if(duplicates[1].filename===duplicates[2].filename)throw new Error('Duplicate page titles overwrite export files');
 
           // Validate that the ZIP exporter uses the standard ZIP headers and correct CRC-32.
-          const zipSource=source.slice(source.indexOf('function crc32(bytes){'),source.indexOf('function update(){'));
+          const zipSource=source.slice(source.indexOf('function crc32(bytes){'),source.indexOf('function update(silent=false){'));
           if(!zipSource.startsWith('function crc32(bytes){'))throw new Error('ZIP checksum helper missing');
           const checksum=runInNewContext(zipSource+';crc32',{},{timeout:2000});
           const known=new TextEncoder().encode('123456789');
@@ -147,7 +147,7 @@ jobs:
 
           // Exercise the ZIP download handler and validate the archive with Python's ZIP reader.
           const {writeFileSync}=await import('node:fs');
-          const zipHandler=source.slice(source.indexOf('document.getElementById("downloadPagesZip").onclick='),source.indexOf('function update(){'));
+          const zipHandler=source.slice(source.indexOf('document.getElementById("downloadPagesZip").onclick='),source.indexOf('function update(silent=false){'));
           const mockButton={disabled:false};
           let savedBlob=null;
           const fakeUrl={createObjectURL:blob=>{savedBlob=blob;return 'blob:smoke'},revokeObjectURL:()=>{}};
