@@ -1,0 +1,18 @@
+const assert=require("node:assert/strict");
+const {compose,refine,validate}=require("../shane-composition.js");
+const a=compose({endeavorId:"research-1",title:"Research Alliance",modules:["projects","publications","messaging"]});
+const b=compose({endeavorId:"garden-2",title:"Community Garden",modules:["projects","events","discussions"]});
+assert.deepEqual(validate(a),[]);
+assert.deepEqual(validate(b),[]);
+assert.ok(a.modules.some(m=>m.type==="memberships"),"messaging dependency");
+assert.ok(b.modules.some(m=>m.type==="memberships"),"discussions dependency");
+const changed=refine(a,{title:"Global Research Alliance",labels:{projects:{title:"Research Project"}},appearance:{accent:"#123456"}});
+assert.equal(changed.title,"Global Research Alliance");
+assert.equal(changed.modules.find(m=>m.type==="projects").labels.title,"Research Project");
+assert.equal(a.title,"Research Alliance","original remains unchanged");
+assert.equal(a.modules.find(m=>m.type==="projects").labels.title,undefined);
+assert.equal(b.title,"Community Garden","other endeavor untouched");
+assert.throws(()=>compose({endeavorId:"x",title:"X",modules:["payments"]}),/Unsupported capability/);
+assert.throws(()=>refine(a,{labels:{projects:{secret_field:"X"}}}),/Invalid labels/);
+assert.ok(validate({...a,modules:[{type:"messaging",version:1}]}).some(x=>x.includes("requires")));
+console.log("PASS reusable composition: dependencies, isolation, compatibility, immutable refinement, unsupported modules");
