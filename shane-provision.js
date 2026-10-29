@@ -33,8 +33,8 @@
    }else if(existingHome.shaneGenerated){
     existingHome.intro=plainVision;
    }
-  }else{
-   content.pages.unshift({title:homeTitle,slug:"home",draft:true,intro:plainVision,shaneGenerated:true});
+  }else if(!content.pages.length){
+   content.pages.push({title:homeTitle,slug:"home",draft:true,intro:plainVision,shaneGenerated:true});
   }
     // Only add suggested sections when they do not already exist.
   const sectionTitles={projects:"Projects",publications:"Publications",events:"Events",memberships:"Community",messaging:"Messages",discussions:"Discussions",discovery:"Discover"};
