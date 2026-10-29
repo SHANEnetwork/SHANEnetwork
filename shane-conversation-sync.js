@@ -31,7 +31,10 @@ async function save(){
    const types=inferred.spec.modules.map(m=>m.type);
    if(types.some(t=>["memberships","discussions"].includes(t))){
     try{
-     const organization=await window.SHANEOrganizationProvision.provision(client,{spec:inferred.spec,vision});
+     const organizationKey="shane_org_for_endeavor_v1";
+     const savedOrg=JSON.parse(sessionStorage.getItem(organizationKey)||"null");
+     const organization=await window.SHANEOrganizationProvision.provision(client,{spec:inferred.spec,vision,organizationId:savedOrg?.endeavorId===result.id?savedOrg.organizationId:undefined});
+     sessionStorage.setItem(organizationKey,JSON.stringify({endeavorId:result.id,organizationId:organization.organizationId}));
      status("Your conversation, private website, and community foundation are saved. No invitations or public posts were sent.");
     }catch(orgError){
      status("Your private website is saved, but community setup needs attention: "+orgError.message);
