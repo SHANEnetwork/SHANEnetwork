@@ -116,6 +116,7 @@ jobs:
           if(!source.includes('const hasContent=!!(')||!source.includes('["journeyCreate",hasContent]'))throw new Error('Launch journey should not mark a blank website as created');
           const publicViewer=fs.readFileSync('site.html','utf8');
           for(const token of ['id="sharePage"','id="shareStatus"','navigator.share','navigator.clipboard.writeText','pages[n].title+" | "'])if(!publicViewer.includes(token))throw new Error('Public website sharing or page title missing: '+token);
+          for(const token of ['id="siteSearch"','id="searchQuery"','id="searchResults"','role="search"','content.filter(p=>','No matches found on this website.'])if(!publicViewer.includes(token))throw new Error('Published website search missing: '+token);
           for(const name of ['Additional page limit','Page content','Unique page names'])if(!source.includes('"'+name+'"'))throw new Error('Readiness report must check '+name);
           for(const name of ['Starter content','Gallery image links'])if(!source.includes('"'+name+'"'))throw new Error('Readiness report must check '+name);
           const audit=runInNewContext(source.slice(readinessStart,readinessEnd)+';websiteReadiness',{document:{getElementById:id=>nodes[id]},URL},{timeout:2000});
