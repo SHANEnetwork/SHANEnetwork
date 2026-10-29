@@ -20,7 +20,13 @@ async function save(){
  try{
   const result=await window.SHANEEndeavorStore.save(client,{title,vision,spec:inferred.spec,conversation:snap.turns,endeavorId:existing||undefined});
   sessionStorage.setItem(key,result.id);
-  status("Your conversation is saved privately to your SHANE account. Your website has not been published.");
+  status("Your conversation is saved privately. Preparing your unpublished website foundation...");
+  try{
+   const site=await window.SHANEProvision.provision(client,{spec:inferred.spec,vision});
+   status("Your conversation and private website foundation are saved. Additional services are not yet provisioned; nothing was published.");
+  }catch(siteError){
+   status("Your conversation is saved, but the private website foundation could not be created: "+siteError.message);
+  }
  }catch(e){status("Conversation not saved: "+e.message)}
  finally{button.disabled=false}
 }
