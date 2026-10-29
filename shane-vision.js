@@ -10,7 +10,7 @@
   {type:"memberships",pattern:/\b(member|members|membership|club|association|league|organization|community)\b/i},
   {type:"projects",pattern:/\b(project|projects|research|initiative|invention|portfolio)\b/i},
   {type:"publications",pattern:/\b(publication|publications|articles|journal|library|papers|research papers)\b/i},
-  {type:"events",pattern:/\b(event|events|conference|festival|concert|meetup|workshop|tournament)\b/i},
+  {type:"events",pattern:/\b(event|events|conferences?|festivals?|concerts?|meetups?|workshops?|tournaments?)\b/i},
   {type:"discussions",pattern:/\b(forum|forums|discussion|discussions|conversation|conversations|chatrooms?)\b/i},
   {type:"messaging",pattern:/\b(message|messages|messaging|private chat|direct chat)\b/i},
   {type:"discovery",pattern:/\b(partner|partners|collaborator|collaborators|opportunities|discover|directory|network)\b/i}
