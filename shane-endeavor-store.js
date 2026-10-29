@@ -41,5 +41,13 @@
    const errors=engine.validate(spec);if(errors.length)throw Error("Stored composition invalid: "+errors.join("; "));
    return {id,title:data.title,vision:data.idea,spec,conversation:conversationState().unpack(spec).turns,persisted:true};
  }
- return Object.freeze({save,load});
+ async function list(client){
+   const userId=await owner(client);
+   const {data,error}=await client.from("shane_endeavors").select("id,owner_id,title,updated_at").eq("owner_id",userId).order("updated_at",{ascending:false}).limit(100);
+   if(error)throw Error("Could not list endeavors: "+error.message);
+   if(!Array.isArray(data))throw Error("Unexpected endeavor list response");
+   if(data.some(item=>item.owner_id!==userId))throw Error("Endeavor ownership verification failed");
+   return data.map(item=>({id:item.id,title:item.title,updatedAt:item.updated_at}));
+ }
+ return Object.freeze({save,load,list});
 });
