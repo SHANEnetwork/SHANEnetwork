@@ -105,6 +105,7 @@ jobs:
           if(source.includes("document.getElementById('auditWebsite').onclick="))throw new Error('Legacy readiness handler must not compete with the actionable checker');
           if(!source.includes('readinessRefreshTimer=setTimeout(showWebsiteReadiness,350)'))throw new Error('Readiness report must refresh while website fields change');
           if(!builder.includes('id="openPreviewTab"')||!source.includes('window.open(url,"_blank","noopener")'))throw new Error('Full-size page preview must remain available');
+          if(!builder.includes('id="workspaceReadiness"')||!builder.includes('id="workspaceCheck"')||!source.includes('function updateWorkspaceReadiness(){'))throw new Error('Project workspace must show actionable launch readiness');
           for(const name of ['Additional page limit','Page content','Unique page names'])if(!source.includes('"'+name+'"'))throw new Error('Readiness report must check '+name);
           for(const name of ['Starter content','Gallery image links'])if(!source.includes('"'+name+'"'))throw new Error('Readiness report must check '+name);
           const audit=runInNewContext(source.slice(readinessStart,readinessEnd)+';websiteReadiness',{document:{getElementById:id=>nodes[id]},URL},{timeout:2000});
