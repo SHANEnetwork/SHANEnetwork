@@ -1,0 +1,39 @@
+/* SHANE shared visual language. Creative, human, accessible. Non-destructive progressive enhancement.
+   Product direction: vision.html and SHANE-PRODUCT-CONTRACT.md.
+   Avoid inventing functional features in styling. */
+:root{--shane-ink:#183b4b;--shane-deep:#123f55;--shane-ocean:#116e82;--shane-leaf:#31785b;--shane-gold:#d9a34d;--shane-cream:#fffaf0;--shane-paper:#fffdf7;--shane-mist:#e8f4ef;--shane-outline:#c8dfd7;--shane-shadow:0 12px 35px rgba(15,65,72,.09);color-scheme:light}
+html{scroll-behavior:smooth}
+body{color:var(--shane-ink);background-color:#f1f7f2;background-image:radial-gradient(ellipse at 88% 0%,rgba(252,212,132,.23),transparent 35%),radial-gradient(ellipse at 0% 35%,rgba(123,198,189,.18),transparent 43%),linear-gradient(165deg,#eef8f4 0%,#fffaf0 52%,#eff6f2 100%);background-attachment:fixed;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.6}
+body,button,input,textarea,select{font-size:16px}
+h1,h2,h3{letter-spacing:-.025em;text-wrap:balance}
+h1,h2{font-family:Georgia,"Palatino Linotype",serif}
+h1{color:#154e66;line-height:1.15}
+h2{color:#155c6a}
+h3{color:#246b63}
+p,li{overflow-wrap:break-word}
+a{color:#0e6b80;text-underline-offset:3px}
+a:hover{color:#a16b24}
+:focus-visible{outline:3px solid #c68b2e!important;outline-offset:3px}
+header{border-radius:0 0 22px 22px;box-shadow:0 7px 30px rgba(10,55,64,.12)}
+header h1,header h2,header h3{color:inherit}
+header a,header a:visited{color:inherit}
+header a:hover{color:#ffdf91}
+nav{line-height:1.9}
+nav a{transition:color .18s ease,background .18s ease,transform .18s ease}
+section,article,.card,.panel,.box{border-color:var(--shane-outline);box-shadow:var(--shane-shadow)}
+section,article,.card,.panel{border-radius:18px}
+input:not([type=checkbox]):not([type=radio]):not([type=color]):not([type=range]),textarea,select{border:1px solid #b5d2cc;border-radius:12px;background:#fffefb;color:#183b4b;padding:11px 13px;max-width:100%;box-sizing:border-box;box-shadow:inset 0 1px 2px rgba(22,74,78,.04)}
+input:focus,textarea:focus,select:focus{border-color:#138b88;box-shadow:0 0 0 3px rgba(23,137,135,.13)}
+input::placeholder,textarea::placeholder{color:#697e80}
+button,.button,a.button,input[type=submit]{border-radius:12px;transition:transform .16s ease,box-shadow .16s ease,filter .16s ease}
+button:not(:disabled):hover,.button:hover,a.button:hover,input[type=submit]:hover{transform:translateY(-1px);filter:saturate(1.1);box-shadow:0 7px 18px rgba(17,85,89,.15)}
+button:disabled{opacity:.65;cursor:not-allowed}
+label{color:inherit}
+fieldset{border:1px solid var(--shane-outline);border-radius:15px}
+legend{font-weight:700;color:#145e6e;padding:0 8px}
+table{border-collapse:collapse}
+th{background:#e5f4ee;color:#165f66}
+td,th{border-color:#c9ded6}
+footer{color:inherit}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+@media(max-width:680px){header{border-radius:0 0 15px 15px}h1{font-size:clamp(1.7rem,7vw,2.7rem)}section,article{max-width:100%}}
