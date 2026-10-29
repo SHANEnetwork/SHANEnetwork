@@ -1,0 +1,11 @@
+const assert=require("node:assert/strict");
+const vision=require("../shane-vision.js");
+const research=vision.interpret("An international research association with members, publications, conferences and collaborators",{endeavorId:"a",title:"Research"});
+const sports=vision.interpret("A sports league with tournaments and discussions",{endeavorId:"b",title:"League"});
+assert.deepEqual(research.spec.modules.map(m=>m.type),["pages","memberships","projects","publications","events","discovery"]);
+assert.ok(sports.spec.modules.some(m=>m.type==="discussions"));
+assert.ok(sports.spec.modules.some(m=>m.type==="memberships"));
+assert.equal(research.provisioningStatus,"not_provisioned");
+assert.notEqual(research.spec.endeavorId,sports.spec.endeavorId);
+assert.throws(()=>vision.interpret("  "),/required/);
+console.log("PASS vision interpretation produces valid isolated unprovisioned composition plans");
