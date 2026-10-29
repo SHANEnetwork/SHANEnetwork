@@ -37,3 +37,23 @@ td,th{border-color:#c9ded6}
 footer{color:inherit}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
 @media(max-width:680px){header{border-radius:0 0 15px 15px}h1{font-size:clamp(1.7rem,7vw,2.7rem)}section,article{max-width:100%}}
+
+/* The home page is an invitation into a creative world, not a product catalog. */
+.shane-home-world{position:relative;isolation:isolate;overflow:hidden;min-height:460px;padding:clamp(32px,6vw,84px)!important;border:1px solid rgba(243,212,149,.65)!important;border-radius:28px!important;background:radial-gradient(ellipse at 85% 18%,rgba(255,217,139,.8),transparent 26%),radial-gradient(ellipse at 75% 75%,rgba(72,162,149,.37),transparent 35%),radial-gradient(ellipse at 6% 95%,rgba(76,146,181,.23),transparent 44%),linear-gradient(130deg,#f8f4e6 4%,#e8f6f0 49%,#e1f1f5 100%)!important;color:#184458!important;box-shadow:0 25px 70px rgba(13,70,79,.14)!important}
+.shane-home-world:before{content:"";position:absolute;z-index:-1;width:420px;height:420px;right:-80px;top:-160px;border:2px solid rgba(255,255,255,.5);border-radius:50%;box-shadow:0 0 0 42px rgba(255,255,255,.11),0 0 0 90px rgba(255,255,255,.08)}
+.shane-home-world h1{max-width:850px;margin:18px 0!important;font-family:Georgia,"Palatino Linotype",serif!important;font-size:clamp(2.6rem,6.5vw,5.7rem)!important;line-height:1.05!important;letter-spacing:-.045em;color:#164c64!important;text-shadow:0 2px 0 rgba(255,255,255,.5)}
+.shane-world-kicker{display:inline-flex;padding:7px 16px;background:rgba(255,255,255,.74);border:1px solid #d7e5d6;border-radius:30px;font-weight:750;color:#27705c;letter-spacing:.025em}
+.shane-home-world .shane-world-lead{max-width:690px;font-size:clamp(1.08rem,2vw,1.35rem);line-height:1.65;color:#275669!important}
+.shane-world-actions{display:flex;flex-wrap:wrap;gap:12px;margin:25px 0}
+.shane-home-world .shane-world-actions .button{display:inline-flex;align-items:center;justify-content:center;border-radius:30px!important;padding:14px 25px!important;background:linear-gradient(110deg,#167d78,#1a667b)!important;color:white!important;font-weight:750;text-decoration:none;box-shadow:0 7px 18px rgba(24,106,108,.18)}
+.shane-home-world .shane-world-actions .button.light{background:rgba(255,255,255,.85)!important;color:#1a5a70!important;border:1px solid #b9d7ce}
+.shane-home-world .shane-world-promise{max-width:690px;font-size:.96rem;color:#365e60!important}
+.shane-world-paths{display:flex;flex-wrap:wrap;gap:12px 23px;margin-top:30px;padding-top:17px;border-top:1px solid rgba(34,102,105,.22)}
+.shane-world-paths a{font-weight:650;color:#176875!important}
+#vision-first{position:relative;overflow:hidden;background:radial-gradient(ellipse at 98% 3%,rgba(255,218,151,.4),transparent 35%),linear-gradient(140deg,#fffdf6,#f1f9f5 65%,#edf6f9)!important;border:1px solid #cbded5!important;border-radius:24px!important;padding:clamp(20px,4vw,44px)!important;box-shadow:0 18px 45px rgba(18,84,84,.1)!important}
+#vision-first>h2{font-size:clamp(1.9rem,4vw,3.4rem)!important;line-height:1.16!important;color:#15556a!important}
+#visionPrompt{font-size:1.1rem!important;line-height:1.7!important;border:2px solid #a8d4c8!important;background:#fffefa!important;border-radius:18px!important;padding:20px!important}
+#visionGuide{background:linear-gradient(110deg,#177f77,#16718b)!important;color:#fff!important;border:0!important;border-radius:28px!important;padding:15px 27px!important;box-shadow:0 9px 24px rgba(20,100,102,.2)!important}
+#shane-idea-conversation{background:rgba(255,255,255,.83)!important;border-radius:20px!important}
+#shane-live-canvas{border-radius:20px!important;overflow:hidden}
+@media(max-width:680px){.shane-home-world{min-height:0}.shane-world-actions{flex-direction:column}.shane-world-actions .button{width:100%}}
