@@ -76,6 +76,14 @@ jobs:
           nodes.pages.value=['Portfolio | First','Portfolio | Second'].join(String.fromCharCode(10));
           const duplicates=multi.buildMultiPage();
           if(duplicates[1].filename===duplicates[2].filename)throw new Error('Duplicate page titles overwrite export files');
+
+          // Validate that the ZIP exporter uses the standard ZIP headers and correct CRC-32.
+          const zipSource=source.slice(source.indexOf('function crc32(bytes){'),source.indexOf('function update(){'));
+          if(!zipSource.startsWith('function crc32(bytes){'))throw new Error('ZIP checksum helper missing');
+          const checksum=runInNewContext(zipSource+';crc32',{},{timeout:2000});
+          const known=new TextEncoder().encode('123456789');
+          if(checksum(known)!==0xcbf43926)throw new Error('ZIP CRC-32 failed known test vector');
+          if(!builder.includes('id="downloadPagesZip"')||!builder.includes('0x04034b50')||!builder.includes('0x02014b50')||!builder.includes('0x06054b50'))throw new Error('ZIP download wiring or archive headers missing');
           if(!builder.includes('status:"published",slug'))throw new Error('Publishing status missing');
           if(!builder.includes('.update({status:"draft"'))throw new Error('Unpublish status missing');
           if(!viewer.includes('.eq("status","published")'))throw new Error('Public viewer status filter missing');
