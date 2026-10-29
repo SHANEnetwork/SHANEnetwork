@@ -60,3 +60,6 @@ for (const name of ['builder.html', 'site.html', 'dashboard.html']) {
 
 assert.ok(builder.includes('if(selectedSiteId!==unpublishSiteId)'), 'Unpublish must cancel when the selected website changes');
 console.log('PASS unpublish selection-change safeguard');
+
+assert.ok(builder.includes('changed.id!==unpublishSiteId'), 'Unpublish must confirm the returned website ID');
+console.log('PASS unpublish confirms the updated website');
