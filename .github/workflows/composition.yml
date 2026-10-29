@@ -4,6 +4,8 @@ on:
     paths:
       - 'shane-composition.js'
       - 'tests/composition.cjs'
+      - 'tests/vision.cjs'
+      - 'shane-vision.js'
       - '.github/workflows/composition.yml'
   pull_request:
     paths:
@@ -21,3 +23,5 @@ jobs:
         with:
           node-version: '22'
       - run: node tests/composition.cjs
+      - run: node tests/vision.cjs
+      - run: node tests/builder-bridge.cjs
