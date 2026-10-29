@@ -11,7 +11,14 @@ function suggest(text){
   return mapping.filter(m=>m.patterns.test(String(text||""))).map(m=>m.id);
 }
 function apply(text){
-  const selected=suggest(text);
+  const plan=window.SHANEVision?.interpret(text);
+  const selected=plan?[
+    ...(plan.spec.modules.some(m=>m.type==="memberships")?["shaneModuleCommunity"]:[]),
+    ...(plan.spec.modules.some(m=>["messaging","discussions"].includes(m.type))?["shaneModuleConversation"]:[]),
+    ...(plan.spec.modules.some(m=>m.type==="events")?["shaneModuleEvents"]:[]),
+    ...(plan.spec.modules.some(m=>m.type==="discovery")?["shaneModuleDiscovery"]:[])
+  ]:suggest(text);
+  if(plan)window.SHANECurrentComposition=plan;
   for(const item of mapping){
     const input=document.getElementById(item.id);
     if(input)input.checked=selected.includes(item.id);
