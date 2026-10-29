@@ -25,3 +25,11 @@ A real person can describe an idea, receive an attractive editable website draft
 
 ## Implementation status note
 This document is the product contract, **not a claim that all features are implemented**. Current AI generation depends on account access and a configured provider; network links are not yet automatically provisioned private community services. Prioritize closing those gaps over adding more setup controls.
+
+## Invisible implementation and complete creative continuity
+- **Conversation is the workspace:** People must never have to copy chat text into setup forms. SHANE translates natural-language collaboration into internal project models, populated configuration, content, and working implementation offscreen. Advanced editing is optional.
+- **No silent truncation:** Never silently discard conversation, instructions, pages, revisions, or project material because of token, storage, page-count, or UI limits. Store full source material durably; use indexed retrieval, summaries, and bounded working context only as derived aids, never as replacements for originals. When a technical limit prevents an operation, explain it and preserve the original unchanged.
+- **Continuity across sessions:** Save the conversation, evolving project specification, generated assets, approved decisions, and version history together, with explicit privacy and ownership controls. A browser session alone is not durable project storage.
+- **Portable ownership:** Support persistent online projects and downloadable, usable exports; local-device persistence may supplement but must not be misrepresented as cloud backup. Clearly distinguish draft, saved, exported, and published states.
+- **Automatic orchestration:** SHANE should select and connect already supported messaging, community, collaboration, and other capabilities based on the endeavor's needs, without asking users to configure them. Verify that each integration works for that specific endeavor before representing it as available.
+- **Never confuse an implementation plan with completion:** These are mandatory product requirements, not claims that current SHANE already implements them.
