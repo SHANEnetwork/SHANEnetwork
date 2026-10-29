@@ -15,6 +15,8 @@ on:
       - 'shane-conversation-sync.js'
       - 'shane-provision.js'
       - 'tests/provision.cjs'
+      - 'shane-organization-provision.js'
+      - 'tests/organization-provision.cjs'
       - '.github/workflows/composition.yml'
   pull_request:
     paths:
@@ -37,4 +39,5 @@ jobs:
       - run: node tests/conversation-state.cjs
       - run: node tests/endeavor-store.cjs
       - run: node tests/provision.cjs
+      - run: node tests/organization-provision.cjs
       - run: node tests/builder-bridge.cjs
