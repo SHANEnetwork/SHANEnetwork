@@ -43,6 +43,25 @@ jobs:
           const generator=builder.slice(builder.indexOf('function build(includeAdditionalPages=true){'),builder.indexOf('function buildMultiPage(){'));
           if(!generator.includes('</body></html>'))throw new Error('Builder export HTML template closing structure missing');
           if(!builder.includes('const original=build(false)'))throw new Error('Multi-page export must omit additional page content from homepage');
+
+          // Exercise the real generator with a minimal DOM stub to catch broken exports.
+          const scriptBlocks=[...builder.matchAll(/<script\\b([^>]*)>([\\s\\S]*?)<\\/script>/gi)];
+          const source=scriptBlocks.map(m=>m[2]).find(s=>s.includes('function build(includeAdditionalPages=true){'));
+          if(!source)throw new Error('Website generator script not found');
+          const start=source.indexOf('function esc(');
+          const end=source.indexOf('function buildMultiPage(){');
+          if(start<0||end<start)throw new Error('Cannot isolate generator for export test');
+          const {runInNewContext}=await import('node:vm');
+          const fields={business:'Example Studio',tagline:'An example',about:'About our work',services:'Design\\nResearch',pages:'Portfolio | Portfolio content\\nEvents | Events content',email:'hello@example.com',color:'#2458a6',brandColor:'#2458a6',brandFont:'modern',backgroundStyle:'default',backgroundColor:'#ffffff',backgroundColor2:'#eeeeee'};
+          const nodes=Object.fromEntries(Object.entries(fields).map(([id,value])=>[id,{value,checked:false}]));
+          nodes.contact={checked:true};nodes.useBrandColor={checked:false};
+          const run=runInNewContext(source.slice(start,end)+';({build,esc})',{document:{getElementById:id=>nodes[id]},Date},{timeout:2000});
+          const one=run.build();
+          const home=run.build(false);
+          if(!one.includes('Portfolio content')||!one.includes('Events content'))throw new Error('Single-page export lost additional content');
+          if(home.includes('Portfolio content')||home.includes('Events content'))throw new Error('Multi-page homepage duplicates additional content');
+          if(!home.includes('About our work')||!home.includes('What we offer'))throw new Error('Multi-page homepage lost core content');
+          if(!one.includes('mailto:hello@example.com'))throw new Error('Website contact link missing');
           if(!builder.includes('status:"published",slug'))throw new Error('Publishing status missing');
           if(!builder.includes('.update({status:"draft"'))throw new Error('Unpublish status missing');
           if(!viewer.includes('.eq("status","published")'))throw new Error('Public viewer status filter missing');
