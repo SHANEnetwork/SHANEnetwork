@@ -21,3 +21,22 @@ const cases = [
 for (const [name, passed] of cases) console.log((passed ? 'PASS' : 'FAIL') + ' ' + name);
 assert.equal(cases.filter(([, passed]) => !passed).length, 0, 'Website lifecycle contract regression');
 console.log('All ' + cases.length + ' static website lifecycle checks passed.');
+
+const { spawnSync } = require('node:child_process');
+for (const name of ['builder.html', 'site.html', 'dashboard.html']) {
+  const html = read(name);
+  const scripts = [...html.matchAll(/<script\\b([^>]*)>([\\s\\S]*?)<\\/script>/gi)];
+  assert.ok(scripts.length, name + ' must include scripts');
+  let checked = 0;
+  for (const [, attributes, source] of scripts) {
+    if (!source.trim()) continue;
+    const isModule = /\\btype\\s*=\\s*["']module["']/i.test(attributes);
+    const result = spawnSync(process.execPath, [
+      '--check', '--input-type=' + (isModule ? 'module' : 'commonjs')
+    ], { input: source, encoding: 'utf8' });
+    checked++;
+    assert.equal(result.status, 0,
+      name + ' inline script ' + checked + ' syntax error:\\n' + result.stderr);
+  }
+  console.log('PASS ' + name + ': ' + checked + ' inline JavaScript scripts parse');
+}
