@@ -33,13 +33,22 @@
  async function load(client,id){
    const userId=await owner(client);
    if(typeof id!=="string"||!id.trim())throw Error("Endeavor ID required");
-   const {data,error}=await client.from("shane_endeavors").select("id,owner_id,title,idea,plan").eq("id",id).eq("owner_id",userId).single();
+   const {data,error}=await client.from("shane_endeavors").select("id,owner_id,title,idea,plan,linked_site_id").eq("id",id).eq("owner_id",userId).single();
    if(error)throw Error("Could not load endeavor: "+error.message);
    if(!data||data.owner_id!==userId)throw Error("Endeavor ownership verification failed");
    let spec;try{spec=JSON.parse(data.plan)}catch{throw Error("Stored composition is not valid JSON")}
    if(spec.endeavorId!==id&&spec.endeavorId!=="unsaved-draft")throw Error("Stored endeavor identity mismatch");
    const errors=engine.validate(spec);if(errors.length)throw Error("Stored composition invalid: "+errors.join("; "));
-   return {id,title:data.title,vision:data.idea,spec,conversation:conversationState().unpack(spec).turns,persisted:true};
+   return {id,title:data.title,vision:data.idea,spec,conversation:conversationState().unpack(spec).turns,linkedSiteId:data.linked_site_id,persisted:true};
+ }
+ async function linkSite(client,endeavorId,siteId){
+   const userId=await owner(client);
+   if(!endeavorId||!siteId)throw Error("Endeavor and site IDs required");
+   const {data:site,error:siteError}=await client.from("shane_sites").select("id,owner_id,status").eq("id",siteId).eq("owner_id",userId).single();
+   if(siteError||!site||site.owner_id!==userId||site.status!=="draft")throw Error("Private site ownership/status verification failed");
+   const {data,error}=await client.from("shane_endeavors").update({linked_site_id:siteId}).eq("id",endeavorId).eq("owner_id",userId).select("id,owner_id,linked_site_id").single();
+   if(error||!data||data.owner_id!==userId||data.linked_site_id!==siteId)throw Error("Could not link private site to endeavor");
+   return {endeavorId:data.id,siteId:data.linked_site_id};
  }
  async function list(client){
    const userId=await owner(client);
@@ -49,5 +58,5 @@
    if(data.some(item=>item.owner_id!==userId))throw Error("Endeavor ownership verification failed");
    return data.map(item=>({id:item.id,title:item.title,updatedAt:item.updated_at}));
  }
- return Object.freeze({save,load,list});
+ return Object.freeze({save,load,list,linkSite});
 });
