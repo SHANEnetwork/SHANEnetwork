@@ -62,6 +62,20 @@ jobs:
           if(home.includes('Portfolio content')||home.includes('Events content'))throw new Error('Multi-page homepage duplicates additional content');
           if(!home.includes('About our work')||!home.includes('What we offer'))throw new Error('Multi-page homepage lost core content');
           if(!one.includes('mailto:hello@example.com'))throw new Error('Website contact link missing');
+
+          // Also execute multi-page generation and verify filenames, navigation, and content isolation.
+          const multiSource=source.slice(start,source.indexOf('function downloadMultiPage(){'));
+          const multi=runInNewContext('const $=id=>document.getElementById(id);'+multiSource+';({buildMultiPage})',{document:{getElementById:id=>nodes[id]},Date},{timeout:2000});
+          const exported=multi.buildMultiPage();
+          if(exported.length!==3)throw new Error('Expected homepage and two additional HTML pages');
+          if(exported.map(p=>p.filename).join(',')!=='index.html,portfolio.html,events.html')throw new Error('Multi-page export filenames incorrect');
+          if(!exported[0].html.includes('href="portfolio.html"')||!exported[0].html.includes('href="events.html"'))throw new Error('Homepage navigation links missing');
+          if(exported[0].html.includes('Portfolio content')||exported[0].html.includes('Events content'))throw new Error('Multi-page homepage contains page body content');
+          if(!exported[1].html.includes('Portfolio content')||exported[1].html.includes('Events content'))throw new Error('Portfolio page content isolation failed');
+          if(!exported[2].html.includes('Events content')||exported[2].html.includes('Portfolio content'))throw new Error('Events page content isolation failed');
+          nodes.pages.value='Portfolio | First\\nPortfolio | Second';
+          const duplicates=multi.buildMultiPage();
+          if(duplicates[1].filename===duplicates[2].filename)throw new Error('Duplicate page titles overwrite export files');
           if(!builder.includes('status:"published",slug'))throw new Error('Publishing status missing');
           if(!builder.includes('.update({status:"draft"'))throw new Error('Unpublish status missing');
           if(!viewer.includes('.eq("status","published")'))throw new Error('Public viewer status filter missing');
