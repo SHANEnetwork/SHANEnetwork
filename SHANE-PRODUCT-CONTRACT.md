@@ -33,3 +33,11 @@ This document is the product contract, **not a claim that all features are imple
 - **Portable ownership:** Support persistent online projects and downloadable, usable exports; local-device persistence may supplement but must not be misrepresented as cloud backup. Clearly distinguish draft, saved, exported, and published states.
 - **Automatic orchestration:** SHANE should select and connect already supported messaging, community, collaboration, and other capabilities based on the endeavor's needs, without asking users to configure them. Verify that each integration works for that specific endeavor before representing it as available.
 - **Never confuse an implementation plan with completion:** These are mandatory product requirements, not claims that current SHANE already implements them.
+
+## Reuse and adaptation of existing SHANE programs
+- Treat existing SHANE programs, page structures, forms, database schemas, and supported network capabilities as reusable implementation foundations, not questionnaires that people must complete.
+- Interpret the person's conversation into structured, validated project data. Automatically populate the underlying form fields and configurations, then save those structures and generated content without requiring manual transcription.
+- For each endeavor, instantiate and adapt supported components (membership, conversations, messages, meetings, and others only where actually implemented and verified), keeping each project's configuration and data isolated.
+- On subsequent conversational requests, modify only the affected project configuration, content, or scoped component while preserving unrelated data and working functionality. Keep revisions reversible.
+- Shared program changes must be separately tested and deployed; do not let an endeavor-specific request silently rewrite shared production code or other people's projects.
+- Persist the complete conversation and project history alongside the structured state; form fields and derived summaries must not become the only surviving record.
