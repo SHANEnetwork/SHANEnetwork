@@ -114,6 +114,8 @@ jobs:
           if(!source.includes('let refreshSitesSequence=0;')||!source.includes('const refreshSequence=++refreshSitesSequence')||!source.includes('if(refreshSequence!==refreshSitesSequence)return'))throw new Error('Overlapping project refreshes must ignore stale responses');
           if(!source.includes('Saved the earlier editor version. You have newer unsaved edits')||!source.includes('Newer editor changes remain unsaved and are not published.'))throw new Error('Save and publish must warn about edits made during asynchronous requests');
           if(!source.includes('const hasContent=!!(')||!source.includes('["journeyCreate",hasContent]'))throw new Error('Launch journey should not mark a blank website as created');
+          const publicViewer=fs.readFileSync('site.html','utf8');
+          for(const token of ['id="sharePage"','id="shareStatus"','navigator.share','navigator.clipboard.writeText','pages[n].title+" | "'])if(!publicViewer.includes(token))throw new Error('Public website sharing or page title missing: '+token);
           for(const name of ['Additional page limit','Page content','Unique page names'])if(!source.includes('"'+name+'"'))throw new Error('Readiness report must check '+name);
           for(const name of ['Starter content','Gallery image links'])if(!source.includes('"'+name+'"'))throw new Error('Readiness report must check '+name);
           const audit=runInNewContext(source.slice(readinessStart,readinessEnd)+';websiteReadiness',{document:{getElementById:id=>nodes[id]},URL},{timeout:2000});
