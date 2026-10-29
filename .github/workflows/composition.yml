@@ -8,6 +8,8 @@ on:
       - 'shane-vision.js'
       - 'shane-endeavor-adapter.js'
       - 'tests/endeavor-adapter.cjs'
+      - 'shane-endeavor-store.js'
+      - 'tests/endeavor-store.cjs'
       - '.github/workflows/composition.yml'
   pull_request:
     paths:
@@ -27,4 +29,5 @@ jobs:
       - run: node tests/composition.cjs
       - run: node tests/vision.cjs
       - run: node tests/endeavor-adapter.cjs
+      - run: node tests/endeavor-store.cjs
       - run: node tests/builder-bridge.cjs
