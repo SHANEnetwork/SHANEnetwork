@@ -57,3 +57,6 @@ for (const name of ['builder.html', 'site.html', 'dashboard.html']) {
   assert.deepEqual(missing, [], name + ' references missing HTML element IDs');
   console.log('PASS ' + name + ': ' + references.length + ' direct DOM element references resolved');
 }
+
+assert.ok(builder.includes('if(selectedSiteId!==unpublishSiteId)'), 'Unpublish must cancel when the selected website changes');
+console.log('PASS unpublish selection-change safeguard');
