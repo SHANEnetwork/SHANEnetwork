@@ -84,6 +84,22 @@ jobs:
           const known=new TextEncoder().encode('123456789');
           if(checksum(known)!==0xcbf43926)throw new Error('ZIP CRC-32 failed known test vector');
           if(!builder.includes('id="downloadPagesZip"')||!builder.includes('0x04034b50')||!builder.includes('0x02014b50')||!builder.includes('0x06054b50'))throw new Error('ZIP download wiring or archive headers missing');
+
+          // Exercise the ZIP download handler and validate the archive with Python's ZIP reader.
+          const {writeFileSync}=await import('node:fs');
+          const zipHandler=source.slice(source.indexOf('document.getElementById("downloadPagesZip").onclick='),source.indexOf('function update(){'));
+          const mockButton={disabled:false};
+          let savedBlob=null;
+          const fakeUrl={createObjectURL:blob=>{savedBlob=blob;return 'blob:smoke'},revokeObjectURL:()=>{}};
+          const fakeDocument={getElementById:id=>id==='downloadPagesZip'?mockButton:id==='status'?{set textContent(v){}}:nodes[id],createElement:()=>({click(){},set href(v){},set download(v){}})};
+          const context={document:fakeDocument,Date,TextEncoder,Uint8Array,Blob,URL:fakeUrl,setTimeout:()=>0};
+          const exportFn=runInNewContext('const $=id=>document.getElementById(id);'+multiSource+';'+zipHandler+';({download:document.getElementById("downloadPagesZip").onclick})',context,{timeout:2000});
+          nodes.pages.value=['Portfolio | Portfolio content','Events | Events content'].join(String.fromCharCode(10));
+          await exportFn.download();
+          if(!savedBlob)throw new Error('ZIP export did not produce a Blob');
+          writeFileSync('/tmp/shane-ci-export.zip',Buffer.from(await savedBlob.arrayBuffer()));
+          const check=spawnSync('python3',['-c','import zipfile; z=zipfile.ZipFile("/tmp/shane-ci-export.zip"); assert z.testzip() is None; assert set(z.namelist())=={"index.html","portfolio.html","events.html"}; assert b"Portfolio content" in z.read("portfolio.html"); assert b"Events content" in z.read("events.html")'],{encoding:'utf8'});
+          if(check.status!==0)throw new Error('ZIP archive failed extraction test: '+check.stderr);
           if(!builder.includes('status:"published",slug'))throw new Error('Publishing status missing');
           if(!builder.includes('.update({status:"draft"'))throw new Error('Unpublish status missing');
           if(!viewer.includes('.eq("status","published")'))throw new Error('Public viewer status filter missing');
