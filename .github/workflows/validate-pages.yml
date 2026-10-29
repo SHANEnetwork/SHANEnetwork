@@ -101,6 +101,13 @@ jobs:
           const multiSource=source.slice(start,source.indexOf('function downloadMultiPage(){'));
           const multi=runInNewContext('const $=id=>document.getElementById(id);'+multiSource+';({buildMultiPage})',{document:{getElementById:id=>nodes[id]},Date},{timeout:2000});
           const exported=multi.buildMultiPage();
+          nodes.layoutStyle.value='minimal';
+          const minimalPages=multi.buildMultiPage();
+          if(!minimalPages.every(p=>p.html.includes('max-width:760px')))throw new Error('Minimal layout lost on an exported page');
+          nodes.layoutStyle.value='bold';
+          const boldPages=multi.buildMultiPage();
+          if(!boldPages.every(p=>p.html.includes('max-width:1050px')))throw new Error('Bold layout lost on an exported page');
+          nodes.layoutStyle.value='classic';
           if(exported.length!==3)throw new Error('Expected homepage and two additional HTML pages');
           if(exported.map(p=>p.filename).join(',')!=='index.html,portfolio.html,events.html')throw new Error('Multi-page export filenames incorrect');
           if(!exported[0].html.includes('href="portfolio.html"')||!exported[0].html.includes('href="events.html"'))throw new Error('Homepage navigation links missing');
