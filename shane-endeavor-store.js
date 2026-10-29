@@ -18,7 +18,9 @@
    const errors=engine.validate(spec);if(errors.length)throw Error(errors.join("; "));
    if(typeof vision!=="string"||!vision.trim())throw Error("Vision required");
    if(spec.endeavorId!=="unsaved-draft"&&endeavorId&&spec.endeavorId!==endeavorId)throw Error("Endeavor identity mismatch");
-   const payload={owner_id:userId,title:title||spec.title,idea:vision,plan:conversation===undefined?JSON.stringify(spec):conversationState().pack(spec,conversation)};
+   const prior=endeavorId?await load(client,endeavorId):null;
+   const stableSpec=prior?.linkedOrganizationId?{...spec,shaneOrganizationId:prior.linkedOrganizationId}:spec;
+   const payload={owner_id:userId,title:title||spec.title,idea:vision,plan:conversation===undefined?JSON.stringify(stableSpec):conversationState().pack(stableSpec,conversation)};
    let request;
    if(endeavorId){
      request=client.from("shane_endeavors").update(payload).eq("id",endeavorId).eq("owner_id",userId).select("id,owner_id,title,idea,plan").single();
@@ -39,7 +41,7 @@
    let spec;try{spec=JSON.parse(data.plan)}catch{throw Error("Stored composition is not valid JSON")}
    if(spec.endeavorId!==id&&spec.endeavorId!=="unsaved-draft")throw Error("Stored endeavor identity mismatch");
    const errors=engine.validate(spec);if(errors.length)throw Error("Stored composition invalid: "+errors.join("; "));
-   return {id,title:data.title,vision:data.idea,spec,conversation:conversationState().unpack(spec).turns,linkedSiteId:data.linked_site_id,persisted:true};
+   return {id,title:data.title,vision:data.idea,spec,conversation:conversationState().unpack(spec).turns,linkedSiteId:data.linked_site_id,linkedOrganizationId:spec.shaneOrganizationId||null,persisted:true};
  }
  async function linkSite(client,endeavorId,siteId){
    const userId=await owner(client);
@@ -50,6 +52,17 @@
    if(error||!data||data.owner_id!==userId||data.linked_site_id!==siteId)throw Error("Could not link private site to endeavor");
    return {endeavorId:data.id,siteId:data.linked_site_id};
  }
+ async function linkOrganization(client,endeavorId,organizationId){
+   const userId=await owner(client);
+   if(!endeavorId||!organizationId)throw Error("Endeavor and organization IDs required");
+   const {data:org,error:orgError}=await client.from("shane_organizations").select("id,owner_id").eq("id",organizationId).eq("owner_id",userId).single();
+   if(orgError||!org||org.owner_id!==userId)throw Error("Organization ownership verification failed");
+   const saved=await load(client,endeavorId);
+   const spec={...saved.spec,shaneOrganizationId:organizationId};
+   const {data,error}=await client.from("shane_endeavors").update({plan:JSON.stringify(spec)}).eq("id",endeavorId).eq("owner_id",userId).select("id,owner_id,plan").single();
+   if(error||!data||data.owner_id!==userId)throw Error("Could not link organization to endeavor");
+   return {endeavorId:data.id,organizationId};
+ }
  async function list(client){
    const userId=await owner(client);
    const {data,error}=await client.from("shane_endeavors").select("id,owner_id,title,updated_at").eq("owner_id",userId).order("updated_at",{ascending:false}).limit(100);
@@ -58,5 +71,5 @@
    if(data.some(item=>item.owner_id!==userId))throw Error("Endeavor ownership verification failed");
    return data.map(item=>({id:item.id,title:item.title,updatedAt:item.updated_at}));
  }
- return Object.freeze({save,load,list,linkSite});
+ return Object.freeze({save,load,list,linkSite,linkOrganization});
 });
