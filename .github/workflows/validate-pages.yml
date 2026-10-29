@@ -121,6 +121,7 @@ jobs:
           nodes.gallery.value='https://example.org/photo.jpg';
           if(audit().find(x=>x.name==='Gallery descriptions')?.ok!==false)throw new Error('Readiness checker missed missing image description');
           nodes.gallery.value='https://example.org/photo.jpg | Community gathering';
+          nodes.pages.value=fields.pages;
 
           // Also execute multi-page generation and verify filenames, navigation, and content isolation.
           const multiSource=source.slice(start,source.indexOf('function downloadMultiPage(){'));
