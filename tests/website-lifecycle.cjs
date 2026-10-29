@@ -63,3 +63,7 @@ console.log('PASS unpublish selection-change safeguard');
 
 assert.ok(builder.includes('changed.id!==unpublishSiteId'), 'Unpublish must confirm the returned website ID');
 console.log('PASS unpublish confirms the updated website');
+
+assert.ok(builder.includes('data.id!==approvedSiteId'), 'Publishing must confirm the returned website ID before sharing the link');
+assert.ok(builder.includes('websiteReadiness().filter(check=>!check.ok)'), 'Publishing must check editorial readiness');
+console.log('PASS publication confirmation and readiness safeguards');
