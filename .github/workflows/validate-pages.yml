@@ -55,8 +55,13 @@ jobs:
           const fields={business:'Example Studio',tagline:'An example',about:'About our work',services:['Design','Research'].join(String.fromCharCode(10)),pages:['Portfolio | Portfolio content','Events | Events content'].join(String.fromCharCode(10)),email:'hello@example.com',color:'#2458a6',brandColor:'#2458a6',brandFont:'modern',backgroundStyle:'default',backgroundColor:'#ffffff',backgroundColor2:'#eeeeee'};
           const nodes=Object.fromEntries(Object.entries(fields).map(([id,value])=>[id,{value,checked:false}]));
           nodes.contact={checked:true};nodes.useBrandColor={checked:false};
+          for(const id of ['shaneModuleCommunity','shaneModuleConversation','shaneModuleEvents','shaneModuleDiscovery'])nodes[id]={checked:false};
           const run=runInNewContext('const $=id=>document.getElementById(id);'+source.slice(start,end)+';({build,esc})',{document:{getElementById:id=>nodes[id]},Date},{timeout:2000});
           const one=run.build();
+          nodes.shaneModuleEvents.checked=true;
+          if(!run.build().includes('https://shanenetwork.github.io/SHANEnetwork/community-feed.html'))throw new Error('Selected network module missing from export');
+          nodes.shaneModuleEvents.checked=false;
+          if(run.build().includes('https://shanenetwork.github.io/SHANEnetwork/community-feed.html'))throw new Error('Unselected network module leaked into export');
           const home=run.build(false);
           if(!one.includes('Portfolio content')||!one.includes('Events content'))throw new Error('Single-page export lost additional content');
           if(home.includes('Portfolio content')||home.includes('Events content'))throw new Error('Multi-page homepage duplicates additional content');
