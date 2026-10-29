@@ -67,3 +67,7 @@ console.log('PASS unpublish confirms the updated website');
 assert.ok(builder.includes('data.id!==approvedSiteId'), 'Publishing must confirm the returned website ID before sharing the link');
 assert.ok(builder.includes('websiteReadiness().filter(check=>!check.ok)'), 'Publishing must check editorial readiness');
 console.log('PASS publication confirmation and readiness safeguards');
+
+assert.ok(builder.includes('The website save could not be confirmed.'), 'New website saves must require a returned record');
+assert.ok(builder.includes('The website copy could not be confirmed.'), 'Duplicating websites must require a returned record');
+console.log('PASS new-site and duplicate confirmation safeguards');
