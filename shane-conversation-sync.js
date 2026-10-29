@@ -24,6 +24,7 @@ async function save(){
   try{
    const previousSite=JSON.parse(sessionStorage.getItem(siteKey)||"null");
    const site=await window.SHANEProvision.provision(client,{spec:inferred.spec,vision,siteId:previousSite?.endeavorId===result.id?previousSite.siteId:undefined});
+   await window.SHANEEndeavorStore.linkSite(client,result.id,site.siteId);
    sessionStorage.setItem(siteKey,JSON.stringify({endeavorId:result.id,siteId:site.siteId}));
    status("Your conversation and private website foundation are saved. Additional services are not yet provisioned; nothing was published.");
   }catch(siteError){
@@ -42,6 +43,7 @@ async function resume(){
   if(current?.turns?.length&&!confirm("Replace this browser session's conversation with your saved conversation? Your website draft will not be changed."))return;
   document.dispatchEvent(new CustomEvent("shane:conversation-restore",{detail:{turns:result.conversation,draftReady:false}}));
   window.SHANECurrentComposition={spec:result.spec,sourceVision:result.vision,provisioningStatus:"not_provisioned"};
+  if(result.linkedSiteId)sessionStorage.setItem(siteKey,JSON.stringify({endeavorId:result.id,siteId:result.linkedSiteId}));
   status("Your private conversation has been restored. The website draft remains separate.");
  }catch(e){status("Could not resume: "+e.message)}
 }
