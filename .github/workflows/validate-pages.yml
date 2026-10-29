@@ -164,6 +164,7 @@ jobs:
           if(!builder.includes('const approvedContent=JSON.stringify(getSite())')||!builder.includes('if(!reviewStillValid())'))throw new Error('Publishing must reject stale or switched reviewed content');
           if(!builder.includes('id="autoPreview"')||!builder.includes('function scheduleAutoPreview(event)')||!builder.includes('clearTimeout(autoPreviewTimer)'))throw new Error('Optional debounced live preview wiring missing');
           if(!builder.includes('id="workspaceNextAction"')||!builder.includes('Suggested next step: Save my progress'))throw new Error('Workspace next-action guidance missing');
+          if(!builder.includes('function update(silent=false)')||!builder.includes('update(true);document.getElementById("autoPreviewStatus")'))throw new Error('Automatic preview must preserve important save and publish status messages');
 
           if(!builder.includes('status:"published",slug'))throw new Error('Publishing status missing');
           if(!builder.includes('.update({status:"draft"'))throw new Error('Unpublish status missing');
