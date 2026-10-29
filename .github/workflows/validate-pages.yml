@@ -16,7 +16,7 @@ jobs:
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           import {spawnSync} from 'node:child_process';
-          const pages=['index.html','builder.html','members.html','site.html','campaigns.html','payments.html','request-build.html'];
+          const pages=['index.html','builder.html','members.html','site.html','campaigns.html','payments.html','request-build.html','growth.html','contact.html'];
           let checked=0;
           for(const file of pages){
             if(!fs.existsSync(file))throw new Error('Missing '+file);
@@ -25,7 +25,7 @@ jobs:
               const [,attrs,code]=match;
               if(!code.trim()||/\bsrc\s*=/.test(attrs))continue;
               const result=spawnSync(process.execPath,['--check','--input-type=module'],{input:code,encoding:'utf8'});
-              if(result.status!==0)throw new Error(file+': '+result.stderr);
+              if(result.status!==0){const line=html.slice(0,match.index).split('\n').length;throw new Error(file+' inline script beginning at HTML line '+line+': '+result.stderr)}
               checked++;
             }
           }
@@ -40,6 +40,8 @@ jobs:
           }
           const builder=fs.readFileSync('builder.html','utf8');
           const viewer=fs.readFileSync('site.html','utf8');
+          const generator=builder.slice(builder.indexOf('function build(){'),builder.indexOf('function buildMultiPage(){'));
+          if(!generator.includes("'</body></html>'") && !generator.includes("+'</body></html>'"))throw new Error('Builder export HTML template closing structure missing');
           if(!builder.includes('status:"published",slug'))throw new Error('Publishing status missing');
           if(!builder.includes('.update({status:"draft"'))throw new Error('Unpublish status missing');
           if(!viewer.includes('.eq("status","published")'))throw new Error('Public viewer status filter missing');
