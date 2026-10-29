@@ -104,6 +104,7 @@ jobs:
           if(!source.includes('go.onclick=()=>{target.scrollIntoView')||!source.includes('go.setAttribute("aria-label","Edit "+check.name)'))throw new Error('Readiness report must navigate directly to editable issues');
           if(source.includes("document.getElementById('auditWebsite').onclick="))throw new Error('Legacy readiness handler must not compete with the actionable checker');
           if(!source.includes('readinessRefreshTimer=setTimeout(showWebsiteReadiness,350)'))throw new Error('Readiness report must refresh while website fields change');
+          for(const name of ['Additional page limit','Page content','Unique page names'])if(!source.includes('"'+name+'"'))throw new Error('Readiness report must check '+name);
           const audit=runInNewContext(source.slice(readinessStart,readinessEnd)+';websiteReadiness',{document:{getElementById:id=>nodes[id]}},{timeout:2000});
           nodes.business.value='Example Studio';
           nodes.tagline.value='Design and research for communities';
