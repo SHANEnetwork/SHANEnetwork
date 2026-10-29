@@ -107,6 +107,7 @@ jobs:
           for(const name of ['Additional page limit','Page content','Unique page names'])if(!source.includes('"'+name+'"'))throw new Error('Readiness report must check '+name);
           for(const name of ['Starter content','Gallery image links'])if(!source.includes('"'+name+'"'))throw new Error('Readiness report must check '+name);
           const audit=runInNewContext(source.slice(readinessStart,readinessEnd)+';websiteReadiness',{document:{getElementById:id=>nodes[id]}},{timeout:2000});
+          nodes.pages.value='';
           nodes.business.value='Example Studio';
           nodes.tagline.value='Design and research for communities';
           nodes.about.value='We work with community partners to design, research, and deliver thoughtful projects for real people.';
