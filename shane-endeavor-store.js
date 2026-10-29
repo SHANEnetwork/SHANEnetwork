@@ -6,18 +6,19 @@
 })(typeof globalThis!=="undefined"?globalThis:this,function(engine){
  "use strict";
  if(!engine)throw Error("Composition engine required");
+ function conversationState(){const state=typeof SHANEConversationState!=="undefined"?SHANEConversationState:(typeof require==="function"?require("./shane-conversation-state.js"):null);if(!state)throw Error("Conversation state module missing");return state;}
  async function owner(client){
    if(!client||!client.auth||!client.auth.getUser||!client.from)throw Error("Authenticated Supabase client required");
    const {data,error}=await client.auth.getUser();
    if(error||!data?.user?.id)throw Error("Sign in before saving your endeavor");
    return data.user.id;
  }
- async function save(client,{title,vision,spec,endeavorId}){
+ async function save(client,{title,vision,spec,endeavorId,conversation}){
    const userId=await owner(client);
    const errors=engine.validate(spec);if(errors.length)throw Error(errors.join("; "));
    if(typeof vision!=="string"||!vision.trim())throw Error("Vision required");
    if(spec.endeavorId!=="unsaved-draft"&&endeavorId&&spec.endeavorId!==endeavorId)throw Error("Endeavor identity mismatch");
-   const payload={owner_id:userId,title:title||spec.title,idea:vision,plan:JSON.stringify(spec)};
+   const payload={owner_id:userId,title:title||spec.title,idea:vision,plan:conversation===undefined?JSON.stringify(spec):conversationState().pack(spec,conversation)};
    let request;
    if(endeavorId){
      request=client.from("shane_endeavors").update(payload).eq("id",endeavorId).eq("owner_id",userId).select("id,owner_id,title,idea,plan").single();
@@ -38,7 +39,7 @@
    let spec;try{spec=JSON.parse(data.plan)}catch{throw Error("Stored composition is not valid JSON")}
    if(spec.endeavorId!==id&&spec.endeavorId!=="unsaved-draft")throw Error("Stored endeavor identity mismatch");
    const errors=engine.validate(spec);if(errors.length)throw Error("Stored composition invalid: "+errors.join("; "));
-   return {id,title:data.title,vision:data.idea,spec,persisted:true};
+   return {id,title:data.title,vision:data.idea,spec,conversation:conversationState().unpack(spec).turns,persisted:true};
  }
  return Object.freeze({save,load});
 });
