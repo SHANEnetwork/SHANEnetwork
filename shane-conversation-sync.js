@@ -23,7 +23,9 @@ async function save(){
   status("Your conversation is saved privately. Preparing your unpublished website foundation...");
   try{
    const previousSite=JSON.parse(sessionStorage.getItem(siteKey)||"null");
-   const site=await window.SHANEProvision.provision(client,{spec:inferred.spec,vision,siteId:previousSite?.endeavorId===result.id?previousSite.siteId:undefined});
+   let linkedId=previousSite?.endeavorId===result.id?previousSite.siteId:undefined;
+   if(!linkedId){const saved=await window.SHANEEndeavorStore.load(client,result.id);linkedId=saved.linkedSiteId||undefined}
+   const site=await window.SHANEProvision.provision(client,{spec:inferred.spec,vision,siteId:linkedId});
    await window.SHANEEndeavorStore.linkSite(client,result.id,site.siteId);
    sessionStorage.setItem(siteKey,JSON.stringify({endeavorId:result.id,siteId:site.siteId}));
    status("Your conversation and private website foundation are saved. Additional services are not yet provisioned; nothing was published.");
