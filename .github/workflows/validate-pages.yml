@@ -114,7 +114,7 @@ jobs:
           nodes.services.value='Design';
           nodes.email.value='hello@example.com';
           nodes.gallery.value='https://example.org/photo.jpg | Community gathering';
-          if(audit().some(x=>!x.ok))throw new Error('Readiness checker rejected complete sample website');
+          if(audit().some(x=>!x.ok))throw new Error('Readiness checker rejected sample: '+audit().filter(x=>!x.ok).map(x=>x.name).join(', '));
           nodes.email.value='not-an-email';
           if(audit().find(x=>x.name==='Contact')?.ok!==false)throw new Error('Readiness checker missed invalid contact email');
           nodes.email.value='hello@example.com';
