@@ -55,7 +55,7 @@ jobs:
           const fields={business:'Example Studio',tagline:'An example',about:'About our work',services:'Design\\nResearch',pages:'Portfolio | Portfolio content\\nEvents | Events content',email:'hello@example.com',color:'#2458a6',brandColor:'#2458a6',brandFont:'modern',backgroundStyle:'default',backgroundColor:'#ffffff',backgroundColor2:'#eeeeee'};
           const nodes=Object.fromEntries(Object.entries(fields).map(([id,value])=>[id,{value,checked:false}]));
           nodes.contact={checked:true};nodes.useBrandColor={checked:false};
-          const run=runInNewContext(source.slice(start,end)+';({build,esc})',{document:{getElementById:id=>nodes[id]},Date},{timeout:2000});
+          const run=runInNewContext('const $=id=>document.getElementById(id);'+source.slice(start,end)+';({build,esc})',{document:{getElementById:id=>nodes[id]},Date},{timeout:2000});
           const one=run.build();
           const home=run.build(false);
           if(!one.includes('Portfolio content')||!one.includes('Events content'))throw new Error('Single-page export lost additional content');
