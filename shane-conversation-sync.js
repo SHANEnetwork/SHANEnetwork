@@ -13,9 +13,12 @@ async function save(){
  const vision=snap.turns.filter(t=>t.role==="you").map(t=>t.text).join("\n");
  if(!vision.trim()){status("Describe your idea to SHANE before saving the conversation.");return}
  const current=window.SHANECurrentComposition;
- const inferred=current||window.SHANEVision.interpret(vision);
+ const inferred=window.SHANEVision.interpret(vision);
  const title=(get("siteName")?.value||get("name")?.value||inferred.spec.title||"My Endeavor").trim();
  const existing=sessionStorage.getItem(key);
+ const savedState=existing?await window.SHANEEndeavorStore.load(client,existing).catch(()=>null):null;
+ if(existing&&!savedState){status("This saved creation is unavailable in the signed-in account. Your conversation was not overwritten.");return}
+ if(savedState?.spec?.shaneOrganizationId)inferred.spec.shaneOrganizationId=savedState.spec.shaneOrganizationId;
  const button=get("shaneKeepConversation");button.disabled=true;
  try{
   const result=await window.SHANEEndeavorStore.save(client,{title,vision,spec:inferred.spec,conversation:snap.turns,endeavorId:existing||undefined});
