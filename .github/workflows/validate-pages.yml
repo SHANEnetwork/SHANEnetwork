@@ -168,6 +168,8 @@ jobs:
           if(updateHandler.includes('.eq("id",selectedSiteId)')||!updateHandler.includes('.eq("id",editingSiteId)')||!updateHandler.includes('JSON.stringify(getSite())!==JSON.stringify(content)'))throw new Error('Saving edits must target original project and reject changed editor content');
           const newSaveHandler=builder.slice(builder.indexOf('document.getElementById("saveSite").onclick='),builder.indexOf('document.getElementById("newBlankSite").onclick='));
           if(!newSaveHandler.includes('selectedSiteId===sourceProjectId&&JSON.stringify(getSite())===JSON.stringify(site)'))throw new Error('Creating a private copy must not replace a different active editor');
+          const duplicateHandler=builder.slice(builder.indexOf('document.getElementById("duplicateSite").onclick='),builder.indexOf('async function verifyPublicSite('));
+          if(!duplicateHandler.includes('selectedSiteId===sourceProjectId&&JSON.stringify(getSite())===JSON.stringify(originalContent)'))throw new Error('Duplicating a website must not overwrite a switched editor');
           if(!builder.includes('id="autoPreview"')||!builder.includes('function scheduleAutoPreview(event)')||!builder.includes('clearTimeout(autoPreviewTimer)'))throw new Error('Optional debounced live preview wiring missing');
           if(!builder.includes('id="workspaceNextAction"')||!builder.includes('Suggested next step: Save my progress'))throw new Error('Workspace next-action guidance missing');
           if(!builder.includes('function update(silent=false)')||!builder.includes('update(true);document.getElementById("autoPreviewStatus")'))throw new Error('Automatic preview must preserve important save and publish status messages');
