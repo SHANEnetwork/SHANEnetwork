@@ -71,3 +71,21 @@ console.log('PASS publication confirmation and readiness safeguards');
 assert.ok(builder.includes('The website save could not be confirmed.'), 'New website saves must require a returned record');
 assert.ok(builder.includes('The website copy could not be confirmed.'), 'Duplicating websites must require a returned record');
 console.log('PASS new-site and duplicate confirmation safeguards');
+
+const pageFiles = fs.readdirSync(root).filter(name => name.endsWith('.html'));
+const missingPageLinks = [];
+for (const file of pageFiles) {
+  const html = read(file);
+  for (const match of html.matchAll(/\\bhref\\s*=\\s*["']([^"']+)["']/gi)) {
+    const href = match[1].trim();
+    if (!href || href.startsWith('#') || /^(?:https?:|mailto:|tel:|javascript:|data:)/i.test(href)) continue;
+    const pathname = href.split(/[?#]/)[0];
+    if (!pathname || pathname.startsWith('/') || pathname.includes('\\u0024{')) continue;
+    const destination = path.resolve(root, decodeURIComponent(pathname));
+    if (!destination.startsWith(root + path.sep) || !fs.existsSync(destination)) {
+      missingPageLinks.push(file + ' -> ' + href);
+    }
+  }
+}
+assert.deepEqual(missingPageLinks, [], 'Local navigation must not link to missing files');
+console.log('PASS local navigation targets across ' + pageFiles.length + ' HTML pages');
