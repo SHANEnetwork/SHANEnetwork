@@ -162,6 +162,8 @@ jobs:
           if(check.status!==0)throw new Error('ZIP archive failed extraction test: '+check.stderr);
           if(!builder.includes('id="confirmPublicContent"')||!builder.includes('confirmPublicContent").checked'))throw new Error('Publishing requires public-content review confirmation');
           if(!builder.includes('const approvedContent=JSON.stringify(getSite())')||!builder.includes('if(!reviewStillValid())'))throw new Error('Publishing must reject stale or switched reviewed content');
+          const publishHandler=builder.slice(builder.indexOf('document.getElementById("publishSite").onclick='),builder.indexOf('document.getElementById("unpublishSite").onclick='));
+          if(publishHandler.includes('.eq("id",selectedSiteId)')||!publishHandler.includes('.eq("id",approvedSiteId)')||!publishHandler.includes('if(selectedSiteId===approvedSiteId)'))throw new Error('Publishing must target the reviewed project and avoid mutating a switched editor');
           if(!builder.includes('id="autoPreview"')||!builder.includes('function scheduleAutoPreview(event)')||!builder.includes('clearTimeout(autoPreviewTimer)'))throw new Error('Optional debounced live preview wiring missing');
           if(!builder.includes('id="workspaceNextAction"')||!builder.includes('Suggested next step: Save my progress'))throw new Error('Workspace next-action guidance missing');
           if(!builder.includes('function update(silent=false)')||!builder.includes('update(true);document.getElementById("autoPreviewStatus")'))throw new Error('Automatic preview must preserve important save and publish status messages');
