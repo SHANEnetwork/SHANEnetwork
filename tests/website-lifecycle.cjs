@@ -99,3 +99,13 @@ for (const [file, required] of [
   for (const token of required) assert.ok(source.includes(token), file + ' is missing essential integration: ' + token);
 }
 console.log('PASS essential website and member backend integration markers');
+
+const members = read('members.html');
+const recovery = read('recover.html');
+assert.ok(members.includes('sb.auth.resetPasswordForEmail('), 'Members must offer email password recovery');
+assert.ok(members.includes("new URL('recover.html',location.href).href"), 'Recovery redirect must target the recovery page');
+assert.ok(recovery.includes("event==='PASSWORD_RECOVERY'"), 'Recovery page must recognize Supabase recovery event');
+assert.ok(recovery.includes("sb.auth.verifyOtp("), 'Recovery page must support token hash verification');
+assert.ok(recovery.includes("sb.auth.updateUser({password})"), 'Recovery page must allow updating the password');
+assert.ok(recovery.includes("if(!recoveryAuthorized)"), 'Password changes must be gated on recovery authorization');
+console.log('PASS password recovery integration contracts');
