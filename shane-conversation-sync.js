@@ -28,7 +28,17 @@ async function save(){
    const site=await window.SHANEProvision.provision(client,{spec:inferred.spec,vision,siteId:linkedId});
    await window.SHANEEndeavorStore.linkSite(client,result.id,site.siteId);
    sessionStorage.setItem(siteKey,JSON.stringify({endeavorId:result.id,siteId:site.siteId}));
-   status("Your conversation and private website foundation are saved. Additional services are not yet provisioned; nothing was published.");
+   const types=inferred.spec.modules.map(m=>m.type);
+   if(types.some(t=>["memberships","discussions"].includes(t))){
+    try{
+     const organization=await window.SHANEOrganizationProvision.provision(client,{spec:inferred.spec,vision});
+     status("Your conversation, private website, and community foundation are saved. No invitations or public posts were sent.");
+    }catch(orgError){
+     status("Your private website is saved, but community setup needs attention: "+orgError.message);
+    }
+   }else{
+    status("Your conversation and private website foundation are saved. Additional services are not yet provisioned; nothing was published.");
+   }
   }catch(siteError){
    status("Your conversation is saved, but the private website foundation could not be created: "+siteError.message);
   }
