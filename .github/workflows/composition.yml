@@ -13,6 +13,8 @@ on:
       - 'shane-conversation-state.js'
       - 'tests/conversation-state.cjs'
       - 'shane-conversation-sync.js'
+      - 'shane-provision.js'
+      - 'tests/provision.cjs'
       - '.github/workflows/composition.yml'
   pull_request:
     paths:
@@ -34,4 +36,5 @@ jobs:
       - run: node tests/endeavor-adapter.cjs
       - run: node tests/conversation-state.cjs
       - run: node tests/endeavor-store.cjs
+      - run: node tests/provision.cjs
       - run: node tests/builder-bridge.cjs
