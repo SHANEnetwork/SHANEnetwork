@@ -40,8 +40,9 @@ jobs:
           }
           const builder=fs.readFileSync('builder.html','utf8');
           const viewer=fs.readFileSync('site.html','utf8');
-          const generator=builder.slice(builder.indexOf('function build(){'),builder.indexOf('function buildMultiPage(){'));
+          const generator=builder.slice(builder.indexOf('function build(includeAdditionalPages=true){'),builder.indexOf('function buildMultiPage(){'));
           if(!generator.includes('</body></html>'))throw new Error('Builder export HTML template closing structure missing');
+          if(!builder.includes('const original=build(false)'))throw new Error('Multi-page export must omit additional page content from homepage');
           if(!builder.includes('status:"published",slug'))throw new Error('Publishing status missing');
           if(!builder.includes('.update({status:"draft"'))throw new Error('Unpublish status missing');
           if(!viewer.includes('.eq("status","published")'))throw new Error('Public viewer status filter missing');
