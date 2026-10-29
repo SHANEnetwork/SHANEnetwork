@@ -63,6 +63,27 @@ jobs:
           if(!home.includes('About our work')||!home.includes('What we offer'))throw new Error('Multi-page homepage lost core content');
           if(!one.includes('mailto:hello@example.com'))throw new Error('Website contact link missing');
 
+          // Verify reusable modules survive generation and escape untrusted text.
+          nodes.faq={value:'How does it work? | Open the details to learn more.'};
+          nodes.testimonials={value:'Excellent collaboration | A participant'};
+          nodes.gallery={value:'https://example.org/gallery.jpg | Community gathering'};
+          nodes.callToAction={value:'Join us | https://example.org/join'};
+          const featured=run.build();
+          for(const expected of ['<details>','How does it work?','Excellent collaboration','Community gathering','gallery.jpg','Join us','https://example.org/join']){
+            if(!featured.includes(expected))throw new Error('Website export missing module: '+expected);
+          }
+          const featuredHome=run.build(false);
+          if(!featuredHome.includes('Community gathering')||!featuredHome.includes('How does it work?'))throw new Error('Multi-page homepage lost reusable components');
+          nodes.faq.value='<img src=x onerror=alert(1)> | A safe answer';
+          nodes.testimonials.value='<script>alert(1)</script> | A participant';
+          const escaped=run.build();
+          if(escaped.includes('<img src=x')||escaped.includes('<script>alert(1)</script>'))throw new Error('User-provided module text was not HTML-escaped');
+          nodes.callToAction.value='Unsafe link | javascript:alert(1)';
+          if(run.build().includes('href="javascript:'))throw new Error('Unsafe CTA URL was included in export');
+          nodes.callToAction.value='Join us | https://example.org/join';
+          for(const id of ['faq','testimonials','gallery','callToAction'])if(!builder.includes('id="'+id+'"'))throw new Error('Builder missing reusable component field '+id);
+          for(const id of ['faq','testimonials','gallery','callToAction'])if(!viewer.includes('c.'+id))throw new Error('Published viewer missing reusable component '+id);
+
           // Also execute multi-page generation and verify filenames, navigation, and content isolation.
           const multiSource=source.slice(start,source.indexOf('function downloadMultiPage(){'));
           const multi=runInNewContext('const $=id=>document.getElementById(id);'+multiSource+';({buildMultiPage})',{document:{getElementById:id=>nodes[id]},Date},{timeout:2000});
