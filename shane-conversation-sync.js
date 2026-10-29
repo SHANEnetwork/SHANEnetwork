@@ -2,7 +2,7 @@
    Explicit save; owner-scoped Supabase RLS; never publishes a site. */
 (function(){
 "use strict";
-const key="shane_last_private_endeavor_v1";
+const key="shane_last_private_endeavor_v1",siteKey="shane_private_site_for_endeavor_v1";
 function get(id){return document.getElementById(id)}
 function snapshot(){let result=null;const listener=e=>{result=e.detail};document.addEventListener("shane:conversation-snapshot",listener,{once:true});document.dispatchEvent(new Event("shane:conversation-export"));document.removeEventListener("shane:conversation-snapshot",listener);return result}
 function status(text){const el=get("shaneContinuityStatus");if(el)el.textContent=text}
@@ -22,7 +22,9 @@ async function save(){
   sessionStorage.setItem(key,result.id);
   status("Your conversation is saved privately. Preparing your unpublished website foundation...");
   try{
-   const site=await window.SHANEProvision.provision(client,{spec:inferred.spec,vision});
+   const previousSite=JSON.parse(sessionStorage.getItem(siteKey)||"null");
+   const site=await window.SHANEProvision.provision(client,{spec:inferred.spec,vision,siteId:previousSite?.endeavorId===result.id?previousSite.siteId:undefined});
+   sessionStorage.setItem(siteKey,JSON.stringify({endeavorId:result.id,siteId:site.siteId}));
    status("Your conversation and private website foundation are saved. Additional services are not yet provisioned; nothing was published.");
   }catch(siteError){
    status("Your conversation is saved, but the private website foundation could not be created: "+siteError.message);
