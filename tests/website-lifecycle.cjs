@@ -43,7 +43,7 @@ for (const name of ['builder.html', 'site.html', 'dashboard.html']) {
 
 for (const name of ['builder.html', 'site.html', 'dashboard.html']) {
   const html = read(name);
-  const ids = Array.from(html.matchAll(/\\bid\\s*=\\s*["']([^"']+)["']/gi), match => match[1]);
+  const ids = Array.from(html.matchAll(/\bid\s*=\s*["']([^"']+)["']/gi), match => match[1]);
   const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
   assert.deepEqual([...new Set(duplicateIds)], [], name + ' has duplicate element IDs');
   console.log('PASS ' + name + ': no duplicate HTML element IDs');
