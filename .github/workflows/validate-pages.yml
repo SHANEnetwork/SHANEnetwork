@@ -52,7 +52,7 @@ jobs:
           const end=source.indexOf('function buildMultiPage(){');
           if(start<0||end<start)throw new Error('Cannot isolate generator for export test');
           const {runInNewContext}=await import('node:vm');
-          const fields={business:'Example Studio',tagline:'An example',about:'About our work',services:'Design\\nResearch',pages:'Portfolio | Portfolio content\\nEvents | Events content',email:'hello@example.com',color:'#2458a6',brandColor:'#2458a6',brandFont:'modern',backgroundStyle:'default',backgroundColor:'#ffffff',backgroundColor2:'#eeeeee'};
+          const fields={business:'Example Studio',tagline:'An example',about:'About our work',services:['Design','Research'].join(String.fromCharCode(10)),pages:['Portfolio | Portfolio content','Events | Events content'].join(String.fromCharCode(10)),email:'hello@example.com',color:'#2458a6',brandColor:'#2458a6',brandFont:'modern',backgroundStyle:'default',backgroundColor:'#ffffff',backgroundColor2:'#eeeeee'};
           const nodes=Object.fromEntries(Object.entries(fields).map(([id,value])=>[id,{value,checked:false}]));
           nodes.contact={checked:true};nodes.useBrandColor={checked:false};
           const run=runInNewContext('const $=id=>document.getElementById(id);'+source.slice(start,end)+';({build,esc})',{document:{getElementById:id=>nodes[id]},Date},{timeout:2000});
@@ -73,7 +73,7 @@ jobs:
           if(exported[0].html.includes('Portfolio content')||exported[0].html.includes('Events content'))throw new Error('Multi-page homepage contains page body content');
           if(!exported[1].html.includes('Portfolio content')||exported[1].html.includes('Events content'))throw new Error('Portfolio page content isolation failed');
           if(!exported[2].html.includes('Events content')||exported[2].html.includes('Portfolio content'))throw new Error('Events page content isolation failed');
-          nodes.pages.value='Portfolio | First\\nPortfolio | Second';
+          nodes.pages.value=['Portfolio | First','Portfolio | Second'].join(String.fromCharCode(10));
           const duplicates=multi.buildMultiPage();
           if(duplicates[1].filename===duplicates[2].filename)throw new Error('Duplicate page titles overwrite export files');
           if(!builder.includes('status:"published",slug'))throw new Error('Publishing status missing');
