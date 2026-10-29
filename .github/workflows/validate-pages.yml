@@ -45,7 +45,7 @@ jobs:
           if(!builder.includes('const original=build(false)'))throw new Error('Multi-page export must omit additional page content from homepage');
 
           // Exercise the real generator with a minimal DOM stub to catch broken exports.
-          const scriptBlocks=[...builder.matchAll(/<script\\b([^>]*)>([\\s\\S]*?)<\\/script>/gi)];
+          const scriptBlocks=[...builder.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
           const source=scriptBlocks.map(m=>m[2]).find(s=>s.includes('function build(includeAdditionalPages=true){'));
           if(!source)throw new Error('Website generator script not found');
           const start=source.indexOf('function esc(');
