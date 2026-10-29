@@ -89,3 +89,13 @@ for (const file of pageFiles) {
 }
 assert.deepEqual(missingPageLinks, [], 'Local navigation must not link to missing files');
 console.log('PASS local navigation targets across ' + pageFiles.length + ' HTML pages');
+
+for (const [file, required] of [
+  ['builder.html', ['shane_sites', 'sb.auth.getUser()', 'status:"published",slug']],
+  ['members.html', ['shane_profiles', 'shane_listings']],
+  ['site.html', ['shane_sites', '.eq("status","published").maybeSingle()']]
+]) {
+  const source = read(file);
+  for (const token of required) assert.ok(source.includes(token), file + ' is missing essential integration: ' + token);
+}
+console.log('PASS essential website and member backend integration markers');
