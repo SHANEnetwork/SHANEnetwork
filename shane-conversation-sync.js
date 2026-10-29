@@ -37,12 +37,29 @@ async function resume(){
   status("Your private conversation has been restored. The website draft remains separate.");
  }catch(e){status("Could not resume: "+e.message)}
 }
+async function discoverSaved(){
+ const client=window.SHANEAuthenticatedClient;if(!client){status("Sign in to find your saved creations.");return}
+ const area=get("shaneSavedEndeavors");area.replaceChildren();status("Looking for your private creations...");
+ try{
+  const items=await window.SHANEEndeavorStore.list(client);
+  if(!items.length){status("No saved endeavors found in this account.");return}
+  for(const item of items){
+   const button=document.createElement("button");button.type="button";
+   button.textContent=item.title||"Untitled creation";
+   button.addEventListener("click",()=>{sessionStorage.setItem(key,item.id);resume()});
+   area.append(button);
+  }
+  status("Choose a saved creation to resume its conversation. Your current website draft will remain unchanged.");
+ }catch(e){status("Could not find creations: "+e.message)}
+}
 document.addEventListener("DOMContentLoaded",()=>{
  const area=get("shane-idea-conversation");if(!area)return;
  const actions=document.createElement("div");actions.className="shane-idea-actions";
  const keep=document.createElement("button");keep.type="button";keep.id="shaneKeepConversation";keep.textContent="Keep this conversation";keep.addEventListener("click",save);
  const reopen=document.createElement("button");reopen.type="button";reopen.textContent="Resume saved conversation";reopen.addEventListener("click",resume);
+ const discover=document.createElement("button");discover.type="button";discover.textContent="Find my saved creations";discover.addEventListener("click",discoverSaved);
+ const choices=document.createElement("div");choices.id="shaneSavedEndeavors";choices.setAttribute("aria-label","Your saved creations");
  const info=document.createElement("p");info.id="shaneContinuityStatus";info.setAttribute("role","status");info.setAttribute("aria-live","polite");info.textContent="Sign in to keep this conversation privately in your SHANE account. Website drafts are saved separately.";
- actions.append(keep,reopen);area.append(actions,info);
+ actions.append(keep,reopen,discover);area.append(actions,choices,info);
 });
 })();
