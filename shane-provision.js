@@ -12,7 +12,16 @@
   const {data:auth,error:authError}=await client.auth.getUser();
   if(authError||!auth?.user?.id)throw Error("Sign in before creating a private website");
   const ownerId=auth.user.id;
-  const content={shaneComposition:{schemaVersion:spec.schemaVersion,modules:spec.modules,appearance:spec.appearance},sourceVision:String(vision||"").slice(0,12000),pages:[{title:"Home",slug:"home",draft:true}]};
+  const composition={schemaVersion:spec.schemaVersion,modules:spec.modules,appearance:spec.appearance};
+  let content={pages:[{title:"Home",slug:"home",draft:true}]};
+  if(siteId){
+   const {data:existing,error:existingError}=await client.from("shane_sites").select("id,owner_id,status,content").eq("id",siteId).eq("owner_id",ownerId).single();
+   if(existingError||!existing||existing.owner_id!==ownerId)throw Error("Existing site ownership verification failed");
+   if(existing.status!=="draft")throw Error("A published website cannot be overwritten by automatic draft setup");
+   content={...(existing.content&&typeof existing.content==="object"&&!Array.isArray(existing.content)?existing.content:{})};
+  }
+  content.shaneComposition=composition;
+  content.sourceVision=String(vision||"").slice(0,12000);
   const payload={owner_id:ownerId,name:spec.title,content,status:"draft"};
   const query=siteId
     ?client.from("shane_sites").update(payload).eq("id",siteId).eq("owner_id",ownerId)
