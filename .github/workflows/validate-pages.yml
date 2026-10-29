@@ -101,6 +101,7 @@ jobs:
           const readinessStart=source.indexOf('function websiteReadiness(){');
           const readinessEnd=source.indexOf('function showWebsiteReadiness(){');
           if(readinessStart<0||readinessEnd<readinessStart)throw new Error('Readiness checker missing');
+          if(!source.includes('go.onclick=()=>{target.scrollIntoView')||!source.includes('go.setAttribute("aria-label","Edit "+check.name)'))throw new Error('Readiness report must navigate directly to editable issues');
           const audit=runInNewContext(source.slice(readinessStart,readinessEnd)+';websiteReadiness',{document:{getElementById:id=>nodes[id]}},{timeout:2000});
           nodes.business.value='Example Studio';
           nodes.tagline.value='Design and research for communities';
