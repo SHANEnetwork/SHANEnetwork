@@ -167,6 +167,7 @@ jobs:
           if(!builder.includes('function update(silent=false)')||!builder.includes('update(true);document.getElementById("autoPreviewStatus")'))throw new Error('Automatic preview must preserve important save and publish status messages');
           if(!builder.includes('new Set([...fieldIds,"contact","brandColor","useBrandColor","brandFont","layoutStyle","backgroundStyle","backgroundColor","backgroundColor2"])'))throw new Error('Editor recovery must cover all website content and design fields');
           if(!builder.includes('document.getElementById(id).value=typeof content[id]==="string"?content[id]:""'))throw new Error('Loading older projects must clear fields missing from their saved content');
+          if(!builder.includes('content.brandColor:"#2458a6"'))throw new Error('Loading older projects must reset missing brand colors');
 
           if(!builder.includes('status:"published",slug'))throw new Error('Publishing status missing');
           if(!builder.includes('.update({status:"draft"'))throw new Error('Unpublish status missing');
