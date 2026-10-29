@@ -12,6 +12,7 @@ on:
       - 'tests/endeavor-store.cjs'
       - 'shane-conversation-state.js'
       - 'tests/conversation-state.cjs'
+      - 'shane-conversation-sync.js'
       - '.github/workflows/composition.yml'
   pull_request:
     paths:
