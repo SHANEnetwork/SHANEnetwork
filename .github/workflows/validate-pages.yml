@@ -109,6 +109,7 @@ jobs:
           for(const id of ['workspaceJourney','journeyCreate','journeyReview','journeySave','journeyPublish'])if(!builder.includes('id="'+id+'"'))throw new Error('Project launch journey missing '+id);
           if(!source.includes('function updateJourney(){')||!source.includes('target.append(a);updateJourney()'))throw new Error('Project journey must reflect saved and published state');
           if(!source.includes('.select("id,content,status,slug")')||!source.includes('updateWorkspacePublicLink(data.status==="published"&&data.slug?data.slug:null)'))throw new Error('Opening a saved public project must preserve its published link');
+          if(!source.includes('const unpublishSiteId=selectedSiteId')||!source.includes('.eq("id",unpublishSiteId)')||!source.includes('if(selectedSiteId===unpublishSiteId)updateWorkspacePublicLink(null)'))throw new Error('Unpublish must target the original project despite asynchronous selection changes');
           for(const name of ['Additional page limit','Page content','Unique page names'])if(!source.includes('"'+name+'"'))throw new Error('Readiness report must check '+name);
           for(const name of ['Starter content','Gallery image links'])if(!source.includes('"'+name+'"'))throw new Error('Readiness report must check '+name);
           const audit=runInNewContext(source.slice(readinessStart,readinessEnd)+';websiteReadiness',{document:{getElementById:id=>nodes[id]},URL},{timeout:2000});
