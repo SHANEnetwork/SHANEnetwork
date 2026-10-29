@@ -208,12 +208,16 @@ jobs:
           const putEnd=source.indexOf('async function refreshSites(){',putStart);
           if(putStart<0||putEnd<putStart)throw new Error('Project loading function missing');
           const projectIds=['business','tagline','about','services','pages','email','color','faq','testimonials','callToAction','gallery'];
-          const projectNodes=Object.fromEntries([...projectIds,'contact','brandColor','useBrandColor','brandFont','layoutStyle','backgroundStyle','backgroundColor','backgroundColor2','preview'].map(id=>[id,{value:'',checked:false,click(){}}]));
-          const projectLoader=runInNewContext('const fieldIds='+JSON.stringify(projectIds)+';'+source.slice(putStart,putEnd)+';putSite',{document:{getElementById:id=>projectNodes[id],dispatchEvent:()=>{}},Event:class Event{constructor(type){this.type=type}}},{timeout:2000});
+          const projectNodes=Object.fromEntries([...projectIds,'shaneModuleCommunity','shaneModuleConversation','shaneModuleEvents','shaneModuleDiscovery','contact','brandColor','useBrandColor','brandFont','layoutStyle','backgroundStyle','backgroundColor','backgroundColor2','preview'].map(id=>[id,{value:'',checked:false,click(){}}]));
+          const projectLoader=runInNewContext('const shaneModuleIds=["shaneModuleCommunity","shaneModuleConversation","shaneModuleEvents","shaneModuleDiscovery"];const fieldIds='+JSON.stringify(projectIds)+';'+source.slice(putStart,putEnd)+';putSite',{document:{getElementById:id=>projectNodes[id],dispatchEvent:()=>{}},Event:class Event{constructor(type){this.type=type}}},{timeout:2000});
           projectLoader({business:'First project',gallery:'https://example.org/first.jpg | First',faq:'First question | First answer',brandColor:'#ff0000',backgroundColor:'#123456',layoutStyle:'bold'});
           projectLoader({business:'Second project',about:'Only second project content'});
           if(projectNodes.gallery.value||projectNodes.faq.value||projectNodes.brandColor.value!=='#2458a6'||projectNodes.backgroundColor.value!=='#ffffff'||projectNodes.layoutStyle.value!=='classic')throw new Error('Loading a second project leaked content or design from the first');
           if(projectNodes.business.value!=='Second project'||projectNodes.about.value!=='Only second project content')throw new Error('Project loading lost new project content');
+          projectLoader({business:'Network project',networkModules:['shaneModuleEvents']});
+          if(!projectNodes.shaneModuleEvents.checked||projectNodes.shaneModuleCommunity.checked)throw new Error('Project loading lost network module choices');
+          projectLoader({business:'Old project'});
+          if(projectNodes.shaneModuleEvents.checked)throw new Error('Old project inherited previous network module choices');
 
 
           if(!builder.includes('status:"published",slug'))throw new Error('Publishing status missing');
