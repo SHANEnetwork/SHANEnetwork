@@ -52,7 +52,7 @@ for (const name of ['builder.html', 'site.html', 'dashboard.html']) {
 for (const name of ['builder.html', 'site.html', 'dashboard.html']) {
   const html = read(name);
   const ids = new Set(Array.from(html.matchAll(/\bid\s*=\s*["']([^"']+)["']/gi), match => match[1]));
-  const references = Array.from(html.matchAll(/document\.getElementById\(["']([^"']+)["']\)/g), match => match[1]);
+  const references = [...Array.from(html.matchAll(/document\.getElementById\(["']([^"']+)["']\)/g), match => match[1]), ...Array.from(html.matchAll(/\$\(["']([^"']+)["']\)/g), match => match[1])];
   const missing = [...new Set(references.filter(id => !ids.has(id)))];
   assert.deepEqual(missing, [], name + ' references missing HTML element IDs');
   console.log('PASS ' + name + ': ' + references.length + ' direct DOM element references resolved');
