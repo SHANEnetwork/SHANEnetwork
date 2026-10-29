@@ -118,6 +118,7 @@ jobs:
           for(const token of ['id="sharePage"','id="shareStatus"','navigator.share','navigator.clipboard.writeText','pages[n].title+" | "'])if(!publicViewer.includes(token))throw new Error('Public website sharing or page title missing: '+token);
           for(const token of ['id="siteSearch"','id="searchQuery"','id="searchResults"','role="search"','content.filter(p=>','No matches found on this website.'])if(!publicViewer.includes(token))throw new Error('Published website search missing: '+token);
           if(!publicViewer.includes('document.getElementById("main").focus({preventScroll:true})'))throw new Error('Search result navigation must move keyboard focus to destination');
+          for(const token of ['title:"Gallery",body:String(c.gallery||"")','c.contact!==false?String(c.email||""):""','&&!!p.body.trim()'])if(!publicViewer.includes(token))throw new Error('Search must honor actual visible content: '+token);
           for(const name of ['Additional page limit','Page content','Unique page names'])if(!source.includes('"'+name+'"'))throw new Error('Readiness report must check '+name);
           for(const name of ['Starter content','Gallery image links'])if(!source.includes('"'+name+'"'))throw new Error('Readiness report must check '+name);
           const audit=runInNewContext(source.slice(readinessStart,readinessEnd)+';websiteReadiness',{document:{getElementById:id=>nodes[id]},URL},{timeout:2000});
