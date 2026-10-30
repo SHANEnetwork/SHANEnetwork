@@ -1,5 +1,5 @@
 /* Non-destructive save and resume for SHANE's conversational vision.
-   Explicit save; owner-scoped Supabase RLS; never publishes a site. */
+   Private autosave; owner-scoped Supabase RLS; never publishes a site. */
 (function(){
 "use strict";
 const key="shane_last_private_endeavor_v1",siteKey="shane_private_site_for_endeavor_v1";
@@ -91,7 +91,7 @@ async function resume(){
   const result=await window.SHANEEndeavorStore.load(client,id);
   if(!result.conversation?.length){status("This endeavor has no saved conversation yet.");return}
   const current=snapshot();
-  if(current?.turns?.length&&!confirm("Replace this browser session's conversation with your saved conversation? Your website draft will not be changed."))return;
+  if(current?.turns?.length&&!confirm("Replace this browser session's conversation with your saved conversation? Unsaved editor changes may be lost."))return;
   document.dispatchEvent(new CustomEvent("shane:conversation-restore",{detail:{turns:result.conversation,draftReady:!!result.linkedSiteId}}));
   window.SHANECurrentComposition={spec:result.spec,sourceVision:result.vision,provisioningStatus:"not_provisioned"};
   if(result.linkedSiteId){
