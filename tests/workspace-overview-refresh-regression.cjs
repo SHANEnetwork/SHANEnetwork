@@ -14,6 +14,9 @@ for (const [name, needle] of [
   ['version update', 'overviewVersion=data?.updated_at||null'],
 ]) assert(loader.includes(needle), name);
 assert(loader.indexOf('purposeField.value!==previousPurpose') < loader.indexOf('purposeField.value=data?.purpose'), 'Check edits before replacing fields');
+assert(loader.includes('Shared direction is being saved. Refresh after saving finishes.'), 'Refresh is blocked during an active direction save');
+assert(loader.includes('||$("overviewForm").querySelector(\'button[type="submit"]\')?.disabled)return;'), 'Late refresh responses are ignored during saves');
+
 const saveStart = source.indexOf('$("overviewForm").onsubmit=async e=>');
 const saveEnd = source.indexOf('let activityLoadGeneration=0;', saveStart);
 assert(saveStart >= 0 && saveEnd > saveStart, 'Shared direction save handler exists');
