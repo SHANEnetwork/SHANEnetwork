@@ -33,6 +33,8 @@ jobs:
           node --check shane-revocation.js
       - name: Check website lifecycle and inline page scripts
         run: node tests/website-lifecycle.cjs
+      - name: Check private conversation refresh regression
+        run: node tests/conversation-refresh-regression.cjs
       - name: Test listing save experience
         run: node --test tests/listing-save-experience.cjs
       - name: Check database RLS regression scripts are tracked
