@@ -22,15 +22,15 @@
    const prior=endeavorId?await load(client,endeavorId):null;
    if(prior&&!prior.canEdit)throw Error("Only the endeavor owner can save changes");
    if(endeavorId&&expectedPlan!==undefined&&prior.planRaw!==expectedPlan)throw Error("This endeavor changed in another session. Reload it before saving to protect newer work.");
-   // The plan is the optimistic concurrency token. Title-only edits do not alter it,
-   // so other fields may still need a separate row revision in a future migration.
+   // Compare all loaded editable fields to reject stale saves, including title-only changes.
+   // Region, audience and resources still need a dedicated row revision for complete coverage.
    const stableSpec={...spec,endeavorId:endeavorId||spec.endeavorId,...(prior?.linkedOrganizationId?{shaneOrganizationId:prior.linkedOrganizationId}:{})};
    const payload={owner_id:userId,title:title||spec.title,idea:vision,plan:conversationState().pack(stableSpec,conversation===undefined?(prior?.conversation||[]):conversation)};
    if(!endeavorId){payload.region=region||"";payload.audience=audience||"";payload.resources=resources||"";}
    else{if(region!==undefined)payload.region=region;if(audience!==undefined)payload.audience=audience;if(resources!==undefined)payload.resources=resources;}
    let request;
    if(endeavorId){
-     request=client.from("shane_endeavors").update(payload).eq("id",endeavorId).eq("owner_id",userId).eq("plan",prior.planRaw).select("id,owner_id,title,idea,plan").single();
+     request=client.from("shane_endeavors").update(payload).eq("id",endeavorId).eq("owner_id",userId).eq("plan",prior.planRaw).eq("title",prior.title).eq("idea",prior.vision).select("id,owner_id,title,idea,plan").single();
    }else{
      request=client.from("shane_endeavors").insert(payload).select("id,owner_id,title,idea,plan").single();
    }
