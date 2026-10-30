@@ -13,7 +13,7 @@
    if(error||!data?.user?.id)throw Error("Sign in before saving your endeavor");
    return data.user.id;
  }
- async function save(client,{title,vision,spec,endeavorId,conversation}){
+ async function save(client,{title,vision,spec,endeavorId,conversation,region,audience,resources}){
    const userId=await owner(client);
    const errors=engine.validate(spec);if(errors.length)throw Error(errors.join("; "));
    if(typeof vision!=="string"||!vision.trim())throw Error("Vision required");
@@ -23,6 +23,8 @@
    if(prior&&!prior.canEdit)throw Error("Only the endeavor owner can save changes");
    const stableSpec={...spec,endeavorId:endeavorId||spec.endeavorId,...(prior?.linkedOrganizationId?{shaneOrganizationId:prior.linkedOrganizationId}:{})};
    const payload={owner_id:userId,title:title||spec.title,idea:vision,plan:conversationState().pack(stableSpec,conversation===undefined?(prior?.conversation||[]):conversation)};
+   if(!endeavorId){payload.region=region||"";payload.audience=audience||"";payload.resources=resources||"";}
+   else{if(region!==undefined)payload.region=region;if(audience!==undefined)payload.audience=audience;if(resources!==undefined)payload.resources=resources;}
    let request;
    if(endeavorId){
      request=client.from("shane_endeavors").update(payload).eq("id",endeavorId).eq("owner_id",userId).select("id,owner_id,title,idea,plan").single();
