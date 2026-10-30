@@ -27,6 +27,7 @@ async function save(){
  try{
   const result=await window.SHANEEndeavorStore.save(client,{title,vision,spec:inferred.spec,conversation:snap.turns,endeavorId:existing||undefined});
   sessionStorage.setItem(key,result.id);
+  document.dispatchEvent(new CustomEvent("shane:endeavor-saved",{detail:{endeavorId:result.id,title,vision,siteId:null}}));
   status("Your conversation is saved privately. Preparing your unpublished website foundation...");
   try{
    let previousSite=null;
