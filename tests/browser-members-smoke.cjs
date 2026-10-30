@@ -141,3 +141,20 @@ test('member sends one invitation and duplicate request is blocked in isolated C
   assert.equal(await page.locator('[data-collaboration-composer]').count(),0);
  }finally{await browser.close()}
 });
+
+test('long vision survives network handoff to creator without truncation',async()=>{
+ const browser=await chromium.launch({headless:true});
+ try{
+  const page=await browser.newPage();
+  const vision='Build a welcoming community with events, discussions and projects. '.repeat(140);
+  assert.ok(vision.length>5000);
+  await page.goto('file://'+path.resolve('my-network.html'));
+  await page.locator('#visionInput').fill(vision);
+  assert.equal(await page.locator('#visionInput').inputValue(),vision);
+  await page.locator('#buildFromVision').click();
+  await page.waitForURL(/builder\.html/,{timeout:10000});
+  await page.locator('#visionPrompt').waitFor({timeout:10000});
+  assert.equal(await page.locator('#visionPrompt').inputValue(),vision.trim());
+  assert.equal(await page.evaluate(()=>sessionStorage.getItem('shane_network_vision_handoff_v1')),null);
+ }finally{await browser.close()}
+});
