@@ -9,3 +9,6 @@ const sync=fs.readFileSync(path.join(root,"shane-conversation-sync.js"),"utf8");
 assert.ok(sync.includes('select("id,owner_id,content,status")'),"Resume must fetch owner-verified website");
 assert.ok(sync.includes('site.owner_id!==auth.user.id'),"Resume must verify website ownership");
 assert.ok(sync.includes('shane:editor-restore'),"Resume must reopen the saved website editor");
+
+assert.ok(sync.includes('shane:ai-generation-finished'),"Successful AI generation should trigger private autosave");
+assert.ok(sync.includes('autosaveAfterGeneration()'),"Generation listener must invoke private autosave");
