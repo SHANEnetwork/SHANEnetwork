@@ -124,6 +124,16 @@ async function resume(){
   if(!result.linkedSiteId)status("Your conversation has been restored. No linked website draft was found.");
  }catch(e){status("Could not resume: "+e.message)}
 }
+async function analystContext(){
+ const client=window.SHANEAuthenticatedClient;
+ const id=sessionStorage.getItem(key);
+ if(!client||!id){status("Save your endeavor before opening its Analyst context.");return}
+ try{
+  const context=await window.SHANEEndeavorContext.load(client,id,window.SHANEEndeavorStore,"analyst");
+  document.dispatchEvent(new CustomEvent("shane:analyst-context-ready",{detail:context}));
+  status("Your saved endeavor is ready for Analyst review. No project changes were made.");
+ }catch(error){status("Could not prepare Analyst context: "+error.message)}
+}
 async function discoverSaved(){
  const client=window.SHANEAuthenticatedClient;if(!client){status("Sign in to find your saved creations.");return}
  const area=get("shaneSavedEndeavors");area.replaceChildren();status("Looking for your private creations...");
@@ -147,6 +157,7 @@ document.addEventListener("DOMContentLoaded",()=>{
  const discover=document.createElement("button");discover.type="button";discover.textContent="Find my saved creations";discover.addEventListener("click",discoverSaved);
  const choices=document.createElement("div");choices.id="shaneSavedEndeavors";choices.setAttribute("aria-label","Your saved creations");
  const info=document.createElement("p");info.id="shaneContinuityStatus";info.setAttribute("role","status");info.setAttribute("aria-live","polite");info.textContent="Sign in to keep this conversation privately in your SHANE account. Website drafts are saved separately.";
- actions.append(keep,reopen,discover);area.append(actions,choices,info);
+ const analyst=document.createElement("button");analyst.type="button";analyst.textContent="Prepare Analyst review";analyst.addEventListener("click",analystContext);
+ actions.append(keep,reopen,discover,analyst);area.append(actions,choices,info);
 });
 })();
