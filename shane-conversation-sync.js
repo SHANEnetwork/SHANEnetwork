@@ -105,8 +105,9 @@ async function resume(){
     const {data:site,error:siteError}=await client.from("shane_sites").select("id,owner_id,content,status").eq("id",result.linkedSiteId).single();
     const {data:auth,error:authError}=await client.auth.getUser();
     if(siteError||authError||!auth?.user?.id||!site||site.owner_id!==auth.user.id)throw Error("Saved website is not accessible in this account");
-    if(site.content?.shaneEditorDraft){
-     document.dispatchEvent(new CustomEvent("shane:editor-restore",{detail:{content:site.content.shaneEditorDraft}}));
+    const restoredDraft=site.content?.shaneEditorDraft||((site.content?.business||site.content?.name)&&Array.isArray(site.content?.pages)?site.content:null);
+    if(restoredDraft){
+     document.dispatchEvent(new CustomEvent("shane:editor-restore",{detail:{content:restoredDraft}}));
      document.dispatchEvent(new CustomEvent("shane:conversation-draft-ready",{detail:{draftReady:true}}));
      status("Your conversation and editable website draft are restored. Nothing was published.");
     }
