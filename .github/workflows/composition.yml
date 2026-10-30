@@ -5,6 +5,7 @@ on:
       - 'builder.html'
       - 'shane-builder-bridge.js'
       - 'tests/builder-bridge.cjs'
+      - 'tests/builder-primary-action.cjs'
       - 'shane-composition.js'
       - 'shane-compatibility.js'
       - 'tests/compatibility.cjs'
