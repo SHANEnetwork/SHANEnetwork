@@ -110,6 +110,8 @@ async function resume(){
      document.dispatchEvent(new CustomEvent("shane:editor-restore",{detail:{content:restoredDraft}}));
      document.dispatchEvent(new CustomEvent("shane:conversation-draft-ready",{detail:{draftReady:true}}));
      status("Your conversation and editable website draft are restored. Nothing was published.");
+    }else{
+     status("Your conversation is restored. This creation has a private site foundation, but no editable website draft yet. Ask SHANE to create the website.");
     }
    }catch(restoreError){status("Conversation restored, but the website draft could not be reopened: "+restoreError.message)}
   }
