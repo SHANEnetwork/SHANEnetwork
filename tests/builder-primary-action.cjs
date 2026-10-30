@@ -28,3 +28,6 @@ assert.ok(html.includes('if(["classic","minimal","bold"].includes(site.layoutSty
 assert.ok(html.includes("When the generator supports optional design fields, include brandColor"),"AI prompt should request validated visual identity fields");
 
 assert.ok(html.includes('String(site.name||"")+" "+String(site.tagline||"")+" "+String(site.about||"")'),"Network capabilities must consider the creator’s full vision, not only page headings");
+
+assert.ok(html.includes('{role:"shane",text:"Composition updated: "'),"Structured refinement must use the conversation schema's shane role");
+assert.ok(!html.includes('{role:"assistant",text:"Composition updated: "'),"Structured refinement must not persist unsupported assistant role");
