@@ -29,7 +29,8 @@
    content.shaneEditorDraft=editorDraft;
   }
   // The generated landing page is an editable draft, not a replacement for authored pages.
-  if(!Array.isArray(content.pages)||content.pages.length===0)content.pages=[{title:"Home",slug:"home",draft:true}];
+  if(!Array.isArray(content.pages))content.pages=Array.isArray(content.shaneCompositionPages)?content.shaneCompositionPages:[{title:"Home",slug:"home",draft:true}];
+  if(content.pages.length===0)content.pages=[{title:"Home",slug:"home",draft:true}];
   const existingHome=content.pages.find(page=>page&&page.slug==="home");
   const plainVision=String(vision||"").trim().slice(0,12000);
   const homeTitle=String(spec.title||"My Endeavor").trim().slice(0,120);
@@ -56,6 +57,7 @@
    content.shaneCompositionPages=content.pages;
    Object.assign(content,content.shaneEditorDraft);
   }
+  if(Array.isArray(content.pages)){content.shaneCompositionPages=content.pages; if(!editorContent&&content.shaneEditorDraft)content.pages=content.shaneEditorDraft.pages||"";}
   content.shaneComposition=composition;
   content.sourceVision=String(vision||"").slice(0,12000);
   const payload={owner_id:ownerId,name:spec.title,content,status:"draft"};
