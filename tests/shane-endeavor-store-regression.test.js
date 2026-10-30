@@ -129,3 +129,21 @@ test('loads a JSONB endeavor plan without requiring a serialized string',async()
  assert.deepEqual(saved.conversation,[{role:'you',text:'Remember this'}]);
  assert.equal(saved.canEdit,true);
 });
+
+test('legacy assessment remains readable without conversion or mutation',async()=>{
+ const client={auth:{getUser:async()=>({data:{user:{id:'alice'}},error:null})},from(table){
+  assert.equal(table,'shane_endeavors');
+  return {select(){return this;},eq(){return this;},single:async()=>({data:{id:'legacy',owner_id:'alice',title:'Original',idea:'Original vision',region:'Houston',audience:'Neighbors',resources:'Time',plan:'Original assessment text',linked_site_id:null},error:null})};
+ }};
+ const result=await store.loadAssessment(client,'legacy');
+ assert.equal(result.assessment,'Original assessment text');
+ assert.equal(result.format,'legacy-assessment');
+ assert.equal(result.canEdit,true);
+});
+test('legacy assessment reader refuses structured compositions',async()=>{
+ const spec=require('../shane-composition.js').compose({endeavorId:'structured',title:'Structured',modules:['pages']});
+ const client={auth:{getUser:async()=>({data:{user:{id:'alice'}},error:null})},from(){
+  return {select(){return this;},eq(){return this;},single:async()=>({data:{id:'structured',owner_id:'alice',plan:JSON.stringify(spec)},error:null})};
+ }};
+ await assert.rejects(store.loadAssessment(client,'structured'),/structured composition/i);
+});
