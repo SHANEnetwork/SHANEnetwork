@@ -12,7 +12,7 @@ create table if not exists public.shane_endeavor_members (
 );
 alter table public.shane_endeavor_members enable row level security;
 revoke all on public.shane_endeavor_members from anon;
-grant select,insert,update on public.shane_endeavor_members to authenticated;
+grant select,insert on public.shane_endeavor_members to authenticated;
 drop policy if exists "Members see own invitation or owner sees members" on public.shane_endeavor_members;
 create policy "Members see own invitation or owner sees members" on public.shane_endeavor_members for select to authenticated
 using (user_id=(select auth.uid()) or exists (
