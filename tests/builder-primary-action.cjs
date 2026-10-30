@@ -1,7 +1,7 @@
 const fs=require("node:fs"),assert=require("node:assert/strict");const html=fs.readFileSync("builder.html","utf8");assert.equal((html.match(/\$\("visionGuide"\)\.addEventListener\("click"/g)||[]).length,1,"Primary action must have one conversation submit handler");assert.equal((html.match(/\$\('visionGuide'\)\.addEventListener\('click',\(\)=>\{const idea=/g)||[]).length,0,"Legacy parallel generation handler must not return");assert.ok(html.includes("submit(idea)"),"Vision should become a conversation message");console.log("PASS single primary conversational generation path");
 assert.ok(html.includes("history.slice(0,-1).filter"),"Refinement should retain prior conversation turns");assert.ok(html.includes("Recent conversation context (oldest to newest)"),"AI should receive conversational context");
 assert.ok(html.includes('document.addEventListener("shane:ai-generation-finished",event=>{if(/^AI'),"Live canvas should refresh after successful AI generation");
-assert.ok(html.includes('.join("\\n").slice(-1400)'),"Conversation context must have a bounded prompt size");
+assert.ok(html.includes('.join("\\n").slice(-600)'),"Conversation context must have a bounded prompt size");
 assert.ok(html.includes("Tell me what feels right, what you want changed, or what we should explore next."),"SHANE should invite collaborative refinement");
 assert.ok(html.includes("finish(status,event.detail?.mode)"),"Creation result should use actual generation mode");
 assert.ok(html.includes("promptText.slice(0,1900)"),"AI revision must reserve room for the latest creator request");
@@ -11,3 +11,4 @@ assert.ok(html.includes('t.role==="you"&&typeof t.text==="string"'),"AI context 
 assert.ok(html.includes("Existing website summary:"),"AI revisions must carry a focused summary of the existing website");
 assert.ok(html.includes("Treat accessibility as part of beautiful design"),"AI generation must include accessibility requirements");
 assert.ok(html.includes("Preserve the creator’s specific terminology and identity"),"AI generation must preserve creator voice");
+assert.ok(html.includes("latest.slice(0,950)"),"Latest creator request and earlier decisions must both fit within revision context");
