@@ -9,3 +9,4 @@ assert.ok(html.includes("Different endeavors should have genuinely different vis
 assert.ok(html.includes(".join(\"\\n\").slice(-1400)"),"Conversation context must fit the AI prompt budget");
 assert.ok(html.includes('t.role==="you"&&typeof t.text==="string"'),"AI context must prioritize actual creator instructions");
 assert.ok(html.includes("Existing website summary:"),"AI revisions must carry a focused summary of the existing website");
+assert.ok(html.includes("Treat accessibility as part of beautiful design"),"AI generation must include accessibility requirements");
