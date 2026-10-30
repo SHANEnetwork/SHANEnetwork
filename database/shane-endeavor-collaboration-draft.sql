@@ -28,10 +28,10 @@ drop policy if exists "Owners manage invitations" on public.shane_endeavor_membe
 create policy "Owners manage invitations" on public.shane_endeavor_members for update to authenticated
 using (exists (select 1 from public.shane_endeavors e where e.id=endeavor_id and e.owner_id=(select auth.uid())))
 with check (exists (select 1 from public.shane_endeavors e where e.id=endeavor_id and e.owner_id=(select auth.uid())));
--- Only grant UPDATE on the role and status columns, never on ownership identifiers.
+-- Only grant UPDATE on role, never invitation status or ownership identifiers.
 revoke update on public.shane_endeavor_members from authenticated;
 grant update (role) on public.shane_endeavor_members to authenticated;
--- Role/status updates are restricted to endeavor owners by the UPDATE RLS policy.
+-- Role updates are restricted to endeavor owners by the UPDATE RLS policy.
 -- Invitation status cannot be directly activated by an owner; acceptance uses the invitee RPC.
 -- Revocation requires a separate owner-authorized operation before deployment.
 -- SECURITY NOTE: Column grants do not restrict role changes by an owner; review
