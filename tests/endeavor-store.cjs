@@ -8,7 +8,7 @@ function client(){return {auth:{getUser:async()=>({data:{user:{id:user}}})},from
  user="owner-b";await assert.rejects(store.load(client(),a.id),/Could not load/);
  user="owner-a";const updated=await store.save(client(),{endeavorId:a.id,title:"Garden 2",vision:"More gardens",spec});assert.equal(updated.title,"Garden 2");assert.equal((await store.load(client(),a.id)).conversation[0].text,"A garden with events");
  const revision=(await store.load(client(),a.id)).planRaw;
- const competing=await store.save(client(),{endeavorId:a.id,title:"Garden 3",vision:"More gardens",spec,expectedPlan:revision});
+ const competing=await store.save(client(),{endeavorId:a.id,title:"Garden 3",vision:"More gardens",spec,expectedPlan:revision,conversation:[{role:"you",text:"Add more flower beds"}]});
  assert.equal(competing.title,"Garden 3");
  await assert.rejects(store.save(client(),{endeavorId:a.id,title:"Stale overwrite",vision:"Old version",spec,expectedPlan:revision}),/changed/);
  assert.equal((await store.load(client(),a.id)).title,"Garden 3");
