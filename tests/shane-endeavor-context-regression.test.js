@@ -99,3 +99,10 @@ test('preserves read-only collaborator permissions through specialist handoffs',
    assert.equal(handoff.advisoryOnly,true);
  }
 });
+
+test('a handoff cannot restore editing rights on a read-only context', () => {
+ const shared=context.build({...saved(),accessRole:'collaborator',canEdit:false});
+ const result=context.handoff({...shared,canEdit:true},'creator');
+ assert.equal(result.canEdit,false);
+ assert.equal(result.accessRole,'collaborator');
+});
