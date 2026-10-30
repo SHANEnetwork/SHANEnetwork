@@ -20,4 +20,7 @@ assert(saveStart >= 0 && saveEnd > saveStart, 'Shared direction save handler exi
 const save = source.slice(saveStart, saveEnd);
 assert(save.includes('overviewVersion=result.data.updated_at;overviewLoadGeneration++;'), 'Successful save invalidates pending refreshes');
 assert(save.indexOf('overviewLoadGeneration++;') > save.indexOf('if(!result.data)'), 'Invalidation happens only after successful save');
+assert(save.includes('purposeDraft=purposeField.value,nextDraft=nextField.value'), 'Save snapshots original editor text');
+assert(save.includes('purposeField.value!==purposeDraft||nextField.value!==nextDraft'), 'Detect newer edits during save');
+assert(save.includes('Your newer edits remain here'), 'Explain newer edits still need saving');
 console.log('PASS shared direction refresh preserves in-flight edits');
