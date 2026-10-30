@@ -20,8 +20,8 @@
   return data||[];
  }
  async function respond(client,endeavorId,accept){
-  await identity(client);
   if(typeof endeavorId!=="string"||!endeavorId.trim()||typeof accept!=="boolean")throw Error("Valid invitation and decision required");
+  await identity(client);
   const {data,error}=await client.rpc("shane_respond_to_endeavor_invite",{p_endeavor_id:endeavorId,p_accept:accept});
   if(error)throw Error("Could not respond to invitation: "+error.message);
   if(data!==true)throw Error("Invitation is no longer pending or is unavailable");
