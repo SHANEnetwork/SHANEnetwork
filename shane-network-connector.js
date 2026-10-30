@@ -75,7 +75,6 @@ async function upsertEndeavorDraft(client,endeavorId,input){
  if(!endeavor)throw new Error("This endeavor is not owned by your account.");
  const {data:existing,error:lookupError}=await client.from("shane_listings").select("id,status,owner_id").eq("endeavor_id",endeavorId).eq("owner_id",user.id).maybeSingle();
  if(lookupError)throw lookupError;
- if(existing?.status!=="draft"&&existing)return {id:existing.id,status:existing.status,unchanged:true};
  const payload={...prepare(input),endeavor_id:endeavorId};
  if(existing){
   // Respect edits already made to a network draft; autosave is not publication approval.
