@@ -13,9 +13,9 @@ function client(){return {auth:{getUser:async()=>({data:{user:{id:user}}})},from
  await assert.rejects(store.save(client(),{endeavorId:a.id,title:"Stale overwrite",vision:"Old version",spec,expectedPlan:revision}),/changed/);
  assert.equal((await store.load(client(),a.id)).title,"Garden 3");
  const titleRevision=(await store.load(client(),a.id)).planRaw;
- const titleChanged=await store.save(client(),{endeavorId:a.id,title:"Garden 4",vision:"More gardens",spec,expectedPlan:titleRevision});
+ const titleChanged=await store.save(client(),{endeavorId:a.id,title:"Garden 4",vision:"More gardens",spec,expectedPlan:titleRevision,expectedTitle:"Garden 3"});
  assert.equal(titleChanged.title,"Garden 4");
- await assert.rejects(store.save(client(),{endeavorId:a.id,title:"Outdated title",vision:"More gardens",spec,expectedPlan:titleRevision}),/changed/);
+ await assert.rejects(store.save(client(),{endeavorId:a.id,title:"Outdated title",vision:"More gardens",spec,expectedPlan:titleRevision,expectedTitle:"Garden 3"}),/changed/);
  assert.equal((await store.load(client(),a.id)).title,"Garden 4");
  const linked=await store.linkSite(client(),a.id,"site-1");assert.equal(linked.siteId,"site-1");assert.equal((await store.load(client(),a.id)).linkedSiteId,"site-1");
  const org=await store.linkOrganization(client(),a.id,"org-1");assert.equal(org.organizationId,"org-1");assert.equal((await store.load(client(),a.id)).linkedOrganizationId,"org-1");assert.equal((await store.load(client(),a.id)).conversation[0].text,"Add more flower beds");
