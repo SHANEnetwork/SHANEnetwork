@@ -60,3 +60,17 @@ test('new endeavor save returns real identity and owner permissions',async()=>{
  assert.equal(saved.canEdit,true);
  assert.deepEqual(saved.conversation,[{role:'you',text:'Build a site'}]);
 });
+
+test('failed canonicalization returns the created ID for recovery',async()=>{
+ const spec=require('../shane-composition.js').compose({endeavorId:'unsaved-draft',title:'Recovery',modules:['pages']});
+ const client={auth:{getUser:async()=>({data:{user:{id:'alice'}},error:null})},from(){
+  return {insert(payload){return {select(){return {single:async()=>({data:{id:'created-456',owner_id:'alice',title:payload.title,idea:payload.idea},error:null})}}};},
+   update(){return {eq(){return this;},select(){return this;},single:async()=>({data:null,error:{message:'write failed'}})};}
+  };
+ }};
+ await assert.rejects(store.save(client,{vision:'Recover project',spec}),err=>{
+  assert.equal(err.endeavorId,'created-456');
+  assert.equal(err.recoverable,true);
+  return /canonical identity persistence failed/i.test(err.message);
+ });
+});
