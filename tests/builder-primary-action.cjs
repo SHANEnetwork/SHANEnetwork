@@ -2,3 +2,4 @@ const fs=require("node:fs"),assert=require("node:assert/strict");const html=fs.r
 assert.ok(html.includes("history.slice(0,-1).filter"),"Refinement should retain prior conversation turns");assert.ok(html.includes("Conversation context (oldest to newest)"),"AI should receive conversational context");
 assert.ok(html.includes('document.addEventListener("shane:ai-generation-finished",event=>{if(/^AI'),"Live canvas should refresh after successful AI generation");
 assert.ok(html.includes('.join("\\n").slice(-16000)'),"Conversation context must have a bounded prompt size");
+assert.ok(html.includes("Tell me what feels right, what you want changed, or what we should explore next."),"SHANE should invite collaborative refinement");
