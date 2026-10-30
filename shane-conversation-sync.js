@@ -107,8 +107,10 @@ async function resume(){
     }
    }catch(restoreError){status("Conversation restored, but the website draft could not be reopened: "+restoreError.message)}
   }
-  if(result.linkedSiteId)sessionStorage.setItem(siteKey,JSON.stringify({endeavorId:result.id,siteId:result.linkedSiteId}));\n  else sessionStorage.removeItem(siteKey);
-  if(result.linkedOrganizationId)sessionStorage.setItem("shane_org_for_endeavor_v1",JSON.stringify({endeavorId:result.id,organizationId:result.linkedOrganizationId}));\n  else sessionStorage.removeItem("shane_org_for_endeavor_v1");
+  if(result.linkedSiteId)sessionStorage.setItem(siteKey,JSON.stringify({endeavorId:result.id,siteId:result.linkedSiteId}));
+  else sessionStorage.removeItem(siteKey);
+  if(result.linkedOrganizationId)sessionStorage.setItem("shane_org_for_endeavor_v1",JSON.stringify({endeavorId:result.id,organizationId:result.linkedOrganizationId}));
+  else sessionStorage.removeItem("shane_org_for_endeavor_v1");
   if(!result.linkedSiteId)status("Your conversation has been restored. No linked website draft was found.");
  }catch(e){status("Could not resume: "+e.message)}
 }
