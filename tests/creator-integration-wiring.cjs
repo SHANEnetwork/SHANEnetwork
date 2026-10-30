@@ -23,3 +23,6 @@ test("Connected endeavor requests use a generation guard",()=>{
 test("Connected view checks selected endeavor before rendering",()=>{
  assert.ok(sync.includes("id!==sessionStorage.getItem(key)"));
 });
+test("Superseded connected view errors are ignored",()=>{
+ assert.ok(sync.includes("if(version===connectedViewVersion)status("));
+});
