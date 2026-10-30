@@ -76,7 +76,7 @@ const pageFiles = fs.readdirSync(root).filter(name => name.endsWith('.html'));
 const missingPageLinks = [];
 for (const file of pageFiles) {
   const html = read(file);
-  for (const match of html.matchAll(/\\bhref\\s*=\\s*["']([^"']+)["']/gi)) {
+  for (const match of html.matchAll(/\bhref\s*=\s*["']([^"']+)["']/gi)) {
     const href = match[1].trim();
     if (!href || href.startsWith('#') || /^(?:https?:|mailto:|tel:|javascript:|data:)/i.test(href)) continue;
     const pathname = href.split(/[?#]/)[0];
