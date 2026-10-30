@@ -37,6 +37,8 @@ jobs:
         run: node tests/workspace-overview-refresh-regression.cjs
       - name: Check collaboration workspace feed refresh regression
         run: node tests/workspace-feed-refresh-regression.cjs
+      - name: Check task edit preservation
+        run: node tests/workspace-task-edit-preservation.cjs
       - name: Check collaboration task refresh regression
         run: node tests/workspace-task-refresh-regression.cjs
       - name: Check private conversation refresh regression
