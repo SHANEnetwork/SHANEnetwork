@@ -20,3 +20,6 @@ test("Network draft bridge does not publish automatically",()=>{
 test("Connected endeavor requests use a generation guard",()=>{
  assert.ok(sync.includes("connectedViewVersion"));
 });
+test("Connected view checks selected endeavor before rendering",()=>{
+ assert.ok(sync.includes("id!==sessionStorage.getItem(key)"));
+});
