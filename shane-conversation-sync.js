@@ -9,10 +9,10 @@ function editorSnapshot(){let result=null;const listener=e=>{result=e.detail?.co
 function status(text){const el=get("shaneContinuityStatus");if(el)el.textContent=text}
 async function save(){
  const client=window.SHANEAuthenticatedClient;
- if(!client){status("The account connection is not ready. Try again shortly.");return}
- const snap=snapshot();if(!snap){status("The conversation is not ready.");return}
+ if(!client){status("The account connection is not ready. Try again shortly.");return false}
+ const snap=snapshot();if(!snap){status("The conversation is not ready.");return false}
  const vision=snap.turns.filter(t=>t.role==="you").map(t=>t.text).join("\n");
- if(!vision.trim()){status("Describe your idea to SHANE before saving the conversation.");return}
+ if(!vision.trim()){status("Describe your idea to SHANE before saving the conversation.");return false}
  const current=window.SHANECurrentComposition;
  const inferred=window.SHANEVision.interpret(vision);
  const previousSpec=window.SHANECurrentComposition?.spec;
@@ -21,7 +21,7 @@ async function save(){
  const title=(draft?.business||draft?.name||inferred.spec.title||"My Endeavor").trim();
  const existing=sessionStorage.getItem(key);
  const savedState=existing?await window.SHANEEndeavorStore.load(client,existing).catch(()=>null):null;
- if(existing&&!savedState){status("This saved creation is unavailable in the signed-in account. Your conversation was not overwritten.");return}
+ if(existing&&!savedState){status("This saved creation is unavailable in the signed-in account. Your conversation was not overwritten.");return false}
  if(savedState?.spec?.shaneOrganizationId)inferred.spec.shaneOrganizationId=savedState.spec.shaneOrganizationId;
  const button=get("shaneKeepConversation");if(button)button.disabled=true;
  try{
@@ -55,7 +55,8 @@ async function save(){
   }catch(siteError){
    status("Your conversation is saved, but the private website foundation could not be created: "+siteError.message);
   }
- }catch(e){status("Conversation not saved: "+e.message)}
+  return true;
+ }catch(e){status("Conversation not saved: "+e.message);return false}
  finally{if(button)button.disabled=false}
 }
 let autosaveBusy=false;
@@ -69,8 +70,8 @@ async function autosaveAfterGeneration(mode){
   if(mode==="new"){
    const prior={endeavor:sessionStorage.getItem(key),site:sessionStorage.getItem(siteKey),organization:sessionStorage.getItem("shane_org_for_endeavor_v1")};
    sessionStorage.removeItem(key);sessionStorage.removeItem(siteKey);sessionStorage.removeItem("shane_org_for_endeavor_v1");
-   await save();
-   if(!sessionStorage.getItem(key)){
+   const saved=await save();
+   if(!saved){
     if(prior.endeavor)sessionStorage.setItem(key,prior.endeavor);
     if(prior.site)sessionStorage.setItem(siteKey,prior.site);
     if(prior.organization)sessionStorage.setItem("shane_org_for_endeavor_v1",prior.organization);
