@@ -31,6 +31,11 @@
    const {data,error}=await request;
    if(error)throw Error("Could not save endeavor: "+error.message);
    if(!data||data.owner_id!==userId)throw Error("Endeavor ownership verification failed");
+   if(!endeavorId){
+     const canonicalPlan=conversationState().pack({...stableSpec,endeavorId:data.id},conversation===undefined?[]:conversation);
+     const {data:confirmed,error:canonicalError}=await client.from("shane_endeavors").update({plan:canonicalPlan}).eq("id",data.id).eq("owner_id",userId).select("id,owner_id,plan").single();
+     if(canonicalError||!confirmed||confirmed.owner_id!==userId||confirmed.plan!==canonicalPlan)throw Error("Endeavor created but canonical identity persistence failed; retry loading the saved endeavor");
+   }
    return {id:data.id,title:data.title,spec:{...stableSpec,endeavorId:data.id},vision:data.idea,conversation:conversation===undefined?(prior?.conversation||[]):conversation,linkedSiteId:prior?.linkedSiteId||null,linkedOrganizationId:stableSpec.shaneOrganizationId||null,persisted:true,accessRole:"owner",canEdit:true};
  }
  async function load(client,id){
