@@ -56,6 +56,7 @@ async function save(){
    }
   }catch(siteError){
    status("Your conversation is saved, but the private website foundation could not be created: "+siteError.message);
+   return false;
   }
   return true;
  }catch(e){status("Conversation not saved: "+e.message);return false}
