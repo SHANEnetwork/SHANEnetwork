@@ -1,0 +1,13 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const source = fs.readFileSync(path.join(__dirname, '..', 'workspace.html'), 'utf8');
+const start = source.indexOf('$("taskForm").onsubmit=async e=>');
+const end = source.indexOf('await init();', start);
+assert(start >= 0 && end > start, 'New task handler exists');
+const handler = source.slice(start, end);
+assert(handler.includes('const snapshot=fields.map(field=>field.value)'), 'Submission captures field values');
+assert(handler.includes('details:snapshot[1].trim()'), 'Submitted details use the snapshot');
+assert(handler.includes('fields.every((field,index)=>field.value===snapshot[index])'), 'Newer draft edits are detected');
+assert(handler.includes('Your newer draft changes were preserved'), 'Preserved draft is explained');
+console.log('PASS new task draft preservation during save');
