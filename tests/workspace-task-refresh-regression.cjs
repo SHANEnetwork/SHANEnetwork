@@ -18,7 +18,8 @@ assert(loader.includes('const visibleTasks=data.slice(0,100)'), 'Extra record is
 assert(loader.includes('older.onclick=()=>loadTasks(page+1)'), 'Older task navigation works');
 assert(loader.includes('newer.onclick=()=>loadTasks(page-1)'), 'Newer task navigation works');
 assert(source.includes('$("refreshTasks").onclick=()=>loadTasks()'), 'Refresh returns to newest tasks');
-assert(loader.includes('if(!error)await Promise.all([loadTasks(page),loadActivity()])'), 'Task mutations preserve current page');
+assert(loader.includes('if(updated)await Promise.all([loadTasks(page),loadActivity()])'), 'Confirmed task completion refreshes current page');
+assert(loader.includes('if(removed)await Promise.all([loadTasks(page),loadActivity()])'), 'Confirmed task removal refreshes current page');
 assert(loader.includes('No tasks remain on this page. Return to newer tasks.'), 'Empty older pages explain recovery');
 assert(source.includes('function openTaskEditor(task,row,page)'), 'Editor receives current task page');
 assert(source.includes('edit.onclick=()=>openTaskEditor(x,row,page)'), 'Edit button passes current page');
