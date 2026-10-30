@@ -14,4 +14,5 @@ assert(editor.includes('document.createElement(type==="textarea"?"textarea":"inp
 assert(editor.includes('if(save.disabled)return;'), 'Reject repeat edit submissions during save');
 assert(editor.includes('if(title.length<3)'), 'Task editing enforces same minimum title length as creation');
 assert(editor.includes('form.dataset.initialValues=JSON.stringify(snapshot)'), 'Successful save advances dirty baseline to saved snapshot');
+assert(editor.includes('details:snapshot[1].trim(),due_date:snapshot[2]||null,assignee_id:snapshot[3]||null'), 'Task update uses captured snapshot for every editable field');
 console.log('PASS task edit preservation during asynchronous save');
