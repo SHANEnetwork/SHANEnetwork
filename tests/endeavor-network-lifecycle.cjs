@@ -52,3 +52,12 @@ test("foreign endeavor is not provisioned",async()=>{
  await assert.rejects(connector.upsertEndeavorDraft(client,endeavor,{title:"Foreign"}),/not owned/);
  assert.equal(calls.length,0);
 });
+
+test("approved publication changes a draft to published",async()=>{
+ const {client,calls}=mock();
+ const result=await connector.publish(client,listing,{permissionConfirmed:true});
+ assert.equal(result.id,listing);
+ assert.equal(calls.length,1);
+ assert.equal(calls[0].table,"shane_listings");
+ assert.deepEqual(calls[0].payload,{status:"published",attribution_confirmed:true});
+});
