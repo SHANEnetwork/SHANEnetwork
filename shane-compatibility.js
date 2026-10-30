@@ -20,5 +20,20 @@ function assess(spec,environment={}){
  }
  return {compatible:issues.length===0,issues,actions,certified:false};
 }
-return Object.freeze({assess});
+function preflight(spec,context={}){
+ const technical=assess(spec,context);
+ const unknowns=[],paths=[];
+ const jurisdiction=typeof context.jurisdiction==="string"?context.jurisdiction.trim():"";
+ const activity=typeof context.activity==="string"?context.activity.trim():"";
+ if(!jurisdiction)unknowns.push({kind:"jurisdiction",question:"Where will the service operate and where will its users be located?"});
+ if(!activity)unknowns.push({kind:"actual_services",question:"What activities will the service actually provide?"});
+ if(context.clinicalServices===true){
+  unknowns.push({kind:"licensing",question:"Which professionals will provide regulated services, and where are they licensed?"});
+  unknowns.push({kind:"privacy",question:"Which records and communications contain protected client information?"});
+  paths.push({kind:"alternative_model",description:"Explore a genuinely nonclinical education or peer-support model if it fulfills the creator's goals; verify activities and advertising, not just labels.",verified:false});
+ }
+ const status=technical.issues.length||unknowns.length?"needs_verification":"technical_checks_clear";
+ return {status,technical,unknowns,paths,legalDetermination:false,certified:false};
+}
+return Object.freeze({assess,preflight});
 });
