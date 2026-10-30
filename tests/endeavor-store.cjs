@@ -18,6 +18,22 @@ function client(){return {auth:{getUser:async()=>({data:{user:{id:user}}})},from
  await assert.rejects(store.save(client(),{endeavorId:a.id,title:"Outdated title",vision:"More gardens",spec,expectedPlan:titleRevision,expectedTitle:"Garden 3"}),/changed/);
  assert.equal((await store.load(client(),a.id)).title,"Garden 4");
  const linked=await store.linkSite(client(),a.id,"site-1");assert.equal(linked.siteId,"site-1");assert.equal((await store.load(client(),a.id)).linkedSiteId,"site-1");
+ const beforeSite=(await store.load(client(),a.id)).revision;
+ assert.ok(beforeSite>1,"Site linking must advance the revision");
+ const originalFrom=client;
+ function competingClient(){
+   const c=originalFrom(),from=c.from.bind(c);let injected=false;
+   c.from=(table)=>{const q=from(table);if(table!=="shane_endeavors")return q;
+     const update=q.update.bind(q);q.update=(payload)=>{const result=update(payload);
+       if(!injected){injected=true;const row=rows.get(a.id);rows.set(a.id,{...row,revision:row.revision+1,region:"concurrent edit"});}
+       return result;
+     };return q;
+   };return c;
+ }
+ await assert.rejects(store.linkOrganization(competingClient(),a.id,"org-conflict"),/Could not link organization/);
+ assert.equal((await store.load(client(),a.id)).linkedOrganizationId,null,"Concurrent organization link must not overwrite the plan");
+ await assert.rejects(store.linkSite(competingClient(),a.id,"site-conflict"),/Could not link private site/);
+ assert.equal((await store.load(client(),a.id)).linkedSiteId,"site-1","Concurrent site link must not replace the linked site");
  const org=await store.linkOrganization(client(),a.id,"org-1");assert.equal(org.organizationId,"org-1");assert.equal((await store.load(client(),a.id)).linkedOrganizationId,"org-1");assert.equal((await store.load(client(),a.id)).conversation[0].text,"Add more flower beds");
  const listed=await store.list(client());assert.ok(listed.some(x=>x.id===a.id));
  await assert.rejects(store.save(client(),{title:"bad",vision:"x",spec:{}}),/Unsupported schema version/);

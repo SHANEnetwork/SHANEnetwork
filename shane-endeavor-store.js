@@ -66,7 +66,7 @@
    if(stored.spec.endeavorId===id)return load(client,id);
    if(stored.spec.endeavorId!=="unsaved-draft")throw Error("Recovery identity mismatch");
    const plan=conversationState().pack({...stored.spec,endeavorId:id},stored.turns);
-   const {data:updated,error:updateError}=await client.from("shane_endeavors").update({plan}).eq("id",id).eq("owner_id",userId).select("id,owner_id,plan").single();
+   const {data:updated,error:updateError}=await client.from("shane_endeavors").update({plan}).eq("id",id).eq("owner_id",userId).eq("plan",data.plan).select("id,owner_id,plan").single();
    if(updateError||!updated||updated.owner_id!==userId||updated.plan!==plan)throw Error("Could not finalize endeavor recovery");
    return load(client,id);
  }
@@ -108,7 +108,9 @@
    if(!endeavorId||!siteId)throw Error("Endeavor and site IDs required");
    const {data:site,error:siteError}=await client.from("shane_sites").select("id,owner_id,status").eq("id",siteId).eq("owner_id",userId).single();
    if(siteError||!site||site.owner_id!==userId||site.status!=="draft")throw Error("Private site ownership/status verification failed");
-   const {data,error}=await client.from("shane_endeavors").update({linked_site_id:siteId}).eq("id",endeavorId).eq("owner_id",userId).select("id,owner_id,linked_site_id").single();
+   const saved=await load(client,endeavorId);
+   if(!saved.canEdit)throw Error("Only the endeavor owner can link a site");
+   const {data,error}=await client.from("shane_endeavors").update({linked_site_id:siteId}).eq("id",endeavorId).eq("owner_id",userId).eq("revision",saved.revision).select("id,owner_id,linked_site_id").single();
    if(error||!data||data.owner_id!==userId||data.linked_site_id!==siteId)throw Error("Could not link private site to endeavor");
    return {endeavorId:data.id,siteId:data.linked_site_id};
  }
@@ -119,7 +121,8 @@
    if(orgError||!org||org.owner_id!==userId)throw Error("Organization ownership verification failed");
    const saved=await load(client,endeavorId);
    const spec={...saved.spec,shaneOrganizationId:organizationId};
-   const {data,error}=await client.from("shane_endeavors").update({plan:conversationState().pack(spec,saved.conversation)}).eq("id",endeavorId).eq("owner_id",userId).select("id,owner_id,plan").single();
+   if(!saved.canEdit)throw Error("Only the endeavor owner can link an organization");
+   const {data,error}=await client.from("shane_endeavors").update({plan:conversationState().pack(spec,saved.conversation)}).eq("id",endeavorId).eq("owner_id",userId).eq("revision",saved.revision).select("id,owner_id,plan").single();
    if(error||!data||data.owner_id!==userId)throw Error("Could not link organization to endeavor");
    return {endeavorId:data.id,organizationId};
  }
