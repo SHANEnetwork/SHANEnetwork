@@ -47,6 +47,9 @@ test('new endeavor save returns real identity and owner permissions',async()=>{
    return {insert(payload){
     assert.equal(payload.owner_id,'alice');
     return {select(){return {single:async()=>({data:{id:'created-123',owner_id:'alice',title:payload.title,idea:payload.idea},error:null})}}};
+   },update(payload){
+    assert.equal(JSON.parse(payload.plan).endeavorId,'created-123');
+    return {eq(){return this;},select(){return this;},single:async()=>({data:{id:'created-123',owner_id:'alice',plan:payload.plan},error:null})};
    }};
   }
  };
