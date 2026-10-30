@@ -13,7 +13,7 @@
    if(error||!data?.user?.id)throw Error("Sign in before saving your endeavor");
    return data.user.id;
  }
- async function save(client,{title,vision,spec,endeavorId,conversation,region,audience,resources,expectedPlan}){
+ async function save(client,{title,vision,spec,endeavorId,conversation,region,audience,resources,expectedPlan,expectedTitle,expectedVision}){
    const userId=await owner(client);
    const errors=engine.validate(spec);if(errors.length)throw Error(errors.join("; "));
    if(typeof vision!=="string"||!vision.trim())throw Error("Vision required");
@@ -22,6 +22,8 @@
    const prior=endeavorId?await load(client,endeavorId):null;
    if(prior&&!prior.canEdit)throw Error("Only the endeavor owner can save changes");
    if(endeavorId&&expectedPlan!==undefined&&prior.planRaw!==expectedPlan)throw Error("This endeavor changed in another session. Reload it before saving to protect newer work.");
+   if(endeavorId&&expectedTitle!==undefined&&prior.title!==expectedTitle)throw Error("This endeavor title changed in another session. Reload before saving.");
+   if(endeavorId&&expectedVision!==undefined&&prior.vision!==expectedVision)throw Error("This endeavor vision changed in another session. Reload before saving.");
    // Compare all loaded editable fields to reject stale saves, including title-only changes.
    // Region, audience and resources still need a dedicated row revision for complete coverage.
    const stableSpec={...spec,endeavorId:endeavorId||spec.endeavorId,...(prior?.linkedOrganizationId?{shaneOrganizationId:prior.linkedOrganizationId}:{})};
