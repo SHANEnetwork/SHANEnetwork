@@ -16,6 +16,6 @@ assert.ok(sync.includes('autosaveAfterGeneration(event.detail?.mode)'),"Generati
 assert.ok(sync.includes('if(mode==="new"){')||sync.includes('if(mode==="new"){\n'),"A new AI-created site must not overwrite a previous saved endeavor");
 assert.ok(sync.includes('autosaveAfterGeneration(event.detail?.mode)'),"Autosave must distinguish new creation from revision");
 
-assert.ok(sync.includes('if(!sessionStorage.getItem(key))'),"Failed new-creation save should restore previous endeavor association");
+assert.ok(sync.includes('if(!saved){'),"Failed new-creation save should restore previous endeavor association");
 
 assert.ok(sync.includes('draft?.business||draft?.name||inferred.spec.title'),"Saved endeavor should use the generated website's title");
