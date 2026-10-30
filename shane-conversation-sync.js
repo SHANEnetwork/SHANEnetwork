@@ -97,7 +97,8 @@ async function resume(){
   if(!result.conversation?.length){status("This endeavor has no saved conversation yet.");return}
   const current=snapshot();
   if(current?.turns?.length&&!confirm("Replace this browser session's conversation with your saved conversation? Unsaved editor changes may be lost."))return;
-  document.dispatchEvent(new CustomEvent("shane:conversation-restore",{detail:{turns:result.conversation,draftReady:!!result.linkedSiteId}}));
+  // Only mark the conversation draft-ready after verifying its linked editor content.
+  document.dispatchEvent(new CustomEvent("shane:conversation-restore",{detail:{turns:result.conversation,draftReady:false}}));
   window.SHANECurrentComposition={spec:result.spec,sourceVision:result.vision,provisioningStatus:"not_provisioned"};
   if(result.linkedSiteId){
    try{
@@ -106,6 +107,7 @@ async function resume(){
     if(siteError||authError||!auth?.user?.id||!site||site.owner_id!==auth.user.id)throw Error("Saved website is not accessible in this account");
     if(site.content?.shaneEditorDraft){
      document.dispatchEvent(new CustomEvent("shane:editor-restore",{detail:{content:site.content.shaneEditorDraft}}));
+     document.dispatchEvent(new CustomEvent("shane:conversation-draft-ready",{detail:{draftReady:true}}));
      status("Your conversation and editable website draft are restored. Nothing was published.");
     }
    }catch(restoreError){status("Conversation restored, but the website draft could not be reopened: "+restoreError.message)}
