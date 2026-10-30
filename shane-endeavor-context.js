@@ -12,16 +12,19 @@
   gamemaster:"Support consensual fictional adventures and preserve story continuity."
  });
  const trim=(value,max=8000)=>String(value||"").trim().slice(0,max);
+ // Snapshot nested project data so later edits cannot silently change an AI review in progress.
+ const snapshot=value=>value == null ? null : JSON.parse(JSON.stringify(value));
+ const freezeDeep=value=>{if(value && typeof value==="object" && !Object.isFrozen(value)){Object.values(value).forEach(freezeDeep);Object.freeze(value);}return value;};
  function build(endeavor,role="creator",specialty=""){
   if(!endeavor?.id||!endeavor.persisted)throw Error("A saved endeavor is required.");
   if(!Object.prototype.hasOwnProperty.call(roles,role))throw Error("Unknown role.");
-  return Object.freeze({
+  return freezeDeep({
    endeavorId:endeavor.id,role,mandate:roles[role],specialty:trim(specialty,120),
    title:trim(endeavor.title,150),vision:trim(endeavor.vision),
    linkedSiteId:endeavor.linkedSiteId||null,
    linkedOrganizationId:endeavor.linkedOrganizationId||null,
-   composition:endeavor.spec||null,
-   conversation:Array.isArray(endeavor.conversation)?endeavor.conversation.map(t=>({role:trim(t.role,40),text:trim(t.text,6000)})):[],
+   composition:snapshot(endeavor.spec),
+   conversation:Array.isArray(endeavor.conversation)?endeavor.conversation.map(t=>({role:trim(t?.role,40),text:trim(t?.text,6000)})):[],
    advisoryOnly:true,
    legalExecutionAuthorized:false
   });
@@ -33,7 +36,7 @@
  function handoff(context,role,request="",specialty=""){
   if(!context?.endeavorId)throw Error("Invalid context.");
   if(!Object.prototype.hasOwnProperty.call(roles,role))throw Error("Unknown role.");
-  return Object.freeze({...context,role,mandate:roles[role],specialty:trim(specialty,120),request:trim(request,4000),advisoryOnly:true,legalExecutionAuthorized:false});
+  return freezeDeep({...context,role,mandate:roles[role],specialty:trim(specialty,120),request:trim(request,4000),advisoryOnly:true,legalExecutionAuthorized:false});
  }
  return Object.freeze({roles,build,load,handoff});
 });
