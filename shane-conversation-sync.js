@@ -201,7 +201,7 @@ document.addEventListener("DOMContentLoaded",()=>{
    for(const [label,href] of links){const control=document.createElement(href?"a":"button");control.textContent=label;if(href)control.href=href;else{control.type="button";control.addEventListener("click",analystContext)}details.append(control,document.createTextNode(" · "))}
    const note=document.createElement("p");note.textContent="Linked website: "+(manifest.resources.site?"private foundation saved":"not linked")+"; network listing: "+(listing?(listing.status==="published"?"published":"private draft"):"not yet linked")+"; linked community: "+(manifest.resources.organization?"private foundation saved":"not linked")+". Billing, AI Professionals, video and games require separate verified activation.";details.append(note);
    status("Connected endeavor loaded from your account.");
-  }catch(error){status("Could not open connected endeavor: "+error.message)}
+  }catch(error){if(version===connectedViewVersion)status("Could not open connected endeavor: "+error.message)}
  }
  const details=document.createElement("div");details.id="shaneConnectedDetails";details.setAttribute("aria-live","polite");
 
