@@ -29,7 +29,8 @@ async function save(){
   sessionStorage.setItem(key,result.id);
   status("Your conversation is saved privately. Preparing your unpublished website foundation...");
   try{
-   const previousSite=JSON.parse(sessionStorage.getItem(siteKey)||"null");
+   let previousSite=null;
+   try{previousSite=JSON.parse(sessionStorage.getItem(siteKey)||"null")}catch{sessionStorage.removeItem(siteKey)}
    let linkedId=previousSite?.endeavorId===result.id?previousSite.siteId:undefined;
    if(!linkedId){const saved=await window.SHANEEndeavorStore.load(client,result.id);linkedId=saved.linkedSiteId||undefined}
    const site=await window.SHANEProvision.provision(client,{spec:inferred.spec,vision,siteId:linkedId,editorContent:snap.draftReady?draft:null});
@@ -39,7 +40,8 @@ async function save(){
    if(types.some(t=>["memberships","discussions"].includes(t))){
     try{
      const organizationKey="shane_org_for_endeavor_v1";
-     const savedOrg=JSON.parse(sessionStorage.getItem(organizationKey)||"null");
+     let savedOrg=null;
+     try{savedOrg=JSON.parse(sessionStorage.getItem(organizationKey)||"null")}catch{sessionStorage.removeItem(organizationKey)}
      let organizationId=savedOrg?.endeavorId===result.id?savedOrg.organizationId:undefined;
      if(!organizationId){const saved=await window.SHANEEndeavorStore.load(client,result.id);organizationId=saved.linkedOrganizationId||undefined}
      const organization=await window.SHANEOrganizationProvision.provision(client,{spec:inferred.spec,vision,organizationId});
