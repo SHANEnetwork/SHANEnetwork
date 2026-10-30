@@ -46,6 +46,9 @@ test('new endeavor save returns real identity and owner permissions',async()=>{
    assert.equal(table,'shane_endeavors');
    return {insert(payload){
     assert.equal(payload.owner_id,'alice');
+    assert.equal(payload.region,'');
+    assert.equal(payload.audience,'');
+    assert.equal(payload.resources,'');
     return {select(){return {single:async()=>({data:{id:'created-123',owner_id:'alice',title:payload.title,idea:payload.idea},error:null})}}};
    },update(payload){
     assert.equal(JSON.parse(payload.plan).endeavorId,'created-123');
