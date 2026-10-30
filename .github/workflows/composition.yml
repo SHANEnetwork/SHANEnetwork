@@ -2,6 +2,9 @@ name: Reusable composition contracts
 on:
   push:
     paths:
+      - 'builder.html'
+      - 'shane-builder-bridge.js'
+      - 'tests/builder-bridge.cjs'
       - 'shane-composition.js'
       - 'tests/composition.cjs'
       - 'tests/vision.cjs'
