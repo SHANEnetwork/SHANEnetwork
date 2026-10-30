@@ -34,8 +34,8 @@ assert.ok(!html.includes('{role:"assistant",text:"Composition updated: "'),"Stru
 
 assert.ok(html.includes("saved.conversation.length>SHANEConversationState.MAX_TURNS-2"),"Two-turn refinement must check remaining conversation capacity before saving");
 
-assert.ok(html.includes("conversation,expectedPlan:saved.planRaw,expectedTitle:saved.title,expectedVision:saved.vision});if(section.dataset.endeavorId!==id)return;"),"Refinement completion must not overwrite another project editor");
-assert.ok(html.includes("conversation:saved.conversation,expectedPlan:saved.planRaw,expectedTitle:saved.title,expectedVision:saved.vision});if(section.dataset.endeavorId!==id)return;"),"Title-save completion must not overwrite another project editor");
+assert.ok(html.includes("conversation,expectedPlan:saved.planRaw,expectedTitle:saved.title,expectedVision:saved.vision,expectedRevision:saved.revision});if(section.dataset.endeavorId!==id)return;"),"Refinement completion must not overwrite another project editor");
+assert.ok(html.includes("conversation:saved.conversation,expectedPlan:saved.planRaw,expectedTitle:saved.title,expectedVision:saved.vision,expectedRevision:saved.revision});if(section.dataset.endeavorId!==id)return;"),"Title-save completion must not overwrite another project editor");
 
 assert.ok(html.includes('if(section.dataset.endeavorId===id)status.textContent="No changes saved: "'),"Stale refinement errors must not update a different project");
 assert.ok(html.includes('if(section.dataset.endeavorId===id)status.textContent="Could not save: "'),"Stale title-save errors must not update a different project");
