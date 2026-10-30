@@ -5,7 +5,6 @@
 "use strict";
 const api=window.SHANENetworkConnector;
 if(!api)return;
-const key="shane_endeavor_network_drafts_v1";
 let pending=Promise.resolve();
 const status=document.createElement("p");status.id="shaneNetworkBridgeStatus";status.setAttribute("role","status");status.setAttribute("aria-live","polite");
 const link=document.createElement("a");link.href="members.html#mineSection";link.textContent="Review my network drafts";link.hidden=true;
@@ -15,8 +14,6 @@ const intro=document.createElement("p");intro.textContent="When you save your en
 panel.append(heading,intro,status,link);
 function mount(){const target=document.getElementById("shaneContinuityStatus")?.parentElement||document.querySelector("main")||document.body;target.append(panel)}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mount,{once:true});else mount();
-function read(){try{return JSON.parse(sessionStorage.getItem(key)||"{}")||{}}catch{return {}}}
-function write(map){try{sessionStorage.setItem(key,JSON.stringify(map))}catch{}}
 async function prepare(event){
  const d=event.detail||{},client=window.SHANEAuthenticatedClient;
  if(!client||!d.endeavorId)return;
@@ -32,6 +29,8 @@ async function prepare(event){
   }else{
    status.textContent="Your network draft is saved with your endeavor. It follows your account across devices and stays private until you approve publication.";
   }
+  link.href="members.html?listing="+encodeURIComponent(listing.id)+"#mineSection";
+  link.textContent=listing.status==="published"?"Manage my published destination":"Review my private network draft";
   link.hidden=false;
  }catch(error){status.textContent="Your endeavor is saved. Network draft preparation needs attention: "+error.message}
 }
