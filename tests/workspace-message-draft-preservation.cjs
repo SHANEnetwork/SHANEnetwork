@@ -9,4 +9,5 @@ const handler = source.slice(start, end);
 assert(handler.includes('draft=field.value,body=draft.trim()'), 'Capture exact draft before sending');
 assert(handler.includes('if(field.value===draft)field.value=""'), 'Clear only unchanged draft');
 assert(handler.includes('if(body.length>4000)'), 'Enforce message length');
+assert(handler.includes('if(e.target.querySelector("button")?.disabled)return;'), 'Ignore repeat message submissions while sending');
 console.log('PASS private message draft preservation');
