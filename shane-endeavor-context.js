@@ -13,7 +13,21 @@
  });
  const trim=(value,max=8000)=>String(value||"").trim().slice(0,max);
  // Snapshot nested project data so later edits cannot silently change an AI review in progress.
- const snapshot=value=>{\n  if(value == null)return null;\n  const seen=new WeakSet();\n  const sanitize=(item,depth=0)=>{\n   if(depth>24)throw Error("Endeavor context exceeds nesting limit.");\n   if(item===null||typeof item==="string"||typeof item==="boolean")return item;\n   if(typeof item==="number")return Number.isFinite(item)?item:null;\n   if(typeof item!=="object")return null;\n   if(seen.has(item))throw Error("Circular endeavor context.");\n   seen.add(item);\n   const out=Array.isArray(item)?item.map(v=>sanitize(v,depth+1)):Object.fromEntries(Object.keys(item).filter(k=>!["__proto__","constructor","prototype"].includes(k)).map(k=>[k,sanitize(item[k],depth+1)]));\n   seen.delete(item);return out;\n  };\n  return sanitize(value);\n };
+ const snapshot=value=>{
+  if(value == null)return null;
+  const seen=new WeakSet();
+  const sanitize=(item,depth=0)=>{
+   if(depth>24)throw Error("Endeavor context exceeds nesting limit.");
+   if(item===null||typeof item==="string"||typeof item==="boolean")return item;
+   if(typeof item==="number")return Number.isFinite(item)?item:null;
+   if(typeof item!=="object")return null;
+   if(seen.has(item))throw Error("Circular endeavor context.");
+   seen.add(item);
+   const out=Array.isArray(item)?item.map(v=>sanitize(v,depth+1)):Object.fromEntries(Object.keys(item).filter(k=>!["__proto__","constructor","prototype"].includes(k)).map(k=>[k,sanitize(item[k],depth+1)]));
+   seen.delete(item);return out;
+  };
+  return sanitize(value);
+ };
  const freezeDeep=value=>{if(value && typeof value==="object" && !Object.isFrozen(value)){Object.values(value).forEach(freezeDeep);Object.freeze(value);}return value;};
  function build(endeavor,role="creator",specialty=""){
   if(!endeavor?.id||!endeavor.persisted)throw Error("A saved endeavor is required.");
