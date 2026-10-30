@@ -10,6 +10,8 @@ assert(source.includes('let taskLoadGeneration=0;'), 'Task refresh generation in
 assert(loader.includes('const generation=++taskLoadGeneration;'), 'Each task refresh advances generation');
 assert(loader.includes('if(generation!==taskLoadGeneration||!host.isConnected)return;'), 'Stale or detached task views ignored');
 assert(loader.indexOf('if(generation!==taskLoadGeneration||!host.isConnected)return;') < loader.indexOf('host.replaceChildren();'), 'Stale response guard precedes task list replacement');
-assert(loader.includes('.order("created_at",{ascending:false}).limit(100)'), 'Newest tasks are visible when a workspace exceeds the display limit');
-assert(loader.includes('older tasks are not displayed'), 'Task list explains its display limit');
+assert(loader.includes('.order("created_at",{ascending:false}).range(page*100,page*100+99)'), 'Tasks are fetched newest first in bounded pages');
+assert(loader.includes('older.onclick=()=>loadTasks(page+1)'), 'Older task navigation works');
+assert(loader.includes('newer.onclick=()=>loadTasks(page-1)'), 'Newer task navigation works');
+assert(source.includes('$("refreshTasks").onclick=()=>loadTasks()'), 'Refresh returns to newest tasks');
 console.log('PASS collaboration task refresh ordering guards');
