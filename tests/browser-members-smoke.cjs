@@ -153,7 +153,7 @@ test('long vision survives network handoff to creator without truncation',async(
   assert.equal(await page.locator('#visionInput').inputValue(),vision);
   await page.locator('#buildFromVision').click();
   await page.waitForURL(/builder\.html/,{timeout:10000});
-  await page.locator('#visionPrompt').waitFor({timeout:10000});
+  await page.waitForFunction(expected=>document.getElementById('visionPrompt')?.value===expected,vision.trim(),{timeout:10000});
   assert.equal(await page.locator('#visionPrompt').inputValue(),vision.trim());
   assert.equal(await page.evaluate(()=>sessionStorage.getItem('shane_network_vision_handoff_v1')),null);
  }finally{await browser.close()}
