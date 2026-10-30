@@ -44,6 +44,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - run: node --check shane-conversation-sync.js
+      - run: node --check shane-provision.js
+      - run: node --check shane-builder-bridge.js
       - run: node tests/composition.cjs
       - run: node tests/compatibility.cjs
       - run: node tests/outreach.cjs
