@@ -6,7 +6,7 @@ assert.ok(html.includes("Tell me what feels right, what you want changed, or wha
 assert.ok(html.includes("finish(status,event.detail?.mode)"),"Creation result should use actual generation mode");
 assert.ok(html.includes("promptText.slice(0,1900)"),"AI revision must reserve room for the latest creator request");
 assert.ok(html.includes("Different endeavors should have genuinely different visual identities"),"Generator must prioritize distinctive visual identity");
-assert.ok(html.includes(".join(\"\\n\").slice(-1400)"),"Conversation context must fit the AI prompt budget");
+assert.ok(html.includes(".join(\"\\n\").slice(-600)"),"Conversation context must fit the AI prompt budget");
 assert.ok(html.includes('t.role==="you"&&typeof t.text==="string"'),"AI context must prioritize actual creator instructions");
 assert.ok(html.includes("Existing website summary:"),"AI revisions must carry a focused summary of the existing website");
 assert.ok(html.includes("Treat accessibility as part of beautiful design"),"AI generation must include accessibility requirements");
