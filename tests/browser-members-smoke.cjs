@@ -18,5 +18,10 @@ test('member interface exposes account and listing controls without a remote log
   assert.equal(await page.locator('#title').isVisible(),false);
   assert.equal(await page.locator('#email').isVisible(),true);
   assert.equal(await page.locator('#password').isVisible(),true);
+  assert.equal(await page.locator('#signinButton').isVisible(),true);
+  assert.equal(await page.locator('#signup').isVisible(),true);
+  assert.equal(await page.locator('#signout').isVisible(),false);
+  assert.equal(await page.locator('#mineSection').isVisible(),false);
+  assert.equal(await page.locator('#collaborationSection').isVisible(),false);
  } finally {await browser.close()}
 });
