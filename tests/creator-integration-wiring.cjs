@@ -17,3 +17,6 @@ test("Network draft bridge does not publish automatically",()=>{
  assert.ok(bridge.includes("upsertEndeavorDraft"));
  assert.ok(!bridge.includes(".publish("));
 });
+test("Connected endeavor requests use a generation guard",()=>{
+ assert.ok(sync.includes("connectedViewVersion"));
+});
