@@ -13,7 +13,7 @@
    endeavor:{state:"ready",id:endeavor.id},
    website:{state:endeavor.linkedSiteId?"linked":"needs-setup",id:endeavor.linkedSiteId||null},
    organization:{state:endeavor.linkedOrganizationId?"linked":"needs-setup",id:endeavor.linkedOrganizationId||null},
-   network:{state:listing?.endeavor_id===endeavor.id?(listing.status==="published"?"published":"private-draft"):"needs-setup",id:listing?.endeavor_id===endeavor.id?listing.id:null},
+   network:{state:listing?.endeavor_id===endeavor.id?(listing.status==="published"?"published":listing.status==="draft"?"private-draft":"unverified"):"needs-setup",id:listing?.endeavor_id===endeavor.id?listing.id:null},
    analyst:{state:"handoff-only"},
    legal:{state:"drafting-context-only"},
    professionals:{state:"not-integrated"},
