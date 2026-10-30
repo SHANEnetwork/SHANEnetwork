@@ -15,7 +15,8 @@ function fakeClient(userId, endeavors, memberships) {
     select(){return this;},
     eq(field,value){filters.push([field,value]);return this;},
     order(){return this;},
-    limit(){return Promise.resolve({data:source.filter(row=>filters.every(([key,value])=>row[key]===value)),error:null});}
+    limit(){return Promise.resolve({data:source.filter(row=>filters.every(([key,value])=>row[key]===value)),error:null});},
+    then(resolve,reject){return Promise.resolve({data:source.filter(row=>filters.every(([key,value])=>row[key]===value)),error:null}).then(resolve,reject);}
    };
    return q;
   }
