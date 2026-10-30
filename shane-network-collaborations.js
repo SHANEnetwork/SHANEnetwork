@@ -1,8 +1,10 @@
+import {createClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/+esm";
+const sb=createClient("https://ufxzogeixdwvbpdypojb.supabase.co","sb_publishable_iR9kxdCfQ7850VleEUx7mA_nHS4WZpB");
 /* Shane Network: private collaboration hub. Existing Supabase RLS controls access. */
 (()=>{
  const $=id=>document.getElementById(id);
  const box=$("networkCollaborationInbox"),status=$("networkCollaborationStatus");
- if(!box||!status||typeof sb==="undefined")return;
+ if(!box||!status)return;
  let user=null;
  const el=(tag,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;return node};
  const action=(label,fn)=>{const button=el("button",label);button.type="button";button.addEventListener("click",fn);return button};
