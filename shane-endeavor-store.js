@@ -13,7 +13,7 @@
    if(error||!data?.user?.id)throw Error("Sign in before saving your endeavor");
    return data.user.id;
  }
- async function save(client,{title,vision,spec,endeavorId,conversation,region,audience,resources,expectedPlan,expectedTitle,expectedVision}){
+ async function save(client,{title,vision,spec,endeavorId,conversation,region,audience,resources,expectedPlan,expectedTitle,expectedVision,expectedRevision}){
    const userId=await owner(client);
    const errors=engine.validate(spec);if(errors.length)throw Error(errors.join("; "));
    if(typeof vision!=="string"||!vision.trim())throw Error("Vision required");
@@ -21,6 +21,7 @@
    if(!endeavorId&&spec.endeavorId!=="unsaved-draft")throw Error("New endeavors require an unsaved draft identity");
    const prior=endeavorId?await load(client,endeavorId):null;
    if(prior&&!prior.canEdit)throw Error("Only the endeavor owner can save changes");
+   if(endeavorId&&expectedRevision!==undefined&&prior.revision!==expectedRevision)throw Error("This endeavor changed in another session. Reload before saving.");
    if(endeavorId&&expectedPlan!==undefined&&prior.planRaw!==expectedPlan)throw Error("This endeavor changed in another session. Reload it before saving to protect newer work.");
    if(endeavorId&&expectedTitle!==undefined&&prior.title!==expectedTitle)throw Error("This endeavor title changed in another session. Reload before saving.");
    if(endeavorId&&expectedVision!==undefined&&prior.vision!==expectedVision)throw Error("This endeavor vision changed in another session. Reload before saving.");
@@ -32,7 +33,7 @@
    else{if(region!==undefined)payload.region=region;if(audience!==undefined)payload.audience=audience;if(resources!==undefined)payload.resources=resources;}
    let request;
    if(endeavorId){
-     request=client.from("shane_endeavors").update(payload).eq("id",endeavorId).eq("owner_id",userId).eq("plan",prior.planRaw).eq("title",prior.title).eq("idea",prior.vision).select("id,owner_id,title,idea,plan").single();
+     request=client.from("shane_endeavors").update(payload).eq("id",endeavorId).eq("owner_id",userId).eq("plan",prior.planRaw).eq("title",prior.title).eq("idea",prior.vision).eq("revision",prior.revision).select("id,owner_id,title,idea,plan").single();
    }else{
      request=client.from("shane_endeavors").insert(payload).select("id,owner_id,title,idea,plan").single();
    }
@@ -72,7 +73,7 @@
  async function load(client,id){
    const userId=await owner(client);
    if(typeof id!=="string"||!id.trim())throw Error("Endeavor ID required");
-   const {data,error}=await client.from("shane_endeavors").select("id,owner_id,title,idea,plan,linked_site_id").eq("id",id).single();
+   const {data,error}=await client.from("shane_endeavors").select("id,owner_id,title,idea,plan,linked_site_id,revision").eq("id",id).single();
    if(error)throw Error("Could not load endeavor: "+error.message);
    if(!data)throw Error("Endeavor unavailable");
    // RLS allows owners and active invitees to read; never grant write authority here.
@@ -85,7 +86,7 @@
    let spec;try{spec=conversationState().unpack(data.plan).spec}catch{throw Error("Stored composition is invalid or conversation data is malformed")}
    if(spec.endeavorId!==id&&spec.endeavorId!=="unsaved-draft")throw Error("Stored endeavor identity mismatch");
    const errors=engine.validate(spec);if(errors.length)throw Error("Stored composition invalid: "+errors.join("; "));
-   return {id,title:data.title,vision:data.idea,spec,planRaw:data.plan,conversation:conversationState().unpack(spec).turns,linkedSiteId:data.linked_site_id,linkedOrganizationId:spec.shaneOrganizationId||null,persisted:true,accessRole:isOwner?"owner":"collaborator",canEdit:isOwner};
+   return {id,title:data.title,vision:data.idea,spec,planRaw:data.plan,revision:data.revision,conversation:conversationState().unpack(spec).turns,linkedSiteId:data.linked_site_id,linkedOrganizationId:spec.shaneOrganizationId||null,persisted:true,accessRole:isOwner?"owner":"collaborator",canEdit:isOwner};
  }
  async function loadAssessment(client,id){
    const userId=await owner(client);
