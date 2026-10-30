@@ -24,3 +24,18 @@ The existing Chromium tests use intercepted Supabase client modules and simulate
 
 ## Next implementation decision
 Prefer a dedicated isolated test environment and scripted two-account acceptance journey. Never claim simulated tests are live end-to-end validation. Preserve existing pages, schema, and production data while closing these gates.
+
+## Verified CI baseline and cross-account acceptance protocol (2026-10-30)
+
+Commit `d0e8b77cbc7cff1a9e207fb6cf746064f23e3777` passed all three workflows: browser smoke (run 41123306478), integration regression (41123306190), and endeavor context (41123306346). These are simulated/browser-local tests, **not** a live two-account acceptance pass.
+
+Use an isolated Supabase project or explicitly authorized disposable test accounts and records. Keep the live SHANE project and SHON unchanged until a separate deployment decision. For each scenario record the acting account, action, expected result, observed HTTP/database result, and cleanup confirmation. Never put passwords, access tokens, or service-role keys in workflow logs.
+
+1. Create two independent test identities A (listing owner) and B (collaborator), plus outsider C. Verify C cannot edit A's draft or read unpublished listing content. Verify A can publish intentionally and B can request collaboration only through the permitted flow.
+2. Before acceptance, B cannot read private workspace messages or tasks. A accepts B's request; then A and B can exchange messages and resume after a fresh login. C still cannot read, send, update, or delete any of their messages.
+3. Verify invitation recipient-only decisions, rejection of duplicate/invalid status transitions, and inability for A to accept a request addressed to B. Test concurrent decisions and record whether one wins safely.
+4. Verify endeavor invitations, role changes, revocation, and that removed collaborators immediately lose workspace read/write access. Only the owner may publish or perform owner-only destructive actions.
+5. Save a long vision and multi-turn conversation; sign out, sign back in, reload and compare exact text. Refine a preview conversationally, explicitly publish, then restore a prior version. Verify that no intermediate draft became public.
+6. Run accessibility keyboard and screen-reader checks, reporting/blocking checks, operational error visibility, domain and TLS verification, and backup/recovery rehearsal. Record unresolved gaps as release blockers.
+
+**Gate:** A passing mocked browser test cannot replace these database-backed assertions. Do not declare the platform generally available until these checks are recorded with actual observations.
