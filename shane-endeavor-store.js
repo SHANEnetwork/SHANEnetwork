@@ -19,6 +19,7 @@
    if(typeof vision!=="string"||!vision.trim())throw Error("Vision required");
    if(spec.endeavorId!=="unsaved-draft"&&endeavorId&&spec.endeavorId!==endeavorId)throw Error("Endeavor identity mismatch");
    const prior=endeavorId?await load(client,endeavorId):null;
+   if(prior&&!prior.canEdit)throw Error("Only the endeavor owner can save changes");
    const stableSpec=prior?.linkedOrganizationId?{...spec,shaneOrganizationId:prior.linkedOrganizationId}:spec;
    const payload={owner_id:userId,title:title||spec.title,idea:vision,plan:conversationState().pack(stableSpec,conversation===undefined?(prior?.conversation||[]):conversation)};
    let request;
@@ -72,11 +73,22 @@
  }
  async function list(client){
    const userId=await owner(client);
-   const {data,error}=await client.from("shane_endeavors").select("id,owner_id,title,updated_at").eq("owner_id",userId).order("updated_at",{ascending:false}).limit(100);
+   const {data:rows,error}=await client.from("shane_endeavors")
+     .select("id,owner_id,title,updated_at").order("updated_at",{ascending:false}).limit(100);
    if(error)throw Error("Could not list endeavors: "+error.message);
-   if(!Array.isArray(data))throw Error("Unexpected endeavor list response");
-   if(data.some(item=>item.owner_id!==userId))throw Error("Endeavor ownership verification failed");
-   return data.map(item=>({id:item.id,title:item.title,updatedAt:item.updated_at}));
+   if(!Array.isArray(rows))throw Error("Unexpected endeavor list response");
+   // RLS limits results to owned endeavors and active collaborator projects.
+   const shared=rows.filter(item=>item.owner_id!==userId);
+   let membershipIds=new Set();
+   if(shared.length){
+     const {data:memberships,error:memberError}=await client.from("shane_endeavor_members")
+       .select("endeavor_id,status").eq("user_id",userId).eq("status","active");
+     if(memberError)throw Error("Could not verify shared endeavors: "+memberError.message);
+     membershipIds=new Set((memberships||[]).filter(m=>m.status==="active").map(m=>m.endeavor_id));
+   }
+   return rows.filter(item=>item.owner_id===userId||membershipIds.has(item.id))
+     .map(item=>({id:item.id,title:item.title,updatedAt:item.updated_at,
+       accessRole:item.owner_id===userId?"owner":"collaborator",canEdit:item.owner_id===userId}));
  }
  return Object.freeze({save,load,list,linkSite,linkOrganization});
 });
