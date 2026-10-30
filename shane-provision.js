@@ -28,6 +28,7 @@
    for(const field of allowed)if(Object.prototype.hasOwnProperty.call(editorContent,field))editorDraft[field]=editorContent[field];
    content.shaneEditorDraft=editorDraft;
   }
+  const priorNativePages=typeof content.pages==="string"?content.pages:null;
   // The generated landing page is an editable draft, not a replacement for authored pages.
   if(!Array.isArray(content.pages))content.pages=Array.isArray(content.shaneCompositionPages)?content.shaneCompositionPages:[{title:"Home",slug:"home",draft:true}];
   if(content.pages.length===0)content.pages=[{title:"Home",slug:"home",draft:true}];
@@ -57,7 +58,7 @@
    content.shaneCompositionPages=content.pages;
    Object.assign(content,content.shaneEditorDraft);
   }
-  if(Array.isArray(content.pages)){content.shaneCompositionPages=content.pages; if(!editorContent&&content.shaneEditorDraft)content.pages=content.shaneEditorDraft.pages||"";}
+  if(Array.isArray(content.pages)){content.shaneCompositionPages=content.pages; if(!editorContent&&priorNativePages!==null)content.pages=priorNativePages; else if(!editorContent&&content.shaneEditorDraft)content.pages=content.shaneEditorDraft.pages||"";}
   content.shaneComposition=composition;
   content.sourceVision=String(vision||"").slice(0,12000);
   const payload={owner_id:ownerId,name:spec.title,content,status:"draft"};
