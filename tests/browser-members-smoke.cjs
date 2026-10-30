@@ -91,3 +91,25 @@ test('accepted collaboration opens private conversation in isolated Chromium',as
   await page.locator('#collaborationInbox').getByText('You: Hello from isolated Chromium').waitFor({timeout:10000});
  }finally{await browser.close()}
 });
+
+test('recipient accepts pending invitation in isolated Chromium',async()=>{
+ const browser=await chromium.launch({headless:true});
+ try{
+  const page=await browser.newPage();
+  const stub=`const user={id:'isolated-recipient',email:'recipient@example.invalid'};
+  const request={id:'pending-invite',listing_id:'project-1',sender_id:'other-member',recipient_id:user.id,message:'Please collaborate on this endeavor',status:'pending',created_at:'2026-10-30T12:00:00Z'};
+  const query=(table)=>{let mode='read';let patch=null;const q={
+   select(){return q},eq(){return q},order(){return q},limit(){return q},in(){return q},
+   update(value){mode='update';patch=value;return q},
+   maybeSingle:async()=>{if(mode==='update'){Object.assign(request,patch);return {data:{id:request.id},error:null}}return {data:null,error:null}},
+   then(resolve){resolve({data:table==='shane_collaboration_requests'?[request]:table==='shane_listings'?[{id:'project-1',title:'Invitation project'}]:[],error:null})}
+  };return q};
+  export function createClient(){return {auth:{getUser:async()=>({data:{user},error:null})},from:query}};`;
+  await page.route('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/+esm',route=>route.fulfill({status:200,contentType:'application/javascript',body:stub}));
+  await page.goto('file://'+path.resolve('members.html'));
+  await page.locator('#collaborationInbox').getByText('Accept',{exact:true}).waitFor({timeout:10000});
+  await page.locator('#collaborationInbox').getByText('Accept',{exact:true}).click();
+  await page.locator('#collaborationInbox').getByText('Open collaboration workspace').waitFor({timeout:10000});
+  assert.match(await page.locator('#collaborationInbox').innerText(),/Status: accepted/);
+ }finally{await browser.close()}
+});
