@@ -23,4 +23,5 @@ assert(save.indexOf('overviewLoadGeneration++;') > save.indexOf('if(!result.data
 assert(save.includes('purposeDraft=purposeField.value,nextDraft=nextField.value'), 'Save snapshots original editor text');
 assert(save.includes('purposeField.value!==purposeDraft||nextField.value!==nextDraft'), 'Detect newer edits during save');
 assert(save.includes('Your newer edits remain here'), 'Explain newer edits still need saving');
+assert(save.includes('e.target.querySelector(\'button[type="submit"]\')?.disabled'), 'Ignore repeat shared-direction submissions while saving');
 console.log('PASS shared direction refresh preserves in-flight edits');
