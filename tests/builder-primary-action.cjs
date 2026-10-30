@@ -10,3 +10,4 @@ assert.ok(html.includes(".join(\"\\n\").slice(-1400)"),"Conversation context mus
 assert.ok(html.includes('t.role==="you"&&typeof t.text==="string"'),"AI context must prioritize actual creator instructions");
 assert.ok(html.includes("Existing website summary:"),"AI revisions must carry a focused summary of the existing website");
 assert.ok(html.includes("Treat accessibility as part of beautiful design"),"AI generation must include accessibility requirements");
+assert.ok(html.includes("Preserve the creator’s specific terminology and identity"),"AI generation must preserve creator voice");
