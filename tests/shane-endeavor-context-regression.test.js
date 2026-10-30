@@ -57,3 +57,17 @@ test('bounds user-provided text in specialist context', () => {
   assert.equal(result.title.length, 150);
   assert.equal(result.conversation[0].text.length, 6000);
 });
+
+test('snapshots and freezes nested composition across handoffs', () => {
+  const original = saved();
+  const creator = context.build(original);
+  original.spec.pages.push('Secret');
+  original.conversation[0].text = 'Changed later';
+  assert.deepEqual(creator.composition.pages, ['Home', 'Projects']);
+  assert.equal(creator.conversation[0].text, 'Include collaboration spaces');
+  assert.equal(Object.isFrozen(creator.composition), true);
+  assert.equal(Object.isFrozen(creator.composition.pages), true);
+  const analyst = context.handoff(creator, 'analyst');
+  assert.equal(Object.isFrozen(analyst.conversation), true);
+  assert.equal(Object.isFrozen(analyst.conversation[0]), true);
+});
