@@ -4,3 +4,4 @@ assert.ok(html.includes('document.addEventListener("shane:ai-generation-finished
 assert.ok(html.includes('.join("\\n").slice(-16000)'),"Conversation context must have a bounded prompt size");
 assert.ok(html.includes("Tell me what feels right, what you want changed, or what we should explore next."),"SHANE should invite collaborative refinement");
 assert.ok(html.includes("finish(status,event.detail?.mode)"),"Creation result should use actual generation mode");
+assert.ok(html.includes("promptText.slice(0,1900)"),"AI revision must reserve room for the latest creator request");
