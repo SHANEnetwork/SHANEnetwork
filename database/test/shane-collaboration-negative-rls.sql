@@ -107,3 +107,19 @@ BEGIN
  IF NOT denied THEN RAISE EXCEPTION 'Accepted invitation sender identity could be rewritten'; END IF;
 END $$;
 ROLLBACK;
+-- A completed invitation cannot be changed to a different response.
+BEGIN;
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',true);
+DO $$
+DECLARE denied boolean := false;
+BEGIN
+ BEGIN
+  UPDATE public.shane_collaboration_requests
+  SET status='declined'
+  WHERE id='88888888-8888-4888-8888-888888888888';
+ EXCEPTION WHEN raise_exception OR insufficient_privilege OR check_violation THEN denied := true;
+ END;
+ IF NOT denied THEN RAISE EXCEPTION 'Accepted invitation could be declined after completion'; END IF;
+END $$;
+ROLLBACK;
