@@ -25,4 +25,7 @@ assert(source.includes('else await Promise.all([loadTasks(page),loadActivity()])
 assert(loader.includes('host.setAttribute("aria-busy","true")'), 'Task list indicates refresh in progress');
 assert(loader.includes('host.setAttribute("aria-busy","false")'), 'Task list clears busy state');
 assert(loader.indexOf('if(error)') < loader.indexOf('host.replaceChildren()'), 'Failed task refresh retains existing tasks');
+assert(loader.includes('const editing=Array.from(host.querySelectorAll("form"))'), 'Task refresh detects active unsaved editors');
+assert(loader.includes('Your unsaved task edits are preserved'), 'Unsaved task edits block destructive refresh');
+assert(source.includes('form.dataset.initialValues=JSON.stringify('), 'Task editor captures initial values for dirty check');
 console.log('PASS collaboration task refresh ordering guards');
