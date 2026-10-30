@@ -65,8 +65,16 @@ async function autosaveAfterGeneration(mode){
  autosaveBusy=true;
  try{
   // A newly generated website must not silently overwrite a previously saved endeavor.
-  if(mode==="new"){sessionStorage.removeItem(key);sessionStorage.removeItem(siteKey);sessionStorage.removeItem("shane_org_for_endeavor_v1")}
-  await save();
+  if(mode==="new"){
+   const prior={endeavor:sessionStorage.getItem(key),site:sessionStorage.getItem(siteKey),organization:sessionStorage.getItem("shane_org_for_endeavor_v1")};
+   sessionStorage.removeItem(key);sessionStorage.removeItem(siteKey);sessionStorage.removeItem("shane_org_for_endeavor_v1");
+   await save();
+   if(!sessionStorage.getItem(key)){
+    if(prior.endeavor)sessionStorage.setItem(key,prior.endeavor);
+    if(prior.site)sessionStorage.setItem(siteKey,prior.site);
+    if(prior.organization)sessionStorage.setItem("shane_org_for_endeavor_v1",prior.organization);
+   }
+  }else await save();
  }finally{autosaveBusy=false}
 }
 document.addEventListener("shane:ai-generation-finished",event=>{
