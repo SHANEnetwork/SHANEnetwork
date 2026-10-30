@@ -36,6 +36,9 @@ on:
       - 'shane-outreach.js'
       - 'tests/outreach.cjs'
       - '.github/workflows/composition.yml'
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   composition:
     runs-on: ubuntu-latest
