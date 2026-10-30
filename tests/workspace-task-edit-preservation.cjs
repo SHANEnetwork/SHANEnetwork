@@ -13,4 +13,5 @@ assert(editor.includes('else await Promise.all([loadTasks(page),loadActivity()])
 assert(editor.includes('document.createElement(type==="textarea"?"textarea":"input")'), 'Task details use a multiline editor');
 assert(editor.includes('if(save.disabled)return;'), 'Reject repeat edit submissions during save');
 assert(editor.includes('if(title.length<3)'), 'Task editing enforces same minimum title length as creation');
+assert(editor.includes('form.dataset.initialValues=JSON.stringify(snapshot)'), 'Successful save advances dirty baseline to saved snapshot');
 console.log('PASS task edit preservation during asynchronous save');
