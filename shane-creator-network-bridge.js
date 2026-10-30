@@ -32,6 +32,7 @@ async function prepare(event){
   link.href="members.html?listing="+encodeURIComponent(listing.id)+"#mineSection";
   link.textContent=listing.status==="published"?"Manage my published destination":"Review my private network draft";
   link.hidden=false;
+  document.dispatchEvent(new CustomEvent("shane:network-draft-ready",{detail:{endeavorId:id,listingId:listing.id,status:listing.status}}));
  }catch(error){status.textContent="Your endeavor is saved. Network draft preparation needs attention: "+error.message}
 }
 document.addEventListener("shane:endeavor-saved",event=>{pending=pending.then(()=>prepare(event)).catch(error=>{status.textContent=error.message})});
