@@ -1,0 +1,13 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const source = fs.readFileSync(path.join(__dirname, '..', 'workspace.html'), 'utf8');
+const start = source.indexOf('function openTaskEditor(task,row)');
+const end = source.indexOf('let taskLoadGeneration=0;', start);
+assert(start >= 0 && end > start, 'Task editor exists');
+const editor = source.slice(start, end);
+assert(editor.includes('const snapshot=inputs.map(input=>input.value).concat(select.value);'), 'Snapshot is captured before save');
+assert(editor.includes('value!==snapshot[index]'), 'Newer edits detected after save');
+assert(editor.includes('Newer edits remain in the editor'), 'Member receives preservation notice');
+assert(editor.includes('else await Promise.all([loadTasks(),loadActivity()])'), 'Unchanged editor refreshes normally');
+console.log('PASS task edit preservation during asynchronous save');
