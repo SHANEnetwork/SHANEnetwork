@@ -169,6 +169,7 @@ test('homepage idea reaches the conversational creator without being shortened',
   await page.locator('#shaneWelcome button[type="submit"]').first().click();
   const continueLink=page.locator('#welcomePreview a[href*="builder.html"]').first();
   await continueLink.waitFor({state:'visible',timeout:10000});
+  assert.match(await continueLink.getAttribute('href'),/#vision-first$/);
   await continueLink.click();
   await page.waitForURL(/builder\.html/,{timeout:10000});
   await page.waitForFunction(expected=>document.getElementById('visionPrompt')?.value===expected,idea.trim(),{timeout:10000});
