@@ -5,6 +5,7 @@ as $$
 declare changed integer;
 begin
  if (select auth.uid()) is null then raise exception 'Authentication required'; end if;
+ if p_endeavor_id is null or p_accept is null then raise exception 'Invitation response parameters required'; end if;
  update public.shane_endeavor_members
  set status=case when p_accept then 'active' else 'declined' end, updated_at=now()
  where endeavor_id=p_endeavor_id and user_id=(select auth.uid()) and status='invited';
