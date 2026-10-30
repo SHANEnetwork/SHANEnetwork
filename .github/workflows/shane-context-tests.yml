@@ -15,6 +15,6 @@ jobs:
         with:
           node-version: '22'
       - name: Syntax check
-        run: node --check shane-endeavor-context.js
+        run: node --check shane-endeavor-context.js && node --check shane-endeavor-store.js
       - name: Regression tests
-        run: node --test tests/shane-endeavor-context-regression.test.js
+        run: node --test tests/shane-endeavor-context-regression.test.js tests/shane-endeavor-store-regression.test.js
