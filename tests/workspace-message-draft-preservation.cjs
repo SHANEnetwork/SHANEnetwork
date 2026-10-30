@@ -10,4 +10,7 @@ assert(handler.includes('draft=field.value,body=draft.trim()'), 'Capture exact d
 assert(handler.includes('if(field.value===draft)field.value=""'), 'Clear only unchanged draft');
 assert(handler.includes('if(body.length>4000)'), 'Enforce message length');
 assert(handler.includes('if(e.target.querySelector("button")?.disabled)return;'), 'Ignore repeat message submissions while sending');
+assert(handler.includes('.insert({request_id:id,sender_id:user.id,body}).select("request_id")'), 'Message insert requests confirmation');
+assert(handler.includes('const sent=!error&&data?.length===1'), 'Message is successful only with one confirmed row');
+assert(handler.includes('if(sent){if(field.value===draft)field.value=""'), 'Message draft is cleared only after confirmed send');
 console.log('PASS private message draft preservation');
