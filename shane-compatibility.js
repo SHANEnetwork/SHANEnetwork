@@ -54,5 +54,15 @@ function riskPlan(spec,context={}){
  ];
  return {status:warnings.length?"high_caution":unknowns.length||preliminary.technical.issues.length?"insufficient_evidence":"ready_for_independent_review",warnings,unknowns,gates,technical:preliminary.technical,paths:preliminary.paths,estimatedRunwayMonths:runway,successProbability:null,certified:false};
 }
-return Object.freeze({assess,preflight,riskPlan});
+function comparePaths(paths=[]){
+ if(!Array.isArray(paths))throw Error("Paths must be an array");
+ return paths.map((path,index)=>{
+  const cost=Number.isFinite(path?.cost)&&path.cost>=0?path.cost:null;
+  const duration=Number.isFinite(path?.months)&&path.months>=0?path.months:null;
+  const evidence=path?.evidence==="verified"?"verified":path?.evidence==="partial"?"partial":"unknown";
+  const risks=Array.isArray(path?.risks)?path.risks.filter(x=>typeof x==="string"):[];
+  return {id:String(path?.id||index+1),name:String(path?.name||"Alternative "+(index+1)),cost,months:duration,evidence,risks,assumptions:Array.isArray(path?.assumptions)?path.assumptions.filter(x=>typeof x==="string"):[],successProbability:null};
+ }).sort((a,b)=>(a.cost??Infinity)-(b.cost??Infinity));
+}
+return Object.freeze({assess,preflight,riskPlan,comparePaths});
 });
