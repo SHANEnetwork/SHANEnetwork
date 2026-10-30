@@ -148,6 +148,9 @@ test('long vision survives network handoff to creator without truncation',async(
   const page=await browser.newPage();
   const vision='Build a welcoming community with events, discussions and projects. '.repeat(140);
   assert.ok(vision.length>5000);
+  // My Network's handoff handler lives in a module that imports Supabase.
+  // Supply an inert client so this offline browser test exercises the actual handler.
+  await page.route('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/+esm',route=>route.fulfill({status:200,contentType:'application/javascript',body:"export function createClient(){const q={select(){return this},eq(){return this},order(){return this},limit(){return Promise.resolve({data:[],error:null})},then(resolve){return Promise.resolve({data:[],error:null}).then(resolve)}};return {auth:{getUser:async()=>({data:{user:null},error:null})},from(){return q}}}"}));
   await page.goto('file://'+path.resolve('my-network.html'));
   await page.locator('#visionInput').fill(vision);
   assert.equal(await page.locator('#visionInput').inputValue(),vision);
