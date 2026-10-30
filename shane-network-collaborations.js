@@ -14,10 +14,11 @@ const sb=createClient("https://ufxzogeixdwvbpdypojb.supabase.co","sb_publishable
   const result=await sb.from("shane_collaboration_requests").select("id,listing_id,sender_id,recipient_id,message,status,created_at").order("created_at",{ascending:false}).limit(60);
   if(result.error)throw result.error;
   const rows=(result.data||[]).filter(r=>r.sender_id===user.id||r.recipient_id===user.id);
+  rows.sort((a,b)=>Number(b.status==="pending"&&b.recipient_id===user.id)-Number(a.status==="pending"&&a.recipient_id===user.id)||new Date(b.created_at)-new Date(a.created_at));
   status.textContent=rows.length?rows.filter(r=>r.status==="pending"&&r.recipient_id===user.id).length+" invitation(s) awaiting your response · "+rows.filter(r=>r.status==="accepted").length+" accepted collaboration(s)":"No invitations yet. Discover a public endeavor and introduce yourself to its creator.";
   const ids=[...new Set(rows.map(r=>r.listing_id).filter(Boolean))];let titles=new Map();
   if(ids.length){const names=await sb.from("shane_listings").select("id,title").in("id",ids);if(!names.error)titles=new Map((names.data||[]).map(n=>[n.id,n.title]));}
-  for(const r of rows){const article=el("article");article.className="entry";const heading=el("h3",(r.recipient_id===user.id?"Received":"Sent")+" · "+(titles.get(r.listing_id)||"Collaboration"));const detail=el("p",r.message);const state=el("p","Status: "+r.status);article.append(heading,detail,state);
+  for(const r of rows){const article=el("article");article.className="entry";const heading=el("h3",(r.recipient_id===user.id?"Received":"Sent")+" · "+(titles.get(r.listing_id)||"Collaboration"));const detail=el("p",r.message);const state=el("p","Status: "+r.status);article.append(heading,detail,state);if(r.status==="pending"&&r.recipient_id===user.id){article.style.cssText="border-left:4px solid #287ab7;padding-left:14px;background:#f5f9ff";const attention=el("strong","Your response is requested");article.prepend(attention);}
    if(r.status==="pending"&&r.recipient_id===user.id){for(const decision of ["accepted","declined"]){const btn=action(decision==="accepted"?"Accept invitation":"Decline invitation",async()=>{btn.disabled=true;const result=await sb.from("shane_collaboration_requests").update({status:decision}).eq("id",r.id).eq("recipient_id",user.id).eq("status","pending").select("id").maybeSingle();if(result.error){state.textContent="Could not update invitation: "+result.error.message;btn.disabled=false;return}if(!result.data){state.textContent="This invitation has already changed. Refreshing…";await load();return}await load()});article.append(btn,document.createTextNode(" "));}}
    if(r.status==="accepted"){
     const work=el("a","Open shared workspace");work.href="workspace.html?collaboration="+encodeURIComponent(r.id);
@@ -46,5 +47,6 @@ const sb=createClient("https://ufxzogeixdwvbpdypojb.supabase.co","sb_publishable
   }
  }catch(error){status.textContent="Could not load collaborations: "+error.message}}
  const refresh=$("networkCollaborationRefresh");if(refresh)refresh.addEventListener("click",load);
+ sb.auth.onAuthStateChange(()=>{queueMicrotask(()=>load())});
  load();
 })();
