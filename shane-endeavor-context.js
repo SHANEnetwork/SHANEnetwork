@@ -50,6 +50,10 @@
  }
  function handoff(context,role,request="",specialty=""){
   if(!context?.endeavorId)throw Error("Invalid context.");
+  // Handoffs may only preserve or reduce authority, never manufacture ownership.
+  if(context.accessRole==="collaborator"||context.canEdit===false){
+    context={...context,accessRole:"collaborator",canEdit:false};
+  }
   if(!Object.prototype.hasOwnProperty.call(roles,role))throw Error("Unknown role.");
   return freezeDeep({...context,role,mandate:roles[role],specialty:trim(specialty,120),request:trim(request,4000),advisoryOnly:true,legalExecutionAuthorized:false});
  }
