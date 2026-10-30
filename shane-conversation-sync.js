@@ -169,10 +169,16 @@ document.addEventListener("DOMContentLoaded",()=>{
    const details=get("shaneConnectedDetails");details.replaceChildren();
    const title=document.createElement("strong");title.textContent=saved.title||"Your endeavor";details.append(title);
    const explanation=document.createElement("p");explanation.textContent="These links use the same saved endeavor. Unfinished services are not represented as active.";details.append(explanation);
-   const links=[["Continue creating","builder.html"],["Review network presence","my-network.html"],["Manage network listing","members.html#mineSection"],["Request Analyst review",null]];
+   let listing=null;
+   const {data:auth,error:authError}=await client.auth.getUser();
+   if(authError||!auth?.user?.id)throw Error("Sign in to inspect connected network listings.");
+   const {data:linkedListing,error:listingError}=await client.from("shane_listings").select("id,status,endeavor_id").eq("endeavor_id",saved.id).eq("owner_id",auth.user.id).maybeSingle();
+   if(listingError)throw Error("Could not verify linked network listing: "+listingError.message);
+   listing=linkedListing;
+   const links=[["Continue creating","builder.html"],["Review network presence","my-network.html"],["Manage network listing",listing?"members.html?listing="+encodeURIComponent(listing.id)+"#mineSection":"members.html#mineSection"],["Request Analyst review",null]];
    if(manifest.resources.organization)links.push(["Manage linked club or society","communities.html?organization="+encodeURIComponent(manifest.resources.organization)]);
    for(const [label,href] of links){const control=document.createElement(href?"a":"button");control.textContent=label;if(href)control.href=href;else{control.type="button";control.addEventListener("click",analystContext)}details.append(control,document.createTextNode(" · "))}
-   const note=document.createElement("p");note.textContent="Linked website: "+(manifest.resources.site?"private foundation saved":"not linked")+"; linked community: "+(manifest.resources.organization?"private foundation saved":"not linked")+". Publishing, billing, AI Professionals, video and games require separate verified activation.";details.append(note);
+   const note=document.createElement("p");note.textContent="Linked website: "+(manifest.resources.site?"private foundation saved":"not linked")+"; network listing: "+(listing?(listing.status==="published"?"published":"private draft"):"not yet linked")+"; linked community: "+(manifest.resources.organization?"private foundation saved":"not linked")+". Billing, AI Professionals, video and games require separate verified activation.";details.append(note);
    status("Connected endeavor loaded from your account.");
   }catch(error){status("Could not open connected endeavor: "+error.message)}
  });
