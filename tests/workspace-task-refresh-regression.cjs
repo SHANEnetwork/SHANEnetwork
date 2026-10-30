@@ -10,6 +10,7 @@ assert(source.includes('let taskLoadGeneration=0;'), 'Task refresh generation in
 assert(loader.includes('const generation=++taskLoadGeneration;'), 'Each task refresh advances generation');
 assert(loader.includes('if(generation!==taskLoadGeneration||!host.isConnected)return;'), 'Stale or detached task views ignored');
 assert(loader.indexOf('if(generation!==taskLoadGeneration||!host.isConnected)return;') < loader.indexOf('host.replaceChildren();'), 'Stale response guard precedes task list replacement');
+assert(loader.indexOf('if(error)') < loader.indexOf('host.replaceChildren();'), 'Failed task refresh does not clear existing tasks');
 assert(loader.includes('.order("created_at",{ascending:false}).order("id",{ascending:false}).range(page*100,page*100+100)'), 'Tasks are fetched newest first in bounded pages');
 assert(loader.includes('const hasOlder=data.length>100'), 'Extra record determines whether an older page exists');
 assert(loader.includes('const visibleTasks=data.slice(0,100)'), 'Extra record is not displayed');
