@@ -25,3 +25,8 @@ test("accepted collaboration connects inbox, workspace, and private messages",()
  assert.match(workspace,/shane_collaboration_tasks/);
  assert.match(workspace,/shane_collaboration_overviews/);
 });
+
+test("private conversation displays newest messages in chronological order",()=>{
+ assert.match(inbox,/shane_collaboration_messages"\)\.select\("sender_id,body,created_at"\)\.eq\("request_id",r\.id\)\.order\("created_at",\{ascending:false\}\)\.limit\(100\)/);
+ assert.match(inbox,/for\(const m of \[\.\.\.\(response\.data\|\|\[\]\)\]\.reverse\(\)\)/);
+});
