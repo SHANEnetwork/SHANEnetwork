@@ -21,6 +21,7 @@
    if(!endeavorId&&spec.endeavorId!=="unsaved-draft")throw Error("New endeavors require an unsaved draft identity");
    const prior=endeavorId?await load(client,endeavorId):null;
    if(prior&&!prior.canEdit)throw Error("Only the endeavor owner can save changes");
+   if(endeavorId&&expectedPlan===undefined)throw Error("A saved revision is required to update this endeavor safely. Reload it before saving.");
    if(endeavorId&&expectedPlan!==undefined&&prior.planRaw!==expectedPlan)throw Error("This endeavor changed in another session. Reload it before saving to protect newer work.");
    const stableSpec={...spec,endeavorId:endeavorId||spec.endeavorId,...(prior?.linkedOrganizationId?{shaneOrganizationId:prior.linkedOrganizationId}:{})};
    const payload={owner_id:userId,title:title||spec.title,idea:vision,plan:conversationState().pack(stableSpec,conversation===undefined?(prior?.conversation||[]):conversation)};
