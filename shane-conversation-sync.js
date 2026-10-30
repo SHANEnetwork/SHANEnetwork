@@ -57,6 +57,21 @@ async function save(){
  }catch(e){status("Conversation not saved: "+e.message)}
  finally{button.disabled=false}
 }
+let autosaveBusy=false;
+async function autosaveAfterGeneration(){
+ if(autosaveBusy)return;
+ const client=window.SHANEAuthenticatedClient;
+ if(!client)return;
+ autosaveBusy=true;
+ try{await save()}finally{autosaveBusy=false}
+}
+document.addEventListener("shane:ai-generation-finished",event=>{
+ const message=String(event.detail?.status||"");
+ if(!/^AI (?:revision ready|content generated)/i.test(message))return;
+ // The conversation's completion listener runs after this event. Defer save
+ // to the next task so the generated response and draftReady flag are included.
+ setTimeout(()=>autosaveAfterGeneration(),0);
+});
 async function resume(){
  const id=sessionStorage.getItem(key);if(!id){status("No saved endeavor is linked to this browser session yet.");return}
  const client=window.SHANEAuthenticatedClient;if(!client){status("The account connection is not ready.");return}
