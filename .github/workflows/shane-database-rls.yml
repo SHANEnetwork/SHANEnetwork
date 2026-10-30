@@ -1,0 +1,25 @@
+name: SHANE isolated database RLS acceptance
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  collaboration-rls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SHANE_TEST_DATABASE_URL: ${{ secrets.SHANE_TEST_DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require isolated test database connection
+        run: |
+          if [ -z "$SHANE_TEST_DATABASE_URL" ]; then
+            echo "::error::Configure SHANE_TEST_DATABASE_URL for the isolated SHANE Test project before dispatching this workflow."
+            exit 1
+          fi
+      - name: Run rollback-safe collaboration RLS assertions
+        env:
+          PGCONNECT_TIMEOUT: '10'
+        run: |
+          psql "$SHANE_TEST_DATABASE_URL" -X -v ON_ERROR_STOP=1 -f database/test/shane-collaboration-rls-regression.sql
+          psql "$SHANE_TEST_DATABASE_URL" -X -v ON_ERROR_STOP=1 -f database/test/shane-collaboration-negative-rls.sql
