@@ -14,5 +14,10 @@ for (const [name, marker, next, guard] of [
   const check = 'if(generation!==' + guard + '||!host.isConnected)return;';
   assert(loader.includes(check), name + ' stale response guard');
   assert(loader.indexOf(check) < loader.indexOf('host.replaceChildren()'), name + ' guard before render');
+  if(name==='messages'){
+    assert(loader.includes('host.setAttribute("aria-busy","true")'), 'Conversation marks refresh as busy');
+    assert(loader.includes('host.setAttribute("aria-busy","false")'), 'Conversation clears busy state');
+    assert(loader.indexOf('if(error)') < loader.indexOf('host.replaceChildren()'), 'Failed refresh retains existing messages');
+  }
   console.log('PASS ' + name + ' refresh ordering guards');
 }
