@@ -21,11 +21,11 @@ async function save(){
  const draft=editorSnapshot();
  const title=String(draft?.business||draft?.name||inferred.spec.title||"My Endeavor").trim();
  const existing=sessionStorage.getItem(key);
- let savedState=null;
- try{if(existing)savedState=await window.SHANEEndeavorStore.load(client,existing)}catch(e){status("Unable to verify your previous creation: "+e.message);return false}
- if(existing&&!savedState){status("This saved creation is unavailable in the signed-in account. Your conversation was not overwritten.");return false}
- if(savedState?.spec?.shaneOrganizationId)inferred.spec.shaneOrganizationId=savedState.spec.shaneOrganizationId;
  saveInProgress=true;
+ let savedState=null;
+ try{if(existing)savedState=await window.SHANEEndeavorStore.load(client,existing)}catch(e){saveInProgress=false;status("Unable to verify your previous creation: "+e.message);return false}
+ if(existing&&!savedState){saveInProgress=false;status("This saved creation is unavailable in the signed-in account. Your conversation was not overwritten.");return false}
+ if(savedState?.spec?.shaneOrganizationId)inferred.spec.shaneOrganizationId=savedState.spec.shaneOrganizationId;
  const button=get("shaneKeepConversation");if(button)button.disabled=true;
  try{
   const result=await window.SHANEEndeavorStore.save(client,{title,vision,spec:inferred.spec,conversation:snap.turns,endeavorId:existing||undefined});
