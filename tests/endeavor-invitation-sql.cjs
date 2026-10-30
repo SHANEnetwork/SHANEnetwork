@@ -17,3 +17,6 @@ test("Public and anonymous execution are revoked",()=>{
  assert.match(sql,/revoke all on function/);
  assert.match(sql,/to authenticated/);
 });
+test("Invitation response rejects missing decisions",()=>{
+ assert.match(sql,/p_endeavor_id is null or p_accept is null/);
+});
