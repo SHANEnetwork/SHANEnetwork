@@ -158,3 +158,21 @@ test('long vision survives network handoff to creator without truncation',async(
   assert.equal(await page.evaluate(()=>sessionStorage.getItem('shane_network_vision_handoff_v1')),null);
  }finally{await browser.close()}
 });
+
+test('homepage idea reaches the conversational creator without being shortened',async()=>{
+ const browser=await chromium.launch({headless:true});
+ try{
+  const page=await browser.newPage();
+  const idea='Create a welcoming community with events, collaboration, and accessible pages. '.repeat(80);
+  await page.goto('file://'+path.resolve('index.html'));
+  await page.locator('#welcomeIdea').fill(idea);
+  await page.locator('#shaneWelcome button[type="submit"]').first().click();
+  const continueLink=page.locator('#welcomePreview a[href*="builder.html"]').first();
+  await continueLink.waitFor({state:'visible',timeout:10000});
+  await continueLink.click();
+  await page.waitForURL(/builder\.html/,{timeout:10000});
+  await page.waitForFunction(expected=>document.getElementById('visionPrompt')?.value===expected,idea.trim(),{timeout:10000});
+  assert.equal(await page.locator('#shaneIdeaReply').inputValue(),idea.trim());
+  assert.equal(await page.locator('#assessmentIdea').inputValue(),idea.trim());
+ }finally{await browser.close()}
+});
