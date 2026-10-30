@@ -59,7 +59,7 @@
    if(orgError||!org||org.owner_id!==userId)throw Error("Organization ownership verification failed");
    const saved=await load(client,endeavorId);
    const spec={...saved.spec,shaneOrganizationId:organizationId};
-   const {data,error}=await client.from("shane_endeavors").update({plan:JSON.stringify(spec)}).eq("id",endeavorId).eq("owner_id",userId).select("id,owner_id,plan").single();
+   const {data,error}=await client.from("shane_endeavors").update({plan:conversationState().pack(spec,saved.conversation)}).eq("id",endeavorId).eq("owner_id",userId).select("id,owner_id,plan").single();
    if(error||!data||data.owner_id!==userId)throw Error("Could not link organization to endeavor");
    return {endeavorId:data.id,organizationId};
  }
