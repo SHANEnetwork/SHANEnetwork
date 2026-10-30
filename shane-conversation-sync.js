@@ -58,19 +58,23 @@ async function save(){
  finally{if(button)button.disabled=false}
 }
 let autosaveBusy=false;
-async function autosaveAfterGeneration(){
+async function autosaveAfterGeneration(mode){
  if(autosaveBusy)return;
  const client=window.SHANEAuthenticatedClient;
  if(!client)return;
  autosaveBusy=true;
- try{await save()}finally{autosaveBusy=false}
+ try{
+  // A newly generated website must not silently overwrite a previously saved endeavor.
+  if(mode==="new"){sessionStorage.removeItem(key);sessionStorage.removeItem(siteKey);sessionStorage.removeItem("shane_org_for_endeavor_v1")}
+  await save();
+ }finally{autosaveBusy=false}
 }
 document.addEventListener("shane:ai-generation-finished",event=>{
  const message=String(event.detail?.status||"");
  if(!/^AI (?:revision ready|content generated)/i.test(message))return;
  // The conversation's completion listener runs after this event. Defer save
  // to the next task so the generated response and draftReady flag are included.
- setTimeout(()=>autosaveAfterGeneration(),0);
+ setTimeout(()=>autosaveAfterGeneration(event.detail?.mode),0);
 });
 async function resume(){
  const id=sessionStorage.getItem(key);if(!id){status("No saved endeavor is linked to this browser session yet.");return}
