@@ -3,3 +3,4 @@ assert.ok(html.includes("history.slice(0,-1).filter"),"Refinement should retain 
 assert.ok(html.includes('document.addEventListener("shane:ai-generation-finished",event=>{if(/^AI'),"Live canvas should refresh after successful AI generation");
 assert.ok(html.includes('.join("\\n").slice(-16000)'),"Conversation context must have a bounded prompt size");
 assert.ok(html.includes("Tell me what feels right, what you want changed, or what we should explore next."),"SHANE should invite collaborative refinement");
+assert.ok(html.includes("finish(status,event.detail?.mode)"),"Creation result should use actual generation mode");
