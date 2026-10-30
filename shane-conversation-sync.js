@@ -27,7 +27,7 @@ async function save(){
  try{
   const result=await window.SHANEEndeavorStore.save(client,{title,vision,spec:inferred.spec,conversation:snap.turns,endeavorId:existing||undefined});
   sessionStorage.setItem(key,result.id);
-  document.dispatchEvent(new CustomEvent("shane:endeavor-saved",{detail:{endeavorId:result.id,title,vision,siteId:null}}));
+  // Network drafts are prepared only after the private endeavor and site foundation are linked.
   status("Your conversation is saved privately. Preparing your unpublished website foundation...");
   try{
    let previousSite=null;
@@ -36,6 +36,7 @@ async function save(){
    if(!linkedId){const saved=await window.SHANEEndeavorStore.load(client,result.id);linkedId=saved.linkedSiteId||undefined}
    const site=await window.SHANEProvision.provision(client,{spec:inferred.spec,vision,siteId:linkedId,editorContent:snap.draftReady?draft:null});
    await window.SHANEEndeavorStore.linkSite(client,result.id,site.siteId);
+   document.dispatchEvent(new CustomEvent("shane:endeavor-saved",{detail:{endeavorId:result.id,title,vision,siteId:site.siteId}}));
    sessionStorage.setItem(siteKey,JSON.stringify({endeavorId:result.id,siteId:site.siteId}));
    const types=inferred.spec.modules.map(m=>m.type);
    if(types.some(t=>["memberships","discussions"].includes(t))){
