@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SHANE Endeavor Invitations</title></head>
+<body><main><h1>SHANE Network</h1><p>Invitations require your own signed-in account. Accepting does not transfer ownership or publish anything.</p><div id="invitations"></div></main>
+<script src="shane-invitations.js"></script>
+<script src="shane-invitation-inbox.js"></script>
+<script>
+(function(){
+ const container=document.getElementById("invitations");
+ const client=window.SHANEAuthenticatedClient;
+ if(!client){container.textContent="Sign in through SHANE to review invitations.";return;}
+ window.SHANEInvitationInbox.mount(container,client);
+})();
+</script>
+</body></html>
