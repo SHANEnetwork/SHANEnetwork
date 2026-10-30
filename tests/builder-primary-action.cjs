@@ -14,3 +14,4 @@ assert.ok(html.includes("Preserve the creator’s specific terminology and ident
 assert.ok(html.includes("latest.slice(0,950)"),"Latest creator request and earlier decisions must both fit within revision context");
 assert.ok(html.includes('"shane:conversation-draft-ready"'),"Restored drafts must explicitly synchronize revision mode");
 const sync=fs.readFileSync("shane-conversation-sync.js","utf8");assert.ok(sync.includes("const restoredDraft=site.content?.shaneEditorDraft||"),"Resume must support both nested and native editor content");assert.ok(sync.includes('typeof site.content?.pages==="string"'),"Composition placeholder pages must not masquerade as an editable website");
+assert.ok(sync.includes("private site foundation, but no editable website draft yet"),"Foundation-only creations must not be described as finished websites");
