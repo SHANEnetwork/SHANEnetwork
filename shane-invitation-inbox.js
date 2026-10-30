@@ -21,9 +21,9 @@
      for(const [label,accept] of [["Accept",true],["Decline",false]]){
       const button=document.createElement("button");button.type="button";button.textContent=label;
       button.addEventListener("click",async()=>{
-       button.disabled=true;status.textContent="Saving your response...";
+       const buttons=item.querySelectorAll("button");buttons.forEach(b=>b.disabled=true);status.textContent="Saving your response...";
        try{await root.SHANEInvitations.respond(client,invite.endeavor_id,accept);await refresh();}
-       catch(error){status.textContent=error.message;button.disabled=false;}
+       catch(error){status.textContent=error.message;buttons.forEach(b=>b.disabled=false);}
       });
       item.append(button);
      }
