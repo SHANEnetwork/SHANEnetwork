@@ -17,7 +17,8 @@ async function save(){
  const inferred=window.SHANEVision.interpret(vision);
  const previousSpec=window.SHANECurrentComposition?.spec;
  if(previousSpec?.title&&inferred.spec.title==="My Endeavor")inferred.spec.title=previousSpec.title;
- const title=(get("siteName")?.value||get("name")?.value||inferred.spec.title||"My Endeavor").trim();
+ const draft=editorSnapshot();
+ const title=(draft?.business||draft?.name||inferred.spec.title||"My Endeavor").trim();
  const existing=sessionStorage.getItem(key);
  const savedState=existing?await window.SHANEEndeavorStore.load(client,existing).catch(()=>null):null;
  if(existing&&!savedState){status("This saved creation is unavailable in the signed-in account. Your conversation was not overwritten.");return}
@@ -31,7 +32,7 @@ async function save(){
    const previousSite=JSON.parse(sessionStorage.getItem(siteKey)||"null");
    let linkedId=previousSite?.endeavorId===result.id?previousSite.siteId:undefined;
    if(!linkedId){const saved=await window.SHANEEndeavorStore.load(client,result.id);linkedId=saved.linkedSiteId||undefined}
-   const site=await window.SHANEProvision.provision(client,{spec:inferred.spec,vision,siteId:linkedId,editorContent:snap.draftReady?editorSnapshot():null});
+   const site=await window.SHANEProvision.provision(client,{spec:inferred.spec,vision,siteId:linkedId,editorContent:snap.draftReady?draft:null});
    await window.SHANEEndeavorStore.linkSite(client,result.id,site.siteId);
    sessionStorage.setItem(siteKey,JSON.stringify({endeavorId:result.id,siteId:site.siteId}));
    const types=inferred.spec.modules.map(m=>m.type);
