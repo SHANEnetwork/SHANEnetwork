@@ -32,6 +32,9 @@
   if(!addIntent&&!removeIntent)throw Error("Please say add or remove and name the capability to change");
   const remove=removeIntent;
   const matched=rules.filter(rule=>rule.pattern.test(text)).map(rule=>rule.type);
+  if(/\\b(?:all|everything|entire site|whole website)\\b/i.test(text))throw Error("Broad changes need a specific list of capabilities before SHANE can safely revise this endeavor");
+  if(/\\b(?:replace|start over|reset|clear|wipe|rebuild from scratch)\\b/i.test(text))throw Error("Replacement requests need an explicit new endeavor; the existing project remains unchanged");
+
   if(/\b(?:page|pages|website|webpage)\b/i.test(text))matched.push("pages");
   if(!matched.length)throw Error("No supported capability identified; describe pages, projects, publications, events, memberships, messages, discussions, or a directory");
   const enabled=new Set(spec.modules.map(m=>m.type));
