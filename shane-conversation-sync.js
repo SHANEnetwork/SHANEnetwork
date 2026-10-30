@@ -8,6 +8,9 @@ function snapshot(){let result=null;const listener=e=>{result=e.detail};document
 function editorSnapshot(){let result=null;const listener=e=>{result=e.detail?.content||null};document.addEventListener("shane:editor-snapshot",listener,{once:true});document.dispatchEvent(new Event("shane:editor-export"));document.removeEventListener("shane:editor-snapshot",listener);return result}
 function status(text){const el=get("shaneContinuityStatus");if(el)el.textContent=text}
 let saveInProgress=false;
+const revisionKey="shane_endeavor_revision_v1";
+function observedRevision(id){try{const entry=JSON.parse(sessionStorage.getItem(revisionKey)||"null");return entry?.id===id&&Number.isInteger(entry.revision)?entry.revision:null}catch{return null}}
+function rememberRevision(id,revision){if(id&&Number.isInteger(revision))sessionStorage.setItem(revisionKey,JSON.stringify({id,revision}))}
 async function save(){
  if(saveInProgress){status("Your endeavor is already being saved. Please wait for it to finish.");return false}
  const client=window.SHANEAuthenticatedClient;
@@ -25,11 +28,13 @@ async function save(){
  let savedState=null;
  try{if(existing)savedState=await window.SHANEEndeavorStore.load(client,existing)}catch(e){saveInProgress=false;status("Unable to verify your previous creation: "+e.message);return false}
  if(existing&&!savedState){saveInProgress=false;status("This saved creation is unavailable in the signed-in account. Your conversation was not overwritten.");return false}
+ if(existing){const expected=observedRevision(existing);if(expected===null){saveInProgress=false;status("Reopen this saved endeavor before editing so SHANE can protect changes from other sessions.");return false}if(savedState.revision!==expected){saveInProgress=false;status("This endeavor changed in another session. Reopen it before saving to protect newer work.");return false}}
  if(savedState?.spec?.shaneOrganizationId)inferred.spec.shaneOrganizationId=savedState.spec.shaneOrganizationId;
  const button=get("shaneKeepConversation");if(button)button.disabled=true;
  try{
-  const result=await window.SHANEEndeavorStore.save(client,{title,vision,spec:inferred.spec,conversation:snap.turns,endeavorId:existing||undefined});
+  const result=await window.SHANEEndeavorStore.save(client,{title,vision,spec:inferred.spec,conversation:snap.turns,endeavorId:existing||undefined,expectedRevision:existing?observedRevision(existing):undefined});
   sessionStorage.setItem(key,result.id);
+  rememberRevision(result.id,result.revision);
   // Network drafts are prepared only after the private endeavor and site foundation are linked.
   status("Your conversation is saved privately. Preparing your unpublished website foundation...");
   try{
@@ -39,6 +44,7 @@ async function save(){
    if(!linkedId){const saved=await window.SHANEEndeavorStore.load(client,result.id);linkedId=saved.linkedSiteId||undefined}
    const site=await window.SHANEProvision.provision(client,{spec:inferred.spec,vision,siteId:linkedId,editorContent:snap.draftReady?draft:null});
    await window.SHANEEndeavorStore.linkSite(client,result.id,site.siteId);
+   rememberRevision(result.id,(await window.SHANEEndeavorStore.load(client,result.id)).revision);
    sessionStorage.setItem(siteKey,JSON.stringify({endeavorId:result.id,siteId:site.siteId}));
    let linkedOrganizationId=null;
    const types=inferred.spec.modules.map(m=>m.type);
@@ -51,6 +57,7 @@ async function save(){
      if(!organizationId){const saved=await window.SHANEEndeavorStore.load(client,result.id);organizationId=saved.linkedOrganizationId||undefined}
      const organization=await window.SHANEOrganizationProvision.provision(client,{spec:inferred.spec,vision,organizationId});
      await window.SHANEEndeavorStore.linkOrganization(client,result.id,organization.organizationId);
+     rememberRevision(result.id,(await window.SHANEEndeavorStore.load(client,result.id)).revision);
      linkedOrganizationId=organization.organizationId;
      sessionStorage.setItem(organizationKey,JSON.stringify({endeavorId:result.id,organizationId:organization.organizationId}));
      status("Your conversation, private website, and community foundation are saved. No invitations or public posts were sent.");
@@ -81,7 +88,7 @@ async function autosaveAfterGeneration(mode){
   // A newly generated website must not silently overwrite a previously saved endeavor.
   if(mode==="new"){
    const prior={endeavor:sessionStorage.getItem(key),site:sessionStorage.getItem(siteKey),organization:sessionStorage.getItem("shane_org_for_endeavor_v1")};
-   sessionStorage.removeItem(key);sessionStorage.removeItem(siteKey);sessionStorage.removeItem("shane_org_for_endeavor_v1");
+   sessionStorage.removeItem(key);sessionStorage.removeItem(revisionKey);sessionStorage.removeItem(siteKey);sessionStorage.removeItem("shane_org_for_endeavor_v1");
    const saved=await save();
    if(!saved){
     if(prior.endeavor)sessionStorage.setItem(key,prior.endeavor);
@@ -107,6 +114,7 @@ async function resume(){
   const current=snapshot();
   if(current?.turns?.length&&!confirm("Replace this browser session's conversation with your saved conversation? Unsaved editor changes may be lost."))return;
   // Only mark the conversation draft-ready after verifying its linked editor content.
+  rememberRevision(id,result.revision);
   document.dispatchEvent(new CustomEvent("shane:conversation-restore",{detail:{turns:result.conversation,draftReady:false}}));
   window.SHANECurrentComposition={spec:result.spec,sourceVision:result.vision,provisioningStatus:"not_provisioned"};
   if(result.linkedSiteId){
