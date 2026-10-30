@@ -14,8 +14,9 @@ test('member interface exposes account and listing controls without a remote log
   assert.equal(await page.locator('#publication option[value="draft"]').count(),1);
   assert.equal(await page.locator('#publication option[value="published"]').count(),1);
   assert.equal(await page.locator('#listingFeedback[role="status"]').count(),1);
-  await page.locator('#title').fill('Automated local test');
-  await page.locator('#publication').selectOption('draft');
-  assert.equal(await page.locator('#title').inputValue(),'Automated local test');
+  assert.equal(await page.locator('#listingSection').isVisible(),false);
+  assert.equal(await page.locator('#title').isVisible(),false);
+  assert.equal(await page.locator('#email').isVisible(),true);
+  assert.equal(await page.locator('#password').isVisible(),true);
  } finally {await browser.close()}
 });
