@@ -200,3 +200,13 @@ test('homepage idea reaches the conversational creator without being shortened',
   assert.equal(await page.locator('#assessmentIdea').inputValue(),idea.trim());
  }finally{await browser.close();await server.close()}
 });
+
+test('private workspace rejects missing collaboration identifier before accessing member data', async()=>{
+ const browser=await chromium.launch({headless:true});
+ try{
+  const page=await browser.newPage();
+  await page.goto('file://'+path.resolve('workspace.html'));
+  assert.match(await page.locator('#status').innerText(), /Open this workspace from an accepted collaboration/);
+  assert.equal(await page.locator('#workspace').isVisible(),false);
+ }finally{await browser.close()}
+});
