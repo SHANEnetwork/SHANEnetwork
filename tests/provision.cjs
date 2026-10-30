@@ -16,3 +16,15 @@ let inserted;const client={auth:{getUser:async()=>({data:{user:{id:"owner-1"}}})
  assert.equal(updated.content.pages[0].title,"Custom page");
  console.log("PASS existing site content preserved during refinement");
 })().catch(e=>{console.error(e);process.exitCode=1});
+
+(async()=>{
+ const spec=engine.compose({endeavorId:"unsaved-draft",title:"Garden",modules:["pages"]});
+ let inserted;
+ const client={auth:{getUser:async()=>({data:{user:{id:"owner-1"}}})},from(){return {insert(v){inserted=v;return this},select(){return this},single:async()=>({data:{...inserted,id:"draft-editor"}})}}};
+ const result=await provision(client,{spec,vision:"A community garden",editorContent:{business:"Garden",about:"A place to grow",pages:"Visit | Come see us",brandFont:"friendly"}});
+ assert.equal(result.status,"draft");
+ assert.equal(inserted.content.shaneEditorDraft.about,"A place to grow");
+ assert.equal(inserted.content.shaneEditorDraft.pages,"Visit | Come see us");
+ assert.ok(Array.isArray(inserted.content.pages));
+ console.log("PASS generated editor content captured without replacing composition pages");
+})().catch(e=>{console.error(e);process.exitCode=1});
