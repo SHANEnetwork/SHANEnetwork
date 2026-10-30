@@ -19,3 +19,6 @@ assert.ok(html.includes('<select id="aiProvider" hidden aria-label="AI service u
 assert.ok(html.includes('<select id="aiMode" hidden aria-label="SHANE automatically selects creation or refinement"'),"Creator must not manually configure generation mode");
 assert.ok(html.includes('<fieldset class="shane-optional-starting-modes" hidden'),"Vision-first flow must not begin with a starting-mode questionnaire");
 assert.ok(html.includes("budget-existingSummary.length-changePrefix.length"),"Revision prompt must reserve room for existing website context");
+assert.ok(html.includes('if(mode==="new"){const vision='),"Automatic visual identity should apply to new drafts");
+assert.ok(html.includes('document.getElementById("layoutStyle").value=chosen.layout'),"SHANE must select layout from creator vision");
+assert.ok(html.includes('document.getElementById("brandFont").value=chosen.font'),"SHANE must select typography from creator vision");
