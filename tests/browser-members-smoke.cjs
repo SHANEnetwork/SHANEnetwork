@@ -66,3 +66,28 @@ test('signed-in member can create a draft using isolated browser mocks',async()=
   assert.match(await page.locator('#mine').innerText(),/Permission guarded publication/);
  }finally{await browser.close()}
 });
+
+test('accepted collaboration opens private conversation in isolated Chromium',async()=>{
+ const browser=await chromium.launch({headless:true});
+ try{
+  const page=await browser.newPage();
+  const stub=`const user={id:'isolated-recipient',email:'recipient@example.invalid'};
+  const request={id:'isolated-request',listing_id:'isolated-project',sender_id:'isolated-sender',recipient_id:user.id,message:'Would love to collaborate',status:'accepted',created_at:'2026-10-30T12:00:00Z'};
+  const messages=[];
+  const query=(table)=>{const q={
+   select(){return q},eq(){return q},order(){return q},limit(){return q},in(){return q},
+   maybeSingle:async()=>({data:null,error:null}),
+   insert:async(value)=>{if(table==='shane_collaboration_messages')messages.push({id:'message-'+messages.length,created_at:'2026-10-30T12:01:00Z',...value});return {error:null}},
+   then(resolve){resolve({data:table==='shane_collaboration_requests'?[request]:table==='shane_collaboration_messages'?messages:table==='shane_listings'?[{id:'isolated-project',title:'Isolated collaboration project'}]:[],error:null})}
+  };return q};
+  export function createClient(){return {auth:{getUser:async()=>({data:{user},error:null})},from:query}};`;
+  await page.route('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/+esm',route=>route.fulfill({status:200,contentType:'application/javascript',body:stub}));
+  await page.goto('file://'+path.resolve('members.html'));
+  await page.locator('#collaborationInbox').getByText('Open private conversation').waitFor({timeout:10000});
+  assert.match(await page.locator('#collaborationInbox').innerText(),/Open collaboration workspace/);
+  await page.locator('#collaborationInbox').getByText('Open private conversation').click();
+  await page.locator('textarea[aria-label="Private message"]').fill('Hello from isolated Chromium');
+  await page.locator('#collaborationInbox').getByText('Send message').click();
+  await page.locator('#collaborationInbox').getByText('You: Hello from isolated Chromium').waitFor({timeout:10000});
+ }finally{await browser.close()}
+});
