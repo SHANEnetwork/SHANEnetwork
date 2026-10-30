@@ -1,0 +1,12 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const source = fs.readFileSync(path.join(__dirname, '..', 'workspace.html'), 'utf8');
+const start = source.indexOf('$("messageForm").onsubmit=async e=>');
+const end = source.indexOf('function openTaskEditor(', start);
+assert(start >= 0 && end > start, 'Workspace message handler exists');
+const handler = source.slice(start, end);
+assert(handler.includes('draft=field.value,body=draft.trim()'), 'Capture exact draft before sending');
+assert(handler.includes('if(field.value===draft)field.value=""'), 'Clear only unchanged draft');
+assert(handler.includes('if(body.length>4000)'), 'Enforce message length');
+console.log('PASS private message draft preservation');
