@@ -13,6 +13,7 @@ on:
       - 'tests/outreach.cjs'
       - 'tests/composition.cjs'
       - 'tests/vision.cjs'
+      - 'tests/shane-vision-refinement.test.js'
       - 'shane-vision.js'
       - 'shane-endeavor-adapter.js'
       - 'tests/endeavor-adapter.cjs'
@@ -53,6 +54,7 @@ jobs:
       - run: node tests/compatibility.cjs
       - run: node tests/outreach.cjs
       - run: node tests/vision.cjs
+      - run: node --test tests/shane-vision-refinement.test.js
       - run: node tests/endeavor-adapter.cjs
       - run: node tests/conversation-state.cjs
       - run: node tests/endeavor-store.cjs
