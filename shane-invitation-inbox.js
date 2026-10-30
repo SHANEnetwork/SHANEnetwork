@@ -7,11 +7,14 @@
   const status=document.createElement("p");status.setAttribute("role","status");
   const list=document.createElement("div");
   container.replaceChildren(heading,status,list);
+  let refreshVersion=0;
   async function refresh(){
+   const version=++refreshVersion;
    status.textContent="Loading invitations...";
    list.replaceChildren();
    try{
     const invitations=await root.SHANEInvitations.pending(client);
+    if(version!==refreshVersion)return;
     status.textContent=invitations.length?invitations.length+" pending invitation(s)":"No pending invitations.";
     for(const invite of invitations){
      const item=document.createElement("section");
@@ -29,7 +32,7 @@
      }
      list.append(item);
     }
-   }catch(error){status.textContent=error.message;}
+   }catch(error){if(version===refreshVersion)status.textContent=error.message;}
   }
   refresh();
   return Object.freeze({refresh});
