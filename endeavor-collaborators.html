@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SHANE Collaborators</title></head>
+<body><main><h1>SHANE Collaborators</h1><p>Only the endeavor owner can manage invitations and access. Revocation removes active or pending membership; it does not transfer ownership.</p><p><a href="members.html">Account</a></p><div id="collaborators"></div></main>
+<script src="shane-collaborators.js"></script>
+<script src="shane-revocation.js"></script>
+<script src="shane-collaborator-panel.js"></script>
+<script type="module">
+import {createClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/+esm";
+const container=document.getElementById("collaborators");
+const endeavorId=new URLSearchParams(location.search).get("endeavor");
+if(!endeavorId){container.textContent="Open this page from an endeavor to manage its collaborators.";}
+else{
+ const client=createClient("https://ufxzogeixdwvbpdypojb.supabase.co","sb_publishable_iR9kxdCfQ7850VleEUx7mA_nHS4WZpB");
+ window.SHANECollaboratorPanel.mount(container,client,endeavorId);
+}
+</script></body></html>
