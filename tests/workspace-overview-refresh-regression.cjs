@@ -14,4 +14,10 @@ for (const [name, needle] of [
   ['version update', 'overviewVersion=data?.updated_at||null'],
 ]) assert(loader.includes(needle), name);
 assert(loader.indexOf('purposeField.value!==previousPurpose') < loader.indexOf('purposeField.value=data?.purpose'), 'Check edits before replacing fields');
+const saveStart = source.indexOf('$("overviewForm").onsubmit=async e=>');
+const saveEnd = source.indexOf('let activityLoadGeneration=0;', saveStart);
+assert(saveStart >= 0 && saveEnd > saveStart, 'Shared direction save handler exists');
+const save = source.slice(saveStart, saveEnd);
+assert(save.includes('overviewVersion=result.data.updated_at;overviewLoadGeneration++;'), 'Successful save invalidates pending refreshes');
+assert(save.indexOf('overviewLoadGeneration++;') > save.indexOf('if(!result.data)'), 'Invalidation happens only after successful save');
 console.log('PASS shared direction refresh preserves in-flight edits');
