@@ -33,6 +33,8 @@ jobs:
           node --check shane-revocation.js
       - name: Check website lifecycle and inline page scripts
         run: node tests/website-lifecycle.cjs
+      - name: Check collaboration workspace feed refresh regression
+        run: node tests/workspace-feed-refresh-regression.cjs
       - name: Check collaboration task refresh regression
         run: node tests/workspace-task-refresh-regression.cjs
       - name: Check private conversation refresh regression
