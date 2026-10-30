@@ -36,7 +36,6 @@ async function save(){
    if(!linkedId){const saved=await window.SHANEEndeavorStore.load(client,result.id);linkedId=saved.linkedSiteId||undefined}
    const site=await window.SHANEProvision.provision(client,{spec:inferred.spec,vision,siteId:linkedId,editorContent:snap.draftReady?draft:null});
    await window.SHANEEndeavorStore.linkSite(client,result.id,site.siteId);
-   document.dispatchEvent(new CustomEvent("shane:endeavor-saved",{detail:{endeavorId:result.id,title,vision,siteId:site.siteId}}));
    sessionStorage.setItem(siteKey,JSON.stringify({endeavorId:result.id,siteId:site.siteId}));
    const types=inferred.spec.modules.map(m=>m.type);
    if(types.some(t=>["memberships","discussions"].includes(t))){
@@ -56,6 +55,9 @@ async function save(){
    }else{
     status("Your conversation and private website foundation are saved. Additional services are not yet provisioned; nothing was published.");
    }
+   // Notify integrations after website and optional organization linking settle.
+   // A failed optional organization setup still preserves the saved endeavor and private network draft.
+   document.dispatchEvent(new CustomEvent("shane:endeavor-saved",{detail:{endeavorId:result.id,title,vision,siteId:site.siteId}}));
   }catch(siteError){
    status("Your conversation is saved, but the private website foundation could not be created: "+siteError.message);
    return false;
