@@ -22,7 +22,7 @@ async function save(){
  const savedState=existing?await window.SHANEEndeavorStore.load(client,existing).catch(()=>null):null;
  if(existing&&!savedState){status("This saved creation is unavailable in the signed-in account. Your conversation was not overwritten.");return}
  if(savedState?.spec?.shaneOrganizationId)inferred.spec.shaneOrganizationId=savedState.spec.shaneOrganizationId;
- const button=get("shaneKeepConversation");button.disabled=true;
+ const button=get("shaneKeepConversation");if(button)button.disabled=true;
  try{
   const result=await window.SHANEEndeavorStore.save(client,{title,vision,spec:inferred.spec,conversation:snap.turns,endeavorId:existing||undefined});
   sessionStorage.setItem(key,result.id);
@@ -55,7 +55,7 @@ async function save(){
    status("Your conversation is saved, but the private website foundation could not be created: "+siteError.message);
   }
  }catch(e){status("Conversation not saved: "+e.message)}
- finally{button.disabled=false}
+ finally{if(button)button.disabled=false}
 }
 let autosaveBusy=false;
 async function autosaveAfterGeneration(){
