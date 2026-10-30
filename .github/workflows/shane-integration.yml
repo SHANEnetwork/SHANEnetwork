@@ -21,5 +21,6 @@ jobs:
           node --check shane-conversation-sync.js
           node --check shane-creator-network-bridge.js
           node --check shane-capability-manifest.js
+          node --check shane-endeavor-diagnostics.js
       - name: Test endeavor network privacy and publication
-        run: node --test tests/endeavor-network-lifecycle.cjs
+        run: node --test tests/endeavor-network-lifecycle.cjs tests/endeavor-diagnostics.cjs
