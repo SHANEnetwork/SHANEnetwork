@@ -34,3 +34,7 @@ test("a saved endeavor never activates paid services by implication",()=>{
  assert.equal(result.communications.state,"not-verified");
  assert.equal(result.games.state,"not-verified");
 });
+test("Unknown network status is never represented as a private draft",()=>{
+ const result=orchestrator.inspect({id,persisted:true},{id:"listing",endeavor_id:id,status:"archived"});
+ assert.equal(result.network.state,"unverified");
+});
