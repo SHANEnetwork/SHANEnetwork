@@ -148,3 +148,33 @@ test('legacy assessment reader refuses structured compositions',async()=>{
  }};
  await assert.rejects(store.loadAssessment(client,'structured'),/structured composition/i);
 });
+
+test('preserves a long vision and conversation through save and reload',async()=>{
+ const compose=require('../shane-composition.js').compose;
+ const spec=compose({endeavorId:'unsaved-draft',title:'Long Vision',modules:['pages']});
+ const vision='A community with collaborative projects, events, and shared resources. '.repeat(160);
+ const conversation=[{role:'you',text:vision},{role:'assistant',text:'We can build it together.'}];
+ const row={id:'long-vision-id',owner_id:'alice',title:'Long Vision',idea:vision,linked_site_id:null,revision:1};
+ let storedPlan=null,revision=1;
+ const client={auth:{getUser:async()=>({data:{user:{id:'alice'}},error:null})},from(table){
+  assert.equal(table,'shane_endeavors');
+  let mode='read',payload;
+  return {
+   insert(value){mode='insert';payload=value;return this;},
+   update(value){mode='update';payload=value;return this;},
+   select(){return this;},eq(){return this;},
+   async single(){
+    if(mode==='insert'){storedPlan=payload.plan;return {data:{...row,plan:storedPlan},error:null};}
+    if(mode==='update'){storedPlan=payload.plan;revision++;return {data:{...row,plan:storedPlan,revision},error:null};}
+    return {data:{...row,plan:storedPlan,revision},error:null};
+   }
+  };
+ }};
+ const saved=await store.save(client,{title:'Long Vision',vision,spec,conversation});
+ assert.equal(saved.id,row.id);
+ const reopened=await store.load(client,row.id);
+ assert.equal(reopened.vision,vision);
+ assert.equal(reopened.conversation[0].text,vision);
+ assert.deepEqual(reopened.conversation,conversation);
+ assert.equal(reopened.spec.endeavorId,row.id);
+});
