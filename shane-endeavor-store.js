@@ -43,6 +43,20 @@
    }
    return {id:data.id,title:data.title,spec:{...stableSpec,endeavorId:data.id},vision:data.idea,conversation:conversation===undefined?(prior?.conversation||[]):conversation,linkedSiteId:prior?.linkedSiteId||null,linkedOrganizationId:stableSpec.shaneOrganizationId||null,persisted:true,accessRole:"owner",canEdit:true};
  }
+ async function recover(client,id){
+   const userId=await owner(client);
+   if(typeof id!=="string"||!id.trim())throw Error("Endeavor ID required");
+   const {data,error}=await client.from("shane_endeavors").select("id,owner_id,plan").eq("id",id).eq("owner_id",userId).single();
+   if(error||!data||data.owner_id!==userId)throw Error("Owned endeavor unavailable for recovery");
+   let stored;
+   try{stored=conversationState().unpack(data.plan);}catch{throw Error("Stored endeavor cannot be recovered automatically");}
+   if(stored.spec.endeavorId===id)return load(client,id);
+   if(stored.spec.endeavorId!=="unsaved-draft")throw Error("Recovery identity mismatch");
+   const plan=conversationState().pack({...stored.spec,endeavorId:id},stored.turns);
+   const {data:updated,error:updateError}=await client.from("shane_endeavors").update({plan}).eq("id",id).eq("owner_id",userId).select("id,owner_id,plan").single();
+   if(updateError||!updated||updated.owner_id!==userId||updated.plan!==plan)throw Error("Could not finalize endeavor recovery");
+   return load(client,id);
+ }
  async function load(client,id){
    const userId=await owner(client);
    if(typeof id!=="string"||!id.trim())throw Error("Endeavor ID required");
@@ -100,5 +114,5 @@
      .map(item=>({id:item.id,title:item.title,updatedAt:item.updated_at,
        accessRole:item.owner_id===userId?"owner":"collaborator",canEdit:item.owner_id===userId}));
  }
- return Object.freeze({save,load,list,linkSite,linkOrganization});
+ return Object.freeze({save,load,recover,list,linkSite,linkOrganization});
 });
