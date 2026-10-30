@@ -64,5 +64,16 @@ function comparePaths(paths=[]){
   return {id:String(path?.id||index+1),name:String(path?.name||"Alternative "+(index+1)),cost,months:duration,evidence,risks,assumptions:Array.isArray(path?.assumptions)?path.assumptions.filter(x=>typeof x==="string"):[],successProbability:null};
  }).sort((a,b)=>(a.cost??Infinity)-(b.cost??Infinity));
 }
-return Object.freeze({assess,preflight,riskPlan,comparePaths});
+function evaluateReturns(options=[]){
+ if(!Array.isArray(options))throw Error("Options must be an array");
+ return options.map((option,index)=>{
+  const number=x=>Number.isFinite(x)&&x>=0?x:null;
+  const revenue=number(option?.monthlyRevenue),expenses=number(option?.monthlyExpenses),hours=number(option?.monthlyHours);
+  const net=revenue!==null&&expenses!==null?revenue-expenses:null;
+  const perHour=net!==null&&hours!==null&&hours>0?net/hours:null;
+  const impact=typeof option?.impactGoal==="string"?option.impactGoal:null;
+  return {id:String(option?.id||index+1),name:String(option?.name||"Approach "+(index+1)),monthlyRevenue:revenue,monthlyExpenses:expenses,monthlyHours:hours,monthlyNet:net,netPerHour:perHour,impactGoal:impact,verified:option?.verified===true,risks:Array.isArray(option?.risks)?option.risks:[],recommendation:"requires_creator_review"};
+ });
+}
+return Object.freeze({assess,preflight,riskPlan,comparePaths,evaluateReturns});
 });
