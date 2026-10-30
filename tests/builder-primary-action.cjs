@@ -12,3 +12,4 @@ assert.ok(html.includes("Existing website summary:"),"AI revisions must carry a 
 assert.ok(html.includes("Treat accessibility as part of beautiful design"),"AI generation must include accessibility requirements");
 assert.ok(html.includes("Preserve the creator’s specific terminology and identity"),"AI generation must preserve creator voice");
 assert.ok(html.includes("latest.slice(0,950)"),"Latest creator request and earlier decisions must both fit within revision context");
+assert.ok(html.includes('"shane:conversation-draft-ready"'),"Restored drafts must explicitly synchronize revision mode");
