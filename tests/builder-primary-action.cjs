@@ -34,8 +34,8 @@ assert.ok(!html.includes('{role:"assistant",text:"Composition updated: "'),"Stru
 
 assert.ok(html.includes("saved.conversation.length>SHANEConversationState.MAX_TURNS-2"),"Two-turn refinement must check remaining conversation capacity before saving");
 
-assert.ok(html.includes("conversation,expectedPlan:saved.planRaw,expectedTitle:saved.title,expectedVision:saved.vision,expectedRevision:saved.revision});if(section.dataset.endeavorId!==id)return;"),"Refinement completion must not overwrite another project editor");
-assert.ok(html.includes("conversation:saved.conversation,expectedPlan:saved.planRaw,expectedTitle:saved.title,expectedVision:saved.vision,expectedRevision:saved.revision});if(section.dataset.endeavorId!==id)return;"),"Title-save completion must not overwrite another project editor");
+assert.ok(html.includes("conversation,expectedPlan:saved.planRaw,expectedTitle:saved.title,expectedVision:saved.vision,expectedRevision:Number(section.dataset.openRevision)});if(section.dataset.endeavorId!==id)return;"),"Refinement completion must not overwrite another project editor");
+assert.ok(html.includes("conversation:saved.conversation,expectedPlan:saved.planRaw,expectedTitle:saved.title,expectedVision:saved.vision,expectedRevision:Number(section.dataset.openRevision)});if(section.dataset.endeavorId!==id)return;"),"Title-save completion must not overwrite another project editor");
 
 assert.ok(html.includes('if(section.dataset.endeavorId===id)status.textContent="No changes saved: "'),"Stale refinement errors must not update a different project");
 assert.ok(html.includes('if(section.dataset.endeavorId===id)status.textContent="Could not save: "'),"Stale title-save errors must not update a different project");
@@ -44,3 +44,6 @@ assert.equal((html.match(/section\.dataset\.busy==="true"\)return;section\.datas
 assert.equal((html.match(/section\.dataset\.busy="false";/g)||[]).length>=3,true,"Editor must reset busy state on opening and action completion");
 
 assert.ok(html.includes('if(!instruction){section.dataset.busy="false";status.textContent="Describe what you would like to change.";return}'),"Empty refinement must release editor busy lock");
+
+assert.ok(html.includes('section.dataset.openRevision=String(saved.revision)'),"Editor must remember revision opened by member");
+assert.equal((html.match(/section\.dataset\.openRevision=String\(committed\.revision\)/g)||[]).length,2,"Both successful saves must advance the editor revision");
