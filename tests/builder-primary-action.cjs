@@ -31,3 +31,5 @@ assert.ok(html.includes('String(site.name||"")+" "+String(site.tagline||"")+" "+
 
 assert.ok(html.includes('{role:"shane",text:"Composition updated: "'),"Structured refinement must use the conversation schema's shane role");
 assert.ok(!html.includes('{role:"assistant",text:"Composition updated: "'),"Structured refinement must not persist unsupported assistant role");
+
+assert.ok(html.includes("saved.conversation.length>SHANEConversationState.MAX_TURNS-2"),"Two-turn refinement must check remaining conversation capacity before saving");
