@@ -7,8 +7,8 @@ function client(){
  const calls=[];
  return {calls,auth:{getUser:async()=>({data:{user:{id:user}}})},
  from(table){assert.equal(table,"shane_endeavor_members");return {select(){return this},eq(k,v){calls.push([k,v]);return this},order:async()=>({data:[{endeavor_id:endeavor,role:"viewer",status:"invited"}]})}},
- rpc:async(name,args)=>{calls.push([name,args]);return {data:true}};
- }
+ rpc:async(name,args)=>{calls.push([name,args]);return {data:true}}
+ };
 }
 test("Invitation inbox only requests current user's pending rows",async()=>{
  const c=client(),rows=await invitations.pending(c);
