@@ -25,9 +25,15 @@
   const problems=engine.validate(spec);if(problems.length)throw Error(problems.join("; "));
   if(typeof instruction!=="string"||!instruction.trim())throw Error("Describe the change you want");
   const text=instruction.trim();
-  const remove=/\b(?:remove|delete|disable|without|no longer|stop using)\b/i.test(text);
+  const addIntent=/\b(?:add|include|enable|create|introduce|set up|build)\b/i.test(text);
+  const removeIntent=/\b(?:remove|delete|disable|without|no longer|stop using)\b/i.test(text);
+  if(addIntent&&removeIntent)throw Error("Mixed additions and removals need separate requests so existing features stay safe");
+  if(/\b(?:don't|do not|never|not)\s+(?:add|include|enable|create|build)\b/i.test(text))throw Error("Negated additions need clarification before changing capabilities");
+  if(!addIntent&&!removeIntent)throw Error("Please say add or remove and name the capability to change");
+  const remove=removeIntent;
   const matched=rules.filter(rule=>rule.pattern.test(text)).map(rule=>rule.type);
-  if(!matched.length)throw Error("No supported capability identified; describe a page, project, publication, event, membership, message, discussion, or directory");
+  if(/\b(?:page|pages|website|webpage)\b/i.test(text))matched.push("pages");
+  if(!matched.length)throw Error("No supported capability identified; describe pages, projects, publications, events, memberships, messages, discussions, or a directory");
   const enabled=new Set(spec.modules.map(m=>m.type));
   if(remove){for(const type of matched)enabled.delete(type)}
   else for(const type of matched)enabled.add(type);
