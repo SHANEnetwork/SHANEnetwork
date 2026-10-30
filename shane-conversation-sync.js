@@ -17,7 +17,7 @@ async function save(){
  const previousSpec=window.SHANECurrentComposition?.spec;
  if(previousSpec?.title&&inferred.spec.title==="My Endeavor")inferred.spec.title=previousSpec.title;
  const draft=editorSnapshot();
- const title=(draft?.business||draft?.name||inferred.spec.title||"My Endeavor").trim();
+ const title=String(draft?.business||draft?.name||inferred.spec.title||"My Endeavor").trim();
  const existing=sessionStorage.getItem(key);
  let savedState=null;
  try{if(existing)savedState=await window.SHANEEndeavorStore.load(client,existing)}catch(e){status("Unable to verify your previous creation: "+e.message);return false}
