@@ -188,7 +188,7 @@ document.addEventListener("DOMContentLoaded",()=>{
    if(authError||!auth?.user?.id)throw Error("Sign in to inspect connected network listings.");
    const {data:linkedListing,error:listingError}=await client.from("shane_listings").select("id,status,endeavor_id").eq("endeavor_id",saved.id).eq("owner_id",auth.user.id).maybeSingle();
    if(listingError)throw Error("Could not verify linked network listing: "+listingError.message);
-   if(version!==connectedViewVersion)return;
+   if(version!==connectedViewVersion||id!==sessionStorage.getItem(key))return;
    listing=linkedListing;
    const readiness=window.SHANEEndeavorOrchestrator?.inspect(saved,listing);
    if(readiness){
