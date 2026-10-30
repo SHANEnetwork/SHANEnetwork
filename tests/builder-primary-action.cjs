@@ -42,3 +42,5 @@ assert.ok(html.includes('if(section.dataset.endeavorId===id)status.textContent="
 
 assert.equal((html.match(/section\.dataset\.busy==="true"\)return;section\.dataset\.busy="true";/g)||[]).length,2,"Both structured editor actions must reject overlapping saves");
 assert.equal((html.match(/section\.dataset\.busy="false";/g)||[]).length>=3,true,"Editor must reset busy state on opening and action completion");
+
+assert.ok(html.includes('if(!instruction){section.dataset.busy="false";status.textContent="Describe what you would like to change.";return}'),"Empty refinement must release editor busy lock");
