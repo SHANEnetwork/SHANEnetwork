@@ -81,6 +81,21 @@
    const errors=engine.validate(spec);if(errors.length)throw Error("Stored composition invalid: "+errors.join("; "));
    return {id,title:data.title,vision:data.idea,spec,conversation:conversationState().unpack(spec).turns,linkedSiteId:data.linked_site_id,linkedOrganizationId:spec.shaneOrganizationId||null,persisted:true,accessRole:isOwner?"owner":"collaborator",canEdit:isOwner};
  }
+ async function loadAssessment(client,id){
+   const userId=await owner(client);
+   if(typeof id!=="string"||!id.trim())throw Error("Endeavor ID required");
+   const {data,error}=await client.from("shane_endeavors").select("id,owner_id,title,idea,region,audience,resources,plan,linked_site_id").eq("id",id).single();
+   if(error||!data)throw Error("Endeavor unavailable");
+   const isOwner=data.owner_id===userId;
+   if(!isOwner){
+     const {data:membership,error:membershipError}=await client.from("shane_endeavor_members").select("status").eq("endeavor_id",id).eq("user_id",userId).eq("status","active").single();
+     if(membershipError||!membership||membership.status!=="active")throw Error("Active collaboration required");
+   }
+   let structured=false;
+   try{const parsed=conversationState().unpack(data.plan);structured=Boolean(parsed.spec&&parsed.spec.endeavorId);}catch{}
+   if(structured)throw Error("This endeavor uses structured composition; use load instead");
+   return {id:data.id,title:data.title,vision:data.idea,region:data.region,audience:data.audience,resources:data.resources,assessment:data.plan,linkedSiteId:data.linked_site_id,persisted:true,format:"legacy-assessment",accessRole:isOwner?"owner":"collaborator",canEdit:isOwner};
+ }
  async function linkSite(client,endeavorId,siteId){
    const userId=await owner(client);
    if(!endeavorId||!siteId)throw Error("Endeavor and site IDs required");
@@ -120,5 +135,5 @@
      .map(item=>({id:item.id,title:item.title,updatedAt:item.updated_at,
        accessRole:item.owner_id===userId?"owner":"collaborator",canEdit:item.owner_id===userId}));
  }
- return Object.freeze({save,load,recover,list,linkSite,linkOrganization});
+ return Object.freeze({save,load,loadAssessment,recover,list,linkSite,linkOrganization});
 });
