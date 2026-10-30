@@ -88,7 +88,7 @@
    let spec;try{spec=conversationState().unpack(data.plan).spec}catch{throw Error("Stored composition is invalid or conversation data is malformed")}
    if(spec.endeavorId!==id&&spec.endeavorId!=="unsaved-draft")throw Error("Stored endeavor identity mismatch");
    const errors=engine.validate(spec);if(errors.length)throw Error("Stored composition invalid: "+errors.join("; "));
-   return {id,title:data.title,vision:data.idea,spec,planRaw:data.plan,revision:data.revision,conversation:conversationState().unpack(spec).turns,linkedSiteId:data.linked_site_id,linkedOrganizationId:spec.shaneOrganizationId||null,persisted:true,accessRole:isOwner?"owner":"collaborator",canEdit:isOwner};
+   return {id,title:data.title,vision:data.idea,spec,planRaw:data.plan,revision:data.revision,conversation:conversationState().unpack(data.plan).turns,linkedSiteId:data.linked_site_id,linkedOrganizationId:spec.shaneOrganizationId||null,persisted:true,accessRole:isOwner?"owner":"collaborator",canEdit:isOwner};
  }
  async function loadAssessment(client,id){
    const userId=await owner(client);
