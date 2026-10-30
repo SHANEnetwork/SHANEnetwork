@@ -78,10 +78,8 @@ async function upsertEndeavorDraft(client,endeavorId,input){
  if(existing?.status!=="draft"&&existing)return {id:existing.id,status:existing.status,unchanged:true};
  const payload={...prepare(input),endeavor_id:endeavorId};
  if(existing){
-  const {data,error}=await client.from("shane_listings").update(payload).eq("id",existing.id).eq("owner_id",user.id).eq("status","draft").select("id,title,status,endeavor_id").maybeSingle();
-  if(error)throw error;
-  if(data)return data;
-  throw new Error("Draft changed during update. Refresh before trying again.");
+  // Respect edits already made to a network draft; autosave is not publication approval.
+  return {id:existing.id,status:existing.status,endeavor_id:endeavorId,unchanged:true};
  }
  const {data,error}=await client.from("shane_listings").insert({...payload,owner_id:user.id,status:"draft",attribution_confirmed:false}).select("id,title,status,endeavor_id").single();
  if(error){
