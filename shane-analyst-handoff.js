@@ -23,6 +23,20 @@ document.addEventListener("shane:analyst-context-ready",event=>{
   const brief=["Review this SHANE endeavor independently. Distinguish evidence, assumptions and unknowns.","Title: "+ctx.title,"Vision: "+ctx.vision,"Requested scope: "+ctx.mandate,"Conversation: "+ctx.conversation.map(t=>t.role+": "+t.text).join("\n")].join("\n\n");
   try{await navigator.clipboard.writeText(brief);copy.textContent="Brief copied"}catch{copy.textContent="Copy unavailable"}
  });
- panel.append(heading,info,title,scope,details,copy);
+ const run=document.createElement("button");run.type="button";run.textContent="Ask Analyst to evaluate this endeavor";
+ const result=document.createElement("div");result.setAttribute("role","status");result.style.whiteSpace="pre-wrap";
+ run.addEventListener("click",async()=>{
+  const client=window.SHANEAuthenticatedClient;
+  if(!client?.functions){result.textContent="Sign in to use the Analyst.";return}
+  run.disabled=true;result.textContent="Analyst is examining the saved endeavor…";
+  try{
+   const {data,error}=await client.functions.invoke("shane-analyze-endeavor",{body:{endeavorId:ctx.endeavorId}});
+   if(error||data?.error)throw Error(data?.error||error.message);
+   if(data?.endeavorId!==ctx.endeavorId||typeof data.review!=="string")throw Error("Unexpected Analyst response");
+   result.textContent=data.review+"\n\nThis assessment has not changed or published your endeavor.";
+  }catch(error){result.textContent="Analyst is not available yet: "+error.message}
+  finally{run.disabled=false}
+ });
+ panel.append(heading,info,title,scope,details,run,result,copy);
 });
 })();
