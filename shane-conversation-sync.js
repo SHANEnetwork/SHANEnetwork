@@ -187,6 +187,12 @@ document.addEventListener("DOMContentLoaded",()=>{
    const {data:linkedListing,error:listingError}=await client.from("shane_listings").select("id,status,endeavor_id").eq("endeavor_id",saved.id).eq("owner_id",auth.user.id).maybeSingle();
    if(listingError)throw Error("Could not verify linked network listing: "+listingError.message);
    listing=linkedListing;
+   const readiness=window.SHANEEndeavorOrchestrator?.inspect(saved,listing);
+   if(readiness){
+    const report=document.createElement("p");
+    report.textContent="Service readiness: "+Object.entries(readiness).map(([name,item])=>name+": "+item.state).join("; ");
+    details.append(report);
+   }
    const links=[["Continue creating","builder.html"],["Review network presence","my-network.html"],["Manage network listing",listing?"members.html?listing="+encodeURIComponent(listing.id)+"#mineSection":"members.html#mineSection"],["Request Analyst review",null]];
    if(manifest.resources.organization)links.push(["Manage linked club or society","communities.html?organization="+encodeURIComponent(manifest.resources.organization)]);
    for(const [label,href] of links){const control=document.createElement(href?"a":"button");control.textContent=label;if(href)control.href=href;else{control.type="button";control.addEventListener("click",analystContext)}details.append(control,document.createTextNode(" · "))}
