@@ -14,6 +14,12 @@ for (const [name, marker, next, guard] of [
   const check = 'if(generation!==' + guard + '||!host.isConnected)return;';
   assert(loader.includes(check), name + ' stale response guard');
   assert(loader.indexOf(check) < loader.indexOf('host.replaceChildren()'), name + ' guard before render');
+  if(name==='activity'){
+    assert(loader.includes('host.setAttribute("aria-busy","true")'), 'Activity marks refresh as busy');
+    assert(loader.includes('host.setAttribute("aria-busy","false")'), 'Activity clears busy state');
+    assert(loader.indexOf('if(msgs.error||activity.error)') < loader.indexOf('host.replaceChildren()'), 'Failed activity refresh preserves existing events');
+    assert(source.includes('id="activityStatus"'), 'Activity error has a separate status element');
+  }
   if(name==='messages'){
     assert(loader.includes('host.setAttribute("aria-busy","true")'), 'Conversation marks refresh as busy');
     assert(loader.includes('host.setAttribute("aria-busy","false")'), 'Conversation clears busy state');
