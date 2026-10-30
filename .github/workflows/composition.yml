@@ -6,6 +6,10 @@ on:
       - 'shane-builder-bridge.js'
       - 'tests/builder-bridge.cjs'
       - 'shane-composition.js'
+      - 'shane-compatibility.js'
+      - 'tests/compatibility.cjs'
+      - 'shane-outreach.js'
+      - 'tests/outreach.cjs'
       - 'tests/composition.cjs'
       - 'tests/vision.cjs'
       - 'shane-vision.js'
@@ -25,6 +29,10 @@ on:
     paths:
       - 'shane-composition.js'
       - 'tests/composition.cjs'
+      - 'shane-compatibility.js'
+      - 'tests/compatibility.cjs'
+      - 'shane-outreach.js'
+      - 'tests/outreach.cjs'
       - '.github/workflows/composition.yml'
 jobs:
   composition:
@@ -37,6 +45,8 @@ jobs:
         with:
           node-version: '22'
       - run: node tests/composition.cjs
+      - run: node tests/compatibility.cjs
+      - run: node tests/outreach.cjs
       - run: node tests/vision.cjs
       - run: node tests/endeavor-adapter.cjs
       - run: node tests/conversation-state.cjs
