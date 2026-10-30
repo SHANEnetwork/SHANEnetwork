@@ -10,14 +10,15 @@ Deno.serve(async request=>{
  const userResponse=await fetch(base+"/auth/v1/user",{headers:{apikey:anon,Authorization:auth}});
  if(!userResponse.ok)return respond({error:"Invalid session"},401);
  const user=await userResponse.json();
+ if(!user?.id)return respond({error:"Invalid user session"},401);
  let body;try{body=await request.json()}catch{return respond({error:"Invalid JSON"},400)}
- const id=String(body.endeavorId||"");
+ const id=String(body?.endeavorId||"");
  if(!/^[a-f0-9-]{36}$/i.test(id))return respond({error:"Valid endeavor required"},400);
  const rowResponse=await fetch(base+"/rest/v1/shane_endeavors?id=eq."+encodeURIComponent(id)+"&owner_id=eq."+encodeURIComponent(user.id)+"&select=id,title,idea,plan,linked_site_id",{headers:{apikey:anon,Authorization:auth,Accept:"application/vnd.pgrst.object+json"}});
  if(!rowResponse.ok)return respond({error:"Endeavor unavailable in this account"},404);
  const endeavor=await rowResponse.json();
  if(!endeavor?.id)return respond({error:"Endeavor not found"},404);
- const secret=Deno.env.get("SHANE_OPENAI_API_KEY");
+ const secret=Deno.env.get("SHANE_OPENAI_API_KEY")||Deno.env.get("OPENAI_API_KEY");
  if(!secret)return respond({error:"Analyst AI provider not configured"},503);
  const prompt=JSON.stringify({title:endeavor.title,vision:endeavor.idea,plan:endeavor.plan,hasLinkedSite:!!endeavor.linked_site_id}).slice(0,18000);
  try{
