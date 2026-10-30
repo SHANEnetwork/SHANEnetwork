@@ -14,4 +14,6 @@ assert(loader.includes('.order("created_at",{ascending:false}).range(page*100,pa
 assert(loader.includes('older.onclick=()=>loadTasks(page+1)'), 'Older task navigation works');
 assert(loader.includes('newer.onclick=()=>loadTasks(page-1)'), 'Newer task navigation works');
 assert(source.includes('$("refreshTasks").onclick=()=>loadTasks()'), 'Refresh returns to newest tasks');
+assert(loader.includes('if(!error)await Promise.all([loadTasks(page),loadActivity()])'), 'Task mutations preserve current page');
+assert(loader.includes('No tasks remain on this page. Return to newer tasks.'), 'Empty older pages explain recovery');
 console.log('PASS collaboration task refresh ordering guards');
