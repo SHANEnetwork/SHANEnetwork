@@ -26,3 +26,8 @@ test("Connected view checks selected endeavor before rendering",()=>{
 test("Superseded connected view errors are ignored",()=>{
  assert.ok(sync.includes("if(version===connectedViewVersion)status("));
 });
+test("Orchestration receives persisted endeavor from owner-scoped store",()=>{
+ const store=fs.readFileSync(require("node:path").join(__dirname,"../shane-endeavor-store.js"),"utf8");
+ assert.ok(store.includes("linkedOrganizationId:spec.shaneOrganizationId"));
+ assert.ok(store.includes("linkedSiteId:data.linked_site_id"));
+});
