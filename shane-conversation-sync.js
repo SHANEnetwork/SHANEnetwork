@@ -7,7 +7,9 @@ function get(id){return document.getElementById(id)}
 function snapshot(){let result=null;const listener=e=>{result=e.detail};document.addEventListener("shane:conversation-snapshot",listener,{once:true});document.dispatchEvent(new Event("shane:conversation-export"));document.removeEventListener("shane:conversation-snapshot",listener);return result}
 function editorSnapshot(){let result=null;const listener=e=>{result=e.detail?.content||null};document.addEventListener("shane:editor-snapshot",listener,{once:true});document.dispatchEvent(new Event("shane:editor-export"));document.removeEventListener("shane:editor-snapshot",listener);return result}
 function status(text){const el=get("shaneContinuityStatus");if(el)el.textContent=text}
+let saveInProgress=false;
 async function save(){
+ if(saveInProgress){status("Your endeavor is already being saved. Please wait for it to finish.");return false}
  const client=window.SHANEAuthenticatedClient;
  if(!client){status("The account connection is not ready. Try again shortly.");return false}
  const snap=snapshot();if(!snap){status("The conversation is not ready.");return false}
@@ -23,6 +25,7 @@ async function save(){
  try{if(existing)savedState=await window.SHANEEndeavorStore.load(client,existing)}catch(e){status("Unable to verify your previous creation: "+e.message);return false}
  if(existing&&!savedState){status("This saved creation is unavailable in the signed-in account. Your conversation was not overwritten.");return false}
  if(savedState?.spec?.shaneOrganizationId)inferred.spec.shaneOrganizationId=savedState.spec.shaneOrganizationId;
+ saveInProgress=true;
  const button=get("shaneKeepConversation");if(button)button.disabled=true;
  try{
   const result=await window.SHANEEndeavorStore.save(client,{title,vision,spec:inferred.spec,conversation:snap.turns,endeavorId:existing||undefined});
@@ -64,7 +67,7 @@ async function save(){
   }
   return true;
  }catch(e){status("Conversation not saved: "+e.message);return false}
- finally{if(button)button.disabled=false}
+ finally{saveInProgress=false;if(button)button.disabled=false}
 }
 let autosaveBusy=false;
 async function autosaveAfterGeneration(mode){
