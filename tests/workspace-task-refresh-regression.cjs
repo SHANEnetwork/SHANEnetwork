@@ -28,4 +28,6 @@ assert(loader.indexOf('if(error)') < loader.indexOf('host.replaceChildren()'), '
 assert(loader.includes('const editing=Array.from(host.querySelectorAll("form"))'), 'Task refresh detects active unsaved editors');
 assert(loader.includes('Your unsaved task edits are preserved'), 'Unsaved task edits block destructive refresh');
 assert(source.includes('form.dataset.initialValues=JSON.stringify('), 'Task editor captures initial values for dirty check');
+assert(loader.includes('const editedDuringRefresh=Array.from(host.querySelectorAll("form"))'), 'Refresh checks edits made while database request is pending');
+assert(loader.indexOf('if(editedDuringRefresh)') < loader.indexOf('host.replaceChildren()'), 'In-flight edits prevent task list replacement');
 console.log('PASS collaboration task refresh ordering guards');
