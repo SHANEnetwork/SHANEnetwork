@@ -109,3 +109,9 @@ test('automatic recovery retries the original endeavor rather than inserting a d
  assert.equal(saved.spec.endeavorId,'new-id');
  assert.equal(JSON.parse(storedPlan).endeavorId,'new-id');
 });
+
+test('a saved endeavor identity cannot be accidentally inserted as a new project',async()=>{
+ const spec=require('../shane-composition.js').compose({endeavorId:'existing-id',title:'Existing',modules:['pages']});
+ const client={auth:{getUser:async()=>({data:{user:{id:'alice'}},error:null})},from(){throw Error('Must not reach database');}};
+ await assert.rejects(store.save(client,{spec,vision:'Keep original'}),/unsaved draft identity/i);
+});
