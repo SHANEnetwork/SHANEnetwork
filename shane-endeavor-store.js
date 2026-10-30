@@ -20,7 +20,7 @@
    if(spec.endeavorId!=="unsaved-draft"&&endeavorId&&spec.endeavorId!==endeavorId)throw Error("Endeavor identity mismatch");
    const prior=endeavorId?await load(client,endeavorId):null;
    if(prior&&!prior.canEdit)throw Error("Only the endeavor owner can save changes");
-   const stableSpec=prior?.linkedOrganizationId?{...spec,shaneOrganizationId:prior.linkedOrganizationId}:spec;
+   const stableSpec={...spec,endeavorId:endeavorId||spec.endeavorId,...(prior?.linkedOrganizationId?{shaneOrganizationId:prior.linkedOrganizationId}:{})};
    const payload={owner_id:userId,title:title||spec.title,idea:vision,plan:conversationState().pack(stableSpec,conversation===undefined?(prior?.conversation||[]):conversation)};
    let request;
    if(endeavorId){
