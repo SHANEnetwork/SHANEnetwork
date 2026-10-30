@@ -36,5 +36,7 @@ assert(loader.includes('update({completed:requestedCompleted})'), 'Task completi
 assert(loader.includes('if(error)check.checked=!requestedCompleted'), 'Failed completion update restores state from captured request');
 assert(loader.includes('if(del.disabled||!confirm('), 'Task deletion blocks duplicate submissions');
 assert(loader.includes('.delete().eq("id",x.id).eq("creator_id",user.id).eq("request_id",id)'), 'Task deletion is scoped to collaboration and creator');
+assert(loader.includes('const removed=!error&&data?.length===1'), 'Task deletion confirms an affected row');
+assert(loader.includes('if(!removed)del.disabled=false'), 'Unsuccessful deletion re-enables removal');
 assert(loader.includes('if(error)del.disabled=false'), 'Failed deletion re-enables removal');
 console.log('PASS collaboration task refresh ordering guards');
