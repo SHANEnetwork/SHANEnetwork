@@ -3,6 +3,24 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { chromium } = require('playwright');
 const path = require('node:path');
+const http=require('node:http');
+const fs=require('node:fs');
+async function serveLocalPages(){
+ const server=http.createServer((req,res)=>{
+  const pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
+  const file=path.resolve('.',pathname.slice(1)||'index.html');
+  if(!file.startsWith(process.cwd()+path.sep)){res.writeHead(403);res.end();return}
+  fs.readFile(file,(err,data)=>{
+   if(err){res.writeHead(404);res.end();return}
+   const ext=path.extname(file);
+   res.writeHead(200,{'Content-Type':ext==='.js'?'text/javascript':ext==='.css'?'text/css':'text/html'});
+   res.end(data);
+  });
+ });
+ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+ return {base:'http://127.0.0.1:'+server.address().port,close:()=>new Promise(resolve=>server.close(resolve))};
+}
+
 test('member interface exposes account and listing controls without a remote login', async()=>{
  const browser=await chromium.launch({headless:true});
  try {
@@ -143,6 +161,7 @@ test('member sends one invitation and duplicate request is blocked in isolated C
 });
 
 test('long vision survives network handoff to creator without truncation',async()=>{
+ const server=await serveLocalPages();
  const browser=await chromium.launch({headless:true});
  try{
   const page=await browser.newPage();
@@ -151,7 +170,7 @@ test('long vision survives network handoff to creator without truncation',async(
   // My Network's handoff handler lives in a module that imports Supabase.
   // Supply an inert client so this offline browser test exercises the actual handler.
   await page.route('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/+esm',route=>route.fulfill({status:200,contentType:'application/javascript',body:"export function createClient(){const q={select(){return this},eq(){return this},order(){return this},limit(){return Promise.resolve({data:[],error:null})},then(resolve){return Promise.resolve({data:[],error:null}).then(resolve)}};return {auth:{getUser:async()=>({data:{user:null},error:null})},from(){return q}}}"}));
-  await page.goto('file://'+path.resolve('my-network.html'));
+  await page.goto(server.base+'/my-network.html');
   await page.locator('#visionInput').fill(vision);
   assert.equal(await page.locator('#visionInput').inputValue(),vision);
   await page.locator('#buildFromVision').click();
@@ -159,15 +178,16 @@ test('long vision survives network handoff to creator without truncation',async(
   await page.waitForFunction(expected=>document.getElementById('visionPrompt')?.value===expected,vision.trim(),{timeout:10000});
   assert.equal(await page.locator('#visionPrompt').inputValue(),vision.trim());
   assert.equal(await page.evaluate(()=>sessionStorage.getItem('shane_network_vision_handoff_v1')),null);
- }finally{await browser.close()}
+ }finally{await browser.close();await server.close()}
 });
 
 test('homepage idea reaches the conversational creator without being shortened',async()=>{
+ const server=await serveLocalPages();
  const browser=await chromium.launch({headless:true});
  try{
   const page=await browser.newPage();
   const idea='Create a welcoming community with events, collaboration, and accessible pages. '.repeat(80);
-  await page.goto('file://'+path.resolve('index.html'));
+  await page.goto(server.base+'/index.html');
   await page.locator('#welcomeIdea').fill(idea);
   await page.locator('#shaneWelcome button[type="submit"]').first().click();
   const continueLink=page.locator('#welcomePreview a[href*="builder.html"]').first();
@@ -178,5 +198,5 @@ test('homepage idea reaches the conversational creator without being shortened',
   await page.waitForFunction(expected=>document.getElementById('visionPrompt')?.value===expected,idea.trim(),{timeout:10000});
   assert.equal(await page.locator('#shaneIdeaReply').inputValue(),idea.trim());
   assert.equal(await page.locator('#assessmentIdea').inputValue(),idea.trim());
- }finally{await browser.close()}
+ }finally{await browser.close();await server.close()}
 });
