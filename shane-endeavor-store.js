@@ -13,7 +13,7 @@
    if(error||!data?.user?.id)throw Error("Sign in before saving your endeavor");
    return data.user.id;
  }
- async function save(client,{title,vision,spec,endeavorId,conversation,region,audience,resources}){
+ async function save(client,{title,vision,spec,endeavorId,conversation,region,audience,resources,expectedPlan}){
    const userId=await owner(client);
    const errors=engine.validate(spec);if(errors.length)throw Error(errors.join("; "));
    if(typeof vision!=="string"||!vision.trim())throw Error("Vision required");
@@ -21,18 +21,20 @@
    if(!endeavorId&&spec.endeavorId!=="unsaved-draft")throw Error("New endeavors require an unsaved draft identity");
    const prior=endeavorId?await load(client,endeavorId):null;
    if(prior&&!prior.canEdit)throw Error("Only the endeavor owner can save changes");
+   if(endeavorId&&expectedPlan!==undefined&&prior.planRaw!==expectedPlan)throw Error("This endeavor changed in another session. Reload it before saving to protect newer work.");
    const stableSpec={...spec,endeavorId:endeavorId||spec.endeavorId,...(prior?.linkedOrganizationId?{shaneOrganizationId:prior.linkedOrganizationId}:{})};
    const payload={owner_id:userId,title:title||spec.title,idea:vision,plan:conversationState().pack(stableSpec,conversation===undefined?(prior?.conversation||[]):conversation)};
    if(!endeavorId){payload.region=region||"";payload.audience=audience||"";payload.resources=resources||"";}
    else{if(region!==undefined)payload.region=region;if(audience!==undefined)payload.audience=audience;if(resources!==undefined)payload.resources=resources;}
    let request;
    if(endeavorId){
-     request=client.from("shane_endeavors").update(payload).eq("id",endeavorId).eq("owner_id",userId).select("id,owner_id,title,idea,plan").single();
+     request=client.from("shane_endeavors").update(payload).eq("id",endeavorId).eq("owner_id",userId).eq("plan",prior.planRaw).select("id,owner_id,title,idea,plan").single();
    }else{
      request=client.from("shane_endeavors").insert(payload).select("id,owner_id,title,idea,plan").single();
    }
    const {data,error}=await request;
    if(error)throw Error("Could not save endeavor: "+error.message);
+   if(endeavorId&&(!data||data.owner_id!==userId))throw Error("This endeavor changed before the save completed. Reload to protect newer work.");
    if(!data||data.owner_id!==userId)throw Error("Endeavor ownership verification failed");
    if(!endeavorId){
      const canonicalPlan=conversationState().pack({...stableSpec,endeavorId:data.id},conversation===undefined?[]:conversation);
@@ -79,7 +81,7 @@
    let spec;try{spec=conversationState().unpack(data.plan).spec}catch{throw Error("Stored composition is invalid or conversation data is malformed")}
    if(spec.endeavorId!==id&&spec.endeavorId!=="unsaved-draft")throw Error("Stored endeavor identity mismatch");
    const errors=engine.validate(spec);if(errors.length)throw Error("Stored composition invalid: "+errors.join("; "));
-   return {id,title:data.title,vision:data.idea,spec,conversation:conversationState().unpack(spec).turns,linkedSiteId:data.linked_site_id,linkedOrganizationId:spec.shaneOrganizationId||null,persisted:true,accessRole:isOwner?"owner":"collaborator",canEdit:isOwner};
+   return {id,title:data.title,vision:data.idea,spec,planRaw:data.plan,conversation:conversationState().unpack(spec).turns,linkedSiteId:data.linked_site_id,linkedOrganizationId:spec.shaneOrganizationId||null,persisted:true,accessRole:isOwner?"owner":"collaborator",canEdit:isOwner};
  }
  async function loadAssessment(client,id){
    const userId=await owner(client);
