@@ -82,3 +82,30 @@ test('recovery refuses a missing endeavor identifier',async()=>{
  const client={auth:{getUser:async()=>({data:{user:{id:'alice'}},error:null})},from(){throw Error('Database must not be queried');}};
  await assert.rejects(store.recover(client,''),/Endeavor ID required/);
 });
+
+test('automatic recovery retries the original endeavor rather than inserting a duplicate',async()=>{
+ const compose=require('../shane-composition.js').compose;
+ const spec=compose({endeavorId:'unsaved-draft',title:'Continuity',modules:['pages']});
+ let writes=0,inserts=0,storedPlan;
+ const row={id:'new-id',owner_id:'alice',title:'Continuity',idea:'Build it',linked_site_id:null};
+ const client={auth:{getUser:async()=>({data:{user:{id:'alice'}},error:null})},from(){
+  let operation='read',payload=null;
+  const query={
+   select(){return this;},eq(){return this;},
+   insert(p){inserts++;operation='insert';payload=p;return this;},
+   update(p){operation='update';payload=p;return this;},
+   async single(){
+    if(operation==='insert'){storedPlan=payload.plan;return {data:{...row,plan:storedPlan},error:null};}
+    if(operation==='update'){writes++;if(writes===1)return {data:null,error:{message:'temporary failure'}};storedPlan=payload.plan;return {data:{...row,plan:storedPlan},error:null};}
+    return {data:{...row,plan:storedPlan},error:null};
+   }
+  };
+  return query;
+ }};
+ const saved=await store.save(client,{spec,vision:'Build it'});
+ assert.equal(inserts,1);
+ assert.equal(writes,2);
+ assert.equal(saved.id,'new-id');
+ assert.equal(saved.spec.endeavorId,'new-id');
+ assert.equal(JSON.parse(storedPlan).endeavorId,'new-id');
+});
