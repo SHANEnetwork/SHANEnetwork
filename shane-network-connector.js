@@ -83,7 +83,7 @@ async function upsertEndeavorDraft(client,endeavorId,input){
  const {data,error}=await client.from("shane_listings").insert({...payload,owner_id:user.id,status:"draft",attribution_confirmed:false}).select("id,title,status,endeavor_id").single();
  if(error){
   if(error.code==="23505"){
-   const retry=await client.from("shane_listings").select("id,status").eq("endeavor_id",endeavorId).eq("owner_id",user.id).maybeSingle();
+   const retry=await client.from("shane_listings").select("id,status,endeavor_id").eq("endeavor_id",endeavorId).eq("owner_id",user.id).maybeSingle();
    if(!retry.error&&retry.data)return {...retry.data,unchanged:true};
   }
   throw error;
