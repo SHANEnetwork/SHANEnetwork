@@ -23,4 +23,4 @@ $("visionForm").addEventListener("submit",exploreVision);
 $("buildFromVision").addEventListener("click",event=>{const value=$("visionInput").value.trim();if(!value)return;try{sessionStorage.setItem("shane_network_vision_handoff_v1",JSON.stringify({vision:value.slice(0,2000),created:Date.now()}))}catch(error){event.preventDefault();$("visionStatus").textContent="Your browser could not temporarily store this idea. Copy your description before continuing to the creator.";return}});
 
 $("discoverForm").addEventListener("submit",e=>{e.preventDefault();discover()});loadAccount();discover();
-</script><script src="shane-network-collaborations.js" defer></script></body></html>
+</script><script type="module" src="shane-network-collaborations.js"></script></body></html>
