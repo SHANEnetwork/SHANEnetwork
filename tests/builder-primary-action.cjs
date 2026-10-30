@@ -39,3 +39,6 @@ assert.ok(html.includes("conversation:saved.conversation});if(section.dataset.en
 
 assert.ok(html.includes('if(section.dataset.endeavorId===id)status.textContent="No changes saved: "'),"Stale refinement errors must not update a different project");
 assert.ok(html.includes('if(section.dataset.endeavorId===id)status.textContent="Could not save: "'),"Stale title-save errors must not update a different project");
+
+assert.equal((html.match(/section\.dataset\.busy==="true"\)return;section\.dataset\.busy="true";/g)||[]).length,2,"Both structured editor actions must reject overlapping saves");
+assert.equal((html.match(/section\.dataset\.busy="false";/g)||[]).length>=3,true,"Editor must reset busy state on opening and action completion");
