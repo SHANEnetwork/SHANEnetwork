@@ -27,3 +27,10 @@ test("published status only for matching listing",()=>{
  assert.equal(state.organization.state,"linked");
  assert.equal(state.professionals.state,"not-integrated");
 });
+
+test("a saved endeavor never activates paid services by implication",()=>{
+ const result=orchestrator.inspect({id,persisted:true,linkedSiteId:"site",linkedOrganizationId:"org"},{id:"listing",endeavor_id:id,status:"published"});
+ assert.equal(result.commerce.state,"not-activated");
+ assert.equal(result.communications.state,"not-verified");
+ assert.equal(result.games.state,"not-verified");
+});
