@@ -6,7 +6,13 @@ const read = name => fs.readFileSync(path.join(root, name), 'utf8');
 const builder = read('builder.html');
 const dashboard = read('dashboard.html');
 const publicSite = read('site.html');
+const conversationSync = read('shane-conversation-sync.js');
 const cases = [
+  ['conversation saves require observed revision', conversationSync.includes('expectedRevision:existing?observedRevision(existing):undefined') && conversationSync.includes('savedState.revision!==expected')],
+  ['resume records current revision', conversationSync.includes('rememberRevision(id,result.revision)')],
+  ['provisioning advances tracked revision', conversationSync.includes('rememberRevision(result.id,(await window.SHANEEndeavorStore.load(client,result.id)).revision)')],
+  ['failed new autosave restores earlier revision', conversationSync.includes('revision:sessionStorage.getItem(revisionKey)') && conversationSync.includes('if(prior.revision)sessionStorage.setItem(revisionKey,prior.revision)')],
+
   ['new private website creation', builder.includes('shane_sites").insert({owner_id:user.id') && builder.includes('status:"draft"')],
   ['saved website owner-scoped updates', builder.includes('shane_sites").update(') && builder.includes('.eq("owner_id",user.id)')],
   ['publication requires a saved website', builder.includes('Save the website to your account before publishing.')],

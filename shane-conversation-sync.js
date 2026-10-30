@@ -87,11 +87,12 @@ async function autosaveAfterGeneration(mode){
  try{
   // A newly generated website must not silently overwrite a previously saved endeavor.
   if(mode==="new"){
-   const prior={endeavor:sessionStorage.getItem(key),site:sessionStorage.getItem(siteKey),organization:sessionStorage.getItem("shane_org_for_endeavor_v1")};
+   const prior={endeavor:sessionStorage.getItem(key),revision:sessionStorage.getItem(revisionKey),site:sessionStorage.getItem(siteKey),organization:sessionStorage.getItem("shane_org_for_endeavor_v1")};
    sessionStorage.removeItem(key);sessionStorage.removeItem(revisionKey);sessionStorage.removeItem(siteKey);sessionStorage.removeItem("shane_org_for_endeavor_v1");
    const saved=await save();
    if(!saved){
     if(prior.endeavor)sessionStorage.setItem(key,prior.endeavor);
+    if(prior.revision)sessionStorage.setItem(revisionKey,prior.revision);
     if(prior.site)sessionStorage.setItem(siteKey,prior.site);
     if(prior.organization)sessionStorage.setItem("shane_org_for_endeavor_v1",prior.organization);
    }
