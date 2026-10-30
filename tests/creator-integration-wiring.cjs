@@ -1,0 +1,19 @@
+const test=require("node:test");
+const assert=require("node:assert/strict");
+const fs=require("node:fs");
+const builder=fs.readFileSync(require("node:path").join(__dirname,"../builder.html"),"utf8");
+const sync=fs.readFileSync(require("node:path").join(__dirname,"../shane-conversation-sync.js"),"utf8");
+const bridge=fs.readFileSync(require("node:path").join(__dirname,"../shane-creator-network-bridge.js"),"utf8");
+test("Creator loads orchestration before its connected-view handler",()=>{
+ assert.ok(builder.includes('src="shane-endeavor-orchestrator.js"'));
+ assert.ok(builder.indexOf('src="shane-endeavor-orchestrator.js"')<builder.indexOf('src="shane-conversation-sync.js"'));
+});
+test("Creator receives network readiness notifications",()=>{
+ assert.ok(bridge.includes('shane:network-draft-ready'));
+ assert.ok(sync.includes('shane:network-draft-ready'));
+ assert.ok(sync.includes('SHANEEndeavorOrchestrator?.inspect(saved,listing)'));
+});
+test("Network draft bridge does not publish automatically",()=>{
+ assert.ok(bridge.includes("upsertEndeavorDraft"));
+ assert.ok(!bridge.includes(".publish("));
+});
