@@ -20,3 +20,10 @@ test("foreign listing is not linked to the endeavor",()=>{
  const s=orchestrator.inspect({id,persisted:true},{id:"listing",endeavor_id:"other",status:"published"});
  assert.equal(s.network.state,"needs-setup");
 });
+
+test("published status only for matching listing",()=>{
+ const state=orchestrator.inspect({id,persisted:true,linkedOrganizationId:"org"},{id:"listing",endeavor_id:id,status:"published"});
+ assert.equal(state.network.state,"published");
+ assert.equal(state.organization.state,"linked");
+ assert.equal(state.professionals.state,"not-integrated");
+});
