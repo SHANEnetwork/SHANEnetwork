@@ -22,18 +22,7 @@ jobs:
           node --check shane-creator-network-bridge.js
           node --check shane-capability-manifest.js
           node --check shane-endeavor-diagnostics.js
-      - name: Check dashboard inline module syntax
-        run: |
-          node - <<'NODE'
-          const fs=require('node:fs');
-          const vm=require('node:vm');
-          const html=fs.readFileSync('dashboard.html','utf8');
-          const modules=[...html.matchAll(/<script\\b[^>]*type=["']module["'][^>]*>([\\s\\S]*?)<\\/script>/gi)];
-          if(!modules.length)throw Error('Dashboard module script missing');
-          for(const match of modules)new vm.SourceTextModule(match[1]);
-          console.log('Dashboard module syntax valid');
-          NODE
-        env:
-          NODE_OPTIONS: --experimental-vm-modules
+      - name: Check website lifecycle and inline page scripts
+        run: node tests/website-lifecycle.cjs
       - name: Test endeavor network privacy and publication
         run: node --test tests/endeavor-network-lifecycle.cjs tests/endeavor-diagnostics.cjs
