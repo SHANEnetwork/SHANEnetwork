@@ -34,6 +34,7 @@
   if(!Object.prototype.hasOwnProperty.call(roles,role))throw Error("Unknown role.");
   return freezeDeep({
    endeavorId:endeavor.id,role,mandate:roles[role],specialty:trim(specialty,120),
+   accessRole:endeavor.accessRole==="collaborator"?"collaborator":"owner",canEdit:endeavor.accessRole!=="collaborator"&&endeavor.canEdit!==false,
    title:trim(endeavor.title,150),vision:trim(endeavor.vision),
    linkedSiteId:endeavor.linkedSiteId||null,
    linkedOrganizationId:endeavor.linkedOrganizationId||null,
