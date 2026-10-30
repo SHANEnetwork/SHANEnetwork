@@ -23,12 +23,13 @@ create policy "Owners invite collaborators" on public.shane_endeavor_members for
 with check (invited_by=(select auth.uid()) and status='invited' and user_id<>invited_by and exists (
  select 1 from public.shane_endeavors e where e.id=endeavor_id and e.owner_id=(select auth.uid())
 ));
-drop policy if exists "Owners manage invitations or invitees respond" on public.shane_endeavor_members;
-create policy "Owners manage invitations or invitees respond" on public.shane_endeavor_members for update to authenticated
-using (exists (select 1 from public.shane_endeavors e where e.id=endeavor_id and e.owner_id=(select auth.uid()))
- or user_id=(select auth.uid()))
-with check (exists (select 1 from public.shane_endeavors e where e.id=endeavor_id and e.owner_id=(select auth.uid()))
- or (user_id=(select auth.uid()) and status in ('active','declined')));
--- IMPORTANT: PostgreSQL RLS alone cannot stop invitees changing their role on UPDATE.
--- Until column-level grants and a secured accept/decline RPC are implemented, do not enable direct invitee UPDATE.
+-- Owners alone may update membership rows. Invitees cannot elevate their roles.
+drop policy if exists "Owners manage invitations" on public.shane_endeavor_members;
+create policy "Owners manage invitations" on public.shane_endeavor_members for update to authenticated
+using (exists (select 1 from public.shane_endeavors e where e.id=endeavor_id and e.owner_id=(select auth.uid())))
+with check (exists (select 1 from public.shane_endeavors e where e.id=endeavor_id and e.owner_id=(select auth.uid())));
+-- Only grant UPDATE on the role and status columns, never on ownership identifiers.
 revoke update on public.shane_endeavor_members from authenticated;
+grant update (role,status) on public.shane_endeavor_members to authenticated;
+-- An invitee's acceptance/decline needs a separate secure RPC with a strict
+-- status transition and immutable role. Do not expose a direct client UPDATE.
