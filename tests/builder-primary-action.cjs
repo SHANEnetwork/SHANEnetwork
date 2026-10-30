@@ -16,3 +16,4 @@ assert.ok(html.includes('"shane:conversation-draft-ready"'),"Restored drafts mus
 const sync=fs.readFileSync("shane-conversation-sync.js","utf8");assert.ok(sync.includes("const restoredDraft=site.content?.shaneEditorDraft||"),"Resume must support both nested and native editor content");assert.ok(sync.includes('typeof site.content?.pages==="string"'),"Composition placeholder pages must not masquerade as an editable website");
 assert.ok(sync.includes("private site foundation, but no editable website draft yet"),"Foundation-only creations must not be described as finished websites");
 assert.ok(html.includes('<select id="aiProvider" hidden aria-label="AI service used by SHANE"'),"Creator should not have to select an AI provider");
+assert.ok(html.includes('<select id="aiMode" hidden aria-label="SHANE automatically selects creation or refinement"'),"Creator must not manually configure generation mode");
