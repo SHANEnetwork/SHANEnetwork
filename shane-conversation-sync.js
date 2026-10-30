@@ -172,7 +172,9 @@ document.addEventListener("DOMContentLoaded",()=>{
  document.addEventListener("shane:network-draft-ready",event=>{
   if(event.detail?.endeavorId===sessionStorage.getItem(key))openConnectedEndeavor();
  });
+ let connectedViewVersion=0;
  async function openConnectedEndeavor(){
+  const version=++connectedViewVersion;
   const id=sessionStorage.getItem(key),client=window.SHANEAuthenticatedClient;
   if(!id||!client){status("Save or reopen an endeavor while signed in to view its connected capabilities.");return}
   try{
