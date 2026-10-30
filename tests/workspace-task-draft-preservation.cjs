@@ -10,4 +10,5 @@ assert(handler.includes('const snapshot=fields.map(field=>field.value)'), 'Submi
 assert(handler.includes('details:snapshot[1].trim()'), 'Submitted details use the snapshot');
 assert(handler.includes('fields.every((field,index)=>field.value===snapshot[index])'), 'Newer draft edits are detected');
 assert(handler.includes('Your newer draft changes were preserved'), 'Preserved draft is explained');
+assert(handler.includes('e.target.querySelector(\'button[type="submit"]\')?.disabled'), 'Reject repeat task creation submissions during save');
 console.log('PASS new task draft preservation during save');
