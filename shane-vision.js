@@ -21,5 +21,21 @@
   const spec=engine.compose({endeavorId:endeavorId||"unsaved-draft",title:title||"My Endeavor",modules});
   return {spec,sourceVision:vision,provisioningStatus:"not_provisioned",notes:"Capabilities are suggestions only. No private spaces, database records, or external services have been created."};
  }
- return Object.freeze({interpret});
+ function revise(spec,instruction){
+  const problems=engine.validate(spec);if(problems.length)throw Error(problems.join("; "));
+  if(typeof instruction!=="string"||!instruction.trim())throw Error("Describe the change you want");
+  const text=instruction.trim();
+  const remove=/\b(?:remove|delete|disable|without|no longer|stop using)\b/i.test(text);
+  const matched=rules.filter(rule=>rule.pattern.test(text)).map(rule=>rule.type);
+  if(!matched.length)throw Error("No supported capability identified; describe a page, project, publication, event, membership, message, discussion, or directory");
+  const enabled=new Set(spec.modules.map(m=>m.type));
+  if(remove){for(const type of matched)enabled.delete(type)}
+  else for(const type of matched)enabled.add(type);
+  if(remove&&matched.includes("memberships")&&(enabled.has("messaging")||enabled.has("discussions")))throw Error("Memberships are required for messaging and discussions; remove those features first");
+  const next=engine.compose({endeavorId:spec.endeavorId,title:spec.title,modules:[...enabled],appearance:spec.appearance||{}});
+  for(const module of next.modules){const prior=spec.modules.find(m=>m.type===module.type);if(prior?.labels)module.labels={...prior.labels}}
+  const errors=engine.validate(next);if(errors.length)throw Error(errors.join("; "));
+  return {spec:next,matched,action:remove?"remove":"add",provisioningStatus:"not_provisioned"};
+ }
+ return Object.freeze({interpret,revise});
 });
