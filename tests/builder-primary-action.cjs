@@ -25,3 +25,4 @@ assert.ok(html.includes('document.getElementById("brandFont").value=chosen.font'
 assert.ok(html.indexOf("previousAIGeneration={content:getSite()")<html.indexOf('if(mode==="new"){const vision='),"Undo snapshot must precede automatic visual identity changes");
 assert.ok(html.indexOf('if(mode==="new"){const vision=')<html.indexOf('if(["modern","friendly","classic","editorial","mono"].includes(site.brandFont))'),"Explicit AI typography must override inferred typography");
 assert.ok(html.includes('if(["classic","minimal","bold"].includes(site.layoutStyle))'),"AI-selected layout should be honored when valid");
+assert.ok(html.includes("When the generator supports optional design fields, include brandColor"),"AI prompt should request validated visual identity fields");
