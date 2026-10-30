@@ -12,3 +12,6 @@ assert.ok(sync.includes('shane:editor-restore'),"Resume must reopen the saved we
 
 assert.ok(sync.includes('shane:ai-generation-finished'),"Successful AI generation should trigger private autosave");
 assert.ok(sync.includes('autosaveAfterGeneration()'),"Generation listener must invoke private autosave");
+
+assert.ok(sync.includes('if(mode==="new"){sessionStorage.removeItem(key)'),"A new AI-created site must not overwrite a previous saved endeavor");
+assert.ok(sync.includes('autosaveAfterGeneration(event.detail?.mode)'),"Autosave must distinguish new creation from revision");
