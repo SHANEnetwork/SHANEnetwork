@@ -113,3 +113,31 @@ test('recipient accepts pending invitation in isolated Chromium',async()=>{
   assert.match(await page.locator('#collaborationInbox').innerText(),/Status: accepted/);
  }finally{await browser.close()}
 });
+
+test('member sends one invitation and duplicate request is blocked in isolated Chromium',async()=>{
+ const browser=await chromium.launch({headless:true});
+ try{
+  const page=await browser.newPage();
+  const stub=`const user={id:'isolated-sender',email:'sender@example.invalid'};
+  const listing={id:'public-project',owner_id:'other-member',title:'Public test endeavor',category:'project',description:'Public test',region:'',status:'published'};
+  const requests=[];
+  const query=(table)=>{let filters=[];const q={
+   select(){return q},eq(key,value){filters.push([key,value]);return q},order(){return q},limit(){return q},in(){return q},
+   maybeSingle:async()=>({data:null,error:null}),
+   insert:async(value)=>{if(table==='shane_collaboration_requests')requests.push({id:'request-'+requests.length,status:'pending',created_at:'2026-10-30T12:00:00Z',...value});return {error:null}},
+   then(resolve){let data=table==='shane_listings'?[listing]:table==='shane_collaboration_requests'?requests:[];for(const [key,value] of filters)data=data.filter(row=>row[key]===value);resolve({data,error:null})}
+  };return q};
+  export function createClient(){return {auth:{getUser:async()=>({data:{user},error:null})},from:query}};`;
+  await page.route('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/+esm',route=>route.fulfill({status:200,contentType:'application/javascript',body:stub}));
+  await page.goto('file://'+path.resolve('members.html'));
+  await page.locator('#results').getByText('Request collaboration',{exact:true}).waitFor({timeout:10000});
+  await page.locator('#results').getByText('Request collaboration',{exact:true}).click();
+  const form=page.locator('[data-collaboration-composer]');
+  await form.locator('textarea').fill('I would like to help organize this project.');
+  await form.getByText('Send private invitation').click();
+  await page.locator('#status').getByText('Collaboration request sent privately.',{exact:false}).waitFor({timeout:10000});
+  await page.locator('#results').getByText('Request collaboration',{exact:true}).click();
+  await page.locator('#status').getByText('You already have a pending invitation',{exact:false}).waitFor({timeout:10000});
+  assert.equal(await page.locator('[data-collaboration-composer]').count(),0);
+ }finally{await browser.close()}
+});
