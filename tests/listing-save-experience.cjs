@@ -26,3 +26,16 @@ test('save button is locked during asynchronous insertion and unlocked afterward
 test('publishing requires affirmative permission',()=>{
  assert.match(html,/status==='published'&&!confirmed/);
 });
+
+test('listing edit confirms the saved visibility beside its editor',()=>{
+ assert.match(html,/feedback\.setAttribute\('role','status'\)/);
+ assert.match(html,/feedback\.textContent='Saved successfully: '/);
+ assert.match(html,/Visibility: '/);
+});
+test('listing edit errors preserve the open form and display an explanation',()=>{
+ const start=html.indexOf("form.onsubmit=async e=>",html.indexOf("async function myListings()"));
+ const end=html.indexOf("remove.onclick=",start);
+ const handler=html.slice(start,end);
+ assert.match(handler,/if\(error\)\{feedback\.textContent='Changes were not saved: '/);
+ assert.ok(handler.indexOf("if(error)")<handler.indexOf("await myListings()"));
+});
