@@ -5,10 +5,10 @@
  try{
   const saved=JSON.parse(sessionStorage.getItem(key)||"null");
   sessionStorage.removeItem(key);
-  if(saved&&typeof saved.vision==="string"&&Number.isFinite(saved.created)&&Date.now()-saved.created<30*60*1000&&Date.now()>=saved.created)vision=saved.vision.trim().slice(0,2000);
+  if(saved&&typeof saved.vision==="string"&&Number.isFinite(saved.created)&&Date.now()-saved.created<30*60*1000&&Date.now()>=saved.created)vision=saved.vision.trim();
  }catch{}
  // Compatibility with older links; clean the query immediately, before the page is ready.
- if(!vision)vision=(params.get("vision")||"").trim().slice(0,2000);
+ if(!vision)vision=(params.get("vision")||"").trim();
  if(params.has("vision")){
   params.delete("vision");const query=params.toString();
   history.replaceState(history.state,"",location.pathname+(query?"?"+query:"")+location.hash);
