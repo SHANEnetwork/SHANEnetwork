@@ -31,9 +31,9 @@ const sb=createClient("https://ufxzogeixdwvbpdypojb.supabase.co","sb_publishable
      const form=el("form");const label=el("label","Your message");const field=el("textarea");field.required=true;field.maxLength=4000;field.rows=3;field.placeholder="Write to your collaborator";label.append(field);
      const send=el("button","Send privately");send.type="submit";const refresh=action("Refresh messages",readMessages);
      form.append(label,send);panel.append(history,form,refresh,feedback);article.append(panel);talk.textContent="Close conversation";
-     async function readMessages(){const response=await sb.from("shane_collaboration_messages").select("sender_id,body,created_at").eq("request_id",r.id).order("created_at",{ascending:true}).limit(100);
+     async function readMessages(){const response=await sb.from("shane_collaboration_messages").select("sender_id,body,created_at").eq("request_id",r.id).order("created_at",{ascending:false}).limit(100);
       if(response.error){feedback.textContent="Could not read messages: "+response.error.message;return}
-      history.replaceChildren();for(const m of response.data||[]){const entry=el("p");entry.style.cssText="padding:9px 0;border-bottom:1px solid #dce5ee;white-space:pre-wrap;overflow-wrap:anywhere";const who=el("strong",m.sender_id===user.id?"You":"Collaborator");entry.append(who,document.createTextNode(" · "+new Date(m.created_at).toLocaleString()+"\n"+m.body));history.append(entry)}
+      history.replaceChildren();for(const m of [...(response.data||[])].reverse()){const entry=el("p");entry.style.cssText="padding:9px 0;border-bottom:1px solid #dce5ee;white-space:pre-wrap;overflow-wrap:anywhere";const who=el("strong",m.sender_id===user.id?"You":"Collaborator");entry.append(who,document.createTextNode(" · "+new Date(m.created_at).toLocaleString()+"\n"+m.body));history.append(entry)}
       feedback.textContent=response.data?.length?"Private conversation loaded.":"No messages yet. Start the conversation below.";
      }
      form.addEventListener("submit",async e=>{e.preventDefault();const body=field.value.trim();if(!body)return;send.disabled=true;
