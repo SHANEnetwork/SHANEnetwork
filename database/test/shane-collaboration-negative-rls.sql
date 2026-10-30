@@ -1,6 +1,23 @@
 -- SHANE Test negative RLS assertions. Requires isolated synthetic fixtures.
 -- Each expected denial is caught in a PL/pgSQL exception subtransaction.
 -- Unexpected successful writes fail the script; all changes roll back.
+-- Fail fast if synthetic fixtures are missing or have drifted. Otherwise UPDATE
+-- assertions could pass merely because no target row was present.
+DO $$
+BEGIN
+ IF NOT EXISTS (
+  SELECT 1 FROM public.shane_collaboration_requests
+  WHERE id='88888888-8888-4888-8888-888888888888'
+    AND sender_id='22222222-2222-4222-8222-222222222222'
+    AND recipient_id='11111111-1111-4111-8111-111111111111'
+    AND status='accepted'
+ ) THEN RAISE EXCEPTION 'Expected accepted collaboration fixture is missing or changed'; END IF;
+ IF NOT EXISTS (
+  SELECT 1 FROM public.shane_collaboration_tasks
+  WHERE id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'
+    AND request_id='88888888-8888-4888-8888-888888888888'
+ ) THEN RAISE EXCEPTION 'Expected collaboration task fixture is missing or changed'; END IF;
+END $$;
 BEGIN;
 SET LOCAL ROLE authenticated;
 SELECT set_config('request.jwt.claim.sub','33333333-3333-4333-8333-333333333333',true);
