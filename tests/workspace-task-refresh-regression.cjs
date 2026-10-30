@@ -21,4 +21,7 @@ assert(loader.includes('No tasks remain on this page. Return to newer tasks.'), 
 assert(source.includes('function openTaskEditor(task,row,page)'), 'Editor receives current task page');
 assert(source.includes('edit.onclick=()=>openTaskEditor(x,row,page)'), 'Edit button passes current page');
 assert(source.includes('else await Promise.all([loadTasks(page),loadActivity()])}};row.append(form)'), 'Task save preserves current page');
+assert(loader.includes('host.setAttribute("aria-busy","true")'), 'Task list indicates refresh in progress');
+assert(loader.includes('host.setAttribute("aria-busy","false")'), 'Task list clears busy state');
+assert(loader.indexOf('if(error)') < loader.indexOf('host.replaceChildren()'), 'Failed task refresh retains existing tasks');
 console.log('PASS collaboration task refresh ordering guards');
