@@ -51,6 +51,11 @@
    if(!sectionTitles[slug]||content.pages.some(page=>page?.slug===slug))continue;
    content.pages.push({title:sectionTitles[slug],slug,draft:true,shaneGenerated:true,serviceStatus:"pending",intro:"This part of your endeavor is being prepared."});
   }
+  // Keep composition placeholders separate from the builder's native pages string.
+  if(editorContent&&typeof editorContent==="object"&&!Array.isArray(editorContent)){
+   content.shaneCompositionPages=content.pages;
+   Object.assign(content,content.shaneEditorDraft);
+  }
   content.shaneComposition=composition;
   content.sourceVision=String(vision||"").slice(0,12000);
   const payload={owner_id:ownerId,name:spec.title,content,status:"draft"};
