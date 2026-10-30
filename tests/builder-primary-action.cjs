@@ -33,3 +33,6 @@ assert.ok(html.includes('{role:"shane",text:"Composition updated: "'),"Structure
 assert.ok(!html.includes('{role:"assistant",text:"Composition updated: "'),"Structured refinement must not persist unsupported assistant role");
 
 assert.ok(html.includes("saved.conversation.length>SHANEConversationState.MAX_TURNS-2"),"Two-turn refinement must check remaining conversation capacity before saving");
+
+assert.ok(html.includes("conversation});if(section.dataset.endeavorId!==id)return;"),"Refinement completion must not overwrite another project editor");
+assert.ok(html.includes("conversation:saved.conversation});if(section.dataset.endeavorId!==id)return;"),"Title-save completion must not overwrite another project editor");
