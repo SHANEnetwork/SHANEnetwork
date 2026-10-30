@@ -67,9 +67,20 @@ async function resume(){
   if(current?.turns?.length&&!confirm("Replace this browser session's conversation with your saved conversation? Your website draft will not be changed."))return;
   document.dispatchEvent(new CustomEvent("shane:conversation-restore",{detail:{turns:result.conversation,draftReady:false}}));
   window.SHANECurrentComposition={spec:result.spec,sourceVision:result.vision,provisioningStatus:"not_provisioned"};
+  if(result.linkedSiteId){
+   try{
+    const {data:site,error:siteError}=await client.from("shane_sites").select("id,owner_id,content,status").eq("id",result.linkedSiteId).single();
+    const {data:auth,error:authError}=await client.auth.getUser();
+    if(siteError||authError||!auth?.user?.id||!site||site.owner_id!==auth.user.id)throw Error("Saved website is not accessible in this account");
+    if(site.content?.shaneEditorDraft){
+     document.dispatchEvent(new CustomEvent("shane:editor-restore",{detail:{content:site.content.shaneEditorDraft}}));
+     status("Your conversation and editable website draft are restored. Nothing was published.");
+    }
+   }catch(restoreError){status("Conversation restored, but the website draft could not be reopened: "+restoreError.message)}
+  }
   if(result.linkedSiteId)sessionStorage.setItem(siteKey,JSON.stringify({endeavorId:result.id,siteId:result.linkedSiteId}));
   if(result.linkedOrganizationId)sessionStorage.setItem("shane_org_for_endeavor_v1",JSON.stringify({endeavorId:result.id,organizationId:result.linkedOrganizationId}));
-  status("Your private conversation has been restored. The website draft remains separate.");
+  if(!result.linkedSiteId)status("Your conversation has been restored. No linked website draft was found.");
  }catch(e){status("Could not resume: "+e.message)}
 }
 async function discoverSaved(){
