@@ -11,4 +11,5 @@ assert(editor.includes('value!==snapshot[index]'), 'Newer edits detected after s
 assert(editor.includes('Newer edits remain in the editor'), 'Member receives preservation notice');
 assert(editor.includes('else await Promise.all([loadTasks(),loadActivity()])'), 'Unchanged editor refreshes normally');
 assert(editor.includes('document.createElement(type==="textarea"?"textarea":"input")'), 'Task details use a multiline editor');
+assert(editor.includes('if(save.disabled)return;'), 'Reject repeat edit submissions during save');
 console.log('PASS task edit preservation during asynchronous save');
