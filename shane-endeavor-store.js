@@ -31,7 +31,7 @@
    const {data,error}=await request;
    if(error)throw Error("Could not save endeavor: "+error.message);
    if(!data||data.owner_id!==userId)throw Error("Endeavor ownership verification failed");
-   return {id:data.id,title:data.title,spec,vision:data.idea,persisted:true};
+   return {id:data.id,title:data.title,spec:{...stableSpec,endeavorId:data.id},vision:data.idea,conversation:conversation===undefined?(prior?.conversation||[]):conversation,linkedSiteId:prior?.linkedSiteId||null,linkedOrganizationId:stableSpec.shaneOrganizationId||null,persisted:true,accessRole:"owner",canEdit:true};
  }
  async function load(client,id){
    const userId=await owner(client);
