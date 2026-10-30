@@ -35,7 +35,7 @@ test('signed-in member can create a draft using isolated browser mocks',async()=
   const query=(table)=>{let mode='select';let data=null;const q={
    select(){mode='select';return q},eq(){return q},order(){return q},limit(){return q},in(){return q},
    maybeSingle:async()=>({data:null,error:null}),
-   insert:async(value)=>{if(table==='shane_listings')rows.push(value);return {error:null}},
+   insert:async(value)=>{if(table==='shane_listings')rows.push({id:'local-listing-'+rows.length,...value});return {error:null}},
    then(resolve){resolve({data:table==='shane_listings'?rows:[],error:null})}
   };return q};
   export function createClient(){return {auth:{getUser:async()=>({data:{user},error:null}),signOut:async()=>({error:null})},from:query}};`;
@@ -45,8 +45,8 @@ test('signed-in member can create a draft using isolated browser mocks',async()=
   await page.locator('#title').fill('Isolated browser draft');
   await page.locator('#category').selectOption('project');
   await page.locator('#description').fill('A local browser-only test');
-  await page.locator('#listing button[type="submit"]').click();
-  await page.locator('#listingFeedback').getByText('Saved successfully:',{exact:false}).waitFor();
+  await page.locator('#createListingButton').click();
+  await page.locator('#listingFeedback').getByText('Saved successfully:',{exact:false}).waitFor({timeout:10000});
   assert.match(await page.locator('#mine').innerText(),/Isolated browser draft/);
  }finally{await browser.close()}
 });
