@@ -7,3 +7,4 @@ assert.ok(html.includes("finish(status,event.detail?.mode)"),"Creation result sh
 assert.ok(html.includes("promptText.slice(0,1900)"),"AI revision must reserve room for the latest creator request");
 assert.ok(html.includes("Different endeavors should have genuinely different visual identities"),"Generator must prioritize distinctive visual identity");
 assert.ok(html.includes(".join(\"\\n\").slice(-1400)"),"Conversation context must fit the AI prompt budget");
+assert.ok(html.includes('t.role==="you"&&typeof t.text==="string"'),"AI context must prioritize actual creator instructions");
