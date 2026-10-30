@@ -25,7 +25,7 @@ async function prepare(event){
  try{
   const listing=await api.upsertEndeavorDraft(client,id,{title,description,category:"project"});
   if(listing.unchanged){
-   status.textContent="Your network presence already exists. SHANE has preserved its current publication and edits.";
+   status.textContent="Your network presence already exists. SHANE has preserved its owner-edited content and publication status.";
   }else{
    status.textContent="Your network draft is saved with your endeavor. It follows your account across devices and stays private until you approve publication.";
   }
