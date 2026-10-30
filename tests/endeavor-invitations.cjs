@@ -28,3 +28,13 @@ test("A missing pending invitation cannot be treated as success",async()=>{
  const c=client();c.rpc=async()=>({data:false});
  await assert.rejects(()=>invitations.respond(c,endeavor,true),/no longer pending/);
 });
+
+test("Accepting an invitation calls the invitee-scoped RPC and does not publish",async()=>{
+ const c=client();const result=await invitations.respond(c,endeavor,true);
+ assert.deepEqual(result,{endeavorId:endeavor,accepted:true});
+ assert.deepEqual(c.calls,[["shane_respond_to_endeavor_invite",{p_endeavor_id:endeavor,p_accept:true}]]);
+});
+test("Invitation RPC errors do not become successful acceptances",async()=>{
+ const c=client();c.rpc=async()=>({data:null,error:{message:"Invitation expired"}});
+ await assert.rejects(()=>invitations.respond(c,endeavor,true),/Invitation expired/);
+});
