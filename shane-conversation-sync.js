@@ -5,6 +5,7 @@
 const key="shane_last_private_endeavor_v1",siteKey="shane_private_site_for_endeavor_v1";
 function get(id){return document.getElementById(id)}
 function snapshot(){let result=null;const listener=e=>{result=e.detail};document.addEventListener("shane:conversation-snapshot",listener,{once:true});document.dispatchEvent(new Event("shane:conversation-export"));document.removeEventListener("shane:conversation-snapshot",listener);return result}
+function editorSnapshot(){let result=null;const listener=e=>{result=e.detail?.content||null};document.addEventListener("shane:editor-snapshot",listener,{once:true});document.dispatchEvent(new Event("shane:editor-export"));document.removeEventListener("shane:editor-snapshot",listener);return result}
 function status(text){const el=get("shaneContinuityStatus");if(el)el.textContent=text}
 async function save(){
  const client=window.SHANEAuthenticatedClient;
@@ -30,7 +31,7 @@ async function save(){
    const previousSite=JSON.parse(sessionStorage.getItem(siteKey)||"null");
    let linkedId=previousSite?.endeavorId===result.id?previousSite.siteId:undefined;
    if(!linkedId){const saved=await window.SHANEEndeavorStore.load(client,result.id);linkedId=saved.linkedSiteId||undefined}
-   const site=await window.SHANEProvision.provision(client,{spec:inferred.spec,vision,siteId:linkedId});
+   const site=await window.SHANEProvision.provision(client,{spec:inferred.spec,vision,siteId:linkedId,editorContent:snap.draftReady?editorSnapshot():null});
    await window.SHANEEndeavorStore.linkSite(client,result.id,site.siteId);
    sessionStorage.setItem(siteKey,JSON.stringify({endeavorId:result.id,siteId:site.siteId}));
    const types=inferred.spec.modules.map(m=>m.type);
