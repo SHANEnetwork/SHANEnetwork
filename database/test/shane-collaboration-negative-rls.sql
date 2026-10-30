@@ -59,3 +59,19 @@ BEGIN
  IF NOT denied THEN RAISE EXCEPTION 'Oversized collaboration message was allowed'; END IF;
 END $$;
 ROLLBACK;
+-- An accepted collaborator cannot assign a task to an outsider.
+BEGIN;
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub','22222222-2222-4222-8222-222222222222',true);
+DO $$
+DECLARE denied boolean := false;
+BEGIN
+ BEGIN
+  UPDATE public.shane_collaboration_tasks
+  SET assignee_id='33333333-3333-4333-8333-333333333333'
+  WHERE id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+ EXCEPTION WHEN insufficient_privilege OR check_violation THEN denied := true;
+ END;
+ IF NOT denied THEN RAISE EXCEPTION 'Task assignment to outsider was allowed'; END IF;
+END $$;
+ROLLBACK;
