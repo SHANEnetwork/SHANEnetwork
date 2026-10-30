@@ -31,3 +31,6 @@ test("Orchestration receives persisted endeavor from owner-scoped store",()=>{
  assert.ok(store.includes("linkedOrganizationId:spec.shaneOrganizationId"));
  assert.ok(store.includes("linkedSiteId:data.linked_site_id"));
 });
+test("Network readiness event only refreshes selected endeavor",()=>{
+ assert.ok(sync.includes("event.detail?.endeavorId===sessionStorage.getItem(key)"));
+});
