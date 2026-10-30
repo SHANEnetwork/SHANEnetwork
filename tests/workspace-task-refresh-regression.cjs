@@ -1,0 +1,13 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const source = fs.readFileSync(path.join(__dirname, '..', 'workspace.html'), 'utf8');
+const start = source.indexOf('async function loadTasks()');
+const end = source.indexOf('$("refreshTasks").onclick=loadTasks;', start);
+assert(start >= 0 && end > start, 'Shared task loader must exist');
+const loader = source.slice(start, end);
+assert(source.includes('let taskLoadGeneration=0;'), 'Task refresh generation initialized');
+assert(loader.includes('const generation=++taskLoadGeneration;'), 'Each task refresh advances generation');
+assert(loader.includes('if(generation!==taskLoadGeneration||!host.isConnected)return;'), 'Stale or detached task views ignored');
+assert(loader.indexOf('if(generation!==taskLoadGeneration||!host.isConnected)return;') < loader.indexOf('host.replaceChildren();'), 'Stale response guard precedes task list replacement');
+console.log('PASS collaboration task refresh ordering guards');
