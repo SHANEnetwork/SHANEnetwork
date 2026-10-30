@@ -30,3 +30,16 @@ let inserted;const client={auth:{getUser:async()=>({data:{user:{id:"owner-1"}}})
  assert.equal(inserted.content.about,"A place to grow");
  console.log("PASS generated editor content captured without replacing composition pages");
 })().catch(e=>{console.error(e);process.exitCode=1});
+
+(async()=>{
+ const spec=engine.compose({endeavorId:"existing-native",title:"Society",modules:["pages","events"]});
+ let updated;
+ const native={business:"Existing Society",pages:"About | Our existing mission",about:"Original authored content",shaneCompositionPages:[{title:"Home",slug:"home",intro:"old",shaneGenerated:true}],custom:"retain"};
+ const client={auth:{getUser:async()=>({data:{user:{id:"owner-1"}}})},from(){return {select(){return this},eq(){return this},update(p){updated=p;return this},single:async()=>updated?{data:{...updated,id:"site-native"}}:{data:{id:"site-native",owner_id:"owner-1",status:"draft",content:native}}}}};
+ await provision(client,{spec,vision:"Society with new events",siteId:"site-native"});
+ assert.equal(updated.content.pages,native.pages);
+ assert.equal(updated.content.about,native.about);
+ assert.equal(updated.content.custom,"retain");
+ assert.ok(updated.content.shaneCompositionPages.some(p=>p.slug==="events"));
+ console.log("PASS native authored pages survive metadata-only refinement");
+})().catch(e=>{console.error(e);process.exitCode=1});
