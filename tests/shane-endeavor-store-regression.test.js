@@ -115,3 +115,14 @@ test('a saved endeavor identity cannot be accidentally inserted as a new project
  const client={auth:{getUser:async()=>({data:{user:{id:'alice'}},error:null})},from(){throw Error('Must not reach database');}};
  await assert.rejects(store.save(client,{spec,vision:'Keep original'}),/unsaved draft identity/i);
 });
+
+test('loads a JSONB endeavor plan without requiring a serialized string',async()=>{
+ const spec=require('../shane-composition.js').compose({endeavorId:'saved-id',title:'Stored',modules:['pages']});
+ const client={auth:{getUser:async()=>({data:{user:{id:'alice'}},error:null})},from(){
+  return {select(){return this;},eq(){return this;},single:async()=>({data:{id:'saved-id',owner_id:'alice',title:'Stored',idea:'Build it',plan:{...spec,conversation:[{role:'you',text:'Remember this'}]},linked_site_id:null},error:null})};
+ }};
+ const saved=await store.load(client,'saved-id');
+ assert.equal(saved.spec.endeavorId,'saved-id');
+ assert.deepEqual(saved.conversation,[{role:'you',text:'Remember this'}]);
+ assert.equal(saved.canEdit,true);
+});
