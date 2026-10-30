@@ -126,3 +126,13 @@ assert.ok(builder.includes("$('publishChecklist').scrollIntoView"), 'Vision-firs
 assert.ok(builder.includes('JSON.stringify(getSite())!==editorSnapshot'), 'AI must not overwrite manual edits made during generation');
 assert.ok(builder.includes('if(!confirm("Review AI revision'), 'AI revisions must request confirmation');
 console.log('PASS vision-first workflow, publication navigation, and AI edit protections');
+
+const collaborationHardening = read('database/shane-collaboration-hardening.sql');
+const collaborationNegativeTests = read('database/test/shane-collaboration-negative-rls.sql');
+assert.match(collaborationHardening,/revoke update on public\.shane_collaboration_tasks from authenticated;/i,'Task table-wide UPDATE must be revoked');
+assert.match(collaborationHardening,/grant update \(assignee_id, title, details, due_date, completed\)\s+on public\.shane_collaboration_tasks to authenticated;/i,'Only safe task fields may be updated');
+assert.match(collaborationHardening,/revoke update on public\.shane_collaboration_overviews from authenticated;/i,'Overview table-wide UPDATE must be revoked');
+assert.match(collaborationHardening,/grant update \(purpose, next_step, updated_by, updated_at\)\s+on public\.shane_collaboration_overviews to authenticated;/i,'Overview request_id must not be editable');
+assert.match(collaborationNegativeTests,/Task creator identity could be rewritten/,'Task creator mutation must remain covered by negative regression');
+assert.match(collaborationNegativeTests,/Accepted invitation sender identity could be rewritten/,'Invitation identity mutation must remain covered by negative regression');
+console.log('PASS collaboration migration retains least-privilege grants and negative identity assertions');
