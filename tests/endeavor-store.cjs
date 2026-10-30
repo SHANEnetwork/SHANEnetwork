@@ -18,6 +18,9 @@ function client(){return {auth:{getUser:async()=>({data:{user:{id:user}}})},from
  await assert.rejects(store.save(client(),{endeavorId:a.id,title:"Outdated title",vision:"More gardens",spec,expectedPlan:titleRevision,expectedTitle:"Garden 3"}),/changed/);
  assert.equal((await store.load(client(),a.id)).title,"Garden 4");
  const linked=await store.linkSite(client(),a.id,"site-1");assert.equal(linked.siteId,"site-1");assert.equal((await store.load(client(),a.id)).linkedSiteId,"site-1");
+ const unchangedSiteRevision=(await store.load(client(),a.id)).revision;
+ await store.linkSite(client(),a.id,"site-1");
+ assert.equal((await store.load(client(),a.id)).revision,unchangedSiteRevision,"Relinking the same site must not create a false edit");
  const beforeSite=(await store.load(client(),a.id)).revision;
  assert.ok(beforeSite>1,"Site linking must advance the revision");
  const originalFrom=client;
@@ -62,6 +65,9 @@ function client(){return {auth:{getUser:async()=>({data:{user:{id:user}}})},from
  await assert.rejects(store.recover(racing,raceId),/Could not finalize endeavor recovery/);
  assert.equal(rows.get(raceId).plan,recoveryPlan,"Recovery must preserve the concurrent session's plan");
  assert.equal(rows.get(raceId).region,"newer session");
+ const unchangedOrgRevision=(await store.load(client(),a.id)).revision;
+ await store.linkOrganization(client(),a.id,"org-1");
+ assert.equal((await store.load(client(),a.id)).revision,unchangedOrgRevision,"Relinking the same organization must not create a false edit");
  const listed=await store.list(client());assert.ok(listed.some(x=>x.id===a.id));
  await assert.rejects(store.save(client(),{title:"bad",vision:"x",spec:{}}),/Unsupported schema version/);
  console.log("PASS authenticated owner-scoped endeavor save, update, reload and simulated cross-owner denial");
