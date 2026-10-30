@@ -65,7 +65,7 @@ async function resume(){
   if(!result.conversation?.length){status("This endeavor has no saved conversation yet.");return}
   const current=snapshot();
   if(current?.turns?.length&&!confirm("Replace this browser session's conversation with your saved conversation? Your website draft will not be changed."))return;
-  document.dispatchEvent(new CustomEvent("shane:conversation-restore",{detail:{turns:result.conversation,draftReady:false}}));
+  document.dispatchEvent(new CustomEvent("shane:conversation-restore",{detail:{turns:result.conversation,draftReady:!!result.linkedSiteId}}));
   window.SHANECurrentComposition={spec:result.spec,sourceVision:result.vision,provisioningStatus:"not_provisioned"};
   if(result.linkedSiteId){
    try{
