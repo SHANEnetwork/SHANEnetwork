@@ -25,6 +25,8 @@ let inserted;const client={auth:{getUser:async()=>({data:{user:{id:"owner-1"}}})
  assert.equal(result.status,"draft");
  assert.equal(inserted.content.shaneEditorDraft.about,"A place to grow");
  assert.equal(inserted.content.shaneEditorDraft.pages,"Visit | Come see us");
- assert.ok(Array.isArray(inserted.content.pages));
+ assert.equal(inserted.content.pages,"Visit | Come see us");
+ assert.ok(Array.isArray(inserted.content.shaneCompositionPages));
+ assert.equal(inserted.content.about,"A place to grow");
  console.log("PASS generated editor content captured without replacing composition pages");
 })().catch(e=>{console.error(e);process.exitCode=1});
