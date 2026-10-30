@@ -39,4 +39,7 @@ assert(loader.includes('if(del.disabled||!confirm('), 'Task deletion blocks dupl
 assert(loader.includes('.delete().eq("id",x.id).eq("creator_id",user.id).eq("request_id",id)'), 'Task deletion is scoped to collaboration and creator');
 assert(loader.includes('const removed=!error&&data?.length===1'), 'Task deletion confirms an affected row');
 assert(loader.includes('if(!removed)del.disabled=false'), 'Unsuccessful deletion re-enables removal');
+assert(source.includes('.insert({request_id:id,creator_id:user.id,title,details:snapshot[1].trim(),assignee_id:snapshot[2]||null,due_date:snapshot[3]||null}).select("id")'), 'Task creation requests inserted row confirmation');
+assert(source.includes('const created=!error&&data?.length===1'), 'Task creation confirms exactly one inserted row');
+assert(source.includes('if(created){if(fields.every('), 'Task draft clears only after confirmed insertion');
 console.log('PASS collaboration task refresh ordering guards');
