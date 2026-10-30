@@ -1,0 +1,25 @@
+name: SHANE integration regression
+on:
+  push:
+    branches: [main, feature/reusable-composition-foundation]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  network-lifecycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check integration JavaScript syntax
+        run: |
+          node --check shane-network-connector.js
+          node --check shane-conversation-sync.js
+          node --check shane-creator-network-bridge.js
+          node --check shane-capability-manifest.js
+      - name: Test endeavor network privacy and publication
+        run: node --test tests/endeavor-network-lifecycle.cjs
