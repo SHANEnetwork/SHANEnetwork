@@ -49,7 +49,7 @@ async function updateOwnDraft(client,id,input){
  const user=await userFor(client);
  if(!id)throw new Error("Listing ID required.");
  const {data,error}=await client.from("shane_listings")
- .update({...prepare(input),status:"draft",attribution_confirmed:false})
+ .update((()=>{const {endeavor_id,...fields}=prepare(input);return {...fields,status:"draft",attribution_confirmed:false};})())
  .eq("id",id).eq("owner_id",user.id).eq("status","draft")
  .select("id,title,status").maybeSingle();
  if(error)throw error;
