@@ -34,4 +34,4 @@ jobs:
       - name: Check website lifecycle and inline page scripts
         run: node tests/website-lifecycle.cjs
       - name: Test endeavor network privacy and publication
-        run: node --test tests/endeavor-network-lifecycle.cjs tests/endeavor-diagnostics.cjs tests/endeavor-access.cjs tests/endeavor-orchestrator.cjs tests/creator-integration-wiring.cjs tests/endeavor-invitation-sql.cjs tests/endeavor-invitations.cjs tests/invitation-inbox-races.cjs tests/endeavor-membership-consent.cjs tests/endeavor-revocation.cjs tests/endeavor-revocation-sql.cjs tests/endeavor-collaborators.cjs tests/collaboration-security-wiring.cjs
+        run: node --test tests/endeavor-network-lifecycle.cjs tests/endeavor-diagnostics.cjs tests/endeavor-access.cjs tests/endeavor-orchestrator.cjs tests/creator-integration-wiring.cjs tests/endeavor-invitation-sql.cjs tests/endeavor-invitations.cjs tests/invitation-inbox-races.cjs tests/endeavor-membership-consent.cjs tests/endeavor-revocation.cjs tests/endeavor-revocation-sql.cjs tests/endeavor-collaborators.cjs tests/collaboration-security-wiring.cjs tests/two-member-collaboration-model.cjs
