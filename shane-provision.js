@@ -33,17 +33,17 @@
    }else if(existingHome.shaneGenerated){
     existingHome.intro=plainVision;
    }
-  }else if(!content.pages.length){
+  }else if(!content.pages.some(page=>page&&page.slug==="home")){
    content.pages.push({title:homeTitle,slug:"home",draft:true,intro:plainVision,shaneGenerated:true});
   }
-    // Only add suggested sections when they do not already exist.
+  // Only add suggested sections when they do not already exist.
   const sectionTitles={projects:"Projects",publications:"Publications",events:"Events",memberships:"Community",messaging:"Messages",discussions:"Discussions",discovery:"Discover"};
   for(const module of spec.modules){
    const slug=module.type;
    if(!sectionTitles[slug]||content.pages.some(page=>page?.slug===slug))continue;
    content.pages.push({title:sectionTitles[slug],slug,draft:true,shaneGenerated:true,serviceStatus:"pending",intro:"This part of your endeavor is being prepared."});
   }
-    content.shaneComposition=composition;
+  content.shaneComposition=composition;
   content.sourceVision=String(vision||"").slice(0,12000);
   const payload={owner_id:ownerId,name:spec.title,content,status:"draft"};
   const query=siteId
