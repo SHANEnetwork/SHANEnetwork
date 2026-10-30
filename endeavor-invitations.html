@@ -3,10 +3,11 @@
 <body><main><h1>SHANE Network</h1><p>Invitations require your own signed-in account. Accepting does not transfer ownership or publish anything.</p><div id="invitations"></div></main>
 <script src="shane-invitations.js"></script>
 <script src="shane-invitation-inbox.js"></script>
-<script>
+<script type="module">
+import {createClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/+esm";
 (function(){
  const container=document.getElementById("invitations");
- const client=window.SHANEAuthenticatedClient;
+ const client=createClient("https://ufxzogeixdwvbpdypojb.supabase.co","sb_publishable_iR9kxdCfQ7850VleEUx7mA_nHS4WZpB");
  if(!client){container.textContent="Sign in through SHANE to review invitations.";return;}
  window.SHANEInvitationInbox.mount(container,client);
 })();
