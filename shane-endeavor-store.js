@@ -35,10 +35,13 @@
      const canonicalPlan=conversationState().pack({...stableSpec,endeavorId:data.id},conversation===undefined?[]:conversation);
      const {data:confirmed,error:canonicalError}=await client.from("shane_endeavors").update({plan:canonicalPlan}).eq("id",data.id).eq("owner_id",userId).select("id,owner_id,plan").single();
      if(canonicalError||!confirmed||confirmed.owner_id!==userId||confirmed.plan!==canonicalPlan){
+       try{return await recover(client,data.id);}catch(recoveryError){
        const failure=Error("Endeavor created but canonical identity persistence failed; use the returned endeavorId to recover the saved draft");
        failure.endeavorId=data.id;
        failure.recoverable=true;
+       failure.cause=recoveryError;
        throw failure;
+       }
      }
    }
    return {id:data.id,title:data.title,spec:{...stableSpec,endeavorId:data.id},vision:data.idea,conversation:conversation===undefined?(prior?.conversation||[]):conversation,linkedSiteId:prior?.linkedSiteId||null,linkedOrganizationId:stableSpec.shaneOrganizationId||null,persisted:true,accessRole:"owner",canEdit:true};
