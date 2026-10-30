@@ -20,23 +20,18 @@ function write(map){try{sessionStorage.setItem(key,JSON.stringify(map))}catch{}}
 async function prepare(event){
  const d=event.detail||{},client=window.SHANEAuthenticatedClient;
  if(!client||!d.endeavorId)return;
- const map=read(),id=d.endeavorId;
+ const id=d.endeavorId;
  const title=String(d.title||"My endeavor").slice(0,150);
  const description=String(d.vision||"").trim().slice(0,4000);
  if(!description)return;
  status.textContent="Preparing your private network presence…";
  try{
-  let listing;
-  const previous=map[id];
-  if(previous){
-   const {data,error}=await client.from("shane_listings").select("id,status,owner_id").eq("id",previous).maybeSingle();
-   if(error)throw error;
-   if(data?.status==="published"){status.textContent="Your network presence is already published. SHANE will not overwrite it.";link.hidden=false;return}
-   if(data?.status==="draft")listing=await api.updateOwnDraft(client,previous,{title,description,category:"project"});
+  const listing=await api.upsertEndeavorDraft(client,id,{title,description,category:"project"});
+  if(listing.unchanged){
+   status.textContent="Your network presence already exists. SHANE has preserved its current publication and edits.";
+  }else{
+   status.textContent="Your network draft is saved with your endeavor. It follows your account across devices and stays private until you approve publication.";
   }
-  if(!listing)listing=await api.saveDraft(client,{title,description,category:"project"});
-  map[id]=listing.id;write(map);
-  status.textContent="Your network draft is saved privately alongside your endeavor. Review it before publishing.";
   link.hidden=false;
  }catch(error){status.textContent="Your endeavor is saved. Network draft preparation needs attention: "+error.message}
 }
