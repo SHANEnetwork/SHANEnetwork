@@ -60,7 +60,7 @@ async function save(){
    }
    // Notify integrations after website and optional organization linking settle.
    // A failed optional organization setup still preserves the saved endeavor and private network draft.
-   document.dispatchEvent(new CustomEvent("shane:endeavor-saved",{detail:{endeavorId:result.id,title,vision,siteId:site.siteId}}));
+   document.dispatchEvent(new CustomEvent("shane:endeavor-saved",{detail:{endeavorId:result.id,title,vision,siteId:site.siteId,organizationId:(await window.SHANEEndeavorStore.load(client,result.id)).linkedOrganizationId||null}}));
   }catch(siteError){
    status("Your conversation is saved, but the private website foundation could not be created: "+siteError.message);
    return false;
