@@ -12,13 +12,13 @@ This is a finite release checklist. Do not treat every enhancement or speculativ
 
 ## Evidence already available
 
-- GitHub Actions integration regression, Endeavor Context Tests, and browser smoke tests all passed at commit `4b717acf` (2026-10-30).
+- GitHub Actions integration regression, Endeavor Context Tests, and browser smoke tests all passed at commit `d8a05511` (2026-10-30).
 - Existing browser smoke tests cover member draft creation with isolated mocks, invitation actions, private collaboration opening, and vision handoff.
 - `tests/website-lifecycle.cjs` checks website save/publication code contracts. Static checks are not proof of database-backed publishing.
 
 ## Not yet demonstrated
 
-- The five complete journeys above against an isolated database, including two real test identities and anonymous publication.
+- The five complete journeys above against an isolated database, including two real test identities and anonymous publication. Static lifecycle tests and mocked browser smoke tests do not establish these journeys.
 - Production deployment and domain readiness.
 - End-to-end AI generation quality for multiple representative customer visions.
 
