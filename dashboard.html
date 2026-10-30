@@ -20,7 +20,10 @@ function showDiagnostics(rows){
  const host=$("diagnosticResults");host.replaceChildren();
  if(!rows.length){host.textContent="No saved endeavors to inspect yet.";return}
  for(const row of rows){
-  const result=window.SHANEEndeavorDiagnostics.inspect({id:row.id,persisted:true,linkedSiteId:row.linked_site_id||null,linkedOrganizationId:row.plan?.shaneOrganizationId||null,conversation:[],spec:row.plan||null});
+  let spec=null,parseFailed=false;
+  try{spec=typeof row.plan==="string"?JSON.parse(row.plan):row.plan||null}catch{parseFailed=true}
+  const result=window.SHANEEndeavorDiagnostics.inspect({id:row.id,persisted:true,linkedSiteId:row.linked_site_id||null,linkedOrganizationId:spec?.shaneOrganizationId||null,spec});
+  if(parseFailed){result.ok=false;result.findings=[...result.findings,{code:"invalid-saved-plan",severity:"error",message:"Saved endeavor composition could not be read as JSON."}]}
   const article=document.createElement("article"),title=document.createElement("h3"),summary=document.createElement("p");
   title.textContent=row.title||"Untitled endeavor";
   summary.textContent=result.ok?"Structural links: no errors detected. Live services not checked.":"Structural connection issue detected.";
