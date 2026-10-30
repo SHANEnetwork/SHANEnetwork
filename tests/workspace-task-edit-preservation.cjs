@@ -13,6 +13,7 @@ assert(editor.includes('else await Promise.all([loadTasks(page),loadActivity()])
 assert(editor.includes('document.createElement(type==="textarea"?"textarea":"input")'), 'Task details use a multiline editor');
 assert(editor.includes('if(save.disabled)return;'), 'Reject repeat edit submissions during save');
 assert(editor.includes('if(title.length<3)'), 'Task editing enforces same minimum title length as creation');
-assert(editor.includes('if(!error){form.dataset.initialValues=JSON.stringify(snapshot);const changed='), 'Successful save advances dirty baseline before checking newer edits and refreshing');
+assert(editor.includes('if(updated){form.dataset.initialValues=JSON.stringify(snapshot);const changed='), 'Confirmed save advances dirty baseline before checking newer edits and refreshing');
+assert(editor.includes('const updated=!error&&data?.length===1'), 'Task edit requires an affected database row before reporting success');
 assert(editor.includes('details:snapshot[1].trim(),due_date:snapshot[2]||null,assignee_id:snapshot[3]||null'), 'Task update uses captured snapshot for every editable field');
 console.log('PASS task edit preservation during asynchronous save');
