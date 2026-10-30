@@ -16,4 +16,7 @@ assert(loader.includes('newer.onclick=()=>loadTasks(page-1)'), 'Newer task navig
 assert(source.includes('$("refreshTasks").onclick=()=>loadTasks()'), 'Refresh returns to newest tasks');
 assert(loader.includes('if(!error)await Promise.all([loadTasks(page),loadActivity()])'), 'Task mutations preserve current page');
 assert(loader.includes('No tasks remain on this page. Return to newer tasks.'), 'Empty older pages explain recovery');
+assert(source.includes('function openTaskEditor(task,row,page)'), 'Editor receives current task page');
+assert(source.includes('edit.onclick=()=>openTaskEditor(x,row,page)'), 'Edit button passes current page');
+assert(source.includes('else await Promise.all([loadTasks(page),loadActivity()])}};row.append(form)'), 'Task save preserves current page');
 console.log('PASS collaboration task refresh ordering guards');
