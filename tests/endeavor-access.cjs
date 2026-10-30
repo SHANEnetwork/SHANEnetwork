@@ -1,0 +1,10 @@
+const test=require("node:test");
+const assert=require("node:assert/strict");
+const access=require("../shane-endeavor-access.js");
+const a="11111111-1111-4111-8111-111111111111";
+const b="22222222-2222-4222-8222-222222222222";
+test("owner retains full control",()=>{for(const action of access.actions)assert.equal(access.authorize({ownerId:a,actorId:a,action}),true)});
+test("invitation is not ownership",()=>{const members=[{userId:b,status:"active",role:"editor"}];assert.equal(access.authorize({ownerId:a,actorId:b,action:"edit",members}),true);assert.equal(access.authorize({ownerId:a,actorId:b,action:"publish",members}),false);assert.equal(access.authorize({ownerId:a,actorId:b,action:"invite",members}),false)});
+test("inactive and unknown collaborators denied",()=>{assert.equal(access.authorize({ownerId:a,actorId:b,action:"view",members:[{userId:b,status:"invited",role:"manager"}]}),false);assert.equal(access.authorize({ownerId:a,actorId:b,action:"view",members:[{userId:b,status:"active",role:"superuser"}]}),false)});
+test("missing identity and unknown action denied",()=>{assert.equal(access.authorize({ownerId:a,actorId:"",action:"view"}),false);assert.equal(access.authorize({ownerId:a,actorId:a,action:"delete"}),false)});
+test("manager can invite but cannot publish",()=>{const members=[{userId:b,status:"active",role:"manager"}];assert.equal(access.authorize({ownerId:a,actorId:b,action:"invite",members}),true);assert.equal(access.authorize({ownerId:a,actorId:b,action:"publish",members}),false)});
