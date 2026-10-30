@@ -86,3 +86,16 @@ test('removes unsafe keys from composition snapshots', () => {
  assert.equal(Object.hasOwn(result.composition,'__proto__'),false);
  assert.equal(Object.hasOwn(result.composition,'constructor'),false);
 });
+
+test('preserves read-only collaborator permissions through specialist handoffs', () => {
+ const shared={...saved(),accessRole:'collaborator',canEdit:false};
+ const creator=context.build(shared);
+ assert.equal(creator.accessRole,'collaborator');
+ assert.equal(creator.canEdit,false);
+ for(const role of ['analyst','professional','legal','gamemaster']){
+   const handoff=context.handoff(creator,role,'Review the shared endeavor');
+   assert.equal(handoff.accessRole,'collaborator');
+   assert.equal(handoff.canEdit,false);
+   assert.equal(handoff.advisoryOnly,true);
+ }
+});
