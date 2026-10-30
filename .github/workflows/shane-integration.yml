@@ -25,6 +25,9 @@ jobs:
           node --check shane-endeavor-access.js
           node --check shane-endeavor-orchestrator.js
           node --check shane-invitations.js
+          node --check shane-collaborators.js
+          node --check shane-collaborator-panel.js
+          node --check shane-revocation.js
       - name: Check website lifecycle and inline page scripts
         run: node tests/website-lifecycle.cjs
       - name: Test endeavor network privacy and publication
