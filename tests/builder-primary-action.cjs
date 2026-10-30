@@ -18,3 +18,4 @@ assert.ok(sync.includes("private site foundation, but no editable website draft 
 assert.ok(html.includes('<select id="aiProvider" hidden aria-label="AI service used by SHANE"'),"Creator should not have to select an AI provider");
 assert.ok(html.includes('<select id="aiMode" hidden aria-label="SHANE automatically selects creation or refinement"'),"Creator must not manually configure generation mode");
 assert.ok(html.includes('<fieldset class="shane-optional-starting-modes" hidden'),"Vision-first flow must not begin with a starting-mode questionnaire");
+assert.ok(html.includes("budget-existingSummary.length-changePrefix.length"),"Revision prompt must reserve room for existing website context");
