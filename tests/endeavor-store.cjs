@@ -35,6 +35,14 @@ function client(){return {auth:{getUser:async()=>({data:{user:{id:user}}})},from
  await assert.rejects(store.linkSite(competingClient(),a.id,"site-conflict"),/Could not link private site/);
  assert.equal((await store.load(client(),a.id)).linkedSiteId,"site-1","Concurrent site link must not replace the linked site");
  const org=await store.linkOrganization(client(),a.id,"org-1");assert.equal(org.organizationId,"org-1");assert.equal((await store.load(client(),a.id)).linkedOrganizationId,"org-1");assert.equal((await store.load(client(),a.id)).conversation[0].text,"Add more flower beds");
+ const state=require("../shane-conversation-state.js");
+ const recoveryId="endeavor-recovery";
+ const recoveryPlan=state.pack(spec,[{role:"you",text:"Preserve this idea"}]);
+ rows.set(recoveryId,{id:recoveryId,owner_id:"owner-a",title:"Recovery",idea:"Saved idea",plan:recoveryPlan,revision:1});
+ const recovered=await store.recover(client(),recoveryId);
+ assert.equal(recovered.spec.endeavorId,recoveryId);
+ assert.equal(recovered.conversation[0].text,"Preserve this idea");
+ assert.equal(recovered.revision,2);
  const listed=await store.list(client());assert.ok(listed.some(x=>x.id===a.id));
  await assert.rejects(store.save(client(),{title:"bad",vision:"x",spec:{}}),/Unsupported schema version/);
  console.log("PASS authenticated owner-scoped endeavor save, update, reload and simulated cross-owner denial");
