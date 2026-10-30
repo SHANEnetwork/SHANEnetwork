@@ -153,7 +153,7 @@ test('preserves a long vision and conversation through save and reload',async()=
  const compose=require('../shane-composition.js').compose;
  const spec=compose({endeavorId:'unsaved-draft',title:'Long Vision',modules:['pages']});
  const vision='A community with collaborative projects, events, and shared resources. '.repeat(160);
- const conversation=[{role:'you',text:vision},{role:'assistant',text:'We can build it together.'}];
+ const conversation=[{role:'you',text:vision},{role:'shane',text:'We can build it together.'}];
  const row={id:'long-vision-id',owner_id:'alice',title:'Long Vision',idea:vision,linked_site_id:null,revision:1};
  let storedPlan=null,revision=1;
  const client={auth:{getUser:async()=>({data:{user:{id:'alice'}},error:null})},from(table){
