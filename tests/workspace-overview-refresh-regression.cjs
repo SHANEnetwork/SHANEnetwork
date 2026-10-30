@@ -23,7 +23,8 @@ assert(saveStart >= 0 && saveEnd > saveStart, 'Shared direction save handler exi
 const save = source.slice(saveStart, saveEnd);
 assert(save.includes('const stamp=new Date().toISOString();overviewLoadGeneration++;let result;'), 'Starting a save invalidates in-flight direction refreshes');
 assert(save.includes('overviewVersion=result.data.updated_at;overviewLoadGeneration++;'), 'Successful save invalidates pending refreshes');
-assert(save.indexOf('overviewLoadGeneration++;') > save.indexOf('if(!result.data)'), 'Invalidation happens only after successful save');
+assert(save.indexOf('const stamp=new Date().toISOString();overviewLoadGeneration++;') < save.indexOf('let result;'), 'Pending refresh is invalidated before save request');
+assert(save.indexOf('overviewVersion=result.data.updated_at;overviewLoadGeneration++;') > save.indexOf('if(!result.data)'), 'Successful save invalidates later refreshes after confirmation');
 assert(save.includes('purposeDraft=purposeField.value,nextDraft=nextField.value'), 'Save snapshots original editor text');
 assert(save.includes('purposeField.value!==purposeDraft||nextField.value!==nextDraft'), 'Detect newer edits during save');
 assert(save.includes('Your newer edits remain here'), 'Explain newer edits still need saving');
