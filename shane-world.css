@@ -57,3 +57,10 @@ footer{color:inherit}
 #shane-idea-conversation{background:rgba(255,255,255,.83)!important;border-radius:20px!important}
 #shane-live-canvas{border-radius:20px!important;overflow:hidden}
 @media(max-width:680px){.shane-home-world{min-height:0}.shane-world-actions{flex-direction:column}.shane-world-actions .button{width:100%}}
+
+/* Creation quality is part of SHANE’s promise: give the live work room to shine. */
+#vision-first{position:relative;isolation:isolate}
+#vision-first textarea{line-height:1.65}
+#shane-idea-conversation{border-radius:20px;box-shadow:0 18px 44px rgba(18,63,85,.10)}
+#shaneCanvasFrame{display:block;width:100%;border:1px solid #c8dfd7;border-radius:18px;background:#fff;box-shadow:0 20px 48px rgba(18,63,85,.14)}
+@media(max-width:680px){#shaneCanvasFrame{border-radius:12px}#vision-first{overflow-wrap:anywhere}}
