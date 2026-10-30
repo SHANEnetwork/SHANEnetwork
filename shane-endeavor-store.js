@@ -18,6 +18,7 @@
    const errors=engine.validate(spec);if(errors.length)throw Error(errors.join("; "));
    if(typeof vision!=="string"||!vision.trim())throw Error("Vision required");
    if(spec.endeavorId!=="unsaved-draft"&&endeavorId&&spec.endeavorId!==endeavorId)throw Error("Endeavor identity mismatch");
+   if(!endeavorId&&spec.endeavorId!=="unsaved-draft")throw Error("New endeavors require an unsaved draft identity");
    const prior=endeavorId?await load(client,endeavorId):null;
    if(prior&&!prior.canEdit)throw Error("Only the endeavor owner can save changes");
    const stableSpec={...spec,endeavorId:endeavorId||spec.endeavorId,...(prior?.linkedOrganizationId?{shaneOrganizationId:prior.linkedOrganizationId}:{})};
