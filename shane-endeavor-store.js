@@ -25,19 +25,19 @@
    if(endeavorId&&expectedPlan!==undefined&&prior.planRaw!==expectedPlan)throw Error("This endeavor changed in another session. Reload it before saving to protect newer work.");
    if(endeavorId&&expectedTitle!==undefined&&prior.title!==expectedTitle)throw Error("This endeavor title changed in another session. Reload before saving.");
    if(endeavorId&&expectedVision!==undefined&&prior.vision!==expectedVision)throw Error("This endeavor vision changed in another session. Reload before saving.");
-   // Compare all loaded editable fields to reject stale saves, including title-only changes.
-   // Region, audience and resources still need a dedicated row revision for complete coverage.
+   // Row revision protects every field, including region, audience, resources and links.
    const stableSpec={...spec,endeavorId:endeavorId||spec.endeavorId,...(prior?.linkedOrganizationId?{shaneOrganizationId:prior.linkedOrganizationId}:{})};
    const payload={owner_id:userId,title:title||spec.title,idea:vision,plan:conversationState().pack(stableSpec,conversation===undefined?(prior?.conversation||[]):conversation)};
    if(!endeavorId){payload.region=region||"";payload.audience=audience||"";payload.resources=resources||"";}
    else{if(region!==undefined)payload.region=region;if(audience!==undefined)payload.audience=audience;if(resources!==undefined)payload.resources=resources;}
    let request;
    if(endeavorId){
-     request=client.from("shane_endeavors").update(payload).eq("id",endeavorId).eq("owner_id",userId).eq("plan",prior.planRaw).eq("title",prior.title).eq("idea",prior.vision).eq("revision",prior.revision).select("id,owner_id,title,idea,plan").single();
+     request=client.from("shane_endeavors").update(payload).eq("id",endeavorId).eq("owner_id",userId).eq("plan",prior.planRaw).eq("title",prior.title).eq("idea",prior.vision).eq("revision",prior.revision).select("id,owner_id,title,idea,plan,revision").single();
    }else{
      request=client.from("shane_endeavors").insert(payload).select("id,owner_id,title,idea,plan").single();
    }
    const {data,error}=await request;
+   if(endeavorId&&error?.code==="PGRST116")throw Error("This endeavor changed before the save completed. Reload to protect newer work.");
    if(error)throw Error("Could not save endeavor: "+error.message);
    if(endeavorId&&(!data||data.owner_id!==userId))throw Error("This endeavor changed before the save completed. Reload to protect newer work.");
    if(!data||data.owner_id!==userId)throw Error("Endeavor ownership verification failed");
@@ -54,7 +54,7 @@
        }
      }
    }
-   return {id:data.id,title:data.title,spec:{...stableSpec,endeavorId:data.id},vision:data.idea,conversation:conversation===undefined?(prior?.conversation||[]):conversation,linkedSiteId:prior?.linkedSiteId||null,linkedOrganizationId:stableSpec.shaneOrganizationId||null,persisted:true,accessRole:"owner",canEdit:true};
+   return {id:data.id,revision:endeavorId?data.revision:undefined,title:data.title,spec:{...stableSpec,endeavorId:data.id},vision:data.idea,conversation:conversation===undefined?(prior?.conversation||[]):conversation,linkedSiteId:prior?.linkedSiteId||null,linkedOrganizationId:stableSpec.shaneOrganizationId||null,persisted:true,accessRole:"owner",canEdit:true};
  }
  async function recover(client,id){
    const userId=await owner(client);
