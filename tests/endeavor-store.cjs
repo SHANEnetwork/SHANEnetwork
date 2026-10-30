@@ -43,6 +43,25 @@ function client(){return {auth:{getUser:async()=>({data:{user:{id:user}}})},from
  assert.equal(recovered.spec.endeavorId,recoveryId);
  assert.equal(recovered.conversation[0].text,"Preserve this idea");
  assert.equal(recovered.revision,2);
+ const raceId="endeavor-recovery-race";
+ rows.set(raceId,{id:raceId,owner_id:"owner-a",title:"Recovery race",idea:"Preserve a concurrent edit",plan:recoveryPlan,revision:1});
+ const racing=client(),originalRaceFrom=racing.from.bind(racing);
+ racing.from=(table)=>{
+  const query=originalRaceFrom(table);
+  if(table==="shane_endeavors"){
+   const originalUpdate=query.update.bind(query);
+   query.update=(payload)=>{
+    const result=originalUpdate(payload);
+    const current=rows.get(raceId);
+    rows.set(raceId,{...current,revision:current.revision+1,region:"newer session"});
+    return result;
+   };
+  }
+  return query;
+ };
+ await assert.rejects(store.recover(racing,raceId),/Could not finalize endeavor recovery/);
+ assert.equal(rows.get(raceId).plan,recoveryPlan,"Recovery must preserve the concurrent session's plan");
+ assert.equal(rows.get(raceId).region,"newer session");
  const listed=await store.list(client());assert.ok(listed.some(x=>x.id===a.id));
  await assert.rejects(store.save(client(),{title:"bad",vision:"x",spec:{}}),/Unsupported schema version/);
  console.log("PASS authenticated owner-scoped endeavor save, update, reload and simulated cross-owner denial");
