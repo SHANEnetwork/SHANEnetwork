@@ -40,6 +40,7 @@ async function save(){
    const site=await window.SHANEProvision.provision(client,{spec:inferred.spec,vision,siteId:linkedId,editorContent:snap.draftReady?draft:null});
    await window.SHANEEndeavorStore.linkSite(client,result.id,site.siteId);
    sessionStorage.setItem(siteKey,JSON.stringify({endeavorId:result.id,siteId:site.siteId}));
+   let linkedOrganizationId=null;
    const types=inferred.spec.modules.map(m=>m.type);
    if(types.some(t=>["memberships","discussions"].includes(t))){
     try{
@@ -50,6 +51,7 @@ async function save(){
      if(!organizationId){const saved=await window.SHANEEndeavorStore.load(client,result.id);organizationId=saved.linkedOrganizationId||undefined}
      const organization=await window.SHANEOrganizationProvision.provision(client,{spec:inferred.spec,vision,organizationId});
      await window.SHANEEndeavorStore.linkOrganization(client,result.id,organization.organizationId);
+     linkedOrganizationId=organization.organizationId;
      sessionStorage.setItem(organizationKey,JSON.stringify({endeavorId:result.id,organizationId:organization.organizationId}));
      status("Your conversation, private website, and community foundation are saved. No invitations or public posts were sent.");
     }catch(orgError){
@@ -60,7 +62,7 @@ async function save(){
    }
    // Notify integrations after website and optional organization linking settle.
    // A failed optional organization setup still preserves the saved endeavor and private network draft.
-   document.dispatchEvent(new CustomEvent("shane:endeavor-saved",{detail:{endeavorId:result.id,title,vision,siteId:site.siteId,organizationId:(await window.SHANEEndeavorStore.load(client,result.id)).linkedOrganizationId||null}}));
+   document.dispatchEvent(new CustomEvent("shane:endeavor-saved",{detail:{endeavorId:result.id,title,vision,siteId:site.siteId,organizationId:linkedOrganizationId}}));
   }catch(siteError){
    status("Your conversation is saved, but the private website foundation could not be created: "+siteError.message);
    return false;
