@@ -23,12 +23,12 @@ function showDiagnostics(rows){
   let spec=null,parseFailed=false;
   try{spec=typeof row.plan==="string"?JSON.parse(row.plan):row.plan||null}catch{parseFailed=true}
   const result=window.SHANEEndeavorDiagnostics.inspect({id:row.id,persisted:true,linkedSiteId:row.linked_site_id||null,linkedOrganizationId:spec?.shaneOrganizationId||null,spec});
-  if(parseFailed){result.ok=false;result.findings=[...result.findings,{code:"invalid-saved-plan",severity:"error",message:"Saved endeavor composition could not be read as JSON."}]}
+  const findings=parseFailed?[...result.findings,{code:"invalid-saved-plan",severity:"error",message:"Saved endeavor composition could not be read as JSON."}]:result.findings;\n  const healthy=result.ok&&!parseFailed;
   const article=document.createElement("article"),title=document.createElement("h3"),summary=document.createElement("p");
   title.textContent=row.title||"Untitled endeavor";
-  summary.textContent=result.ok?"Structural links: no errors detected. Live services not checked.":"Structural connection issue detected.";
+  summary.textContent=healthy?"Structural links: no errors detected. Live services not checked.":"Structural connection issue detected.";
   article.append(title,summary);
-  for(const finding of result.findings){const p=document.createElement("p");p.textContent=finding.severity+": "+finding.message;article.append(p)}
+  for(const finding of findings){const p=document.createElement("p");p.textContent=finding.severity+": "+finding.message;article.append(p)}
   host.append(article);
  }
 }
