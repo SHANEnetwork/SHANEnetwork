@@ -8,7 +8,9 @@
   const list=document.createElement("div");
   container.replaceChildren(heading,status,list);
   let refreshVersion=0;
+  let submitting=false;
   async function refresh(){
+   if(submitting)return;
    const version=++refreshVersion;
    status.textContent="Loading invitations...";
    list.replaceChildren();
@@ -24,9 +26,11 @@
      for(const [label,accept] of [["Accept",true],["Decline",false]]){
       const button=document.createElement("button");button.type="button";button.textContent=label;
       button.addEventListener("click",async()=>{
+       if(submitting)return;
+       submitting=true;
        const buttons=item.querySelectorAll("button");buttons.forEach(b=>b.disabled=true);status.textContent="Saving your response...";
-       try{await root.SHANEInvitations.respond(client,invite.endeavor_id,accept);await refresh();}
-       catch(error){if(version===refreshVersion)status.textContent=error.message;buttons.forEach(b=>b.disabled=false);}
+       try{await root.SHANEInvitations.respond(client,invite.endeavor_id,accept);submitting=false;await refresh();}
+       catch(error){submitting=false;if(version===refreshVersion)status.textContent=error.message;buttons.forEach(b=>b.disabled=false);}
       });
       item.append(button);
      }
