@@ -19,7 +19,29 @@ const sb=createClient("https://ufxzogeixdwvbpdypojb.supabase.co","sb_publishable
   if(ids.length){const names=await sb.from("shane_listings").select("id,title").in("id",ids);if(!names.error)titles=new Map((names.data||[]).map(n=>[n.id,n.title]));}
   for(const r of rows){const article=el("article");article.className="entry";const heading=el("h3",(r.recipient_id===user.id?"Received":"Sent")+" · "+(titles.get(r.listing_id)||"Collaboration"));const detail=el("p",r.message);const state=el("p","Status: "+r.status);article.append(heading,detail,state);
    if(r.status==="pending"&&r.recipient_id===user.id){for(const decision of ["accepted","declined"]){const btn=action(decision==="accepted"?"Accept invitation":"Decline invitation",async()=>{btn.disabled=true;const result=await sb.from("shane_collaboration_requests").update({status:decision}).eq("id",r.id).eq("recipient_id",user.id).eq("status","pending").select("id").maybeSingle();if(result.error){state.textContent="Could not update invitation: "+result.error.message;btn.disabled=false;return}if(!result.data){state.textContent="This invitation has already changed. Refreshing…";await load();return}await load()});article.append(btn,document.createTextNode(" "));}}
-   if(r.status==="accepted"){const work=el("a","Open shared workspace");work.href="workspace.html?collaboration="+encodeURIComponent(r.id);const messages=el("a","Private conversation");messages.href="members.html?conversation="+encodeURIComponent(r.id)+"#collaborationSection";article.append(work,document.createTextNode(" · "),messages);}
+   if(r.status==="accepted"){
+    const work=el("a","Open shared workspace");work.href="workspace.html?collaboration="+encodeURIComponent(r.id);
+    const messages=el("a","Private conversation");messages.href="members.html?conversation="+encodeURIComponent(r.id)+"#collaborationSection";
+    const talk=action("Read and reply here",async()=>{
+     const previous=article.querySelector("[data-network-conversation]");if(previous){previous.remove();talk.textContent="Read and reply here";return}
+     const panel=el("section");panel.dataset.networkConversation="true";panel.style.cssText="margin-top:12px;padding:14px;border:1px solid #b5cde4;border-radius:10px;background:#f5f9ff";
+     const feedback=el("p","Loading your private conversation…");feedback.setAttribute("role","status");
+     const history=el("div");history.setAttribute("aria-live","polite");
+     const form=el("form");const label=el("label","Your message");const field=el("textarea");field.required=true;field.maxLength=4000;field.rows=3;field.placeholder="Write to your collaborator";label.append(field);
+     const send=el("button","Send privately");send.type="submit";const refresh=action("Refresh messages",readMessages);
+     form.append(label,send);panel.append(history,form,refresh,feedback);article.append(panel);talk.textContent="Close conversation";
+     async function readMessages(){const response=await sb.from("shane_collaboration_messages").select("sender_id,body,created_at").eq("request_id",r.id).order("created_at",{ascending:true}).limit(100);
+      if(response.error){feedback.textContent="Could not read messages: "+response.error.message;return}
+      history.replaceChildren();for(const m of response.data||[]){const entry=el("p");entry.style.cssText="padding:9px 0;border-bottom:1px solid #dce5ee;white-space:pre-wrap;overflow-wrap:anywhere";const who=el("strong",m.sender_id===user.id?"You":"Collaborator");entry.append(who,document.createTextNode(" · "+new Date(m.created_at).toLocaleString()+"\n"+m.body));history.append(entry)}
+      feedback.textContent=response.data?.length?"Private conversation loaded.":"No messages yet. Start the conversation below.";
+     }
+     form.addEventListener("submit",async e=>{e.preventDefault();const body=field.value.trim();if(!body)return;send.disabled=true;
+      const response=await sb.from("shane_collaboration_messages").insert({request_id:r.id,sender_id:user.id,body});send.disabled=false;
+      if(response.error){feedback.textContent="Could not send message: "+response.error.message;return}field.value="";await readMessages()});
+     await readMessages();
+    });
+    article.append(work,document.createTextNode(" · "),messages,document.createTextNode(" · "),talk);
+   }
    box.append(article);
   }
  }catch(error){status.textContent="Could not load collaborations: "+error.message}}
