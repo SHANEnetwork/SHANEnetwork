@@ -20,9 +20,14 @@ Deno.serve(async request=>{
  if(!endeavor?.id)return respond({error:"Endeavor not found"},404);
  const secret=Deno.env.get("SHANE_OPENAI_API_KEY")||Deno.env.get("OPENAI_API_KEY");
  if(!secret)return respond({error:"Analyst AI provider not configured"},503);
- const prompt=JSON.stringify({title:endeavor.title,vision:endeavor.idea,plan:endeavor.plan,hasLinkedSite:!!endeavor.linked_site_id}).slice(0,18000);
+ // The endeavor plan contains the saved composition and conversation. Preserve it as evidence,
+ // while clearly identifying it as owner-supplied material rather than independently verified facts.
+ let savedPlan: unknown;
+ try { savedPlan=JSON.parse(String(endeavor.plan||"{}")); }
+ catch { savedPlan={unparsedPlan:String(endeavor.plan||"").slice(0,12000)}; }
+ const prompt=JSON.stringify({title:endeavor.title,vision:endeavor.idea,storedProjectContext:savedPlan,hasLinkedSite:!!endeavor.linked_site_id}).slice(0,30000);
  try{
-  const result=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+secret},body:JSON.stringify({model:"gpt-4.1-mini",temperature:0.2,max_tokens:1800,messages:[{role:"system",content:"You are SHANE Analyst, an independent and constructive evaluator. Assess feasibility, financial assumptions, evidence, operational dependencies, risks, and next decisive tests. Clearly separate user assertions from verified evidence and uncertainty. Do not invent facts or claim external research. Never change or publish the endeavor. Return concise plain text with sections: Assessment, Assumptions, Risks, Next tests."},{role:"user",content:prompt}]})});
+  const result=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+secret},body:JSON.stringify({model:"gpt-4.1-mini",temperature:0.2,max_tokens:2400,messages:[{role:"system",content:"You are SHANE Analyst, an independent and constructive evaluator. Assess feasibility, financial assumptions, evidence, operational dependencies, risks, and next decisive tests. Clearly separate user assertions from verified evidence and uncertainty. Do not invent facts or claim external research. Never change or publish the endeavor. Return concise plain text with sections: Assessment, Assumptions, Risks, Next tests."},{role:"user",content:prompt}]})});
   if(!result.ok)return respond({error:"Analyst provider unavailable"},502);
   const data=await result.json(),review=data.choices?.[0]?.message?.content;
   if(typeof review!=="string"||!review.trim())return respond({error:"Analyst returned no review"},502);
