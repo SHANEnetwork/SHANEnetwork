@@ -35,13 +35,20 @@
  async function load(client,id){
    const userId=await owner(client);
    if(typeof id!=="string"||!id.trim())throw Error("Endeavor ID required");
-   const {data,error}=await client.from("shane_endeavors").select("id,owner_id,title,idea,plan,linked_site_id").eq("id",id).eq("owner_id",userId).single();
+   const {data,error}=await client.from("shane_endeavors").select("id,owner_id,title,idea,plan,linked_site_id").eq("id",id).single();
    if(error)throw Error("Could not load endeavor: "+error.message);
-   if(!data||data.owner_id!==userId)throw Error("Endeavor ownership verification failed");
+   if(!data)throw Error("Endeavor unavailable");
+   // RLS allows owners and active invitees to read; never grant write authority here.
+   const isOwner=data.owner_id===userId;
+   if(!isOwner){
+     const {data:membership,error:membershipError}=await client.from("shane_endeavor_members")
+       .select("status,role").eq("endeavor_id",id).eq("user_id",userId).eq("status","active").single();
+     if(membershipError||!membership||membership.status!=="active")throw Error("Active collaboration required");
+   }
    let spec;try{spec=JSON.parse(data.plan)}catch{throw Error("Stored composition is not valid JSON")}
    if(spec.endeavorId!==id&&spec.endeavorId!=="unsaved-draft")throw Error("Stored endeavor identity mismatch");
    const errors=engine.validate(spec);if(errors.length)throw Error("Stored composition invalid: "+errors.join("; "));
-   return {id,title:data.title,vision:data.idea,spec,conversation:conversationState().unpack(spec).turns,linkedSiteId:data.linked_site_id,linkedOrganizationId:spec.shaneOrganizationId||null,persisted:true};
+   return {id,title:data.title,vision:data.idea,spec,conversation:conversationState().unpack(spec).turns,linkedSiteId:data.linked_site_id,linkedOrganizationId:spec.shaneOrganizationId||null,persisted:true,accessRole:isOwner?"owner":"collaborator",canEdit:isOwner};
  }
  async function linkSite(client,endeavorId,siteId){
    const userId=await owner(client);
