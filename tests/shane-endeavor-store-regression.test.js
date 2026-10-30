@@ -74,3 +74,11 @@ test('failed canonicalization returns the created ID for recovery',async()=>{
   return /canonical identity persistence failed/i.test(err.message);
  });
 });
+
+test('recovery rejects unauthenticated access',async()=>{
+ await assert.rejects(store.recover({},'created-123'),/authenticated Supabase client/i);
+});
+test('recovery refuses a missing endeavor identifier',async()=>{
+ const client={auth:{getUser:async()=>({data:{user:{id:'alice'}},error:null})},from(){throw Error('Database must not be queried');}};
+ await assert.rejects(store.recover(client,''),/Endeavor ID required/);
+});
