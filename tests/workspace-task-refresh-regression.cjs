@@ -33,4 +33,5 @@ assert(loader.includes('const editedDuringRefresh=Array.from(host.querySelectorA
 assert(loader.indexOf('if(editedDuringRefresh)') < loader.indexOf('host.replaceChildren()'), 'In-flight edits prevent task list replacement');
 assert(loader.includes('const requestedCompleted=check.checked'), 'Task completion update captures intended checkbox state');
 assert(loader.includes('update({completed:requestedCompleted})'), 'Task completion uses captured state');
+assert(loader.includes('if(error)check.checked=!requestedCompleted'), 'Failed completion update restores state from captured request');
 console.log('PASS collaboration task refresh ordering guards');
