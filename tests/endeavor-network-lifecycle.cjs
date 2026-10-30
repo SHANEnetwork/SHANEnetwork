@@ -46,4 +46,9 @@ test("publication requires explicit approval",async()=>{
 test("invalid endeavor identifier rejected before database access",async()=>{
  const {client,calls}=mock();await assert.rejects(connector.upsertEndeavorDraft(client,"not-an-id",{title:"x"}),/Valid endeavor ID/);assert.equal(calls.length,0);
 });
-\ntest("foreign endeavor is not provisioned",async()=>{\n const {client,calls}=mock({ownsEndeavor:false});\n await assert.rejects(connector.upsertEndeavorDraft(client,endeavor,{title:"Foreign"}),/not owned/);\n assert.equal(calls.length,0);\n});\n
+
+test("foreign endeavor is not provisioned",async()=>{
+ const {client,calls}=mock({ownsEndeavor:false});
+ await assert.rejects(connector.upsertEndeavorDraft(client,endeavor,{title:"Foreign"}),/not owned/);
+ assert.equal(calls.length,0);
+});
