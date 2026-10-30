@@ -29,3 +29,33 @@ BEGIN
  IF NOT denied THEN RAISE EXCEPTION 'Sender impersonation was allowed'; END IF;
 END $$;
 ROLLBACK;
+-- Reject empty messages even from an accepted participant.
+BEGIN;
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub','22222222-2222-4222-8222-222222222222',true);
+DO $$
+DECLARE denied boolean := false;
+BEGIN
+ BEGIN
+  INSERT INTO public.shane_collaboration_messages(request_id,sender_id,body)
+  VALUES ('88888888-8888-4888-8888-888888888888','22222222-2222-4222-8222-222222222222','');
+ EXCEPTION WHEN insufficient_privilege OR check_violation THEN denied := true;
+ END;
+ IF NOT denied THEN RAISE EXCEPTION 'Empty collaboration message was allowed'; END IF;
+END $$;
+ROLLBACK;
+-- Reject oversized messages from an accepted participant.
+BEGIN;
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub','22222222-2222-4222-8222-222222222222',true);
+DO $$
+DECLARE denied boolean := false;
+BEGIN
+ BEGIN
+  INSERT INTO public.shane_collaboration_messages(request_id,sender_id,body)
+  VALUES ('88888888-8888-4888-8888-888888888888','22222222-2222-4222-8222-222222222222',repeat('x',4001));
+ EXCEPTION WHEN insufficient_privilege OR check_violation THEN denied := true;
+ END;
+ IF NOT denied THEN RAISE EXCEPTION 'Oversized collaboration message was allowed'; END IF;
+END $$;
+ROLLBACK;
