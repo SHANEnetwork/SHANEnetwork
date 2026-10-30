@@ -6,7 +6,7 @@ function client(){return {auth:{getUser:async()=>({data:{user:{id:user}}})},from
  const a=await store.save(client(),{title:"Garden",vision:"A garden with events",spec,conversation:[{role:"you",text:"A garden with events"}]});assert.equal(a.persisted,true);
  const loaded=await store.load(client(),a.id);assert.equal(loaded.vision,"A garden with events");assert.equal(loaded.conversation[0].text,"A garden with events");
  user="owner-b";await assert.rejects(store.load(client(),a.id),/Could not load/);
- user="owner-a";const updated=await store.save(client(),{endeavorId:a.id,title:"Garden 2",vision:"More gardens",spec});assert.equal(updated.title,"Garden 2");assert.equal((await store.load(client(),a.id)).conversation[0].text,"A garden with events");
+ user="owner-a";const updated=await store.save(client(),{endeavorId:a.id,title:"Garden 2",vision:"More gardens",spec});assert.equal(updated.title,"Garden 2");assert.ok(Number.isInteger(a.revision)&&a.revision>=2,"Initial save returns canonical revision");assert.equal(a.revision,(await store.load(client(),a.id)).revision-1,"Initial save revision matches subsequent update");assert.equal((await store.load(client(),a.id)).conversation[0].text,"A garden with events");
  const revision=(await store.load(client(),a.id)).planRaw;
  const competing=await store.save(client(),{endeavorId:a.id,title:"Garden 3",vision:"More gardens",spec,expectedPlan:revision,conversation:[{role:"you",text:"Add more flower beds"}]});
  assert.equal(competing.title,"Garden 3");

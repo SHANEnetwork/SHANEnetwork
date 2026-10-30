@@ -31,10 +31,11 @@
    if(!endeavorId){payload.region=region||"";payload.audience=audience||"";payload.resources=resources||"";}
    else{if(region!==undefined)payload.region=region;if(audience!==undefined)payload.audience=audience;if(resources!==undefined)payload.resources=resources;}
    let request;
+   let createdRevision;
    if(endeavorId){
      request=client.from("shane_endeavors").update(payload).eq("id",endeavorId).eq("owner_id",userId).eq("plan",prior.planRaw).eq("title",prior.title).eq("idea",prior.vision).eq("revision",prior.revision).select("id,owner_id,title,idea,plan,revision").single();
    }else{
-     request=client.from("shane_endeavors").insert(payload).select("id,owner_id,title,idea,plan").single();
+     request=client.from("shane_endeavors").insert(payload).select("id,owner_id,title,idea,plan,revision").single();
    }
    const {data,error}=await request;
    if(endeavorId&&error?.code==="PGRST116")throw Error("This endeavor changed before the save completed. Reload to protect newer work.");
@@ -43,7 +44,7 @@
    if(!data||data.owner_id!==userId)throw Error("Endeavor ownership verification failed");
    if(!endeavorId){
      const canonicalPlan=conversationState().pack({...stableSpec,endeavorId:data.id},conversation===undefined?[]:conversation);
-     const {data:confirmed,error:canonicalError}=await client.from("shane_endeavors").update({plan:canonicalPlan}).eq("id",data.id).eq("owner_id",userId).select("id,owner_id,plan").single();
+     const {data:confirmed,error:canonicalError}=await client.from("shane_endeavors").update({plan:canonicalPlan}).eq("id",data.id).eq("owner_id",userId).eq("revision",data.revision).select("id,owner_id,plan,revision").single();
      if(canonicalError||!confirmed||confirmed.owner_id!==userId||confirmed.plan!==canonicalPlan){
        try{return await recover(client,data.id);}catch(recoveryError){
        const failure=Error("Endeavor created but canonical identity persistence failed; use the returned endeavorId to recover the saved draft");
@@ -53,20 +54,21 @@
        throw failure;
        }
      }
+     createdRevision=confirmed.revision;
    }
-   return {id:data.id,revision:endeavorId?data.revision:undefined,title:data.title,spec:{...stableSpec,endeavorId:data.id},vision:data.idea,conversation:conversation===undefined?(prior?.conversation||[]):conversation,linkedSiteId:prior?.linkedSiteId||null,linkedOrganizationId:stableSpec.shaneOrganizationId||null,persisted:true,accessRole:"owner",canEdit:true};
+   return {id:data.id,revision:endeavorId?data.revision:createdRevision,title:data.title,spec:{...stableSpec,endeavorId:data.id},vision:data.idea,conversation:conversation===undefined?(prior?.conversation||[]):conversation,linkedSiteId:prior?.linkedSiteId||null,linkedOrganizationId:stableSpec.shaneOrganizationId||null,persisted:true,accessRole:"owner",canEdit:true};
  }
  async function recover(client,id){
    const userId=await owner(client);
    if(typeof id!=="string"||!id.trim())throw Error("Endeavor ID required");
-   const {data,error}=await client.from("shane_endeavors").select("id,owner_id,plan").eq("id",id).eq("owner_id",userId).single();
+   const {data,error}=await client.from("shane_endeavors").select("id,owner_id,plan,revision").eq("id",id).eq("owner_id",userId).single();
    if(error||!data||data.owner_id!==userId)throw Error("Owned endeavor unavailable for recovery");
    let stored;
    try{stored=conversationState().unpack(data.plan);}catch{throw Error("Stored endeavor cannot be recovered automatically");}
    if(stored.spec.endeavorId===id)return load(client,id);
    if(stored.spec.endeavorId!=="unsaved-draft")throw Error("Recovery identity mismatch");
    const plan=conversationState().pack({...stored.spec,endeavorId:id},stored.turns);
-   const {data:updated,error:updateError}=await client.from("shane_endeavors").update({plan}).eq("id",id).eq("owner_id",userId).eq("plan",data.plan).select("id,owner_id,plan").single();
+   const {data:updated,error:updateError}=await client.from("shane_endeavors").update({plan}).eq("id",id).eq("owner_id",userId).eq("plan",data.plan).eq("revision",data.revision).select("id,owner_id,plan,revision").single();
    if(updateError||!updated||updated.owner_id!==userId||updated.plan!==plan)throw Error("Could not finalize endeavor recovery");
    return load(client,id);
  }
