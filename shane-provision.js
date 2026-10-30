@@ -20,20 +20,13 @@
    if(existing.status!=="draft")throw Error("A published website cannot be overwritten by automatic draft setup");
    content={...(existing.content&&typeof existing.content==="object"&&!Array.isArray(existing.content)?existing.content:{})};
   }
-  // The existing builder's AI output is the website source of truth when available.
-  // Merge fields without deleting pages or unrelated saved website metadata.
+  // Preserve the builder's native website schema separately, without replacing
+  // composition pages or overwriting creator-authored site content.
   if(editorContent&&typeof editorContent==="object"&&!Array.isArray(editorContent)){
    const allowed=["business","name","tagline","about","services","pages","email","color","faq","testimonials","callToAction","gallery","networkModules","contact","brandColor","useBrandColor","brandFont","layoutStyle","backgroundStyle","backgroundColor","backgroundColor2"];
-   for(const field of allowed){
-    if(field==="pages")continue;
-    if(Object.prototype.hasOwnProperty.call(editorContent,field))content[field]=editorContent[field];
-   }
-   if(typeof editorContent.pages==="string"){
-    content.pages=editorContent.pages.split(/\\r?\\n/).filter(Boolean).slice(0,8).map((line,i)=>{
-     const separator=line.indexOf("|");
-     return {title:(separator<0?line:line.slice(0,separator)).trim()||"Page "+(i+1),body:(separator<0?"":line.slice(separator+1)).trim(),slug:"editor-page-"+(i+1),draft:true,shaneGenerated:true};
-    });
-   }
+   const editorDraft={};
+   for(const field of allowed)if(Object.prototype.hasOwnProperty.call(editorContent,field))editorDraft[field]=editorContent[field];
+   content.shaneEditorDraft=editorDraft;
   }
   // The generated landing page is an editable draft, not a replacement for authored pages.
   if(!Array.isArray(content.pages)||content.pages.length===0)content.pages=[{title:"Home",slug:"home",draft:true}];
