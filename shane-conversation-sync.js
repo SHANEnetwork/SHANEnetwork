@@ -160,6 +160,24 @@ document.addEventListener("DOMContentLoaded",()=>{
  const choices=document.createElement("div");choices.id="shaneSavedEndeavors";choices.setAttribute("aria-label","Your saved creations");
  const info=document.createElement("p");info.id="shaneContinuityStatus";info.setAttribute("role","status");info.setAttribute("aria-live","polite");info.textContent="Sign in to keep this conversation privately in your SHANE account. Website drafts are saved separately.";
  const analyst=document.createElement("button");analyst.type="button";analyst.textContent="Prepare Analyst review";analyst.addEventListener("click",analystContext);
- actions.append(keep,reopen,discover,analyst);area.append(actions,choices,info);
+ const connected=document.createElement("button");connected.type="button";connected.textContent="My connected endeavor";connected.addEventListener("click",async()=>{
+  const id=sessionStorage.getItem(key),client=window.SHANEAuthenticatedClient;
+  if(!id||!client){status("Save or reopen an endeavor while signed in to view its connected capabilities.");return}
+  try{
+   const saved=await window.SHANEEndeavorStore.load(client,id);
+   const manifest=window.SHANECapabilityManifest.describe(saved);
+   const details=get("shaneConnectedDetails");details.replaceChildren();
+   const title=document.createElement("strong");title.textContent=saved.title||"Your endeavor";details.append(title);
+   const explanation=document.createElement("p");explanation.textContent="These links use the same saved endeavor. Unfinished services are not represented as active.";details.append(explanation);
+   const links=[["Continue creating","builder.html"],["Review network presence","my-network.html"],["Manage network listing","members.html#mineSection"],["Request Analyst review",null]];
+   if(manifest.resources.organization)links.push(["Manage linked club or society","communities.html?organization="+encodeURIComponent(manifest.resources.organization)]);
+   for(const [label,href] of links){const control=document.createElement(href?"a":"button");control.textContent=label;if(href)control.href=href;else{control.type="button";control.addEventListener("click",analystContext)}details.append(control,document.createTextNode(" · "))}
+   const note=document.createElement("p");note.textContent="Linked website: "+(manifest.resources.site?"private foundation saved":"not linked")+"; linked community: "+(manifest.resources.organization?"private foundation saved":"not linked")+". Publishing, billing, AI Professionals, video and games require separate verified activation.";details.append(note);
+   status("Connected endeavor loaded from your account.");
+  }catch(error){status("Could not open connected endeavor: "+error.message)}
+ });
+ const details=document.createElement("div");details.id="shaneConnectedDetails";details.setAttribute("aria-live","polite");
+
+ actions.append(keep,reopen,discover,analyst,connected);area.append(actions,choices,details,info);
 });
 })();
