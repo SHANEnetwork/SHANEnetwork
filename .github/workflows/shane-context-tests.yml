@@ -1,0 +1,20 @@
+name: SHANE Endeavor Context Tests
+on:
+  push:
+    branches: [feature/reusable-composition-foundation]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  context-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax check
+        run: node --check shane-endeavor-context.js
+      - name: Regression tests
+        run: node --test tests/shane-endeavor-context-regression.test.js
