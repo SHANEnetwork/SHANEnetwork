@@ -35,5 +35,24 @@ function preflight(spec,context={}){
  const status=technical.issues.length||unknowns.length?"needs_verification":"technical_checks_clear";
  return {status,technical,unknowns,paths,legalDetermination:false,certified:false};
 }
-return Object.freeze({assess,preflight});
+function riskPlan(spec,context={}){
+ const preliminary=preflight(spec,context),unknowns=[...preliminary.unknowns];
+ const money=Number.isFinite(context.availableBudget)&&context.availableBudget>=0?context.availableBudget:null;
+ const spend=Number.isFinite(context.plannedCommitment)&&context.plannedCommitment>=0?context.plannedCommitment:null;
+ const runway=Number.isFinite(context.monthlyEssentialCosts)&&context.monthlyEssentialCosts>0&&money!==null?money/context.monthlyEssentialCosts:null;
+ if(money===null)unknowns.push({kind:"budget",question:"What resources can be risked without threatening essential living needs?"});
+ if(spend===null)unknowns.push({kind:"commitment",question:"What nonrecoverable costs would launching require?"});
+ if(runway===null)unknowns.push({kind:"runway",question:"How long can essential expenses be covered independently of this endeavor?"});
+ const warnings=[];
+ if(money!==null&&spend!==null&&spend>money)warnings.push({kind:"unfunded_commitment",reason:"Planned spending exceeds available budget"});
+ if(runway!==null&&runway<3)warnings.push({kind:"limited_runway",reason:"Fewer than three months of essential expenses are covered; this is a caution threshold, not a success prediction"});
+ const gates=[
+  {id:"evidence",question:"What real-world evidence demonstrates demand or need?",verified:false},
+  {id:"feasibility",question:"Which critical legal, technical, and operational dependencies have been verified?",verified:false},
+  {id:"small_trial",question:"What is the cheapest reversible experiment that tests the central assumption?",verified:false},
+  {id:"fallback",question:"What alternative or stopping plan protects essential resources if the first approach fails?",verified:false}
+ ];
+ return {status:warnings.length?"high_caution":unknowns.length||preliminary.technical.issues.length?"insufficient_evidence":"ready_for_independent_review",warnings,unknowns,gates,technical:preliminary.technical,paths:preliminary.paths,estimatedRunwayMonths:runway,successProbability:null,certified:false};
+}
+return Object.freeze({assess,preflight,riskPlan});
 });
