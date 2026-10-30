@@ -42,7 +42,8 @@
   else for(const type of matched)enabled.add(type);
   if(remove&&matched.includes("memberships")&&(enabled.has("messaging")||enabled.has("discussions")))throw Error("Memberships are required for messaging and discussions; remove those features first");
   const next=engine.compose({endeavorId:spec.endeavorId,title:spec.title,modules:[...enabled],appearance:spec.appearance||{}});
-  for(const module of next.modules){const prior=spec.modules.find(m=>m.type===module.type);if(prior?.labels)module.labels={...prior.labels}}
+  for(const module of next.modules){const prior=spec.modules.find(m=>m.type===module.type);if(prior)Object.assign(module,JSON.parse(JSON.stringify(prior)))}
+  for(const [key,value] of Object.entries(spec))if(!["schemaVersion","endeavorId","title","modules","appearance"].includes(key))next[key]=JSON.parse(JSON.stringify(value));
   const errors=engine.validate(next);if(errors.length)throw Error(errors.join("; "));
   return {spec:next,matched,action:remove?"remove":"add",provisioningStatus:"not_provisioned"};
  }
