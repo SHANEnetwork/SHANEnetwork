@@ -55,5 +55,14 @@ test('signed-in member can create a draft using isolated browser mocks',async()=
   await editor.locator('button').filter({hasText:'Save changes'}).click();
   await page.locator('#status').getByText('Listing updated successfully.',{exact:true}).waitFor({timeout:10000});
   assert.match(await page.locator('#mine').innerText(),/Updated isolated browser draft/);
+  await page.locator('#title').fill('Permission guarded publication');
+  await page.locator('#publication').selectOption('published');
+  await page.locator('#createListingButton').click();
+  assert.match(await page.locator('#status').innerText(),/Confirm permission before publishing/);
+  assert.equal(await page.locator('#title').inputValue(),'Permission guarded publication');
+  await page.locator('#attribution').check();
+  await page.locator('#createListingButton').click();
+  await page.locator('#listingFeedback').getByText('Saved successfully:',{exact:false}).waitFor({timeout:10000});
+  assert.match(await page.locator('#mine').innerText(),/Permission guarded publication/);
  }finally{await browser.close()}
 });
