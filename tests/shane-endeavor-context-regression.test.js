@@ -71,3 +71,18 @@ test('snapshots and freezes nested composition across handoffs', () => {
   assert.equal(Object.isFrozen(analyst.conversation), true);
   assert.equal(Object.isFrozen(analyst.conversation[0]), true);
 });
+
+test('rejects circular and excessively nested endeavor specifications', () => {
+ const circular = {}; circular.self = circular;
+ assert.throws(() => context.build({...saved(),spec:circular}),/circular endeavor context/i);
+ let deep = {}; for(let i=0;i<30;i++)deep={next:deep};
+ assert.throws(() => context.build({...saved(),spec:deep}),/nesting limit/i);
+});
+
+test('removes unsafe keys from composition snapshots', () => {
+ const spec=JSON.parse('{"safe":true,"__proto__":{"polluted":true},"constructor":{"x":1}}');
+ const result=context.build({...saved(),spec});
+ assert.equal(result.composition.safe,true);
+ assert.equal(Object.hasOwn(result.composition,'__proto__'),false);
+ assert.equal(Object.hasOwn(result.composition,'constructor'),false);
+});
