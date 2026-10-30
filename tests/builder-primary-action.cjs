@@ -13,3 +13,4 @@ assert.ok(html.includes("Treat accessibility as part of beautiful design"),"AI g
 assert.ok(html.includes("Preserve the creator’s specific terminology and identity"),"AI generation must preserve creator voice");
 assert.ok(html.includes("latest.slice(0,950)"),"Latest creator request and earlier decisions must both fit within revision context");
 assert.ok(html.includes('"shane:conversation-draft-ready"'),"Restored drafts must explicitly synchronize revision mode");
+const sync=fs.readFileSync("shane-conversation-sync.js","utf8");assert.ok(sync.includes("const restoredDraft=site.content?.shaneEditorDraft||"),"Resume must support both nested and native editor content");
