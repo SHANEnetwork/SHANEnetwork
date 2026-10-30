@@ -19,7 +19,7 @@ function prepare(input={}){
  const website_url=safeUrl(input.website_url||input.websiteUrl);
  if((input.website_url||input.websiteUrl)&&!website_url)throw new Error("Use an http or https website address.");
  return {title,category,description:String(input.description||input.summary||"").trim().slice(0,4000),
-  region:String(input.region||"").trim().slice(0,200),website_url};
+  region:String(input.region||"").trim().slice(0,200),website_url,endeavor_id:input.endeavor_id||null};
 }
 async function userFor(client){
  if(!client?.auth?.getUser)throw new Error("A connected SHANE account is required.");
@@ -67,5 +67,31 @@ async function publish(client,id,{permissionConfirmed=false}={}){
  if(!data)throw new Error("Draft not found or already published.");
  return data;
 }
-return Object.freeze({prepare,discover,saveDraft,updateOwnDraft,publish,safeUrl});
+async function upsertEndeavorDraft(client,endeavorId,input){
+ const user=await userFor(client);
+ if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(endeavorId)))throw new Error("Valid endeavor ID required.");
+ const {data:endeavor,error:endeavorError}=await client.from("shane_endeavors").select("id,owner_id").eq("id",endeavorId).eq("owner_id",user.id).maybeSingle();
+ if(endeavorError)throw endeavorError;
+ if(!endeavor)throw new Error("This endeavor is not owned by your account.");
+ const {data:existing,error:lookupError}=await client.from("shane_listings").select("id,status,owner_id").eq("endeavor_id",endeavorId).eq("owner_id",user.id).maybeSingle();
+ if(lookupError)throw lookupError;
+ if(existing?.status!=="draft"&&existing)return {id:existing.id,status:existing.status,unchanged:true};
+ const payload={...prepare(input),endeavor_id:endeavorId};
+ if(existing){
+  const {data,error}=await client.from("shane_listings").update(payload).eq("id",existing.id).eq("owner_id",user.id).eq("status","draft").select("id,title,status,endeavor_id").maybeSingle();
+  if(error)throw error;
+  if(data)return data;
+  throw new Error("Draft changed during update. Refresh before trying again.");
+ }
+ const {data,error}=await client.from("shane_listings").insert({...payload,owner_id:user.id,status:"draft",attribution_confirmed:false}).select("id,title,status,endeavor_id").single();
+ if(error){
+  if(error.code==="23505"){
+   const retry=await client.from("shane_listings").select("id,status").eq("endeavor_id",endeavorId).eq("owner_id",user.id).maybeSingle();
+   if(!retry.error&&retry.data)return {...retry.data,unchanged:true};
+  }
+  throw error;
+ }
+ return data;
+}
+return Object.freeze({prepare,discover,saveDraft,updateOwnDraft,upsertEndeavorDraft,publish,safeUrl});
 });
