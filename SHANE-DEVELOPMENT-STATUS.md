@@ -108,3 +108,8 @@ No action requested as of this update.
 - The existing builder listing draft (`shane-network-draft-v1`) now preloads the member listing conversational intake without publishing or overwriting an existing prompt.
 - The accepted-collaborator workspace's existing campaign link now carries the current shared intention or purpose into campaign draft preparation via the session-scoped handoff.
 - These are workflow bridges, not server-side AI orchestration or automated publishing. Browser verification pending.
+
+## 2026-10-31: creator to community publishing continuity
+- `shane-creative-continuity.js` now offers direct handoffs from an existing builder vision into community announcement/event and opportunity drafting.
+- `shane-community-publishing.js` consumes destination-scoped, timestamped session handoffs into its existing conversational draft input; existing publishing handlers and authorization checks remain unchanged.
+- No publication occurs automatically. Browser verification pending.
