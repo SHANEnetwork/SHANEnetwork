@@ -60,3 +60,7 @@ body:has(.shane-unified-nav) main :where(textarea,input[type=text],input[type=se
 
 #shane-endeavor-next .shane-conversation-actions a{display:inline-flex;align-items:center;min-height:44px;padding:10px 16px;background:#704760;color:#fff;text-decoration:none;border-radius:999px;font-weight:650}
 #shane-endeavor-next .shane-conversation-actions a:hover,#shane-endeavor-next .shane-conversation-actions a:focus-visible{background:#50344b;color:#fff}
+
+.shane-resume-endeavor{display:inline-flex;margin:12px 12px 12px 0;padding:10px 16px;min-height:44px;border:1px solid #9b6e83;border-radius:999px;background:#fff9f7;color:#69445d;font:650 14px system-ui;cursor:pointer}
+.shane-resume-endeavor:hover,.shane-resume-endeavor:focus-visible{background:#f3e4e9}
+.shane-resume-endeavor:disabled{opacity:.6;cursor:wait}
