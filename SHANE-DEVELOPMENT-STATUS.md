@@ -297,3 +297,8 @@ No action requested as of this update.
 - Added `shane-account-resume-nav.js`, loaded by the existing unified navigation, to expose an optional Continue last saved idea link for signed-in members with owner-scoped conversation entries.
 - The link carries saved idea text and associated endeavor identifier into the existing creator workflow, without new panels or automatic publication.
 - Modified scripts parsed. Account-backed browser testing remains pending; full multi-page AI orchestration and complete durable version history remain unfinished.
+
+## 2026-10-31: selected endeavor resume beyond recent global history
+- Account navigation now queries the selected endeavor's owner-scoped conversation entries when that endeavor is not represented in the latest forty account entries.
+- The creator opens with the selected endeavor identifier and available saved idea; existing work remains untouched.
+- Script syntax parsed before commit. Authenticated browser testing and unified AI orchestration remain pending.
