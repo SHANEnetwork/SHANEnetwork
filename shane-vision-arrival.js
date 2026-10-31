@@ -47,6 +47,7 @@ function init(){
  const status=document.getElementById(target.status);
  if(status&&page!=="my-network.html")status.textContent="Your idea has arrived from the SHANE Network. Review or refine it when ready.";
  try{sessionStorage.removeItem("shane-intent-handoff-v1")}catch{}
+ document.dispatchEvent(new CustomEvent("shane:endeavor-arrived",{detail:{page,endeavorId:item.endeavorId||null}}));
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
