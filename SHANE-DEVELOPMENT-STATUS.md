@@ -196,3 +196,8 @@ No action requested as of this update.
 ## 2026-10-31: act on a saved idea across Network programs
 - Conversation history now lets a member carry a saved idea directly into the existing discovery, community, campaign, and member-collaboration pages, using the same intent handoff already supported by those pages. Endeavor association is only restored when the owner lookup confirms it.
 - Shared navigation recognizes growth and custom-build destinations for future cross-page handoffs. These are working-code integrations, not autonomous AI orchestration. Browser verification remains pending.
+
+## 2026-10-31: wider conversation capture and destination handoffs
+- Shared navigation now captures conversational text from additional existing workspace, community, discovery, and campaign forms, including textarea fallbacks on form submission.
+- Destination-aware handoffs populate a suitable empty field on supported Network pages without replacing existing drafts or automatically submitting a form. This preserves page-specific implementations while reducing manual copy/paste.
+- Shared navigation JavaScript syntax was checked. Browser behavior, RLS persistence, and end-to-end workflows remain to be verified.
