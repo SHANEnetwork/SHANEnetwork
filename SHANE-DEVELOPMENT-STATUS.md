@@ -148,3 +148,8 @@ No action requested as of this update.
 - Applied migration `create_owner_scoped_persistent_conversation_entries` to the SHANEnetwork Supabase project only. New `shane_conversation_entries` table stores individual entries without a 30-turn retention cap, with owner-scoped SELECT/INSERT/UPDATE/DELETE RLS, optional owner-validated endeavor ID, and archive timestamp. Verified four policies exist.
 - Shared navigation now emits entry text in its conversation event and attempts to save entries through the existing authenticated `window.shaneAccountDb` client where present. If the client is unavailable or saving fails, session continuity still works but account persistence is not guaranteed. No cross-device history reader, export, or user deletion interface yet; no automatic AI replies.
 - Browser and multi-account security testing still pending. Existing endeavors, SHONnetwork, and other site programs unchanged.
+
+## 2026-10-31: shared account history service
+- Added `shane-conversation-store.js`, dynamically loaded by shared SHANE navigation across its pages. The pinned Supabase client uses the existing public publishable key and authenticated RLS, replacing the previous builder-only optional client dependency and avoiding duplicate write listeners.
+- The store exposes account-scoped paginated history retrieval, archive/unarchive, explicit deletion, JSON export, and pending-entry flush methods. The database remains the source of truth and has no 30-entry cap. Archive is distinct from delete.
+- These are service methods, not yet a finished history-management UI or AI context retrieval/orchestration. Browser and two-user RLS verification remain pending; unsigned visitors only have temporary session continuity.
