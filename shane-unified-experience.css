@@ -14,3 +14,9 @@ input,textarea,select{border-radius:12px}
 :where(article,.card,.panel,.tile){border-radius:18px}
 #shane-idea-conversation{border-radius:24px;box-shadow:0 15px 45px #5b3d5212}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}button,.button,[role=button]{transition:none!important;transform:none!important}}
+
+/* Shared navigation is part of the existing page header, not a floating panel. */
+.shane-unified-nav{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin:16px 0 0;padding:12px 0 2px;border-top:1px solid #ffffff4a}
+.shane-unified-nav a{color:#fff!important;text-decoration:none;font:600 .88rem/1.3 system-ui,sans-serif;padding:9px 12px;border:1px solid #ffffff40;border-radius:999px;background:#ffffff12}
+.shane-unified-nav a:hover,.shane-unified-nav a[aria-current=page]{background:#fff!important;color:#54384d!important}
+@media(max-width:640px){.shane-unified-nav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}.shane-unified-nav a{flex:none}}
