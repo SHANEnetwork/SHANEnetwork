@@ -73,8 +73,8 @@ function init(){
   if(!text&&window.SHANEConversationStore?.list){
    try{
     const active=JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id;
-    const options=active&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(active)?{endeavorId:active,limit:20}:{limit:20};
-    const entries=await window.SHANEConversationStore.list(options);
+    if(!active||!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(active))throw Error("No selected endeavor");
+    const entries=await window.SHANEConversationStore.list({endeavorId:active,limit:20});
     text=entries.find(entry=>typeof entry.body==="string"&&entry.body.trim())?.body?.trim()||"";
    }catch{}
   }
