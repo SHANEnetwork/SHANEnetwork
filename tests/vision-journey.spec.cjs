@@ -266,3 +266,33 @@ test('opening an existing endeavor with the same vision never adopts unsaved con
   const saved = await page.evaluate(() => sessionStorage.getItem('shane_idea_conversation_endeavor_aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'));
   expect(saved).not.toContain('neighborhood arts festival');
 });
+
+test('account conversation saves are serialized when new ideas arrive rapidly', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(() => {
+    window.__pendingWrite = null;
+    window.__saveCalls = [];
+    window.shaneAccountDb = {
+      auth: {getUser: async () => ({data:{user:{id:'11111111-1111-4111-8111-111111111111'}}})},
+      from: () => ({
+        select: () => ({eq: () => ({eq: () => ({maybeSingle: async () => ({data:null,error:null})})})}),
+        upsert: payload => {
+          window.__saveCalls.push(payload);
+          if(window.__saveCalls.length===1)return new Promise(resolve => {window.__pendingWrite=resolve});
+          return Promise.resolve({error:null});
+        }
+      })
+    };
+    document.dispatchEvent(new CustomEvent('shane:endeavor-changed',{detail:{id:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'}}));
+  });
+  await page.locator('#visionPrompt').fill('Launch a community book exchange.');
+  await page.locator('#visionGuide').click();
+  await expect.poll(() => page.evaluate(() => !!window.__pendingWrite)).toBe(true);
+  await page.locator('#visionPrompt').fill('Add a neighborhood reading festival.');
+  await page.locator('#visionGuide').click();
+  await page.waitForTimeout(1400);
+  expect(await page.evaluate(() => window.__saveCalls.length)).toBe(1);
+  await page.evaluate(() => window.__pendingWrite({error:null}));
+  await expect.poll(() => page.evaluate(() => window.__saveCalls.length), {timeout:6000}).toBe(2);
+  expect(await page.evaluate(() => window.__saveCalls[1].history.some(t => t.text.includes('reading festival')))).toBe(true);
+});
