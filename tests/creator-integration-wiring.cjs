@@ -287,3 +287,13 @@ test("Creator discovery can introduce members privately without leaving the ende
  assert.ok(sync.includes('conversation.href="members.html?endeavor="+encodeURIComponent(saved.id)+"&conversation="+encodeURIComponent(result.data.id)'));
  assert.ok(sync.includes('invitationFeedback.textContent="Invitation not sent: "'));
 });
+
+test("Creator discovery presents unified private messaging styles and bounded search input",()=>{
+ const css=fs.readFileSync(require("node:path").join(__dirname,"../shane-visual-world.css"),"utf8");
+ const sync=fs.readFileSync(require("node:path").join(__dirname,"../shane-conversation-sync.js"),"utf8");
+ assert.ok(css.includes(".shane-creator-discovery-results"));
+ assert.ok(css.includes(".shane-creator-private-thread"));
+ assert.ok(css.includes(".shane-creator-private-thread[hidden]{display:none}"));
+ assert.ok(sync.includes('word.length>=2&&word.length<=40'));
+ assert.ok(sync.includes('term.replace(/[%_,.()'));
+});
