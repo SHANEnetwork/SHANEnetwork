@@ -26,7 +26,7 @@ function apply(text){
   }
   const status=document.getElementById("shaneModuleStatus");
   if(status)status.textContent=selected.length
-    ? "SHANE suggested "+selected.length+" network capability link(s) from your vision. Your manual choices remain intact. These links do not create private services automatically."
+    ? "SHANE suggested "+selected.length+" network capability link(s) from your vision. Your manual choices remain intact. These are existing network links, not private services created for your endeavor."
     : "No network links inferred yet. SHANE can continue developing your endeavor without requiring a website.";
   return selected;
 }
