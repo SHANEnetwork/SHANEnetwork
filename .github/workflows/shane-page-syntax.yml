@@ -1,0 +1,22 @@
+name: SHANE page syntax
+on:
+  push:
+    paths:
+      - 'workspace.html'
+      - 'members.html'
+      - 'my-network.html'
+      - 'builder.html'
+      - 'scripts/check-page-syntax.cjs'
+      - '.github/workflows/shane-page-syntax.yml'
+  pull_request:
+  workflow_dispatch:
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate inline JavaScript
+        run: node scripts/check-page-syntax.cjs
