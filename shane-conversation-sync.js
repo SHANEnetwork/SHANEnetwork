@@ -110,8 +110,8 @@ document.addEventListener("shane:ai-generation-finished",event=>{
  // to the next task so the generated response and draftReady flag are included.
  setTimeout(()=>autosaveAfterGeneration(event.detail?.mode),0);
 });
-async function resume(){
- const id=sessionStorage.getItem(key);if(!id){status("No saved endeavor is linked to this browser session yet.");return}
+async function resume(requestedId){
+ const id=typeof requestedId==="string"?requestedId:sessionStorage.getItem(key);if(!id){status("No saved endeavor is linked to this browser session yet.");return}
  const client=window.SHANEAuthenticatedClient;if(!client){status("The account connection is not ready.");return}
  try{
   const result=await window.SHANEEndeavorStore.load(client,id);
@@ -119,6 +119,7 @@ async function resume(){
   const current=snapshot();
   if(current?.turns?.length&&!confirm("Replace this browser session's conversation with your saved conversation? Unsaved editor changes may be lost."))return;
   // Only mark the conversation draft-ready after verifying its linked editor content.
+  sessionStorage.setItem(key,id);
   rememberRevision(id,result.revision);
   document.dispatchEvent(new CustomEvent("shane:conversation-restore",{detail:{turns:result.conversation,draftReady:false}}));
   window.SHANECurrentComposition={spec:result.spec,sourceVision:result.vision,provisioningStatus:"not_provisioned"};
@@ -164,7 +165,7 @@ async function discoverSaved(){
   for(const item of items){
    const button=document.createElement("button");button.type="button";
    button.textContent=item.title||"Untitled creation";
-   button.addEventListener("click",()=>{sessionStorage.setItem(key,item.id);resume()});
+   button.addEventListener("click",()=>resume(item.id));
    area.append(button);
   }
   status("Choose a saved creation to resume its conversation. Your current website draft will remain unchanged.");
@@ -174,7 +175,7 @@ document.addEventListener("DOMContentLoaded",()=>{
  const area=get("shane-idea-conversation");if(!area)return;
  const actions=document.createElement("div");actions.className="shane-idea-actions";
  const keep=document.createElement("button");keep.type="button";keep.id="shaneKeepConversation";keep.textContent="Keep this conversation";keep.addEventListener("click",save);
- const reopen=document.createElement("button");reopen.type="button";reopen.textContent="Resume saved conversation";reopen.addEventListener("click",resume);
+ const reopen=document.createElement("button");reopen.type="button";reopen.textContent="Resume saved conversation";reopen.addEventListener("click",()=>resume());
  const discover=document.createElement("button");discover.type="button";discover.textContent="Find my saved creations";discover.addEventListener("click",discoverSaved);
  const choices=document.createElement("div");choices.id="shaneSavedEndeavors";choices.setAttribute("aria-label","Your saved creations");
  const info=document.createElement("p");info.id="shaneContinuityStatus";info.setAttribute("role","status");info.setAttribute("aria-live","polite");info.textContent="Sign in to keep this conversation privately in your SHANE account. Website drafts are saved separately.";
