@@ -32,6 +32,16 @@ jobs:
       - name: Run vision journey browser smoke tests
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/shane-http.log 2>&1 &
-          npx playwright test tests/vision-journey.spec.cjs --browser chromium --workers 1 --reporter line
+          npx playwright test tests/vision-journey.spec.cjs --browser chromium --workers 1 --reporter line --trace retain-on-failure --screenshot only-on-failure
         env:
           PLAYWRIGHT_BASE_URL: http://127.0.0.1:8765
+      - name: Upload browser failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shane-browser-failure-evidence
+          path: |
+            test-results/
+            /tmp/shane-http.log
+          if-no-files-found: ignore
+          retention-days: 7
