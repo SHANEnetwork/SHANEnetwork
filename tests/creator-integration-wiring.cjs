@@ -178,8 +178,14 @@ test("Connected endeavor journey uses shared responsive visual system",()=>{
 
 test("Creator displays only accepted collaborations for the active owned endeavor",()=>{
  const sync=fs.readFileSync(require("node:path").join(__dirname,"../shane-conversation-sync.js"),"utf8");
- assert.ok(sync.includes('.eq("listing_id",listing.id).eq("status","accepted").limit(25)'));
+ assert.ok(sync.includes('.eq("listing_id",listing.id).in("status",["pending","accepted"]).limit(25)'));
  assert.ok(sync.includes('collaboration.sender_id!==auth.user.id&&collaboration.recipient_id!==auth.user.id'));
  assert.ok(sync.includes('members.html?conversation="+encodeURIComponent(collaboration.id)'));
  assert.ok(sync.includes('if(version!==connectedViewVersion||id!==sessionStorage.getItem(key))return;'));
+});
+
+test("Creator distinguishes pending requests from accepted private collaborations",()=>{
+ const sync=fs.readFileSync(require("node:path").join(__dirname,"../shane-conversation-sync.js"),"utf8");
+ assert.ok(sync.includes('collaboration.status==="accepted"?"Continue private collaboration":"Review pending collaboration request"'));
+ assert.ok(sync.includes('heading.textContent="People connecting around this endeavor"'));
 });
