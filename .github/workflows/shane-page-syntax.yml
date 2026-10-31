@@ -29,6 +29,8 @@ jobs:
         run: npm install --no-save @playwright/test@1.58.2
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
+      - name: Verify supported Playwright options
+        run: npx playwright test --help | grep -F -- '--trace'
       - name: Run vision journey browser smoke tests
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/shane-http.log 2>&1 &
