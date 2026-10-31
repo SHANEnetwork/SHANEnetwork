@@ -194,8 +194,6 @@ test('account-backed history takes priority over stale browser history', async (
 
 test('reselecting the same endeavor does not interrupt account synchronization', async ({ page }) => {
   await page.goto('http://127.0.0.1:8765/builder.html');
-  await page.locator('#visionPrompt').fill('Create a neighborhood astronomy club.');
-  await page.locator('#visionGuide').click();
   await page.evaluate(() => {
     window.__writes = [];
     window.shaneAccountDb = {
@@ -209,6 +207,8 @@ test('reselecting the same endeavor does not interrupt account synchronization',
     event();
     event();
   });
+  await page.locator('#visionPrompt').fill('Create a neighborhood astronomy club.');
+  await page.locator('#visionGuide').click();
   await expect.poll(() => page.evaluate(() => window.__writes.length), {timeout:6000}).toBeGreaterThan(0);
 });
 
