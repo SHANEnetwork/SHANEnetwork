@@ -239,12 +239,12 @@ document.addEventListener("DOMContentLoaded",()=>{
     const heading=document.createElement("h4");heading.textContent="People connecting around this endeavor";group.append(heading);
     for(const collaboration of collaborations){
      if(collaboration.sender_id!==auth.user.id&&collaboration.recipient_id!==auth.user.id)continue;
-     const conversation=document.createElement("a");conversation.href="members.html?conversation="+encodeURIComponent(collaboration.id)+"#collaborationSection";
+     const conversation=document.createElement("a");conversation.href="members.html?endeavor="+encodeURIComponent(saved.id)+"&conversation="+encodeURIComponent(collaboration.id)+"#collaborationSection";
      conversation.textContent=collaboration.status==="accepted"?"Continue private collaboration":"Review pending collaboration request";group.append(conversation);
     }
     details.append(group);
    }
-   const links=[["Continue our conversation","builder.html?endeavor="+encodeURIComponent(saved.id)+"#vision-first"],["Discover people and opportunities","network.html"],["Review network presence","my-network.html"],["Manage network listing",listing?"members.html?listing="+encodeURIComponent(listing.id)+"#mineSection":"members.html#mineSection"],["Collaborations and private messages","members.html#collaborationSection"],["Request Analyst review",null]];
+   const links=[["Continue our conversation","builder.html?endeavor="+encodeURIComponent(saved.id)+"#vision-first"],["Discover people and opportunities","network.html?endeavor="+encodeURIComponent(saved.id)],["Review network presence","my-network.html"],["Manage network listing",listing?"members.html?listing="+encodeURIComponent(listing.id)+"#mineSection":"members.html#mineSection"],["Collaborations and private messages","members.html?endeavor="+encodeURIComponent(saved.id)+"#collaborationSection"],["Request Analyst review",null]];
    if(manifest.resources.organization)links.push(["Manage linked club or society","communities.html?organization="+encodeURIComponent(manifest.resources.organization)]);
    for(const [label,href] of links){const control=document.createElement(href?"a":"button");control.textContent=label;if(href)control.href=href;else{control.type="button";control.addEventListener("click",analystContext)}details.append(control,document.createTextNode(" · "))}
    const journey=document.createElement("p");journey.className="shane-endeavor-journey";journey.textContent="Your conversation is the center. Keep developing your idea, discover collaborators, and manage its network presence without starting over.";details.insertBefore(journey,details.children[2]||null);
