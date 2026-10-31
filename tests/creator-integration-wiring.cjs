@@ -175,3 +175,11 @@ test("Connected endeavor journey uses shared responsive visual system",()=>{
  assert.ok(visual.includes('grid-template-columns:repeat(auto-fit'));
  assert.ok(sync.includes('["Collaborations and private messages","members.html#collaborationSection"]'));
 });
+
+test("Creator displays only accepted collaborations for the active owned endeavor",()=>{
+ const sync=fs.readFileSync(require("node:path").join(__dirname,"../shane-conversation-sync.js"),"utf8");
+ assert.ok(sync.includes('.eq("listing_id",listing.id).eq("status","accepted").limit(25)'));
+ assert.ok(sync.includes('collaboration.sender_id!==auth.user.id&&collaboration.recipient_id!==auth.user.id'));
+ assert.ok(sync.includes('members.html?conversation="+encodeURIComponent(collaboration.id)'));
+ assert.ok(sync.includes('if(version!==connectedViewVersion||id!==sessionStorage.getItem(key))return;'));
+});
