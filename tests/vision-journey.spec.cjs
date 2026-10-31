@@ -231,3 +231,26 @@ test('late account restore does not erase conversation turns added during lookup
   await expect(page.locator('#shaneIdeaTurns')).toContainText('community orchestra');
   await expect(page.locator('#shaneIdeaTurns')).not.toContainText('Old astronomy club request');
 });
+
+test('overlapping local edits and remote restore do not overwrite account history', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(() => {
+    window.__resolveConflict = null;
+    window.__conflictWrites = [];
+    window.shaneAccountDb = {
+      auth: {getUser: async () => ({data:{user:{id:'11111111-1111-4111-8111-111111111111'}}})},
+      from: () => ({
+        select: () => ({eq: () => ({eq: () => ({maybeSingle: () => new Promise(resolve => {window.__resolveConflict=resolve})})})}),
+        upsert: async payload => {window.__conflictWrites.push(payload);return {error:null}}
+      })
+    };
+    document.dispatchEvent(new CustomEvent('shane:endeavor-changed',{detail:{id:'99999999-9999-4999-8999-999999999999'}}));
+  });
+  await expect.poll(() => page.evaluate(() => !!window.__resolveConflict)).toBe(true);
+  await page.locator('#visionPrompt').fill('Create a community theater.');
+  await page.locator('#visionGuide').click();
+  await page.evaluate(() => window.__resolveConflict({data:{history:[{role:'you',text:'Earlier saved community choir'}],draft_ready:true},error:null}));
+  await expect(page.locator('#shaneIdeaTurns')).toContainText('community theater');
+  await page.waitForTimeout(1600);
+  expect(await page.evaluate(() => window.__conflictWrites.length)).toBe(0);
+});
