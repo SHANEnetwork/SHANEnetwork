@@ -306,7 +306,31 @@ document.addEventListener("DOMContentLoaded",()=>{
       const card=document.createElement("article");const name=document.createElement("strong");name.textContent=opportunity.title||"Untitled endeavor";
       const description=document.createElement("p");description.textContent=String(opportunity.description||"").slice(0,350);
       const view=document.createElement("a");view.href="network.html?endeavor="+encodeURIComponent(saved.id)+"&listing="+encodeURIComponent(opportunity.id);view.textContent="Explore and introduce yourself";
-      card.append(name,description,view);discoveryResults.append(card);
+      const invite=document.createElement("button");invite.type="button";invite.textContent="Introduce myself privately";
+      const invitationFeedback=document.createElement("p");invitationFeedback.setAttribute("role","status");
+      invite.addEventListener("click",async()=>{
+       if(version!==connectedViewVersion||id!==sessionStorage.getItem(key))return;
+       invite.disabled=true;
+       const previous=await client.from("shane_collaboration_requests").select("id,status").eq("listing_id",opportunity.id).eq("sender_id",auth.user.id).eq("recipient_id",opportunity.owner_id).in("status",["pending","accepted"]).limit(1);
+       if(version!==connectedViewVersion||id!==sessionStorage.getItem(key)||!card.isConnected)return;
+       if(previous.error){invitationFeedback.textContent="Unable to check existing introductions: "+previous.error.message;invite.disabled=false;return}
+       if(previous.data?.length){const existing=previous.data[0];invitationFeedback.textContent=existing.status==="accepted"?"You already collaborate on this endeavor.":"Your invitation is awaiting a response.";
+        const conversation=document.createElement("a");conversation.href="members.html?endeavor="+encodeURIComponent(saved.id)+"&conversation="+encodeURIComponent(existing.id)+"#collaborationSection";conversation.textContent="Open private collaboration";card.append(conversation);return}
+       const form=document.createElement("form");const message=document.createElement("textarea");message.required=true;message.minLength=10;message.maxLength=2000;message.rows=3;message.setAttribute("aria-label","Private introduction");message.placeholder="What interests you about this endeavor?";
+       const send=document.createElement("button");send.type="submit";send.textContent="Send private introduction";const cancel=document.createElement("button");cancel.type="button";cancel.textContent="Cancel";cancel.addEventListener("click",()=>{form.remove();invite.disabled=false});
+       form.append(message,send,cancel);card.append(form);message.focus();
+       form.addEventListener("submit",async event=>{event.preventDefault();const body=message.value.trim();if(body.length<10||body.length>2000)return;send.disabled=true;
+        const duplicate=await client.from("shane_collaboration_requests").select("id").eq("listing_id",opportunity.id).eq("sender_id",auth.user.id).eq("recipient_id",opportunity.owner_id).in("status",["pending","accepted"]).limit(1);
+        if(version!==connectedViewVersion||id!==sessionStorage.getItem(key)||!card.isConnected)return;
+        if(duplicate.error||duplicate.data?.length){invitationFeedback.textContent=duplicate.error?"Could not verify invitation: "+duplicate.error.message:"An active invitation already exists.";send.disabled=false;return}
+        const result=await client.from("shane_collaboration_requests").insert({listing_id:opportunity.id,sender_id:auth.user.id,recipient_id:opportunity.owner_id,message:body}).select("id").single();
+        if(version!==connectedViewVersion||id!==sessionStorage.getItem(key)||!card.isConnected)return;
+        if(result.error){invitationFeedback.textContent="Invitation not sent: "+result.error.message;send.disabled=false;return}
+        form.remove();invitationFeedback.textContent="Private invitation sent. The recipient can choose whether to accept.";
+        const conversation=document.createElement("a");conversation.href="members.html?endeavor="+encodeURIComponent(saved.id)+"&conversation="+encodeURIComponent(result.data.id)+"#collaborationSection";conversation.textContent="Follow this invitation";card.append(conversation);
+       });
+      });
+      card.append(name,description,view,invite,invitationFeedback);discoveryResults.append(card);
      }
     }catch(error){if(request===discoveryVersion&&version===connectedViewVersion&&id===sessionStorage.getItem(key))discoveryStatus.textContent="Discovery unavailable: "+error.message}
     finally{if(request===discoveryVersion)discoveryButton.disabled=false}
