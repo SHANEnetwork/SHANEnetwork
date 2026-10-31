@@ -59,3 +59,8 @@ No action requested as of this update.
 - New `shane-community-publishing.js` is integrated into `community-feed.html` and `community-opportunities.html`.
 - Natural-language descriptions prepare announcement/event or volunteer opportunity drafts using the existing authorized publishing forms; posting and permission checks remain unchanged.
 - The script does not send, publish, or claim AI-generated content. End-to-end browser verification remains pending.
+
+## 2026-10-31: contact and operational reports
+- `shane-conversational-support.js` integrated into `contact.html` and `system-health.html` to prepare existing email and incident-report forms from natural language.
+- The existing email-app handoff and incident-report authorization/submission code remain authoritative. No automatic sending or incident creation.
+- This is heuristic form preparation, not a connected AI provider. End-to-end browser testing remains pending.
