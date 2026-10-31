@@ -55,6 +55,7 @@ test("Dashboard hands vision to Creator through guarded one-time transfer",()=>{
  const handoff=fs.readFileSync(require("node:path").join(__dirname,"../shane-vision-handoff.js"),"utf8");
  assert.ok(dashboard.includes('sessionStorage.setItem("shane_network_vision_handoff_v1"'));
  assert.ok(dashboard.includes('JSON.stringify({vision:goal,created:Date.now()})'));
+ assert.ok(!dashboard.includes('sessionStorage.setItem("shane_welcome_draft",goal)'));
  assert.ok(handoff.includes('const key="shane_network_vision_handoff_v1"'));
  assert.ok(handoff.includes('if(occupied&&!alreadyPresent)'));
  assert.ok(handoff.includes('sessionStorage.removeItem(key)'));
