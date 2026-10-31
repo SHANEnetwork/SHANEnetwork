@@ -170,3 +170,8 @@ No action requested as of this update.
 - Shared account conversation persistence now attempts to associate entries with the active endeavor ID. If that ID is invalid for the signed-in owner, RLS rejects the association and the entry is retried as an unassociated private entry. No permission bypass or changes to endeavor ownership.
 - Shared navigation also records conversational form submissions, not just navigation and field-change events. History view supports filtering by endeavor IDs found in the first 500 saved records; friendly endeavor names and full pagination of filter choices remain outstanding.
 - Browser and cross-account tests remain pending; no autonomous AI engine yet.
+
+## 2026-10-31: returning to conversations across endeavors
+- Conversation history now supports combined full-history text search, endeavor filter, and pagination. The filter loads member-owned endeavor titles from the existing `shane_endeavors` table instead of showing opaque IDs from only the first page of messages.
+- Earlier commits added resume-from-history into the creator with its associated endeavor. These improvements reuse existing authorized account records and preserve SHONnetwork.
+- Browser verification, unified AI orchestration, and complete versioned page history remain outstanding.
