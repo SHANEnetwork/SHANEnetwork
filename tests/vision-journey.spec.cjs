@@ -121,3 +121,16 @@ test('endeavor memory keeps conversations isolated and restores them on return',
   await expect(page.locator('#shaneIdeaTurns')).toContainText('arts cooperative');
   await expect(page.locator('#shaneIdeaTurns')).not.toContainText('gardening network');
 });
+
+test('starting a fresh endeavor clears the previous vision without deleting saved history', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.locator('#visionPrompt').fill('An arts festival for neighborhood musicians.');
+  await page.locator('#visionGuide').click();
+  await page.evaluate(() => document.dispatchEvent(new CustomEvent('shane:endeavor-changed', {detail:{id:'33333333-3333-4333-8333-333333333333'}})));
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('#newEndeavor').click();
+  await expect(page.locator('#visionPrompt')).toHaveValue('');
+  await expect(page.locator('#shaneIdeaTurns')).not.toContainText('arts festival');
+  const previous = await page.evaluate(() => JSON.parse(sessionStorage.getItem('shane_idea_conversation_endeavor_33333333-3333-4333-8333-333333333333')));
+  expect(previous.history.some(turn => turn.text.includes('arts festival'))).toBeTruthy();
+});
