@@ -139,3 +139,7 @@ No action requested as of this update.
 ## 2026-10-31: shared navigation intent routing
 - SHANE's shared navigation now routes remembered conversational intent to existing destination-specific intake bridges for builder, discovery, personal Network, communities, campaigns, and members, rather than requiring a separate return-to-creator step.
 - This remains browser-session text transfer, not a shared AI conversation history or account-wide intelligence. Live browser verification pending.
+
+## 2026-10-31: shared conversation journal foundation
+- The common SHANE navigation module now maintains a bounded 30-turn browser-session conversation journal, recording the current page, text, kind, and time of preserved ideas. A read/remember interface (`window.SHANEConversation`) and `shane:conversation-updated` event allow existing SHANE modules to share conversational context without adding new panels.
+- Creator handoffs now record their incoming text in this journal. This is not yet a server-backed transcript or AI inference engine. Live verification pending.
