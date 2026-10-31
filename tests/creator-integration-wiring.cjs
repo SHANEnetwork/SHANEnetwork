@@ -109,3 +109,12 @@ test("Switching saved endeavors does not change identity before consent",()=>{
  const resume=sync.slice(sync.indexOf('async function resume(requestedId)'),sync.indexOf('async function analystContext()'));
  assert.ok(resume.indexOf('if(current?.turns?.length&&!confirm(')<resume.indexOf('sessionStorage.setItem(key,id)'));
 });
+
+test("Dashboard endeavor links restore the requested conversation safely",()=>{
+ const sync=fs.readFileSync(require("node:path").join(__dirname,"../shane-conversation-sync.js"),"utf8");
+ assert.ok(sync.includes('new URLSearchParams(location.search).get("endeavor")'));
+ assert.ok(sync.includes('resume(requested)'));
+ assert.ok(sync.includes('window.addEventListener("shane:client-ready"'));
+ assert.ok(sync.includes('This endeavor link is invalid. Your existing conversation has not been changed.'));
+ assert.ok(dashboard.includes('builder.html?endeavor='));
+});
