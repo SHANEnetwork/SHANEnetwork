@@ -36,3 +36,15 @@ input,textarea,select{border-radius:12px}
 .shane-manual-details,.shane-manual-discovery{margin:16px 0;border:1px solid #dfcad0;border-radius:14px;padding:12px;background:#fffaf7}
 .shane-manual-details>summary,.shane-manual-discovery>summary{cursor:pointer;font-weight:650;color:#704760;padding:5px}
 .shane-manual-details>form{margin-top:14px}
+
+/* Cohesive, conversation-first Network page layouts. Existing forms and actions stay functional. */
+body:has(.shane-unified-nav) main{width:min(100% - 32px,1160px);margin-inline:auto}
+body:has(.shane-unified-nav) main>.hero,body:has(.shane-unified-nav) main>.shane-home-world{background:radial-gradient(circle at 90% 15%,#f5d8bb 0,transparent 40%),linear-gradient(125deg,#fdf0e7,#f4e8f2 55%,#e9f4ee)!important;color:#382a3b!important;border:1px solid #e6cbd4;border-radius:30px;padding:clamp(24px,5vw,64px);box-shadow:0 20px 55px #543b4814}
+body:has(.shane-unified-nav) main>.hero h1,body:has(.shane-unified-nav) main>.shane-home-world h1{font-size:clamp(2.3rem,5vw,4.5rem);max-width:850px;color:#392b3b!important}
+body:has(.shane-unified-nav) main>.hero p,body:has(.shane-unified-nav) main>.shane-home-world p{color:#594a55!important}
+body:has(.shane-unified-nav) main .cards{gap:clamp(12px,2vw,22px)}
+body:has(.shane-unified-nav) main :where(.card,article.card){background:#fffdfa;border:1px solid #e8d6dc;border-radius:20px;box-shadow:0 8px 28px #4931480a}
+body:has(.shane-unified-nav) main :where(.card,article.card) h2{color:#52374f}
+body:has(.shane-unified-nav) main :where(.button,.action,button[type=submit]){border-radius:999px;min-height:42px}
+body:has(.shane-unified-nav) main :where(textarea,input[type=text],input[type=search]){background:#fffdfa;border:1px solid #c8aebd;padding:12px 14px}
+@media(max-width:680px){body:has(.shane-unified-nav) main{width:min(100% - 20px,1160px)}body:has(.shane-unified-nav) main>.hero{padding:22px}body:has(.shane-unified-nav) main .cards{grid-template-columns:1fr}}
