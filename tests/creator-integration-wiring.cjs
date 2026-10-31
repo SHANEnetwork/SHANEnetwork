@@ -297,3 +297,12 @@ test("Creator discovery presents unified private messaging styles and bounded se
  assert.ok(sync.includes('word.length>=2&&word.length<=40'));
  assert.ok(sync.includes('term.replace(/[%_,.()'));
 });
+
+test("Creator invitation decisions require recipient ownership and pending status",()=>{
+ const sync=fs.readFileSync(require("node:path").join(__dirname,"../shane-conversation-sync.js"),"utf8");
+ assert.ok(sync.includes('collaboration.status==="pending"&&collaboration.recipient_id===auth.user.id'));
+ assert.ok(sync.includes('.update({status:nextStatus}).eq("id",collaboration.id).eq("recipient_id",auth.user.id).eq("status","pending").select("id").maybeSingle()'));
+ assert.ok(sync.includes('accept.addEventListener("click",()=>decide("accepted"))'));
+ assert.ok(sync.includes('decline.addEventListener("click",()=>decide("declined"))'));
+ assert.ok(sync.includes('await openConnectedEndeavor()'));
+});
