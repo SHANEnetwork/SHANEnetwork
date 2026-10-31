@@ -1,0 +1,14 @@
+const assert=require("node:assert/strict");
+const protocol=require("../shane-destination-protocol.js");
+const sample={name:"SHONnetwork",description:"A people-centered community for forming shared homes and lasting connections.",category:"community",website:"https://shonnetwork.org/"};
+assert.throws(()=>protocol.prepare(sample),/approval/);
+const result=protocol.prepare(sample,{approved:true});
+assert.equal(result.protocol,"shane-network-destination");
+assert.equal(result.memberDataShared,false);
+assert.equal(result.authenticationFederated,false);
+assert.equal(result.messagingFederated,false);
+assert.equal(protocol.read(result).website,sample.website);
+assert.throws(()=>protocol.prepare({...sample,website:"javascript:alert(1)"},{approved:true}),/HTTPS/);
+assert.throws(()=>protocol.prepare({...sample,website:"https://user:pass@example.org/"},{approved:true}),/HTTPS/);
+assert.throws(()=>protocol.read({...result,version:"2.0"}),/Unsupported/);
+console.log("SHANE Network destination protocol contracts passed");
