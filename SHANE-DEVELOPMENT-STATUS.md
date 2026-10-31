@@ -44,3 +44,8 @@ No action requested as of this update.
 - `my-network.html`: conversational connection search delegates to the existing published-listings search. Manual keyword search is retained.
 - These are heuristic intent and keyword interpreters, not an AI agent; downstream page handoff and account-dependent actions still need end-to-end verification.
 - Next: unify ongoing endeavors, member conversation context and creator actions; keep building actual UX before comprehensive page-by-page testing.
+
+## 2026-10-31: creator and Network continuity
+- Added `shane-creative-handoff.js` to the builder: carries a person's own vision from local Network/dashboard session handoff into the existing creator's `visionPrompt` when it is empty. It never auto-submits, publishes, or overwrites nonempty editor text.
+- `my-network.html` now saves the exact text from its vision form before the "Let SHANE bring it to life" link. A new bridge retrieves it in the builder.
+- This is a local-session handoff, not persistent AI memory. Full cross-device endeavor continuity and program orchestration still require implementation and testing.
