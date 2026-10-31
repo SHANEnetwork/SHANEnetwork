@@ -29,7 +29,7 @@ for(const [label,destination] of [["Find collaborators","network.html"],["Build 
  });
  actions.append(action);
 }
-actions.prepend(continueButton);actions.append(archive,remove);article.append(heading,body,actions);return article}
+actions.prepend(continueButton);actions.append(archive,remove);article.dataset.endeavorId=entry.endeavor_id||"";article.append(heading,body,actions);return article}
 async function load(reset=false){if(reset){offset=0;list.replaceChildren()}status.textContent="Loading your saved conversations…";try{const term=$("history-search").value.trim();
 const api=await store();
 const entries=term?await api.searchHistory(term,{limit:50,offset,endeavorId:$("endeavor-filter").value||null,includeArchived:$("include-archived").checked}):await api.list({limit:50,offset,includeArchived:$("include-archived").checked,endeavorId:$("endeavor-filter").value||null});for(const entry of entries)list.append(item(entry));offset+=entries.length;$("more").hidden=entries.length<50;status.textContent=offset?offset+" saved entries loaded.":"No saved entries in this view yet."}catch(error){status.textContent=error.message;$("more").hidden=true}}
