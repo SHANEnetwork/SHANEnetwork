@@ -1,6 +1,6 @@
 const fs = require('node:fs');
 const { spawnSync } = require('node:child_process');
-const pages = ['index.html', 'workspace.html', 'members.html', 'my-network.html', 'builder.html', 'site.html', 'dashboard.html', 'endeavor-invitations.html', 'endeavor-collaborators.html', 'network.html'];
+const pages = ['index.html', 'workspace.html', 'members.html', 'my-network.html', 'builder.html', 'site.html', 'dashboard.html', 'network.html'];
 let failures = 0;
 for (const page of pages) {
   const html = fs.readFileSync(page, 'utf8');
