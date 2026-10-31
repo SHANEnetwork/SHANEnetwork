@@ -261,3 +261,10 @@ test("Creator interprets saved vision into discovery terms without a second setu
  assert.ok(sync.includes('discoveryForm.requestSubmit()'));
  assert.ok(sync.includes('requestQuery=requestQuery.or(terms.flatMap('));
 });
+
+test("Network search matches any vision term, consistent with Creator discovery",()=>{
+ const network=fs.readFileSync(require("node:path").join(__dirname,"../network.html"),"utf8");
+ assert.ok(network.includes('query=query.or(terms.flatMap('));
+ assert.ok(network.includes('if(validCreatorEndeavor)params.set("endeavor",validCreatorEndeavor)'));
+ assert.ok(network.includes('selectedDestination=initialFilters.get("listing")'));
+});
