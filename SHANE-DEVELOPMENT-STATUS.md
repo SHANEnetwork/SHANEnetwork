@@ -231,3 +231,8 @@ No action requested as of this update.
 - Shared `SHANEConversation.endeavorSnapshot()` makes the active endeavor's saved conversational context available through a consistent interface.
 - A successful account-backed conversation save triggers `shane:conversation-context-changed` for Network modules that need to refresh context.
 - Shared navigation JavaScript parsed successfully. Browser integration, cross-device persistence reliability, and live AI orchestration remain to be verified.
+
+## 2026-10-31: conversation snapshot cleanup and pending state
+- Shared snapshots now avoid duplicating the same text/page when it appears in both saved account history and the current session journal.
+- Conversation persistence emits `shane:conversation-pending` with an unsaved queue count, enabling visible save-state integration in future page work.
+- These changes are modest plumbing, not evidence of the complete AI-first experience. Focus next on substantial end-user creation and collaboration capabilities.
