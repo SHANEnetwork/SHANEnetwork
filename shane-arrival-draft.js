@@ -3,6 +3,7 @@
 (()=>{"use strict";
 const drafts={
  "communities.html":"communityDraft",
+ "workspace.html":"taskDraft",
  "campaigns.html":"campaignDraft",
  "members.html":"listingDraft",
  "growth.html":"shaneGrowthPrepare",
