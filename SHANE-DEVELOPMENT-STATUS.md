@@ -332,3 +332,8 @@ No action requested as of this update.
 - Shared endeavor arrival now includes destination field context and invokes existing draft preparation controls on communities, campaigns, members, growth, request-build and sports-district pages.
 - No automatic save or publish; existing review and submission controls remain authoritative.
 - Syntax parsed; browser behavior and event ordering remain to be verified. Existing SHONnetwork untouched.
+
+## 2026-10-31: collaborative workspace arrival completion
+- Workspace now loads the existing endeavor arrival receiver and shared draft-preparation module.
+- Incoming ideas can prepare editable collaborative tasks through the existing task draft control; no automatic assignment or submission.
+- Shared draft module now maps workspace.html to taskDraft. Browser runtime verification remains pending. SHONnetwork untouched.
