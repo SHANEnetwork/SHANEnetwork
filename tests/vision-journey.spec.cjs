@@ -163,6 +163,8 @@ test('account memory is read before a local conversation can overwrite it', asyn
     document.dispatchEvent(new CustomEvent('shane:endeavor-changed',{detail:{id:'55555555-5555-4555-8555-555555555555'}}));
   });
   await expect.poll(() => page.evaluate(() => !!window.__resolveMemory)).toBe(true);
+  await page.locator('#visionPrompt').fill('Add seed exchanges and shared garden tools.');
+  await page.locator('#visionGuide').click();
   await page.waitForTimeout(1500);
   expect(await page.evaluate(() => window.__memoryWrites.length)).toBe(0);
   await page.evaluate(() => window.__resolveMemory({data:null,error:null}));
