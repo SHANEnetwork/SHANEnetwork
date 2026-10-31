@@ -46,7 +46,7 @@ function init(){
  if(!item||item.destination!==page||typeof item.text!=="string"||!item.text.trim()||!Number.isFinite(item.created)||Date.now()-item.created>86400000){offerAccountResume(page,target,field);return;}
  if(field.value.trim()){
   const container=field.closest(".shane-conversation-intake")||field.parentElement;
-  if(container){const restore=document.createElement("button");restore.type="button";restore.className="shane-resume-endeavor";restore.textContent="Use incoming idea instead";restore.addEventListener("click",()=>{
+  if(container&&!container.querySelector(".shane-incoming-idea-choice")){const restore=document.createElement("button");restore.classList.add("shane-incoming-idea-choice");restore.type="button";restore.className="shane-resume-endeavor";restore.textContent="Use incoming idea instead";restore.addEventListener("click",()=>{
    if(field.value.trim()&&!confirm("Replace the writing in this field with the incoming idea?"))return;
    field.value="";restore.remove();init();
   });container.append(restore)}
