@@ -307,3 +307,8 @@ No action requested as of this update.
 - `network.html`, `my-network.html`, and `builder.html` now load the shared vision-arrival and owner-scoped saved endeavor resume capability, extending coverage to nine major destination pages.
 - Creator reply text is not replaced by the incoming-vision notice. Existing manual and publishing controls remain in place.
 - JavaScript parsed. Browser and authenticated runtime verification remain pending; full persistent conversational AI and complete page transformation remain unfinished.
+
+## 2026-10-31: network-wide endeavor action routing
+- Existing shared navigation now includes a compact Take my idea to action that carries an explicitly entered vision into nine working SHANE destinations: creator, discovery, relationships, listings, communities, campaigns, growth, custom builds and sports demo.
+- Uses existing destination handoff receivers and active endeavor identifier; no automatic publication or replacement of existing work.
+- JavaScript parsed. Full browser testing, account persistence of in-progress drafts, and actual AI orchestration remain pending.
