@@ -11,6 +11,7 @@ on:
       - 'dashboard.html'
       - 'network.html'
       - 'scripts/check-page-syntax.cjs'
+      - 'tests/vision-journey.spec.cjs'
       - '.github/workflows/shane-page-syntax.yml'
   pull_request:
   workflow_dispatch:
@@ -24,3 +25,13 @@ jobs:
           node-version: '22'
       - name: Validate inline JavaScript
         run: node scripts/check-page-syntax.cjs
+      - name: Install browser test runner
+        run: npm install --no-save @playwright/test@1.58.2
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run vision journey browser smoke tests
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/shane-http.log 2>&1 &
+          npx playwright test tests/vision-journey.spec.cjs --browser chromium --workers 1 --reporter line
+        env:
+          PLAYWRIGHT_BASE_URL: http://127.0.0.1:8765
