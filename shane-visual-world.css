@@ -31,3 +31,22 @@ input,textarea,select{font:inherit}
 #shaneConnectedDetails a:focus-visible{outline:3px solid #c16b3b;outline-offset:3px}
 #shaneConnectedDetails .shane-service-readiness{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:.5rem;padding:0;list-style:none}
 #shaneConnectedDetails .shane-service-readiness li{padding:.75rem 1rem;border-radius:12px;background:rgba(255,255,255,.72);border:1px solid rgba(117,73,112,.12);overflow-wrap:anywhere}
+
+/* Unified Creator: discovery, introductions and private conversations */
+#shaneConnectedDetails .shane-creator-discovery,#shaneConnectedDetails .shane-endeavor-collaborations{margin:1.3rem 0;padding:clamp(1rem,2vw,1.5rem);border:1px solid #d9c2d4;border-radius:20px;background:rgba(255,255,255,.73)}
+#shaneConnectedDetails .shane-creator-discovery h4,#shaneConnectedDetails .shane-endeavor-collaborations h4{margin:0 0 .8rem;color:#573960;font:700 clamp(1.12rem,2vw,1.4rem) Georgia,serif}
+#shaneConnectedDetails .shane-creator-discovery form[role=search]{display:flex;flex-wrap:wrap;gap:.6rem;align-items:stretch}
+#shaneConnectedDetails .shane-creator-discovery input[type=search]{flex:1 1 240px;min-width:0;padding:.75rem 1rem;border:1px solid #bfa5bd;border-radius:13px;background:#fff;color:#34243d}
+#shaneConnectedDetails button{cursor:pointer;border:1px solid #855a80;border-radius:12px;padding:.65rem 1rem;background:#704c76;color:#fff;font:600 1rem system-ui,sans-serif;margin:.25rem}
+#shaneConnectedDetails button:hover{background:#58355f}
+#shaneConnectedDetails button:disabled{opacity:.55;cursor:wait}
+#shaneConnectedDetails .shane-creator-discovery-results{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:.85rem;margin-top:1rem}
+#shaneConnectedDetails .shane-creator-discovery-results article{padding:1.1rem;border-radius:16px;border:1px solid #e4d4df;background:linear-gradient(145deg,#fffdf8,#f7eef7);box-shadow:0 5px 15px #57396010}
+#shaneConnectedDetails .shane-creator-discovery-results article>strong{display:block;color:#53335c;font-size:1.1rem}
+#shaneConnectedDetails .shane-creator-discovery-results article p{line-height:1.5}
+#shaneConnectedDetails .shane-creator-discovery-results textarea,#shaneConnectedDetails .shane-creator-private-thread textarea,#shaneConnectedDetails .shane-creator-discovery-results form textarea{display:block;width:100%;box-sizing:border-box;min-height:95px;padding:.75rem;border:1px solid #bfa5bd;border-radius:12px;background:white;color:#34243d;resize:vertical}
+#shaneConnectedDetails .shane-creator-private-thread{margin:.7rem 0 1rem;padding:1rem;border-radius:16px;background:#fffaf5;border:1px solid #e0d1ce}
+#shaneConnectedDetails .shane-creator-private-thread[hidden]{display:none}
+#shaneConnectedDetails .shane-creator-private-thread div[aria-live]{max-height:300px;overflow-y:auto;padding:.5rem;border-radius:12px;background:#fff}
+#shaneConnectedDetails .shane-creator-private-thread div[aria-live] p{margin:.45rem 0;padding:.5rem .7rem;border-radius:10px;background:#f4eaf3;overflow-wrap:anywhere}
+@media(max-width:520px){#shaneConnectedDetails .shane-creator-discovery form[role=search]>*{width:100%}#shaneConnectedDetails .shane-creator-discovery-results{grid-template-columns:1fr}}
