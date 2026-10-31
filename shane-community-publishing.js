@@ -11,6 +11,9 @@ panel.querySelector("h2").textContent=cfg.heading;panel.querySelector("p").textC
 const host=page==="community-feed.html"?document.getElementById("publishPanel"):form;
 host.parentNode.insertBefore(panel,host);
 try{const raw=sessionStorage.getItem("shane-intent-handoff-v1");if(raw){const item=JSON.parse(raw),input=panel.querySelector("textarea");if(item&&item.destination===page&&typeof item.text==="string"&&Date.now()-item.created<86400000&&!input.value.trim()){input.value=item.text.slice(0,4000);panel.querySelector("#shaneCommunityDraftStatus").textContent="Your shared idea is ready for draft preparation. Nothing has been published.";sessionStorage.removeItem("shane-intent-handoff-v1")}}}catch{}
+const draftKey="shane-conversation-draft:"+page,input=panel.querySelector("textarea");
+try{const stored=JSON.parse(sessionStorage.getItem(draftKey)||"null");if(stored&&typeof stored.text==="string"&&Date.now()-stored.updated<604800000&&!input.value.trim()){input.value=stored.text.slice(0,4000);panel.querySelector("#shaneCommunityDraftStatus").textContent="Your unfinished community draft has been restored."}}catch{}
+input.addEventListener("input",()=>{try{if(input.value.trim())sessionStorage.setItem(draftKey,JSON.stringify({text:input.value.slice(0,4000),updated:Date.now()}));else sessionStorage.removeItem(draftKey)}catch{}});
 panel.querySelector("button").addEventListener("click",()=>{const text=panel.querySelector("textarea").value.trim();if(!text){panel.querySelector("textarea").focus();return}
 if(host.hidden){panel.querySelector("#shaneCommunityDraftStatus").textContent="Sign in with a community owner or coordinator account to prepare this publication.";return}
 const first=text.split(/[.!?\n]/).map(x=>x.trim()).find(Boolean)||text;
