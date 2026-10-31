@@ -10,29 +10,7 @@
  const journalAdd=(value,kind="idea")=>{const text=String(value||"").trim().slice(0,4000);if(!text)return;try{const j=journalRead(),last=j.turns[j.turns.length-1];if(last&&last.text===text&&last.page===page)return;j.turns.push({text,page,kind,at:Date.now()});j.turns=j.turns.slice(-30);j.updated=Date.now();sessionStorage.setItem(JOURNAL,JSON.stringify(j));document.dispatchEvent(new CustomEvent("shane:conversation-updated",{detail:{page,kind,text}}))}catch{}};
  const journalContext=()=>{const j=journalRead();return {page,turns:j.turns.slice(-12),updated:j.updated}};
  Object.defineProperty(window,"SHANEConversation",{configurable:false,value:Object.freeze({read:journalContext,remember:journalAdd})});
- const pending=[];
- let writing=false;
- async function flushConversation(){
-  if(writing||!pending.length)return;
-  const db=window.shaneAccountDb;
-  if(!db||!db.auth||!db.from)return;
-  writing=true;
-  try{
-   const {data,error}=await db.auth.getUser();
-   if(error||!data?.user)return;
-   while(pending.length){
-    const entry=pending[0];
-    const {error:saveError}=await db.from("shane_conversation_entries").insert({owner_id:data.user.id,body:entry.text,source_page:entry.page,entry_kind:entry.kind});
-    if(saveError)break;
-    pending.shift();
-   }
-  }catch{}finally{writing=false}
- }
- document.addEventListener("shane:conversation-updated",event=>{
-  const text=event.detail?.text;if(typeof text!=="string"||!text.trim())return;
-  pending.push({text,page,kind:event.detail.kind||"idea"});
-  void flushConversation();
- });
+ import("./shane-conversation-store.js").catch(()=>{});
  const continuityKey="shane-conversation-continuity-v1";
  const conversationSelectors=["#visionPrompt","#shane-natural-prompt","#shaneDiscoveryWish","#shaneGrowthGoal","#shaneBuildRequestGoal","#shaneWorkspaceIdea","#shaneCommunityVision","#shaneMemberWelcome","#visionInput"];
  const getCurrent=()=>conversationSelectors.map(selector=>document.querySelector(selector)).find(element=>element&&typeof element.value==="string"&&element.value.trim());
