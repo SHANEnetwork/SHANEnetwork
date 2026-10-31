@@ -78,8 +78,8 @@ function init(){
   }catch{status.textContent="Unable to carry the idea in this browser.";button.disabled=false;return}
   if(window.SHANEConversationStore&&window.SHANEConversation){
    try{
-    window.SHANEConversation.remember(text,"endeavor-transition");
-    await window.SHANEConversationStore.flush();
+    const result=await window.SHANEConversationStore.saveTurn(text,{page:location.pathname.split("/").pop()||"index.html",kind:"endeavor-transition",endeavorId});
+    if(!result.saved)status.textContent="Your idea will continue on the next page. Sign in to preserve it in account history.";
    }catch(error){status.textContent="Your idea is carried to the next page, but account history could not be confirmed."}
   }
   location.assign(destination);
