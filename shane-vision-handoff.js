@@ -22,7 +22,21 @@
   const alreadyPresent=(prompt&&prompt.value.includes(vision))||(reply&&reply.value.includes(vision));
   const occupied=(prompt&&prompt.value.trim())||(reply&&reply.value.trim());
   if(occupied&&!alreadyPresent){
-   if(message)message.textContent="Your existing work is preserved. Your incoming idea is still waiting in this browser. Finish or save the current draft before bringing in the next idea.";
+   if(message){
+    message.textContent="Your existing work is preserved. Your incoming idea is waiting. Save or clear the current writing, then choose Bring in waiting idea.";
+    let button=document.getElementById("shaneBringWaitingVision");
+    if(!button){
+     button=document.createElement("button");button.type="button";button.id="shaneBringWaitingVision";button.textContent="Bring in waiting idea";
+     message.insertAdjacentElement("afterend",button);
+    }
+    button.onclick=()=>{
+     if((prompt&&prompt.value.trim())||(reply&&reply.value.trim())){
+      message.textContent="Your current writing is still here. Save or clear it before bringing in the waiting idea.";
+      return;
+     }
+     button.remove();apply();
+    };
+   }
    return;
   }
   // Place the transferred vision in one primary field, not two competing drafts.
