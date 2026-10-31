@@ -145,3 +145,26 @@ test('opening a different saved endeavor does not adopt an unrelated unsaved con
   const adopted = await page.evaluate(() => sessionStorage.getItem('shane_idea_conversation_endeavor_44444444-4444-4444-8444-444444444444'));
   expect(adopted).not.toContain('arts festival');
 });
+
+test('account memory is read before a local conversation can overwrite it', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.locator('#visionPrompt').fill('Create a community garden.');
+  await page.locator('#visionGuide').click();
+  await page.evaluate(() => {
+    window.__memoryWrites = [];
+    window.__resolveMemory = null;
+    window.shaneAccountDb = {
+      auth: { getUser: async () => ({data:{user:{id:'11111111-1111-4111-8111-111111111111'}}}) },
+      from: () => ({
+        select: () => ({eq: () => ({eq: () => ({maybeSingle: () => new Promise(resolve => {window.__resolveMemory = resolve})})})}),
+        upsert: async payload => {window.__memoryWrites.push(payload);return {error:null}}
+      })
+    };
+    document.dispatchEvent(new CustomEvent('shane:endeavor-changed',{detail:{id:'55555555-5555-4555-8555-555555555555'}}));
+  });
+  await expect.poll(() => page.evaluate(() => !!window.__resolveMemory)).toBe(true);
+  await page.waitForTimeout(1500);
+  expect(await page.evaluate(() => window.__memoryWrites.length)).toBe(0);
+  await page.evaluate(() => window.__resolveMemory({data:null,error:null}));
+  await expect.poll(() => page.evaluate(() => window.__memoryWrites.length)).toBe(1);
+});
