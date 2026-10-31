@@ -11,7 +11,8 @@
  const journalContext=()=>{const j=journalRead();return {page,turns:j.turns.slice(-12),updated:j.updated}};
  const fullContext=async()=>{const id=window.SHANECurrentEndeavor?.read()||null;return {session:journalContext(),saved:window.SHANEConversationStore?await window.SHANEConversationStore.context({endeavorId:id,limit:40}):[],endeavor:id}};
  const conversationSnapshot=async()=>{const context=await fullContext();return {endeavorId:context.endeavor,turns:[...context.saved.map(entry=>({text:entry.body,page:entry.source_page,kind:entry.entry_kind,at:entry.created_at})),...context.session.turns]}};
- Object.defineProperty(window,"SHANEConversation",{configurable:false,value:Object.freeze({read:journalContext,remember:journalAdd,fullContext,snapshot:conversationSnapshot,last:()=>journalRead().turns.slice(-1)[0]||null})});
+ const endeavorSnapshot=async()=>{const context=await conversationSnapshot();return {...context,active:context.endeavorId?await window.SHANECurrentEndeavor.context():[]}};
+ Object.defineProperty(window,"SHANEConversation",{configurable:false,value:Object.freeze({read:journalContext,remember:journalAdd,fullContext,snapshot:conversationSnapshot,endeavorSnapshot,last:()=>journalRead().turns.slice(-1)[0]||null})});
  import("./shane-conversation-store.js").catch(error=>document.dispatchEvent(new CustomEvent("shane:conversation-save-error",{detail:{message:String(error?.message||error)}})));
  const continuityKey="shane-conversation-continuity-v1";
  const conversationSelectors=["#visionPrompt","#shane-natural-prompt","#shaneDiscoveryWish","#shaneGrowthGoal","#shaneBuildRequestGoal","#shaneWorkspaceIdea","#shaneCommunityVision","#shaneMemberWelcome","#visionInput","#sharedPurpose","#sharedNext","#body","#description","#query","#shaneIdeaReply"];
