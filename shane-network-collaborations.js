@@ -6,6 +6,7 @@ const sb=createClient("https://ufxzogeixdwvbpdypojb.supabase.co","sb_publishable
  const box=$("networkCollaborationInbox"),status=$("networkCollaborationStatus");
  if(!box||!status)return;
  let user=null,decisionPending=false,loadSequence=0;
+ const refresh=$("networkCollaborationRefresh");
  const el=(tag,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;return node};
  const action=(label,fn)=>{const button=el("button",label);button.type="button";button.addEventListener("click",fn);return button};
  async function load(){const sequence=++loadSequence;box.replaceChildren();status.textContent="Checking your invitations and collaborations…";try{
@@ -17,12 +18,12 @@ const sb=createClient("https://ufxzogeixdwvbpdypojb.supabase.co","sb_publishable
   status.textContent=rows.length?rows.filter(r=>r.status==="pending"&&r.recipient_id===user.id).length+" invitation(s) awaiting your response · "+rows.filter(r=>r.status==="accepted").length+" accepted collaboration(s)":"No invitations yet. Discover a public endeavor and introduce yourself to its creator.";
   const ids=[...new Set(rows.map(r=>r.listing_id).filter(Boolean))];let titles=new Map();
   if(ids.length){const names=await sb.from("shane_listings").select("id,title").in("id",ids);if(!names.error)titles=new Map((names.data||[]).map(n=>[n.id,n.title]));}if(sequence!==loadSequence)return;
-  for(const r of rows){const article=el("article");article.className="entry";const heading=el("h3",(r.recipient_id===user.id?"Received":"Sent")+" · "+(titles.get(r.listing_id)||"Collaboration"));const detail=el("p",r.message);const state=el("p","Status: "+r.status);article.append(heading,detail,state);
-   if(r.status==="pending"&&r.recipient_id===user.id){for(const decision of ["accepted","declined"]){const btn=action(decision==="accepted"?"Accept invitation":"Decline invitation",async()=>{if(decisionPending)return;decisionPending=true;for(const b of article.querySelectorAll("button"))b.disabled=true;try{const result=await sb.from("shane_collaboration_requests").update({status:decision}).eq("id",r.id).eq("recipient_id",user.id).eq("status","pending").select("id").maybeSingle();if(result.error)throw result.error;if(!result.data){state.textContent="This invitation has already changed. Refreshing…";}await load()}catch(error){state.textContent="Could not update invitation: "+(error?.message||String(error));for(const b of article.querySelectorAll("button"))b.disabled=false}finally{decisionPending=false}});article.append(btn,document.createTextNode(" "));}}
+  for(const r of rows){const article=el("article");article.className="entry";const heading=el("h3",(r.recipient_id===user.id?"Received":"Sent")+" · "+(titles.get(r.listing_id)||"Collaboration"));const detail=el("p",r.message||"No introductory message.");if(r.listing_id){const listing=el("a","View related endeavor");listing.href="members.html?listing="+encodeURIComponent(r.listing_id)+"#results";article.append(listing)}const state=el("p","Status: "+r.status);article.append(heading,detail,state);
+   if(r.status==="pending"&&r.recipient_id===user.id){for(const decision of ["accepted","declined"]){const btn=action(decision==="accepted"?"Accept invitation":"Decline invitation",async()=>{if(decisionPending)return;decisionPending=true;if(refresh)refresh.disabled=true;for(const b of article.querySelectorAll("button"))b.disabled=true;try{const result=await sb.from("shane_collaboration_requests").update({status:decision}).eq("id",r.id).eq("recipient_id",user.id).eq("status","pending").select("id").maybeSingle();if(result.error)throw result.error;if(!result.data){state.textContent="This invitation has already changed. Refreshing…";}await load()}catch(error){state.textContent="Could not update invitation: "+(error?.message||String(error));for(const b of article.querySelectorAll("button"))b.disabled=false}finally{decisionPending=false;if(refresh)refresh.disabled=false}});article.append(btn,document.createTextNode(" "));}}
    if(r.status==="accepted"){const work=el("a","Open shared workspace");work.href="workspace.html?collaboration="+encodeURIComponent(r.id);const messages=el("a","Private conversation");messages.href="members.html?conversation="+encodeURIComponent(r.id)+"#collaborationSection";article.append(work,document.createTextNode(" · "),messages);}
    box.append(article);
   }
  }catch(error){if(sequence===loadSequence)status.textContent="Could not load collaborations: "+error.message}}
- const refresh=$("networkCollaborationRefresh");if(refresh)refresh.addEventListener("click",load);
+ if(refresh)refresh.addEventListener("click",()=>{if(!decisionPending)load()});
  load();
 })();
