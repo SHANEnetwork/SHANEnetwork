@@ -201,3 +201,8 @@ No action requested as of this update.
 - Shared navigation now captures conversational text from additional existing workspace, community, discovery, and campaign forms, including textarea fallbacks on form submission.
 - Destination-aware handoffs populate a suitable empty field on supported Network pages without replacing existing drafts or automatically submitting a form. This preserves page-specific implementations while reducing manual copy/paste.
 - Shared navigation JavaScript syntax was checked. Browser behavior, RLS persistence, and end-to-end workflows remain to be verified.
+
+## 2026-10-31: endeavor-aware continuation
+- Shared `SHANEConversation.fullContext()` now reports the active endeavor alongside recent session turns and account-backed entries.
+- `SHANECurrentEndeavor.continueIn(destination,text)` prepares a destination-aware intent handoff with endeavor reference. Receiving pages restore that reference when none is active. This is session-level continuity, not yet authenticated cross-device active-endeavor persistence.
+- Shared navigation passed a JavaScript syntax parse check; full browser and account-backed behavior remain unverified.
