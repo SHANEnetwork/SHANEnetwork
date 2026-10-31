@@ -94,3 +94,7 @@ No action requested as of this update.
 - `shane-creative-continuity.js` now connects the existing builder vision directly to the community and campaign creation workflows via destination-scoped, timestamped session handoff, consumed by `shane-conversational-drafts.js`.
 - Existing manual save and publishing flows remain authoritative. No automatic publication or new panels were added.
 - An additional attempted discovery-handoff update was blocked and is not counted as completed. Browser verification pending.
+
+## 2026-10-31: listing preparation access guard
+- `shane-conversational-drafts.js` now refuses to prepare a member listing when its existing listing section is hidden, directing the person to sign in and open the editor instead. This is a UI guard, not a substitute for existing database authorization.
+- A further attempt to change builder-to-discovery handoff was blocked; it is not counted as implemented. Browser verification pending.
