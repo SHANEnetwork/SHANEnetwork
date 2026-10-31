@@ -222,3 +222,11 @@ test("New discovery invitations return exact private thread with endeavor contex
  assert.ok(network.includes('link.textContent="Review this invitation and continue our endeavor"'));
  assert.ok(network.includes('if(response.error)'));
 });
+
+test("Direct collaboration links focus the selected invitation or private conversation",()=>{
+ const members=fs.readFileSync(require("node:path").join(__dirname,"../members.html"),"utf8");
+ assert.ok(members.includes('item.id="selected-collaboration"'));
+ assert.ok(members.includes('focused.scrollIntoView({block:"center"})'));
+ assert.ok(members.includes('focused.focus({preventScroll:true})'));
+ assert.ok(members.includes('item.setAttribute("aria-current","true")'));
+});
