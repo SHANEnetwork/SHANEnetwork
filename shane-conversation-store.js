@@ -3,6 +3,7 @@
 import {createClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/+esm";
 const db=createClient("https://ufxzogeixdwvbpdypojb.supabase.co","sb_publishable_iR9kxdCfQ7850VleEUx7mA_nHS4WZpB");
 const table="shane_conversation_entries";
+const activeEndeavor=()=>{try{const id=JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id;return typeof id==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(id)?id:null}catch{return null}};
 const pending=[];
 let busy=false;
 async function user(){const {data,error}=await db.auth.getUser();if(error)throw error;return data?.user||null}
@@ -13,7 +14,10 @@ async function flush(){
   const account=await user();if(!account)return;
   while(pending.length){
    const item=pending[0];
-   const {error}=await db.from(table).insert({owner_id:account.id,body:item.text,source_page:item.page,entry_kind:item.kind});
+   const record={owner_id:account.id,body:item.text,source_page:item.page,entry_kind:item.kind};
+   if(item.endeavorId)record.endeavor_id=item.endeavorId;
+   let {error}=await db.from(table).insert(record);
+   if(error&&record.endeavor_id){delete record.endeavor_id;({error}=await db.from(table).insert(record))}
    if(error)throw error;
    pending.shift();
   }
@@ -23,7 +27,7 @@ async function flush(){
 document.addEventListener("shane:conversation-updated",event=>{
  const d=event.detail||{};
  if(typeof d.text!=="string"||!d.text.trim())return;
- pending.push({text:d.text.slice(0,20000),page:String(d.page||"unknown").slice(0,120),kind:String(d.kind||"idea").slice(0,40)});
+ pending.push({text:d.text.slice(0,20000),page:String(d.page||"unknown").slice(0,120),kind:String(d.kind||"idea").slice(0,40),endeavorId:activeEndeavor()});
  void flush();
 });
 db.auth.onAuthStateChange(()=>{queueMicrotask(()=>void flush())});
