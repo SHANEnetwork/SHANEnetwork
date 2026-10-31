@@ -67,3 +67,8 @@ body:has(.shane-unified-nav) main :where(textarea,input[type=text],input[type=se
 
 .shane-unified-nav .shane-endeavor-switcher{max-width:205px;min-height:38px;padding:7px 10px;border:1px solid #b68d9c;border-radius:10px;background:#fffaf7;color:#57394e;font:600 13px system-ui}
 .shane-unified-nav .shane-saved-resume-link{font-weight:700;text-decoration:underline;text-underline-offset:3px}
+
+.shane-unified-nav .shane-endeavor-actions{display:inline-flex;align-items:center;flex-wrap:wrap;gap:6px;max-width:100%}
+.shane-unified-nav .shane-endeavor-actions select{max-width:205px;min-height:38px;padding:7px;border:1px solid #b68d9c;border-radius:10px;background:#fffaf7;color:#57394e}
+.shane-unified-nav .shane-endeavor-actions button{min-height:38px;padding:7px 13px;border:0;border-radius:10px;background:#8c4f70;color:white;font-weight:700;cursor:pointer}
+.shane-unified-nav .shane-action-status{font-size:12px;max-width:180px}
