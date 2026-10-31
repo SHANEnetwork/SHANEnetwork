@@ -10,7 +10,7 @@ for (const page of pages) {
     if (/\bsrc\s*=/.test(attrs) || !code.trim()) continue;
     try {
       if (/\btype\s*=\s*["']module["']/i.test(attrs)) {
-        const withoutImports = code.replace(/^\s*import\s+[^;]+;?/gm, '');
+        const withoutImports = code.replace(/^\s*import\s*(?:\{[^}]*\}|\*\s+as\s+\w+|[\w$]+(?:\s*,\s*\{[^}]*\})?)\s*from\s*["'][^"']+["']\s*;?/gm, '');
         new vm.Script('(async()=>{\n' + withoutImports + '\n})()', { filename: page });
       } else {
         new vm.Script(code, { filename: page });
