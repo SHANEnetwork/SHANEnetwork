@@ -192,3 +192,7 @@ No action requested as of this update.
 ## 2026-10-31: shared conversation module integrity and combined context
 - Removed a lingering malformed duplicate function fragment in `shane-conversation-store.js` that prevented the module from parsing. The active endeavor reader now returns an empty result when no endeavor is selected instead of accidentally mixing all saved history.
 - Shared navigation exposes `SHANEConversation.fullContext()` combining recent session context and authorized saved entries for consumption by future page orchestration. Repository commits are not browser verification.
+
+## 2026-10-31: act on a saved idea across Network programs
+- Conversation history now lets a member carry a saved idea directly into the existing discovery, community, campaign, and member-collaboration pages, using the same intent handoff already supported by those pages. Endeavor association is only restored when the owner lookup confirms it.
+- Shared navigation recognizes growth and custom-build destinations for future cross-page handoffs. These are working-code integrations, not autonomous AI orchestration. Browser verification remains pending.
