@@ -242,3 +242,8 @@ No action requested as of this update.
 - Campaign creation now starts with a natural-language vision; a new external module prepares editable title, description and category fields without publishing automatically.
 - Campaign module JavaScript syntax parsed; visual and end-to-end browser verification remain pending. This is deterministic drafting, not a live AI generation service.
 - Priority is now setting up substantial user-facing page experiences before further synchronization refinements.
+
+## 2026-10-31: community page-first creation
+- `communities.html` now invites natural-language description before the existing creation form.
+- `shane-community-vision.js` prepares editable community name, purpose and matching category without automatic creation, preserving existing membership, room, and organization controls.
+- New JavaScript parsed; browser workflow remains to be verified. Deterministic draft preparation is not yet a live AI service.
