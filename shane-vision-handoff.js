@@ -22,7 +22,7 @@
   const alreadyPresent=(prompt&&prompt.value.includes(vision))||(reply&&reply.value.includes(vision));
   const occupied=(prompt&&prompt.value.trim())||(reply&&reply.value.trim());
   if(occupied&&!alreadyPresent){
-   if(message)message.textContent="Your earlier idea is safely waiting. This workspace already contains writing, so it has not been replaced. Return to the entrance to review it.";
+   if(message)message.textContent="Your existing work is preserved. Your incoming idea is still waiting in this browser. Finish or save the current draft before bringing in the next idea.";
    return;
   }
   // Place the transferred vision in one primary field, not two competing drafts.
