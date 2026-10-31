@@ -20,6 +20,7 @@ async function flush(){
 
    if(error)throw error;
    pending.shift();
+   document.dispatchEvent(new CustomEvent("shane:conversation-saved",{detail:{endeavorId:item.endeavorId||null,page:item.page}}));
   }
  }catch(error){document.dispatchEvent(new CustomEvent("shane:conversation-save-error",{detail:{message:String(error?.message||error)}}))}
  finally{busy=false}
