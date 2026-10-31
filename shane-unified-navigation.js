@@ -11,7 +11,7 @@
  const journalContext=()=>{const j=journalRead();return {page,turns:j.turns.slice(-12),updated:j.updated}};
  const fullContext=async()=>{const id=window.SHANECurrentEndeavor?.read()||null;return {session:journalContext(),saved:window.SHANEConversationStore?await window.SHANEConversationStore.context({endeavorId:id,limit:40}):[],endeavor:id}};
  Object.defineProperty(window,"SHANEConversation",{configurable:false,value:Object.freeze({read:journalContext,remember:journalAdd,fullContext,last:()=>journalRead().turns.slice(-1)[0]||null})});
- import("./shane-conversation-store.js").catch(()=>{});
+ import("./shane-conversation-store.js").catch(error=>document.dispatchEvent(new CustomEvent("shane:conversation-save-error",{detail:{message:String(error?.message||error)}})));
  const continuityKey="shane-conversation-continuity-v1";
  const conversationSelectors=["#visionPrompt","#shane-natural-prompt","#shaneDiscoveryWish","#shaneGrowthGoal","#shaneBuildRequestGoal","#shaneWorkspaceIdea","#shaneCommunityVision","#shaneMemberWelcome","#visionInput","#sharedPurpose","#sharedNext","#body","#description","#query","#shaneIdeaReply"];
  const getCurrent=()=>conversationSelectors.map(selector=>document.querySelector(selector)).find(element=>element&&typeof element.value==="string"&&element.value.trim());
