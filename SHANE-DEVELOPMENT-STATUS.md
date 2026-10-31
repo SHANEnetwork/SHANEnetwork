@@ -84,3 +84,8 @@ No action requested as of this update.
 - `members.html` now routes member intent using complete-word matching for collaboration, opportunities, fundraising and advertising, and stores a destination-scoped, timestamped session handoff.
 - `shane-conversational-drafts.js` consumes the matching handoff on campaigns, communities and listings, preloading the person's original words for explicit draft preparation without automatically publishing.
 - Existing builder handoff remains; this is same-tab, browser-session continuity rather than server-persisted endeavor memory. Browser verification pending.
+
+## 2026-10-31: Network discovery continuity
+- `network.html` now consumes the member welcome's destination-scoped, timestamped intent handoff into its existing conversational discovery input, without automatically querying or publishing.
+- `my-network.html` accepts the same standardized handoff for its existing vision input, while preserving unfinished local drafts.
+- These remain session-scoped bridges rather than authenticated cross-device endeavor memory. Browser verification pending.
