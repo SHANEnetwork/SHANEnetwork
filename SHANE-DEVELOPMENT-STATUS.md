@@ -342,3 +342,8 @@ No action requested as of this update.
 - Resuming an account-backed saved idea now emits the same endeavor-arrived event used by cross-page handoffs, allowing existing editable draft preparation to respond.
 - Cross-page arrivals preserve a valid active endeavor ID in session state for continuity on subsequent pages.
 - No automatic publication, no new UI panels, and no changes to SHONnetwork. Browser/database end-to-end verification remains pending.
+
+## 2026-10-31: selected endeavor continuity in shared navigation
+- Shared network actions now fall back to the active endeavor selection when the page-level context does not expose an endeavor ID.
+- The fallback checks the identifier shape before including it in a navigation handoff.
+- JavaScript syntax checked; full authenticated browser integration pending. No changes to SHONnetwork.
