@@ -39,5 +39,32 @@ async function prepare(event){
  }catch(error){if(isCurrent(id))status.textContent="Your endeavor is saved. Network draft preparation needs attention: "+error.message}
 }
 document.addEventListener("shane:endeavor-saved",event=>{latestEndeavorId=event.detail?.endeavorId||null;pending=pending.then(()=>prepare(event)).catch(error=>{if(isCurrent(event.detail?.endeavorId))status.textContent=error.message})});
-document.addEventListener("shane:endeavor-resumed",event=>{latestEndeavorId=event.detail?.endeavorId||null;link.hidden=true;status.textContent="This endeavor is open. Save a change to prepare or refresh its private network presence.";});
+async function restorePresence(id){
+ const client=window.SHANEAuthenticatedClient;
+ if(!client||!id)return;
+ status.textContent="Finding this endeavor's network presence…";
+ try{
+  const {data:auth,error:authError}=await client.auth.getUser();
+  if(authError)throw authError;
+  if(!auth?.user?.id)throw Error("Sign in to view your network presence.");
+  const {data:listing,error}=await client.from("shane_listings")
+   .select("id,status").eq("endeavor_id",id).eq("owner_id",auth.user.id).maybeSingle();
+  if(!isCurrent(id))return;
+  if(error)throw error;
+  if(!listing){
+   status.textContent="No network presence exists for this endeavor yet. SHANE can prepare a private draft when you next save it.";
+   return;
+  }
+  link.href="members.html?listing="+encodeURIComponent(listing.id)+"#mineSection";
+  link.textContent=listing.status==="published"?"Manage my published destination":"Review my private network draft";
+  link.hidden=false;
+  status.textContent=listing.status==="published"?"Your published network presence is connected to this endeavor.":"Your private network draft is ready to review. Nothing was published.";
+ }catch(error){if(isCurrent(id))status.textContent="Could not load this endeavor's network presence: "+error.message}
+}
+document.addEventListener("shane:endeavor-resumed",event=>{
+ latestEndeavorId=event.detail?.endeavorId||null;
+ link.hidden=true;
+ status.textContent="Reconnecting this endeavor to its network presence…";
+ void restorePresence(latestEndeavorId);
+});
 })();
