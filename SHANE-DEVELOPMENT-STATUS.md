@@ -180,3 +180,7 @@ No action requested as of this update.
 - Repaired a malformed JavaScript insertion in `shane-conversation-store.js` that had broken the shared history module. Search and owner-scoped endeavor listing are now separate complete functions again.
 - Continuing a historical conversation now checks that its associated endeavor belongs to the signed-in member before restoring the active endeavor pointer. Browser verification remains outstanding.
 - Full conversational AI orchestration and complete versioned creative artifacts remain future work.
+
+## Shared active endeavor context
+- Added an owner-scoped endeavor conversation retrieval method to the common conversation store, and exposed it through the shared navigation as `SHANECurrentEndeavor.context()` for reuse across Network pages.
+- This is an integration API, not yet autonomous conversational AI; browser verification remains outstanding.
