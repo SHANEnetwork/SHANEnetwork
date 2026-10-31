@@ -7,10 +7,18 @@ function init(){
  hub.append(host);
  const frame=host.querySelector("iframe"),shell=host.querySelector(".frame"),direct=host.querySelector("#shane-connected-direct"),status=host.querySelector("#shane-connected-status");
  let active="";
+ const CONTEXT="shane-active-endeavor-v1";
+ function remember(id){try{if(id)sessionStorage.setItem(CONTEXT,JSON.stringify({id,updated:new Date().toISOString()}));else sessionStorage.removeItem(CONTEXT)}catch{}}
+ function currentId(){try{const x=JSON.parse(sessionStorage.getItem(CONTEXT)||"null");return typeof x?.id==="string"&&/^[a-f0-9-]{36}$/i.test(x.id)?x.id:null}catch{return null}}
+ function updateContext(event){if(event?.detail&&Object.prototype.hasOwnProperty.call(event.detail,"id"))remember(event.detail.id)}
+ document.addEventListener("shane:endeavor-changed",updateContext);
+ const accountSelect=document.getElementById("savedEndeavors");
+ if(accountSelect){accountSelect.addEventListener("change",()=>{if(accountSelect.value)status.textContent="Selected an endeavor. Open it to make it the active Network context."})}
  function open(kind,page){
   if(active===kind){shell.dataset.open="false";active="";host.querySelectorAll("button[data-kind]").forEach(b=>b.setAttribute("aria-pressed","false"));status.textContent="Network workspace minimized. Your creative conversation remains ready.";return}
   let url=page;
   if(kind==="discover"){const words=(vision.value.trim()||reply.value.trim()).replace(/[^\p{L}\p{N}\s-]/gu," ").split(/\s+/).filter(w=>w.length>3&&!/^(with|from|this|that|website|create|build|want|have|would|could|should|about|people)$/i.test(w)).slice(0,4);if(words.length)url+="?q="+encodeURIComponent(words.join(" "))}
+  const id=currentId();if(id&&(kind==="endeavors"||kind==="campaigns"))url+=(url.includes("?")?"&":"?")+"endeavor="+encodeURIComponent(id);
   frame.src=url;direct.href=url;shell.dataset.open="true";active=kind;host.querySelectorAll("button[data-kind]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.kind===kind)));status.textContent="Showing "+kind+" inside your creative workspace. Your draft and conversation are unchanged.";
  }
  host.querySelectorAll("button[data-kind]").forEach(b=>{b.setAttribute("aria-pressed","false");b.addEventListener("click",()=>open(b.dataset.kind,b.dataset.page))});
