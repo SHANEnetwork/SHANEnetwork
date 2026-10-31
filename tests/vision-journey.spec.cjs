@@ -364,3 +364,27 @@ test('saved account conversation restores in a fresh browser context', async ({ 
   await expect(page2.locator('#shaneIdeaTurns')).toContainText('connect workshops, mentors and events');
   await second.close();
 });
+
+test('delayed account restoration excludes stale local turns but preserves new edits', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.locator('#visionPrompt').fill('Stale browser conversation about pottery.');
+  await page.locator('#visionGuide').click();
+  await page.evaluate(() => {
+    window.__resolveStaleRestore = null;
+    window.shaneAccountDb = {
+      auth: {getUser: async () => ({data:{user:{id:'11111111-1111-4111-8111-111111111111'}}})},
+      from: () => ({
+        select: () => ({eq: () => ({eq: () => ({maybeSingle: () => new Promise(resolve => {window.__resolveStaleRestore=resolve})})})}),
+        upsert: async () => ({error:null})
+      })
+    };
+    document.dispatchEvent(new CustomEvent('shane:endeavor-changed',{detail:{id:'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',reason:'saved'}}));
+  });
+  await expect.poll(() => page.evaluate(() => !!window.__resolveStaleRestore)).toBe(true);
+  await page.locator('#visionPrompt').fill('New request for a cooperative marketplace.');
+  await page.locator('#visionGuide').click();
+  await page.evaluate(() => window.__resolveStaleRestore({data:{history:[{role:'you',text:'Account history about local makers.'}],draft_ready:false},error:null}));
+  await expect(page.locator('#shaneIdeaTurns')).toContainText('Account history about local makers.');
+  await expect(page.locator('#shaneIdeaTurns')).toContainText('New request for a cooperative marketplace.');
+  await expect(page.locator('#shaneIdeaTurns')).not.toContainText('Stale browser conversation about pottery.');
+});
