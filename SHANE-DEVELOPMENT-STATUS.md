@@ -157,3 +157,7 @@ No action requested as of this update.
 ## 2026-10-31: shared chronological conversation context
 - The authenticated shared conversation store now exposes a `context(options)` reader that returns paginated owner-authorized history in chronological order for future shared AI interpretation and page context.
 - This is a retrieval API, not a working AI agent; user-facing integration and end-to-end tests remain outstanding.
+
+## 2026-10-31: cross-session context recovery foundation
+- The shared store now offers `recent(limit)` normalized entries, and announces readiness to other SHANE modules.
+- Shared navigation can retrieve the latest account-owned saved entry when there is no active browser-session continuity and populate its existing continuity record. This is not yet a full user-visible history or AI response engine. Browser verification remains pending.
