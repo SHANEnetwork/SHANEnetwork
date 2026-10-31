@@ -19,13 +19,14 @@ function apply(text){
     ...(plan.spec.modules.some(m=>m.type==="discovery")?["shaneModuleDiscovery"]:[])
   ]:suggest(text);
   if(plan)window.SHANECurrentComposition=plan;
+  // Suggestions never erase the member's existing manual choices.
   for(const item of mapping){
     const input=document.getElementById(item.id);
-    if(input)input.checked=selected.includes(item.id);
+    if(input&&selected.includes(item.id))input.checked=true;
   }
   const status=document.getElementById("shaneModuleStatus");
   if(status)status.textContent=selected.length
-    ? "SHANE selected "+selected.length+" relevant network link(s) from your vision. These are links to existing SHANE services, not private services created for your endeavor."
+    ? "SHANE suggested "+selected.length+" network capability link(s) from your vision. Your manual choices remain intact. These links do not create private services automatically."
     : "No network links inferred yet. SHANE can continue developing your endeavor without requiring a website.";
   return selected;
 }
