@@ -173,7 +173,7 @@ test("Connected endeavor journey uses shared responsive visual system",()=>{
  assert.ok(visual.includes('#shaneConnectedDetails:not(:empty)'));
  assert.ok(visual.includes('#shaneConnectedDetails .shane-service-readiness'));
  assert.ok(visual.includes('grid-template-columns:repeat(auto-fit'));
- assert.ok(sync.includes('["Collaborations and private messages","members.html#collaborationSection"]'));
+ assert.ok(sync.includes('["Collaborations and private messages","members.html?endeavor="+encodeURIComponent(saved.id)+"#collaborationSection"]'));
 });
 
 test("Creator displays only accepted collaborations for the active owned endeavor",()=>{
