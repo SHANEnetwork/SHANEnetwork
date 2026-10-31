@@ -90,6 +90,15 @@ async function upsertEndeavorDraft(client,endeavorId,input){
  }
  return data;
 }
+async function myListings(client,{limit=50}={}){
+ const user=await userFor(client);
+ const n=Math.max(1,Math.min(100,Number(limit)||50));
+ const {data,error}=await client.from("shane_listings")
+ .select("id,title,category,description,region,website_url,status,endeavor_id,created_at")
+ .eq("owner_id",user.id).order("created_at",{ascending:false}).limit(n);
+ if(error)throw error;
+ return data||[];
+}
 async function unpublish(client,id){
  const user=await userFor(client);
  if(!id)throw Error("Listing ID required.");
@@ -101,5 +110,5 @@ async function unpublish(client,id){
  if(!data)throw Error("Owned published listing not found.");
  return data;
 }
-return Object.freeze({prepare,discover,saveDraft,updateOwnDraft,upsertEndeavorDraft,publish,unpublish,safeUrl});
+return Object.freeze({prepare,discover,saveDraft,updateOwnDraft,upsertEndeavorDraft,publish,unpublish,myListings,safeUrl});
 });
