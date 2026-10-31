@@ -186,7 +186,7 @@ test("Creator displays only accepted collaborations for the active owned endeavo
 
 test("Creator distinguishes pending requests from accepted private collaborations",()=>{
  const sync=fs.readFileSync(require("node:path").join(__dirname,"../shane-conversation-sync.js"),"utf8");
- assert.ok(sync.includes('collaboration.status==="accepted"?"Continue private collaboration":"Review pending collaboration request"'));
+ assert.ok(sync.includes('collaboration.status==="accepted"?"Open full collaboration workspace":"Review pending collaboration request"'));
  assert.ok(sync.includes('heading.textContent="People connecting around this endeavor"'));
 });
 
