@@ -38,3 +38,9 @@ No action requested as of this update.
 - `community-conversations.html`: added natural-language message preparation using the existing community message form; posting remains explicit.
 - Neither workflow uses an AI provider or automatically commits data. Both preserve existing authorization and form submission code.
 - Still to transform: actual relationship/member flows, deeper creator and published-site operations, cross-program orchestration. Continue phase 1 before full debugging.
+
+## 2026-10-31: member and relationship experience
+- `members.html`: member welcome now begins with a natural-language ambition; existing manual choices are optional. Intent is routed to existing discovery, campaigns, communities, builder or member listing workflows, with local session handoff where supported.
+- `my-network.html`: conversational connection search delegates to the existing published-listings search. Manual keyword search is retained.
+- These are heuristic intent and keyword interpreters, not an AI agent; downstream page handoff and account-dependent actions still need end-to-end verification.
+- Next: unify ongoing endeavors, member conversation context and creator actions; keep building actual UX before comprehensive page-by-page testing.
