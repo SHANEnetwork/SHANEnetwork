@@ -3,11 +3,13 @@ const { spawnSync } = require('node:child_process');
 const pages = ['index.html', 'workspace.html', 'members.html', 'my-network.html', 'builder.html', 'site.html', 'dashboard.html', 'network.html'];
 let failures = 0;
 for (const page of pages) {
+  if (!fs.existsSync(page)) { console.error(page + ': required page is missing'); failures++; continue; }
   const html = fs.readFileSync(page, 'utf8');
   const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi)];
   let checked = 0;
   for (const [, attrs, code] of scripts) {
     if (/\bsrc\s*=/.test(attrs) || !code.trim()) continue;
+    if (/\btype\s*=\s*["'](?:application\/json|application\/ld\+json|importmap)["']/i.test(attrs)) continue;
     const isModule = /\btype\s*=\s*["']module["']/i.test(attrs);
     const result = spawnSync(process.execPath, ['--check', '--input-type=' + (isModule ? 'module' : 'commonjs')], {
       input: code, encoding: 'utf8'
