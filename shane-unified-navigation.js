@@ -28,6 +28,11 @@
   }catch{}
  };
  document.addEventListener("shane:conversation-store-ready",()=>void resumeFromAccount());
+ for(const selector of conversationSelectors){
+  const field=document.querySelector(selector);
+  if(!field)continue;
+  field.addEventListener("change",()=>{if(field.value?.trim())journalAdd(field.value,"idea")});
+ }
  const remembered=active();
  if(remembered&&remembered.source!==page){const hint=document.createElement("p");hint.className="shane-conversation-resume";hint.setAttribute("role","status");hint.style.cssText="margin:8px 0;font:500 13px system-ui;color:inherit";
  const link=document.createElement("a");link.href="builder.html#shane-idea-conversation";link.textContent="Continue our earlier idea in the creator";
