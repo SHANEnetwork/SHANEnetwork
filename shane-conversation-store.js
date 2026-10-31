@@ -32,6 +32,16 @@ document.addEventListener("shane:conversation-updated",event=>{
  void flush();
 });
 db.auth.onAuthStateChange(()=>{queueMicrotask(()=>void flush())});
+async function saveTurn(text,{page="unknown",kind="idea",endeavorId=activeEndeavor()}={}){
+ const account=await user();if(!account)return {saved:false,reason:"signed-out"};
+ const record={owner_id:account.id,body:String(text||"").trim().slice(0,20000),source_page:String(page).slice(0,120),entry_kind:String(kind).slice(0,40)};
+ if(!record.body)return {saved:false,reason:"empty"};
+ if(endeavorId)record.endeavor_id=endeavorId;
+ const {error}=await db.from(table).insert(record);
+ if(error)throw error;
+ document.dispatchEvent(new CustomEvent("shane:conversation-saved",{detail:{endeavorId,page}}));
+ return {saved:true};
+}
 async function list({endeavorId=null,limit=100,offset=0,includeArchived=false}={}){
  const account=await user();if(!account)throw Error("Sign in to view your conversation history.");
  let query=db.from(table).select("id,endeavor_id,body,source_page,entry_kind,created_at,archived_at").eq("owner_id",account.id).order("created_at",{ascending:false}).range(Math.max(0,offset),Math.max(0,offset)+Math.min(500,Math.max(1,limit))-1);
@@ -66,6 +76,6 @@ async function exportHistory(){
  for(;;){const batch=await list({limit:500,offset,includeArchived:true});all.push(...batch);if(batch.length<500)break;offset+=500}
  return JSON.stringify({exported_at:new Date().toISOString(),entries:all},null,2);
 }
-window.SHANEConversationStore=Object.freeze({list,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20)=>{const rows=await list({limit});return rows.slice().reverse().map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at}))}});
+window.SHANEConversationStore=Object.freeze({saveTurn,list,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20)=>{const rows=await list({limit});return rows.slice().reverse().map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at}))}});
 document.dispatchEvent(new Event("shane:conversation-store-ready"));
 void flush();
