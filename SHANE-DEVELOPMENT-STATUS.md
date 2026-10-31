@@ -32,3 +32,9 @@ No action requested as of this update.
 - Added shared conversation-intake styling to `shane-unified-experience.css`.
 - These are deterministic draft helpers, NOT AI-generated campaigns or automated publishing. Existing permissions and publication actions remain authoritative.
 - Next: transform collaboration, member relationships and ongoing endeavor operation; ultimately connect real AI interpretation and orchestration, then verify page by page.
+
+## 2026-10-31: collaborative endeavor workflows
+- `workspace.html`: added natural-language goal intake that prepares existing shared-purpose, next-step and task fields; saving and assigning remain deliberate member actions.
+- `community-conversations.html`: added natural-language message preparation using the existing community message form; posting remains explicit.
+- Neither workflow uses an AI provider or automatically commits data. Both preserve existing authorization and form submission code.
+- Still to transform: actual relationship/member flows, deeper creator and published-site operations, cross-program orchestration. Continue phase 1 before full debugging.
