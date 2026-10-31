@@ -173,6 +173,20 @@ async function discoverSaved(){
 }
 document.addEventListener("DOMContentLoaded",()=>{
  const area=get("shane-idea-conversation");if(!area)return;
+ // Dashboard continuation opens the exact saved endeavor, never an unrelated browser-session draft.
+ const requestedEndeavor=new URLSearchParams(location.search).get("endeavor");
+ if(requestedEndeavor){
+  const requested=requestedEndeavor.trim();
+  if(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(requested)){
+   const openRequested=()=>{
+    if(!window.SHANEAuthenticatedClient){status("Sign in to resume this endeavor, then use Resume saved conversation.");return}
+    resume(requested);
+   };
+   if(window.SHANEAuthenticatedClient)openRequested();
+   else window.addEventListener("shane:authenticated-client-ready",openRequested,{once:true});
+  }else status("This endeavor link is invalid. Your existing conversation has not been changed.");
+ }
+
  const actions=document.createElement("div");actions.className="shane-idea-actions";
  const keep=document.createElement("button");keep.type="button";keep.id="shaneKeepConversation";keep.textContent="Keep this conversation";keep.addEventListener("click",save);
  const reopen=document.createElement("button");reopen.type="button";reopen.textContent="Resume saved conversation";reopen.addEventListener("click",()=>resume());
