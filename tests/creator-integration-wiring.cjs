@@ -91,3 +91,12 @@ test("Network draft preparation survives an optional website provisioning failur
  assert.ok(bridge.includes('document.addEventListener("shane:endeavor-saved"'));
  assert.ok(!bridge.includes('.publish('));
 });
+
+test("Partially provisioned endeavor remains the active saved conversation",()=>{
+ const sync=fs.readFileSync(require("node:path").join(__dirname,"../shane-conversation-sync.js"),"utf8");
+ const failure=sync.slice(sync.indexOf('}catch(siteError){'),sync.indexOf('}catch(e){status("Conversation not saved:'));
+ assert.ok(failure.includes('siteId:null,organizationId:null'));
+ assert.ok(failure.includes('return true;'));
+ assert.ok(!failure.includes('return false;'));
+ assert.ok(sync.includes('if(!saved){'));
+});
