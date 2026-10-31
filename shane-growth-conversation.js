@@ -1,6 +1,7 @@
 /* Conversational growth intake prepares existing local outreach tools without sending messages. */
 (()=>{"use strict";
 function init(){const button=document.getElementById("shaneGrowthPrepare");if(!button)return;
+try{const raw=sessionStorage.getItem("shane-intent-handoff-v1");if(raw){const item=JSON.parse(raw);const field=document.getElementById("shaneGrowthGoal");if(item&&item.destination==="growth.html"&&typeof item.text==="string"&&Date.now()-item.created<86400000&&field&&!field.value.trim()){field.value=item.text.slice(0,4000);document.getElementById("shaneGrowthReply").textContent="Your endeavor's direction is ready for outreach preparation.";sessionStorage.removeItem("shane-intent-handoff-v1")}}}catch{}
 button.addEventListener("click",()=>{
 const raw=document.getElementById("shaneGrowthGoal").value.trim();
 if(!raw){document.getElementById("shaneGrowthGoal").focus();return}
