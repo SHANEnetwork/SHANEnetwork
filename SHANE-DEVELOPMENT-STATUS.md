@@ -317,3 +317,8 @@ No action requested as of this update.
 - The existing network-wide endeavor action now infers a likely destination from member language when a single clear intent is detected, without requiring manual option selection.
 - Live suggestions update as people write; ambiguous intentions retain an optional manual choice rather than pretending to understand.
 - This is explicit deterministic intent routing, not a production AI model. JavaScript parsed; browser and end-to-end verification remain pending.
+
+## 2026-10-31: conversation persistence at cross-network transitions
+- The existing shared Take my idea to action now records a deliberate endeavor-transition turn and awaits the available account conversation store flush before navigation.
+- This reduces navigation-related loss when the authenticated store is ready. It does not guarantee durable delivery if the user is signed out, a save fails, or the store is unavailable; those cases still require a stronger queue and delivery acknowledgment.
+- Script syntax checked. End-to-end browser verification pending. No changes to SHONnetwork.
