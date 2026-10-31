@@ -207,3 +207,10 @@ test("Network discovery preserves the active Creator endeavor across searches",(
  assert.ok(network.includes('back.href="builder.html?endeavor="+encodeURIComponent(validCreatorEndeavor)+"#vision-first"'));
  assert.ok(network.includes('shane-discovery-return'));
 });
+
+test("Network introductions preserve Creator context through sign-in and existing invitations",()=>{
+ const network=fs.readFileSync(require("node:path").join(__dirname,"../network.html"),"utf8");
+ assert.ok(network.includes('a.href="members.html?listing="+encodeURIComponent(item.id)+(validCreatorEndeavor?'));
+ assert.ok(network.includes('link.href="members.html?conversation="+encodeURIComponent(previous.id)+(validCreatorEndeavor?'));
+ assert.ok(network.includes('"#collaborationSection"'));
+});
