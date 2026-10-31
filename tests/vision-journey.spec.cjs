@@ -296,3 +296,39 @@ test('account conversation saves are serialized when new ideas arrive rapidly', 
   await expect.poll(() => page.evaluate(() => window.__saveCalls.length), {timeout:6000}).toBe(2);
   expect(await page.evaluate(() => window.__saveCalls[1].history.some(t => t.text.includes('reading festival')))).toBe(true);
 });
+
+test('account save lock covers delayed authentication as well as database writes', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(() => {
+    window.__authCalls = 0;
+    window.__releaseAuth = null;
+    window.__authPending = false;
+    window.__writeCalls = [];
+    window.shaneAccountDb = {
+      auth: {getUser: () => {
+        window.__authCalls++;
+        if(window.__authPending && !window.__releaseAuth)
+          return new Promise(resolve => {window.__releaseAuth = () => resolve({data:{user:{id:'11111111-1111-4111-8111-111111111111'}}})});
+        return Promise.resolve({data:{user:{id:'11111111-1111-4111-8111-111111111111'}}});
+      }},
+      from: () => ({
+        select: () => ({eq: () => ({eq: () => ({maybeSingle: async () => ({data:null,error:null})})})}),
+        upsert: async payload => {window.__writeCalls.push(payload);return {error:null}}
+      })
+    };
+    document.dispatchEvent(new CustomEvent('shane:endeavor-changed',{detail:{id:'cccccccc-cccc-4ccc-8ccc-cccccccccccc'}}));
+  });
+  await page.locator('#visionPrompt').fill('Build a neighborhood tool library.');
+  await page.locator('#visionGuide').click();
+  await expect.poll(() => page.evaluate(() => window.__writeCalls.length)).toBeGreaterThan(0);
+  await page.evaluate(() => {window.__writeCalls=[];window.__authCalls=0;window.__authPending=true});
+  await page.locator('#visionPrompt').fill('Add shared repair workshops.');
+  await page.locator('#visionGuide').click();
+  await expect.poll(() => page.evaluate(() => !!window.__releaseAuth)).toBe(true);
+  await page.locator('#visionPrompt').fill('Add volunteer mentors.');
+  await page.locator('#visionGuide').click();
+  await page.waitForTimeout(1500);
+  expect(await page.evaluate(() => window.__authCalls)).toBe(1);
+  await page.evaluate(() => {window.__authPending=false;window.__releaseAuth()});
+  await expect.poll(() => page.evaluate(() => window.__writeCalls.length), {timeout:6000}).toBeGreaterThan(1);
+});
