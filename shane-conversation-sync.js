@@ -221,10 +221,14 @@ document.addEventListener("DOMContentLoaded",()=>{
    const readiness=window.SHANEEndeavorOrchestrator?.inspect(saved,listing);
    if(readiness){
     const report=document.createElement("p");
-    report.textContent="Service readiness: "+Object.entries(readiness).map(([name,item])=>name+": "+item.state).join("; ");
-    details.append(report);
+    report.textContent="Connected services and their current status:";
+    const serviceList=document.createElement("ul");serviceList.className="shane-service-readiness";
+    for(const [name,item] of Object.entries(readiness)){
+     const line=document.createElement("li");line.textContent=name+": "+item.state;serviceList.append(line);
+    }
+    details.append(report,serviceList);
    }
-   const links=[["Continue creating","builder.html"],["Review network presence","my-network.html"],["Manage network listing",listing?"members.html?listing="+encodeURIComponent(listing.id)+"#mineSection":"members.html#mineSection"],["Request Analyst review",null]];
+   const links=[["Continue our conversation","builder.html?endeavor="+encodeURIComponent(saved.id)+"#vision-first"],["Discover people and opportunities","network.html"],["Review network presence","my-network.html"],["Manage network listing",listing?"members.html?listing="+encodeURIComponent(listing.id)+"#mineSection":"members.html#mineSection"],["Collaborations and private messages","members.html#collaborationSection"],["Request Analyst review",null]];
    if(manifest.resources.organization)links.push(["Manage linked club or society","communities.html?organization="+encodeURIComponent(manifest.resources.organization)]);
    for(const [label,href] of links){const control=document.createElement(href?"a":"button");control.textContent=label;if(href)control.href=href;else{control.type="button";control.addEventListener("click",analystContext)}details.append(control,document.createTextNode(" · "))}
    const note=document.createElement("p");note.textContent="Linked website: "+(manifest.resources.site?"private foundation saved":"not linked")+"; network listing: "+(listing?(listing.status==="published"?"published":listing.status==="draft"?"private draft":"unverified status"):"not yet linked")+"; linked community: "+(manifest.resources.organization?"private foundation saved":"not linked")+". Billing, AI Professionals, video and games require separate verified activation.";details.append(note);
