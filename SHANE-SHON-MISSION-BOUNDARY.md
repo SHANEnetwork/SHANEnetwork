@@ -27,3 +27,20 @@ Status: product policy and architectural direction, not an activated billing sys
 - SHANE should accept a vision in ordinary language and handle the technical configuration, preserving human approval of consequential actions.
 - Each member destination can have independent administration, membership policies, visibility, and appropriate integrations.
 - Build reusable, versioned interfaces for identity, destination discovery, permissions, membership, messaging, and plugins; treat these as planned protocol work until actually implemented and tested.
+
+## SHON as an independently governed SHANE Network destination
+
+SHANEnetwork is the platform's website and creation environment; **SHANE Network** is the interoperable network of endeavors, people, and independently operated destinations. Connecting SHON to the SHANE Network does not mean transferring SHON membership into SHANEnetwork or merging databases.
+
+### Connection contract (design, not yet live)
+1. SHON administrators explicitly opt in to publish a **public destination descriptor**: destination name, public description, canonical URL, approved categories, and an optional public contact route. No private member data, profiles, messages, matching preferences, or household information.
+2. The SHANE Network may index that public descriptor and link to SHON. Public linking alone does not authorize cross-site authentication, message access, member discovery, or invitations.
+3. Any individual cross-network connection requires a separate affirmative action by that individual, a clear preview of what will be shared, revocation, and authorization checks on both sides. Neither SHON nor SHANE may silently create accounts on the other network.
+4. Federated discovery and messaging require a versioned protocol, origin verification, per-destination credentials, abuse controls, and independently tested permission boundaries before activation.
+5. SHON's essential participation remains free, and SHON keeps its own administration, membership, data, policies, and deployments.
+
+### Release checks
+- Verify SHON's existing profile, Discover, messaging, blocking/reporting and accessibility flows before any new integration is enabled.
+- Implement and test the public destination descriptor first, behind explicit administrator approval.
+- Test revocation and cross-origin access restrictions before adding person-level interoperability.
+- Keep SHON production unchanged until its own release checks pass and the owner approves deployment.
