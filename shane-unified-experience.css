@@ -72,3 +72,5 @@ body:has(.shane-unified-nav) main :where(textarea,input[type=text],input[type=se
 .shane-unified-nav .shane-endeavor-actions select{max-width:205px;min-height:38px;padding:7px;border:1px solid #b68d9c;border-radius:10px;background:#fffaf7;color:#57394e}
 .shane-unified-nav .shane-endeavor-actions button{min-height:38px;padding:7px 13px;border:0;border-radius:10px;background:#8c4f70;color:white;font-weight:700;cursor:pointer}
 .shane-unified-nav .shane-action-status{font-size:12px;max-width:180px}
+
+.shane-unified-nav .shane-action-suggestion{font-size:12px;max-width:205px;line-height:1.4;opacity:.9}
