@@ -327,3 +327,8 @@ No action requested as of this update.
 - Shared navigation now disables repeat submission during an endeavor transition, reducing duplicate navigation attempts.
 - Shared destination receiver emits `shane:endeavor-arrived` after safely transferring the idea to an empty destination field, enabling existing page-specific integrations to respond without introducing new panels.
 - JavaScript syntax checked; actual page listeners and authenticated browser behavior still require implementation and verification.
+
+## 2026-10-31: automatic editable draft preparation on arrival
+- Shared endeavor arrival now includes destination field context and invokes existing draft preparation controls on communities, campaigns, members, growth, request-build and sports-district pages.
+- No automatic save or publish; existing review and submission controls remain authoritative.
+- Syntax parsed; browser behavior and event ordering remain to be verified. Existing SHONnetwork untouched.
