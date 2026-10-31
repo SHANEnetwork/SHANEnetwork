@@ -60,3 +60,10 @@ test("Dashboard hands vision to Creator through guarded one-time transfer",()=>{
  assert.ok(handoff.includes('if(occupied&&!alreadyPresent)'));
  assert.ok(handoff.includes('sessionStorage.removeItem(key)'));
 });
+
+test("Creator receives incoming vision once and triggers draft synchronization",()=>{
+ const handoff=fs.readFileSync(require("node:path").join(__dirname,"../shane-vision-handoff.js"),"utf8");
+ assert.ok(handoff.includes('const destination=prompt||reply'));
+ assert.ok(handoff.includes('destination.dispatchEvent(new Event("input",{bubbles:true}))'));
+ assert.ok(!handoff.includes('if(reply&&!reply.value.trim())reply.value=vision'));
+});
