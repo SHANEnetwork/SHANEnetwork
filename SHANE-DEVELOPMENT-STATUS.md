@@ -312,3 +312,8 @@ No action requested as of this update.
 - Existing shared navigation now includes a compact Take my idea to action that carries an explicitly entered vision into nine working SHANE destinations: creator, discovery, relationships, listings, communities, campaigns, growth, custom builds and sports demo.
 - Uses existing destination handoff receivers and active endeavor identifier; no automatic publication or replacement of existing work.
 - JavaScript parsed. Full browser testing, account persistence of in-progress drafts, and actual AI orchestration remain pending.
+
+## 2026-10-31: conversation-led next-step suggestions
+- The existing network-wide endeavor action now infers a likely destination from member language when a single clear intent is detected, without requiring manual option selection.
+- Live suggestions update as people write; ambiguous intentions retain an optional manual choice rather than pretending to understand.
+- This is explicit deterministic intent routing, not a production AI model. JavaScript parsed; browser and end-to-end verification remain pending.
