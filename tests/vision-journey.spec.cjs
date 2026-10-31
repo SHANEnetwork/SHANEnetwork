@@ -209,3 +209,25 @@ test('reselecting the same endeavor does not interrupt account synchronization',
   });
   await expect.poll(() => page.evaluate(() => window.__writes.length), {timeout:6000}).toBeGreaterThan(0);
 });
+
+test('late account restore does not erase conversation turns added during lookup', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(() => {
+    window.__resolveRestore = null;
+    window.shaneAccountDb = {
+      auth: {getUser: async () => ({data:{user:{id:'11111111-1111-4111-8111-111111111111'}}})},
+      from: () => ({
+        select: () => ({eq: () => ({eq: () => ({maybeSingle: () => new Promise(resolve => {window.__resolveRestore=resolve})})})}),
+        upsert: async () => ({error:null})
+      })
+    };
+    document.dispatchEvent(new CustomEvent('shane:endeavor-changed',{detail:{id:'88888888-8888-4888-8888-888888888888'}}));
+  });
+  await expect.poll(() => page.evaluate(() => !!window.__resolveRestore)).toBe(true);
+  await page.locator('#visionPrompt').fill('Build a new community orchestra.');
+  await page.locator('#visionGuide').click();
+  await expect(page.locator('#shaneIdeaTurns')).toContainText('community orchestra');
+  await page.evaluate(() => window.__resolveRestore({data:{history:[{role:'you',text:'Old astronomy club request'}],draft_ready:true},error:null}));
+  await expect(page.locator('#shaneIdeaTurns')).toContainText('community orchestra');
+  await expect(page.locator('#shaneIdeaTurns')).not.toContainText('Old astronomy club request');
+});
