@@ -337,3 +337,8 @@ No action requested as of this update.
 - Workspace now loads the existing endeavor arrival receiver and shared draft-preparation module.
 - Incoming ideas can prepare editable collaborative tasks through the existing task draft control; no automatic assignment or submission.
 - Shared draft module now maps workspace.html to taskDraft. Browser runtime verification remains pending. SHONnetwork untouched.
+
+## 2026-10-31: account-resumed endeavors enter creation flow
+- Resuming an account-backed saved idea now emits the same endeavor-arrived event used by cross-page handoffs, allowing existing editable draft preparation to respond.
+- Cross-page arrivals preserve a valid active endeavor ID in session state for continuity on subsequent pages.
+- No automatic publication, no new UI panels, and no changes to SHONnetwork. Browser/database end-to-end verification remains pending.
