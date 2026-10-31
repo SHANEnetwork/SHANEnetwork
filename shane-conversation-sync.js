@@ -241,6 +241,22 @@ document.addEventListener("DOMContentLoaded",()=>{
      if(collaboration.sender_id!==auth.user.id&&collaboration.recipient_id!==auth.user.id)continue;
      const conversation=document.createElement("a");conversation.href="members.html?endeavor="+encodeURIComponent(saved.id)+"&conversation="+encodeURIComponent(collaboration.id)+"#collaborationSection";
      conversation.textContent=collaboration.status==="accepted"?"Open full collaboration workspace":"Review pending collaboration request";group.append(conversation);
+     if(collaboration.status==="pending"&&collaboration.recipient_id===auth.user.id){
+      const decision=document.createElement("div");decision.className="shane-creator-invitation-decision";
+      const message=document.createElement("p");message.textContent="Someone would like to collaborate. You decide whether to welcome the request.";decision.append(message);
+      const feedback=document.createElement("p");feedback.setAttribute("role","status");
+      const accept=document.createElement("button");accept.type="button";accept.textContent="Accept invitation";
+      const decline=document.createElement("button");decline.type="button";decline.textContent="Decline invitation";
+      async function decide(nextStatus){accept.disabled=true;decline.disabled=true;
+       const result=await client.from("shane_collaboration_requests").update({status:nextStatus}).eq("id",collaboration.id).eq("recipient_id",auth.user.id).eq("status","pending").select("id").maybeSingle();
+       if(version!==connectedViewVersion||id!==sessionStorage.getItem(key)||!decision.isConnected)return;
+       if(result.error||!result.data){feedback.textContent=result.error?"Could not update invitation: "+result.error.message:"This invitation was already changed. Refresh your endeavor.";accept.disabled=false;decline.disabled=false;return}
+       feedback.textContent=nextStatus==="accepted"?"Invitation accepted. Opening your collaboration…":"Invitation declined.";
+       await openConnectedEndeavor();
+      }
+      accept.addEventListener("click",()=>decide("accepted"));decline.addEventListener("click",()=>decide("declined"));
+      decision.append(accept,decline,feedback);group.append(decision);
+     }
      if(collaboration.status==="accepted"){
       const openMessages=document.createElement("button");openMessages.type="button";openMessages.textContent="Read and write messages here";
       const thread=document.createElement("section");thread.className="shane-creator-private-thread";thread.hidden=true;
