@@ -75,3 +75,11 @@ test("Waiting vision can be resumed only after current writing is cleared",()=>{
  assert.ok(handoff.includes('if((prompt&&prompt.value.trim())||(reply&&reply.value.trim()))'));
  assert.ok(handoff.includes('button.remove();apply()'));
 });
+
+test("Dashboard continues endeavors collaborations and network drafts independently",()=>{
+ assert.ok(dashboard.includes('sb.from("shane_endeavors").select("id,title,idea,updated_at").eq("owner_id",user.id)'));
+ assert.ok(dashboard.includes('sb.from("shane_listings").select("id,title,status,created_at").eq("owner_id",user.id)'));
+ assert.ok(dashboard.includes('Promise.allSettled(queries)'));
+ assert.ok(dashboard.includes('Continue your private network draft: '));
+ assert.ok(dashboard.includes('workspace.html?collaboration='));
+});
