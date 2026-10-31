@@ -230,3 +230,14 @@ test("Direct collaboration links focus the selected invitation or private conver
  assert.ok(members.includes('focused.focus({preventScroll:true})'));
  assert.ok(members.includes('item.setAttribute("aria-current","true")'));
 });
+
+test("Creator embeds private messaging only for accepted collaboration with safe message rendering",()=>{
+ const sync=fs.readFileSync(require("node:path").join(__dirname,"../shane-conversation-sync.js"),"utf8");
+ assert.ok(sync.includes('if(collaboration.status==="accepted")'));
+ assert.ok(sync.includes('.from("shane_collaboration_messages").select("id,sender_id,body,created_at")'));
+ assert.ok(sync.includes('.from("shane_collaboration_messages").insert({request_id:collaboration.id,sender_id:auth.user.id,body})'));
+ assert.ok(sync.includes('p.textContent=(message.sender_id===auth.user.id?'));
+ assert.ok(sync.includes('if(result.error){feedback.textContent="Message not sent: "'));
+ assert.ok(sync.includes('send.disabled=true'));
+ assert.ok(sync.includes('version!==connectedViewVersion||id!==sessionStorage.getItem(key)'));
+});
