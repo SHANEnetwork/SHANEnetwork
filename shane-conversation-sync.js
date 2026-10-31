@@ -229,6 +229,21 @@ document.addEventListener("DOMContentLoaded",()=>{
     }
     details.append(report,serviceList);
    }
+   // Bring accepted collaborations for this exact endeavor into the same journey.
+   const {data:collaborations,error:collabError}=listing?await client.from("shane_collaboration_requests")
+    .select("id,status,sender_id,recipient_id").eq("listing_id",listing.id).eq("status","accepted").limit(25):{data:[],error:null};
+   if(version!==connectedViewVersion||id!==sessionStorage.getItem(key))return;
+   if(collabError){const notice=document.createElement("p");notice.textContent="Collaborations could not be loaded: "+collabError.message;details.append(notice)}
+   else if(collaborations?.length){
+    const group=document.createElement("section");group.className="shane-endeavor-collaborations";
+    const heading=document.createElement("h4");heading.textContent="Conversations connected to this endeavor";group.append(heading);
+    for(const collaboration of collaborations){
+     if(collaboration.sender_id!==auth.user.id&&collaboration.recipient_id!==auth.user.id)continue;
+     const conversation=document.createElement("a");conversation.href="members.html?conversation="+encodeURIComponent(collaboration.id)+"#collaborationSection";
+     conversation.textContent="Continue private collaboration";group.append(conversation);
+    }
+    details.append(group);
+   }
    const links=[["Continue our conversation","builder.html?endeavor="+encodeURIComponent(saved.id)+"#vision-first"],["Discover people and opportunities","network.html"],["Review network presence","my-network.html"],["Manage network listing",listing?"members.html?listing="+encodeURIComponent(listing.id)+"#mineSection":"members.html#mineSection"],["Collaborations and private messages","members.html#collaborationSection"],["Request Analyst review",null]];
    if(manifest.resources.organization)links.push(["Manage linked club or society","communities.html?organization="+encodeURIComponent(manifest.resources.organization)]);
    for(const [label,href] of links){const control=document.createElement(href?"a":"button");control.textContent=label;if(href)control.href=href;else{control.type="button";control.addEventListener("click",analystContext)}details.append(control,document.createTextNode(" · "))}
