@@ -214,3 +214,11 @@ test("Network introductions preserve Creator context through sign-in and existin
  assert.ok(network.includes('link.href="members.html?conversation="+encodeURIComponent(previous.id)+(validCreatorEndeavor?'));
  assert.ok(network.includes('"#collaborationSection"'));
 });
+
+test("New discovery invitations return exact private thread with endeavor context",()=>{
+ const network=fs.readFileSync(require("node:path").join(__dirname,"../network.html"),"utf8");
+ assert.ok(network.includes('.insert({listing_id:item.id,sender_id:user.id,recipient_id:item.owner_id,message:body}).select("id").single()'));
+ assert.ok(network.includes('link.href="members.html?conversation="+encodeURIComponent(response.data.id)+(validCreatorEndeavor?'));
+ assert.ok(network.includes('link.textContent="Review this invitation and continue our endeavor"'));
+ assert.ok(network.includes('if(response.error)'));
+});
