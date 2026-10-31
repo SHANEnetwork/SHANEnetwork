@@ -69,7 +69,16 @@ function init(){
  select.addEventListener("change",update);
  document.addEventListener("input",event=>{if(event.target?.id&&(fields[location.pathname.split("/").pop()||"index.html"]||[]).includes(event.target.id))update()});
  button.addEventListener("click",async()=>{
-  const text=idea();if(!text){status.textContent="Describe your idea on this page first.";return}
+  let text=idea();
+  if(!text&&window.SHANEConversationStore?.list){
+   try{
+    const active=JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id;
+    const options=active&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(active)?{endeavorId:active,limit:20}:{limit:20};
+    const entries=await window.SHANEConversationStore.list(options);
+    text=entries.find(entry=>typeof entry.body==="string"&&entry.body.trim())?.body?.trim()||"";
+   }catch{}
+  }
+  if(!text){status.textContent="Describe your idea here or choose a saved endeavor to continue.";return}
   const destination=select.value||suggest(text);
   if(!destination){status.textContent="Your idea spans several possibilities. Choose where to begin.";select.focus();return}
   button.disabled=true;status.textContent="Carrying your endeavor forward…";
