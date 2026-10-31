@@ -154,3 +154,14 @@ test("Network bridge does not show another endeavor's completed listing",()=>{
  assert.ok(bridgeSource.includes('link.hidden=true'));
  assert.ok(bridgeSource.includes('if(isCurrent(id))status.textContent='));
 });
+
+test("Resuming an endeavor restores only its owner-scoped existing network presence",()=>{
+ const bridgeSource=fs.readFileSync(require("node:path").join(__dirname,"../shane-creator-network-bridge.js"),"utf8");
+ const restore=bridgeSource.slice(bridgeSource.indexOf('async function restorePresence(id)'));
+ assert.ok(restore.includes('await client.auth.getUser()'));
+ assert.ok(restore.includes('.eq("endeavor_id",id).eq("owner_id",auth.user.id).maybeSingle()'));
+ assert.ok(restore.includes('if(!isCurrent(id))return'));
+ assert.ok(restore.includes('link.hidden=false'));
+ assert.ok(!restore.includes('.insert('));
+ assert.ok(!restore.includes('.publish('));
+});
