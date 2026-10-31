@@ -168,3 +168,24 @@ test('account memory is read before a local conversation can overwrite it', asyn
   await page.evaluate(() => window.__resolveMemory({data:null,error:null}));
   await expect.poll(() => page.evaluate(() => window.__memoryWrites.length)).toBe(1);
 });
+
+test('account-backed history takes priority over stale browser history', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.locator('#visionPrompt').fill('Create a neighborhood art fair.');
+  await page.locator('#visionGuide').click();
+  await page.evaluate(() => {
+    window.__writes = [];
+    window.shaneAccountDb = {
+      auth: { getUser: async () => ({data:{user:{id:'11111111-1111-4111-8111-111111111111'}}}) },
+      from: () => ({
+        select: () => ({eq: () => ({eq: () => ({maybeSingle: async () => ({data:{history:[{role:'you',text:'Build a regional science fair.'},{role:'shane',text:'Science fair plan saved.'}],draft_ready:true},error:null})})})}),
+        upsert: async payload => {window.__writes.push(payload);return {error:null}}
+      })
+    };
+    document.dispatchEvent(new CustomEvent('shane:endeavor-changed',{detail:{id:'66666666-6666-4666-8666-666666666666'}}));
+  });
+  await expect(page.locator('#shaneIdeaTurns')).toContainText('Science fair plan saved.');
+  await expect(page.locator('#shaneIdeaTurns')).not.toContainText('neighborhood art fair');
+  await page.waitForTimeout(1500);
+  expect(await page.evaluate(() => window.__writes.some(p => p.history.some(t => t.text.includes('neighborhood art fair'))))).toBe(false);
+});
