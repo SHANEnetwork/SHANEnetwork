@@ -165,3 +165,8 @@ No action requested as of this update.
 ## 2026-10-31: member-controlled conversation history view
 - Added `conversation-history.html`, linked from shared navigation. It uses the authenticated owner-scoped history service to browse paginated entries, show archived records, archive/restore, export all, and explicitly confirm deletion. Existing Network pages and SHONnetwork unchanged.
 - Shared navigation records completed conversational input on field change, rather than relying solely on navigation clicks. Live browser verification pending; this is a history-management interface, not yet a full conversational AI or page/version archive.
+
+## 2026-10-31: endeavor-aware conversations
+- Shared account conversation persistence now attempts to associate entries with the active endeavor ID. If that ID is invalid for the signed-in owner, RLS rejects the association and the entry is retried as an unassociated private entry. No permission bypass or changes to endeavor ownership.
+- Shared navigation also records conversational form submissions, not just navigation and field-change events. History view supports filtering by endeavor IDs found in the first 500 saved records; friendly endeavor names and full pagination of filter choices remain outstanding.
+- Browser and cross-account tests remain pending; no autonomous AI engine yet.
