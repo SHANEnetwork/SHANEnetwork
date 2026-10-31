@@ -17,7 +17,7 @@ async function init(){
   const [endeavors,latest]=await Promise.all([store.endeavors(),store.list({limit:40})]);
   const ideas=latest.filter(row=>typeof row.body==="string"&&row.body.trim()&&["idea","vision","submitted-idea","community-vision","campaign-vision","listing-vision"].includes(row.entry_kind));
   const chooser=document.createElement("select");chooser.className="shane-endeavor-switcher";chooser.setAttribute("aria-label","Choose your saved SHANE endeavor");
-  const placeholder=document.createElement("option");placeholder.value="";placeholder.textContent="My saved endeavors";chooser.append(placeholder);
+  const placeholder=document.createElement("option");placeholder.value="";placeholder.textContent="Choose an endeavor";chooser.append(placeholder);
   for(const endeavor of endeavors){if(!UUID.test(endeavor.id))continue;const option=document.createElement("option");option.value=endeavor.id;option.textContent=(endeavor.title||"Untitled endeavor").slice(0,80);chooser.append(option)}
   const current=active();if(current&&endeavors.some(e=>e.id===current))chooser.value=current;
   if(endeavors.length){
