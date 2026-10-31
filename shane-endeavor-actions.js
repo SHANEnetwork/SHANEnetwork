@@ -78,7 +78,7 @@ function init(){
   const text=idea();if(!text)return;
   let endeavorId=null;
   try{const saved=JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id;if(typeof saved==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(saved))endeavorId=saved}catch{}
-  try{sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination,text:text.slice(0,4000),endeavorId,created:Date.now()}))}catch{}
+  try{sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination,text:text.slice(0,4000),endeavorId,created:Date.now()}));if(destination==="builder.html")sessionStorage.setItem("shane-creative-handoff-v1",JSON.stringify({text:text.slice(0,4000),created:Date.now()}))}catch{}
  });
  select.addEventListener("change",update);
  document.addEventListener("input",event=>{if(event.target?.id&&(fields[location.pathname.split("/").pop()||"index.html"]||[]).includes(event.target.id))update()});
