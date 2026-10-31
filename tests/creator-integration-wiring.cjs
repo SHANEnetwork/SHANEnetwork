@@ -83,3 +83,11 @@ test("Dashboard continues endeavors collaborations and network drafts independen
  assert.ok(dashboard.includes('Continue your private network draft: '));
  assert.ok(dashboard.includes('workspace.html?collaboration='));
 });
+
+test("Network draft preparation survives an optional website provisioning failure",()=>{
+ const sync=fs.readFileSync(require("node:path").join(__dirname,"../shane-conversation-sync.js"),"utf8");
+ assert.ok(sync.includes('siteId:null,organizationId:null'));
+ assert.ok(sync.includes('An optional website provisioning failure must not block the independent network draft.'));
+ assert.ok(bridge.includes('document.addEventListener("shane:endeavor-saved"'));
+ assert.ok(!bridge.includes('.publish('));
+});
