@@ -1,0 +1,19 @@
+/* Conversation-first access to the existing account-backed endeavor service.
+   Reuses the builder's existing save/open handlers and their RLS-backed queries. */
+(()=>{"use strict";
+const $=id=>document.getElementById(id);
+function init(){
+ const hub=$("shane-idea-conversation"),vision=$("visionPrompt"),save=$("saveEndeavorAccount"),select=$("savedEndeavors"),refresh=$("refreshEndeavors"),open=$("openEndeavor");if(!hub||!vision||!save||!select||!refresh||!open)return;
+ const panel=document.createElement("section");panel.id="shane-account-continuity";panel.setAttribute("aria-label","My account endeavors");
+ panel.innerHTML='<style>#shane-account-continuity{padding:20px;margin:20px 0;border:1px solid #e4c9d6;border-radius:20px;background:linear-gradient(120deg,#fffaf6,#f6eff9)}#shane-account-continuity h3{margin:0 0 8px;font:700 1.45rem Georgia,serif;color:#68465e}#shane-account-continuity p{color:#6c5665;margin:6px 0 12px}#shane-account-continuity .controls{display:flex;flex-wrap:wrap;align-items:center;gap:9px}#shane-account-continuity button{padding:10px 14px;border:0;border-radius:22px;background:#76516a;color:white;font:600 14px system-ui;cursor:pointer}#shane-account-continuity select{width:min(100%,350px);border:1px solid #d1b5c2;border-radius:12px;padding:10px;background:white;color:#543f51}#shane-account-continuity a{color:#6b4360;font-weight:600}#shane-account-continuity button:focus-visible,#shane-account-continuity select:focus-visible{outline:3px solid #c98e3c;outline-offset:2px}</style><h3>Continue your endeavor anywhere</h3><p>Save your vision privately to your SHANE account, or return to one you already began. This uses the existing endeavor database, not a separate copy.</p><div class="controls"><button id="shane-account-save" type="button">Save to my account</button><button id="shane-account-refresh" type="button">Find my endeavors</button><select id="shane-account-choices" aria-label="Choose saved account endeavor"><option value="">Choose an account endeavor</option></select><button id="shane-account-open" type="button">Continue endeavor</button></div><p id="shane-account-state" role="status">Sign in through <a href="members.html">Members</a> to sync across devices. Your current draft remains private until you choose to publish.</p>';
+ hub.append(panel);
+ const choices=$("shane-account-choices"),state=$("shane-account-state");
+ function sync(){choices.replaceChildren(new Option("Choose an account endeavor",""));for(const opt of select.options){if(opt.value)choices.add(new Option(opt.textContent,opt.value))}if(select.value)choices.value=select.value}
+ $("shane-account-save").onclick=()=>{if(!vision.value.trim()){state.textContent="Describe your vision before saving.";vision.focus();return}save.click();state.textContent="Account save requested. The existing endeavor save controls will report the result.";};
+ $("shane-account-refresh").onclick=()=>{refresh.click();state.textContent="Refreshing account endeavors. Sign in on Members if needed.";};
+ $("shane-account-open").onclick=()=>{if(!choices.value){state.textContent="Choose an account endeavor first.";return}select.value=choices.value;open.click();state.textContent="Opening the selected endeavor through SHANE's existing account workflow.";};
+ select.addEventListener("change",sync);document.addEventListener("shane:endeavor-changed",()=>{sync();const id=select.value;if(id)choices.value=id});
+ const observer=new MutationObserver(sync);observer.observe(select,{childList:true});sync();
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
