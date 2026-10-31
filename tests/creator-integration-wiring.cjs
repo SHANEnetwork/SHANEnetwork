@@ -135,3 +135,13 @@ test("Connected endeavor ignores stale asynchronous project results",()=>{
  assert.ok(firstCheck<connected.indexOf('details.replaceChildren()'));
  assert.ok(connected.indexOf('if(version!==connectedViewVersion||id!==sessionStorage.getItem(key))return;',firstCheck+1)>firstCheck);
 });
+
+test("Creator network presence uses shared visual language without changing private publish policy",()=>{
+ const bridgeSource=fs.readFileSync(require("node:path").join(__dirname,"../shane-creator-network-bridge.js"),"utf8");
+ const visual=fs.readFileSync(require("node:path").join(__dirname,"../shane-visual-world.css"),"utf8");
+ assert.ok(bridgeSource.includes('panel.className="shane-network-presence-panel"'));
+ assert.ok(visual.includes('.shane-network-presence-panel'));
+ assert.ok(visual.includes('prefers-reduced-motion'));
+ assert.ok(bridgeSource.includes('api.upsertEndeavorDraft'));
+ assert.ok(!bridgeSource.includes('api.publish('));
+});
