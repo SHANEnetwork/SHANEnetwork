@@ -6,6 +6,8 @@
 const api=window.SHANENetworkConnector;
 if(!api)return;
 let pending=Promise.resolve();
+let latestEndeavorId=null;
+function isCurrent(id){return id===latestEndeavorId}
 const status=document.createElement("p");status.id="shaneNetworkBridgeStatus";status.setAttribute("role","status");status.setAttribute("aria-live","polite");
 const link=document.createElement("a");link.href="members.html#mineSection";link.textContent="Review my network drafts";link.hidden=true;
 const panel=document.createElement("section");panel.id="shaneNetworkBridge";panel.className="shane-network-presence-panel";
@@ -21,9 +23,10 @@ async function prepare(event){
  const title=String(d.title||"My endeavor").slice(0,150);
  const description=String(d.vision||"").trim().slice(0,4000);
  if(!description)return;
- status.textContent="Preparing your private network presence…";
+ if(isCurrent(id))status.textContent="Preparing your private network presence…";
  try{
   const listing=await api.upsertEndeavorDraft(client,id,{title,description,category:"project"});
+  if(!isCurrent(id))return;
   if(listing.unchanged){
    status.textContent="Your network presence already exists. SHANE has preserved its owner-edited content and publication status.";
   }else{
@@ -33,7 +36,8 @@ async function prepare(event){
   link.textContent=listing.status==="published"?"Manage my published destination":"Review my private network draft";
   link.hidden=false;
   document.dispatchEvent(new CustomEvent("shane:network-draft-ready",{detail:{endeavorId:id,listingId:listing.id,status:listing.status}}));
- }catch(error){status.textContent="Your endeavor is saved. Network draft preparation needs attention: "+error.message}
+ }catch(error){if(isCurrent(id))status.textContent="Your endeavor is saved. Network draft preparation needs attention: "+error.message}
 }
-document.addEventListener("shane:endeavor-saved",event=>{pending=pending.then(()=>prepare(event)).catch(error=>{status.textContent=error.message})});
+document.addEventListener("shane:endeavor-saved",event=>{latestEndeavorId=event.detail?.endeavorId||null;pending=pending.then(()=>prepare(event)).catch(error=>{if(isCurrent(event.detail?.endeavorId))status.textContent=error.message})});
+document.addEventListener("shane:endeavor-resumed",event=>{latestEndeavorId=event.detail?.endeavorId||null;link.hidden=true;status.textContent="This endeavor is open. Save a change to prepare or refresh its private network presence.";});
 })();
