@@ -44,6 +44,12 @@ test('member network listing draft preserves endeavor context without publishing
   await page.evaluate(value => sessionStorage.setItem('shane-network-draft-v1', JSON.stringify(value)), draft);
   await page.goto('http://127.0.0.1:8765/members.html#listingSection');
   await expect(page.locator('#listingSection')).toHaveCount(1);
-  // This is a draft handoff: merely opening the member page must not publish a listing.
+  await expect(page.locator('#title')).toHaveValue(draft.title);
+  await expect(page.locator('#description')).toHaveValue(draft.description);
+  await expect(page.locator('#category')).toHaveValue(draft.category);
+  await expect(page.locator('#publication')).toHaveValue('draft');
+  await expect(page.locator('#listing')).toHaveAttribute('data-endeavor-id', draft.endeavor_id);
+  await expect(page.locator('#shaneDraftNotice')).toContainText('nothing has been published');
+  await expect.poll(() => page.evaluate(() => sessionStorage.getItem('shane-network-draft-v1'))).not.toBeNull();
   await expect(page).toHaveURL(/members\.html#listingSection/);
 });
