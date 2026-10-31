@@ -32,3 +32,18 @@ test('welcome draft is consumed once and does not overwrite later creator edits'
   await expect(page.locator('#visionPrompt')).not.toHaveValue(vision);
   await expect.poll(() => page.evaluate(() => sessionStorage.getItem('shane-welcome-v1'))).toBeNull();
 });
+
+test('member network listing draft preserves endeavor context without publishing', async ({ page }) => {
+  const draft = {
+    title: 'Community Makers Festival',
+    description: 'A welcoming festival for local makers and artists.',
+    category: 'project',
+    endeavor_id: 'f60d9a33-23a0-4d5d-9ad4-01f0ab893d5a'
+  };
+  await page.goto('http://127.0.0.1:8765/my-network.html');
+  await page.evaluate(value => sessionStorage.setItem('shane-network-draft-v1', JSON.stringify(value)), draft);
+  await page.goto('http://127.0.0.1:8765/members.html#listingSection');
+  await expect(page.locator('#listingSection')).toHaveCount(1);
+  // This is a draft handoff: merely opening the member page must not publish a listing.
+  await expect(page).toHaveURL(/members\.html#listingSection/);
+});
