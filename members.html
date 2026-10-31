@@ -55,4 +55,4 @@ try{sessionStorage.setItem("shane_welcome_draft",goal);sessionStorage.setItem("s
 if(page==="members.html"){const section=document.getElementById("listingSection");if(section)section.hidden=false;const intake=document.getElementById("shane-natural-intake");const prompt=document.getElementById("shane-natural-prompt");if(prompt&&!prompt.value.trim())prompt.value=goal;const response=document.getElementById("shaneMemberResponse");if(response)response.textContent="Your listing idea is ready for review. Prepare a draft before publishing.";if(intake)intake.scrollIntoView({behavior:"smooth"});return}
 location.href=destination;
 })}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init()})();
-</script><script src="shane-listing-vision.js" defer></script><script src="shane-vision-arrival.js" defer></script></body></html>
+</script><script src="shane-listing-vision.js" defer></script><script src="shane-vision-arrival.js" defer></script></body><script src="shane-arrival-draft.js" defer></script></html>
