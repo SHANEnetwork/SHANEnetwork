@@ -45,6 +45,19 @@
   context:async()=>{const id=window.SHANECurrentEndeavor.read();if(!id||!window.SHANEConversationStore)return [];return window.SHANEConversationStore.endeavorContext(id)}
  });
  document.addEventListener("shane:conversation-store-ready",async()=>{try{const entries=await window.SHANECurrentEndeavor.context();document.dispatchEvent(new CustomEvent("shane:endeavor-context-ready",{detail:{entries}}))}catch{}});
+ const receiveIntent=()=>{
+  try{
+   const handoff=JSON.parse(sessionStorage.getItem("shane-intent-handoff-v1")||"null");
+   if(!handoff||handoff.destination!==page||typeof handoff.text!=="string"||Date.now()-handoff.created>3600000)return;
+   const preferred={"network.html":["#query"],"my-network.html":["#visionInput","#query"],"communities.html":["#description"],"campaigns.html":["#description"],"members.html":["#description"],"growth.html":["#shaneGrowthGoal"],"request-build.html":["#shaneBuildRequestGoal"]};
+   const field=(preferred[page]||[]).map(selector=>document.querySelector(selector)).find(element=>element&&typeof element.value==="string"&&!element.value.trim());
+   if(!field)return;
+   field.value=handoff.text.slice(0,field.maxLength>0?field.maxLength:4000);
+   field.dispatchEvent(new Event("input",{bubbles:true}));
+   sessionStorage.removeItem("shane-intent-handoff-v1");
+  }catch{}
+ };
+ receiveIntent();
  const remembered=active();
  if(remembered&&remembered.source!==page){const hint=document.createElement("p");hint.className="shane-conversation-resume";hint.setAttribute("role","status");hint.style.cssText="margin:8px 0;font:500 13px system-ui;color:inherit";
  const link=document.createElement("a");link.href="builder.html#shane-idea-conversation";link.textContent="Continue our earlier idea in the creator";
