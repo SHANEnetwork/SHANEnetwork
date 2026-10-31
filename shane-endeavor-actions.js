@@ -58,6 +58,10 @@ function init(){
  for(const [path,label] of targets){const option=document.createElement("option");option.value=path;option.textContent=label;select.append(option)}
  const button=document.createElement("button");button.type="button";button.textContent="Continue";
  const status=document.createElement("span");status.setAttribute("role","status");status.className="shane-action-status";
+ const suggestion=document.createElement("span");suggestion.className="shane-action-suggestion";suggestion.setAttribute("aria-live","polite");
+ const update=()=>{const text=idea(),destination=suggest(text),label=targets.find(([path])=>path===destination)?.[1];suggestion.textContent=select.value?"You chose "+targets.find(([path])=>path===select.value)?.[1]:label?"SHANE suggests: "+label:"Describe your idea and SHANE will suggest a next step."};
+ select.addEventListener("change",update);
+ document.addEventListener("input",event=>{if(event.target?.id&&(fields[location.pathname.split("/").pop()||"index.html"]||[]).includes(event.target.id))update()});
  button.addEventListener("click",()=>{
   const text=idea();if(!text){status.textContent="Describe your idea on this page first.";return}
   const destination=select.value||suggest(text);
@@ -70,7 +74,7 @@ function init(){
   }catch{status.textContent="Unable to carry the idea in this browser.";return}
   location.assign(destination);
  });
- group.append(select,button,status);nav.append(group);
+ group.append(select,button,suggestion,status);nav.append(group);update();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
