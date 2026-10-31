@@ -72,9 +72,9 @@ function init(){
    sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination,text:text.slice(0,4000),endeavorId,created:Date.now()}));
    if(destination==="builder.html")sessionStorage.setItem("shane-creative-handoff-v1",JSON.stringify({text:text.slice(0,4000),created:Date.now()}));
   }catch{status.textContent="Unable to carry the idea in this browser.";return}
-  if(window.SHANEConversationStore){
+  if(window.SHANEConversationStore&&window.SHANEConversation){
    try{
-    window.SHANEConversation?.remember?.(text,"endeavor-transition");
+    window.SHANEConversation.remember(text,"endeavor-transition");
     await window.SHANEConversationStore.flush();
    }catch(error){status.textContent="Your idea is carried to the next page, but account history could not be confirmed."}
   }
