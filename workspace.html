@@ -156,7 +156,8 @@ document.addEventListener("visibilitychange", () => {
 });
 window.addEventListener("pagehide", () => clearInterval(feedRefreshTimer));
 </script><script>
-(()=>{function init(){const btn=document.getElementById("shaneWorkspacePrepare");if(!btn)return;btn.addEventListener("click",()=>{const raw=document.getElementById("shaneWorkspaceIdea").value.trim();if(!raw){document.getElementById("shaneWorkspaceIdea").focus();return}
+(()=>{function init(){const btn=document.getElementById("shaneWorkspacePrepare");if(!btn)return;const campaignLink=document.getElementById("campaignLink");if(campaignLink)campaignLink.addEventListener("click",()=>{const text=(document.getElementById("shaneWorkspaceIdea")?.value||document.getElementById("sharedPurpose")?.value||"").trim();if(!text)return;try{sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination:"campaigns.html",text:text.slice(0,4000),created:Date.now()}))}catch{}});
+btn.addEventListener("click",()=>{const raw=document.getElementById("shaneWorkspaceIdea").value.trim();if(!raw){document.getElementById("shaneWorkspaceIdea").focus();return}
 const purpose=document.getElementById("sharedPurpose"),next=document.getElementById("sharedNext"),task=document.getElementById("taskTitle"),details=document.getElementById("taskDetails");
 if(purpose&&!purpose.value.trim())purpose.value=raw.slice(0,2000);
 const phrases=raw.split(/[.!?\n]/).map(x=>x.trim()).filter(Boolean);
