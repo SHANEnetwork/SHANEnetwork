@@ -3,6 +3,8 @@
 (()=>{"use strict";
 const targets=[
  ["builder.html","Create a website"],
+ ["dashboard.html","Review my endeavors"],
+ ["conversation-history.html","Review conversation history"],
  ["network.html","Discover collaborators"],
  ["my-network.html","Build relationships"],
  ["workspace.html","Coordinate shared tasks"],
@@ -17,6 +19,8 @@ const intentRules=[
  ["campaigns.html",/concert|festival|fundrais|campaign|event|market day|craft fair|gathering|ticket|organize a fair/i],
  ["communities.html",/community|club|group|association|discussion|chat room|shared interest|network of friends/i],
  ["my-network.html",/collaborat|find partners|team up|cofound|co-found|connect with people|work together/i],
+ ["dashboard.html",/my projects|my endeavors|my dashboard|what have i created/i],
+ ["conversation-history.html",/conversation history|past conversations|previous ideas|what did we discuss/i],
  ["workspace.html",/assign a task|create a task|task list|work plan|project milestone|coordinate work|to.do list/i],
  ["network.html",/discover|search for|find people|find organizations|look for|who can help/i],
  ["growth.html",/promot|advertis|outreach|marketing|grow my|attract customers|spread the word/i],
