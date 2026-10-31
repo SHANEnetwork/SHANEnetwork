@@ -122,3 +122,8 @@ No action requested as of this update.
 ## 2026-10-31: outreach and custom-build conversation continuity
 - Growth Center and custom-build request conversation inputs now restore unfinished text from session-scoped drafts across reloads (up to seven days), while preserving incoming handoff precedence and the existing submission flows.
 - No messages or requests are sent automatically. Browser verification remains pending.
+
+## 2026-10-31: builder-to-discovery continuity
+- Builder discovery now additionally writes the destination-scoped `shane-intent-handoff-v1` before following its existing Network discovery navigation, allowing the Network's conversational discovery input to receive the full original idea.
+- Member listing intake clarifies when the existing listing editor is unavailable; existing access and publishing paths are unchanged.
+- No new server AI or publishing actions were introduced. Live browser verification pending.
