@@ -44,7 +44,14 @@ function init(){
  let item;
  try{item=JSON.parse(sessionStorage.getItem("shane-intent-handoff-v1")||"null")}catch{return}
  if(!item||item.destination!==page||typeof item.text!=="string"||!item.text.trim()||!Number.isFinite(item.created)||Date.now()-item.created>86400000){offerAccountResume(page,target,field);return;}
- if(field.value.trim())return;
+ if(field.value.trim()){
+  const container=field.closest(".shane-conversation-intake")||field.parentElement;
+  if(container){const restore=document.createElement("button");restore.type="button";restore.className="shane-resume-endeavor";restore.textContent="Use incoming idea instead";restore.addEventListener("click",()=>{
+   if(field.value.trim()&&!confirm("Replace the writing in this field with the incoming idea?"))return;
+   field.value="";restore.remove();init();
+  });container.append(restore)}
+  return;
+ }
  field.value=item.text.slice(0,field.maxLength>0?field.maxLength:4000);
  field.dispatchEvent(new Event("input",{bubbles:true}));
  if(item.endeavorId&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(item.endeavorId)){
