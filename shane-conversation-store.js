@@ -6,10 +6,13 @@ const table="shane_conversation_entries";
 const activeEndeavor=()=>{try{const id=JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id;return typeof id==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(id)?id:null}catch{return null}};
 const pending=[];
 let busy=false;
+let currentFlush=null;
 async function user(){const {data,error}=await db.auth.getUser();if(error)throw error;return data?.user||null}
 async function flush(){
- if(busy||!pending.length)return;
+ if(busy)return currentFlush;
+ if(!pending.length)return {saved:true,pending:0};
  busy=true;
+ currentFlush=(async()=>{
  try{
   const account=await user();if(!account)return;
   while(pending.length){
@@ -24,6 +27,9 @@ async function flush(){
   }
  }catch(error){document.dispatchEvent(new CustomEvent("shane:conversation-save-error",{detail:{message:String(error?.message||error)}}))}
  finally{busy=false;if(pending.length)document.dispatchEvent(new CustomEvent("shane:conversation-pending",{detail:{count:pending.length}}))}
+ return {saved:pending.length===0,pending:pending.length};
+ })();
+ try{return await currentFlush}finally{currentFlush=null}
 }
 document.addEventListener("shane:conversation-updated",event=>{
  const d=event.detail||{};
