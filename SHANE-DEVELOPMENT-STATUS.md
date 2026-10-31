@@ -322,3 +322,8 @@ No action requested as of this update.
 - The existing shared Take my idea to action now records a deliberate endeavor-transition turn and awaits the available account conversation store flush before navigation.
 - This reduces navigation-related loss when the authenticated store is ready. It does not guarantee durable delivery if the user is signed out, a save fails, or the store is unavailable; those cases still require a stronger queue and delivery acknowledgment.
 - Script syntax checked. End-to-end browser verification pending. No changes to SHONnetwork.
+
+## 2026-10-31: coordinated endeavor transitions
+- Shared navigation now disables repeat submission during an endeavor transition, reducing duplicate navigation attempts.
+- Shared destination receiver emits `shane:endeavor-arrived` after safely transferring the idea to an empty destination field, enabling existing page-specific integrations to respond without introducing new panels.
+- JavaScript syntax checked; actual page listeners and authenticated browser behavior still require implementation and verification.
