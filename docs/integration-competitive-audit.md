@@ -31,3 +31,23 @@ D. Failure recovery: interrupted save, stale revision, retry without duplicate o
 E. Production readiness and design review: accessible, responsive, visually distinctive, AI-first landing and creator experience; verify domain/deployment.
 
 Defer optional capabilities until the core experience passes. Batch related defects per acceptance journey instead of creating one commit per trivial assertion.
+
+## Wix feature parity and differentiation check (2026-10-30)
+Wix Harmony offers conversational AI creation, responsive visual editing and live site collaboration. Wix also offers groups, member chat, events, automations, business AI agents and marketing tools. These are competitive baseline features, **not** unique SHANE differentiators.
+Sources:
+- https://support.wix.com/en/article/introducing-the-wix-harmony-editor
+- https://www.wix.com/features/main
+- https://www.wix.com/business/community
+- https://dev.wix.com/docs/develop-websites-sdk/get-started/overview/about-wix-harmony
+
+SHANE's product hypothesis is **cross-endeavor continuity**: a person describes an ambition, AI creates a useful artifact, the endeavor can discover consenting collaborators across the network, and the same context coordinates work and refinement over time. This is a product hypothesis, not yet a demonstrated competitive advantage.
+
+Acceptance criteria for differentiating experience:
+1. One free-form vision creates a functioning editable preview without configuration forms.
+2. A natural-language refinement changes only requested parts, preserving user changes.
+3. A saved endeavor connects its site, opt-in discovery listing, invitation and shared task using verified IDs.
+4. A second independent endeavor can discover and request collaboration, subject to permissions.
+5. A failed AI call or network write preserves the last good draft, shows a recoverable error, and supports safe retry.
+6. Independent SHON compatibility is documented and tested through contracts without sharing member data by default.
+
+Do not prioritize feature-count parity with Wix before these journeys work.
