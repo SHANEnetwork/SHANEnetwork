@@ -20,10 +20,8 @@ const api=await store();
 const entries=term?await api.searchHistory(term,{limit:50,offset,endeavorId:$("endeavor-filter").value||null,includeArchived:$("include-archived").checked}):await api.list({limit:50,offset,includeArchived:$("include-archived").checked,endeavorId:$("endeavor-filter").value||null});for(const entry of entries)list.append(item(entry));offset+=entries.length;$("more").hidden=entries.length<50;status.textContent=offset?offset+" saved entries loaded.":"No saved entries in this view yet."}catch(error){status.textContent=error.message;$("more").hidden=true}}
 async function populateEndeavors(){
  try{
-  const storeInstance=await store();
-  const rows=await storeInstance.list({limit:500,includeArchived:true});
-  const ids=[...new Set(rows.map(entry=>entry.endeavor_id).filter(Boolean))];
-  for(const id of ids){const option=document.createElement("option");option.value=id;option.textContent="Endeavor "+id.slice(0,8);$("endeavor-filter").append(option)}
+  const rows=await (await store()).endeavors();
+  for(const entry of rows){const option=document.createElement("option");option.value=entry.id;option.textContent=entry.title||"Untitled endeavor";$("endeavor-filter").append(option)}
  }catch{}
 }
 $("endeavor-filter").addEventListener("change",()=>load(true));
