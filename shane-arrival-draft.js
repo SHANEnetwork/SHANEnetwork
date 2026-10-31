@@ -3,6 +3,8 @@
 (()=>{"use strict";
 const drafts={
  "communities.html":"communityDraft",
+ "network.html":"shaneDiscoveryConversation",
+ "my-network.html":"visionForm",
  "workspace.html":"taskDraft",
  "campaigns.html":"campaignDraft",
  "members.html":"listingDraft",
@@ -13,11 +15,13 @@ const drafts={
 function prepare(event){
  const page=location.pathname.split("/").pop();
  if(event?.detail?.page!==page)return;
- const button=document.getElementById(drafts[page]);if(!button||button.disabled)return;
+ const button=document.getElementById(drafts[page]);if(!button)return;
  const field=document.getElementById(event.detail.field);
  if(!field||!field.value.trim())return;
- // The existing prepare handlers fill editable fields; they do not submit.
- queueMicrotask(()=>button.click());
+ // Discovery forms search public information; they do not publish, invite, or contact members.
+ // For these pages run their existing search handler, while creation pages only prepare drafts.
+ if(button.tagName==="FORM")queueMicrotask(()=>button.requestSubmit());
+ else if(!button.disabled)queueMicrotask(()=>button.click());
 }
 document.addEventListener("shane:endeavor-arrived",prepare);
 })();
