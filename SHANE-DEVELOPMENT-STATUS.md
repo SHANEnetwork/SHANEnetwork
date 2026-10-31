@@ -352,3 +352,8 @@ No action requested as of this update.
 - The shared account conversation store now returns the ongoing flush promise when a save is already in progress, and reports whether unsaved entries remain.
 - This improves navigation coordination but is not yet a durable offline queue or a guarantee against lost events on page unload.
 - No changes to SHONnetwork; browser/database verification pending.
+
+## 2026-10-31: continue selected endeavor from account conversation
+- Shared navigation can retrieve recent account-backed conversation text for the selected endeavor when the current page has no idea entered.
+- Retrieval is restricted to the selected endeavor; it does not substitute unrelated account history.
+- Existing cross-page handoff remains in place. No new panel or SHONnetwork changes. Browser integration still requires verification.
