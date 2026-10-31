@@ -1,0 +1,16 @@
+/* SHANE unified creative environment: visual layer, no application logic replaced. */
+:root{--shane-ink:#352b3d;--shane-berry:#704760;--shane-rose:#f6dfe3;--shane-cream:#fffaf5;--shane-gold:#dfb779}
+html{scroll-behavior:smooth}
+body{background:radial-gradient(ellipse at 85% 5%,#f8e2e8 0,transparent 38%),radial-gradient(ellipse at 5% 42%,#f6ecdc 0,transparent 45%),#fffaf7!important;color:var(--shane-ink)}
+header,body>header{background:linear-gradient(110deg,#443047,#704760 65%,#966a70)!important;color:#fff!important;border-bottom:1px solid #c8a5aa}
+header a,body>header a{color:inherit}
+main{max-width:1280px}
+h1,h2,h3{letter-spacing:-.025em}
+h1{font-family:Georgia,"Times New Roman",serif;line-height:1.12}
+button,.button,[role=button]{transition:transform .16s ease,box-shadow .16s ease}
+button:hover,.button:hover,[role=button]:hover{transform:translateY(-1px)}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #dcac68!important;outline-offset:3px}
+input,textarea,select{border-radius:12px}
+:where(article,.card,.panel,.tile){border-radius:18px}
+#shane-idea-conversation{border-radius:24px;box-shadow:0 15px 45px #5b3d5212}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}button,.button,[role=button]{transition:none!important;transform:none!important}}
