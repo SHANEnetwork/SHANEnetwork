@@ -206,3 +206,8 @@ No action requested as of this update.
 - Shared `SHANEConversation.fullContext()` now reports the active endeavor alongside recent session turns and account-backed entries.
 - `SHANECurrentEndeavor.continueIn(destination,text)` prepares a destination-aware intent handoff with endeavor reference. Receiving pages restore that reference when none is active. This is session-level continuity, not yet authenticated cross-device active-endeavor persistence.
 - Shared navigation passed a JavaScript syntax parse check; full browser and account-backed behavior remain unverified.
+
+## 2026-10-31: scope shared conversational context
+- `SHANEConversation.fullContext()` now requests saved conversation entries for the selected active endeavor, avoiding accidental mixing of unrelated endeavor histories.
+- Incoming endeavor handoff IDs are format-checked before being stored in session continuity. Database RLS remains the authority for record access.
+- Shared navigation passed a JavaScript syntax parse check; browser verification and unified AI orchestration remain outstanding.
