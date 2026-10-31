@@ -12,6 +12,21 @@ const targets=[
  ["request-build.html","Request a custom build"],
  ["sports-district.html","Explore sports networks"]
 ];
+const intentRules=[
+ ["campaigns.html",/concert|festival|fundrais|campaign|event|market day|craft fair|gathering|ticket|organize a fair/i],
+ ["communities.html",/community|club|group|association|discussion|chat room|shared interest|network of friends/i],
+ ["my-network.html",/collaborat|find partners|team up|cofound|co-found|connect with people|work together/i],
+ ["network.html",/discover|search for|find people|find organizations|look for|who can help/i],
+ ["growth.html",/promot|advertis|outreach|marketing|grow my|attract customers|spread the word/i],
+ ["members.html",/list my|publish a listing|offer my service|announce my|share a listing/i],
+ ["sports-district.html",/sports district|school athletics|sports league|athlete|school teams/i],
+ ["request-build.html",/hire someone|request a custom|done for me|build it for me/i],
+ ["builder.html",/website|webpage|storefront|online shop|create a site|build a site|portfolio/i]
+];
+function suggest(text){
+ const matches=intentRules.filter(([,pattern])=>pattern.test(text));
+ return matches.length===1?matches[0][0]:null;
+}
 const fields={
  "index.html":["welcomeIdea"],
  "builder.html":["visionPrompt","shaneIdeaReply"],
@@ -39,13 +54,14 @@ function init(){
  const nav=document.querySelector(".shane-unified-nav");if(!nav)return;
  const group=document.createElement("span");group.className="shane-endeavor-actions";
  const select=document.createElement("select");select.setAttribute("aria-label","Choose what SHANE should do with this idea");
- const placeholder=document.createElement("option");placeholder.value="";placeholder.textContent="Take my idea to…";select.append(placeholder);
+ const placeholder=document.createElement("option");placeholder.value="";placeholder.textContent="Let SHANE choose the next step";select.append(placeholder);
  for(const [path,label] of targets){const option=document.createElement("option");option.value=path;option.textContent=label;select.append(option)}
  const button=document.createElement("button");button.type="button";button.textContent="Continue";
  const status=document.createElement("span");status.setAttribute("role","status");status.className="shane-action-status";
  button.addEventListener("click",()=>{
-  const destination=select.value;if(!destination){status.textContent="Choose where to continue.";select.focus();return}
   const text=idea();if(!text){status.textContent="Describe your idea on this page first.";return}
+  const destination=select.value||suggest(text);
+  if(!destination){status.textContent="Your idea spans several possibilities. Choose where to begin.";select.focus();return}
   let endeavorId=null;
   try{const value=window.SHANECurrentEndeavor?.read?.();if(typeof value==="string")endeavorId=value}catch{}
   try{
