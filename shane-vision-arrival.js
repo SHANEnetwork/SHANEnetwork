@@ -5,7 +5,9 @@ const destinations={
  "communities.html":{field:"communityIdea",status:"communityDraftStatus"},
  "campaigns.html":{field:"campaignIdea",status:"campaignDraftStatus"},
  "members.html":{field:"listingIdea",status:"listingDraftStatus"},
- "growth.html":{field:"shaneGrowthGoal",status:"shaneGrowthReply"}
+ "growth.html":{field:"shaneGrowthGoal",status:"shaneGrowthReply"},
+ "request-build.html":{field:"shaneBuildRequestGoal",status:"shaneBuildRequestReply"},
+ "sports-district.html":{field:"shaneSportsGoal",status:"shaneSportsResponse"}
 };
 async function offerAccountResume(page,target,field){
  if(field.value.trim())return;
