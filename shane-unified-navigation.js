@@ -70,6 +70,7 @@
  hint.append("Your conversation can continue across SHANE. ",link);nav.append(hint)}
  if(header){header.append(nav)}else{const landmark=document.createElement("div");landmark.className="shane-unified-topbar";landmark.append(nav);document.body.insertBefore(landmark,document.body.firstChild)}
  const accountResume=document.createElement("script");accountResume.src="shane-account-resume-nav.js";accountResume.defer=true;document.head.append(accountResume);
+ const endeavorActions=document.createElement("script");endeavorActions.src="shane-endeavor-actions.js";endeavorActions.defer=true;document.head.append(endeavorActions);
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
