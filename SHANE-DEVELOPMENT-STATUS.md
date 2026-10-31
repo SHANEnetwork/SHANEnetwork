@@ -103,3 +103,8 @@ No action requested as of this update.
 - The builder's existing creative continuity surface now carries a vision directly to the Growth Center or custom build request workflow.
 - `shane-growth-conversation.js` and `shane-build-request-conversation.js` accept a destination-scoped, timestamped browser-session handoff without replacing an existing draft or automatically sending anything.
 - The original outreach and request workflows remain in place. No live browser test completed.
+
+## 2026-10-31: creator listing and collaboration-to-campaign handoff
+- The existing builder listing draft (`shane-network-draft-v1`) now preloads the member listing conversational intake without publishing or overwriting an existing prompt.
+- The accepted-collaborator workspace's existing campaign link now carries the current shared intention or purpose into campaign draft preparation via the session-scoped handoff.
+- These are workflow bridges, not server-side AI orchestration or automated publishing. Browser verification pending.
