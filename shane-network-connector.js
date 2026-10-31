@@ -90,6 +90,25 @@ async function upsertEndeavorDraft(client,endeavorId,input){
  }
  return data;
 }
+async function myNetworkOverview(client,{limit=50}={}){
+ const user=await userFor(client);
+ const n=Math.max(1,Math.min(100,Number(limit)||50));
+ const [endeavors,listings]=await Promise.all([
+  client.from("shane_endeavors").select("id,title,status,created_at").eq("owner_id",user.id).order("created_at",{ascending:false}).limit(n),
+  client.from("shane_listings").select("id,title,status,endeavor_id,website_url,created_at").eq("owner_id",user.id).order("created_at",{ascending:false}).limit(n)
+ ]);
+ if(endeavors.error)throw endeavors.error;
+ if(listings.error)throw listings.error;
+ const byEndeavor=new Map();
+ for(const item of listings.data||[]){
+  if(!item.endeavor_id)continue;
+  const group=byEndeavor.get(item.endeavor_id)||[];
+  group.push(item);byEndeavor.set(item.endeavor_id,group);
+ }
+ return {endeavors:(endeavors.data||[]).map(e=>({...e,networkListings:byEndeavor.get(e.id)||[]})),
+  standaloneListings:(listings.data||[]).filter(x=>!x.endeavor_id),
+  truncated:(endeavors.data||[]).length===n||(listings.data||[]).length===n};
+}
 async function myListings(client,{limit=50}={}){
  const user=await userFor(client);
  const n=Math.max(1,Math.min(100,Number(limit)||50));
@@ -110,5 +129,5 @@ async function unpublish(client,id){
  if(!data)throw Error("Owned published listing not found.");
  return data;
 }
-return Object.freeze({prepare,discover,saveDraft,updateOwnDraft,upsertEndeavorDraft,publish,unpublish,myListings,safeUrl});
+return Object.freeze({prepare,discover,saveDraft,updateOwnDraft,upsertEndeavorDraft,publish,unpublish,myListings,myNetworkOverview,safeUrl});
 });
