@@ -1,0 +1,15 @@
+/* SHANE shared visual language: warm, imaginative, accessible. No application logic or data changes. */
+:root{--shane-night:#13254b;--shane-royal:#244c91;--shane-sky:#b5e6f7;--shane-gold:#efc978;--shane-leaf:#318f73;--shane-parchment:#fffaf0}
+html{scroll-behavior:smooth}
+body{background:radial-gradient(ellipse at 93% 2%,#fbe1a9 0%,transparent 34%),radial-gradient(ellipse at 6% 30%,#d9f4ee 0%,transparent 34%),linear-gradient(145deg,#f4f9ff,#fff9ed 62%,#f3f0ff)!important;color:#233552}
+body>header{background:linear-gradient(115deg,#13254b 0%,#294b82 53%,#327f83 100%)!important;color:#fff!important;border-bottom:3px solid #e6bd68!important;box-shadow:0 8px 28px #12234824}
+body>header a,body>header h1,body>header p,body>header strong{color:#fff!important}
+body>header h1,main>h1,.hero h1{font-family:Georgia,'Times New Roman',serif;letter-spacing:-.02em}
+body>header a:focus-visible,button:focus-visible,a:focus-visible,textarea:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #e7b955!important;outline-offset:3px}
+body>main{position:relative}
+main .panel,main .card,main article{border-radius:16px;overflow-wrap:anywhere}
+main .panel,main .card{border-color:#d7d9e5;box-shadow:0 9px 28px #233b6610}
+body button,body .button{transition:filter .18s ease,box-shadow .18s ease}
+body button:hover,body .button:hover{filter:brightness(1.06)}
+input,textarea,select{font:inherit}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}body button,body .button{transition:none}}
