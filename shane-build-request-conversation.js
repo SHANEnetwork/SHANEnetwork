@@ -1,5 +1,6 @@
 /* Prepare existing custom build request from a person's words; no network submission. */
 (()=>{"use strict";function init(){const button=document.getElementById("shaneBuildRequestPrepare");if(!button)return;
+try{const raw=sessionStorage.getItem("shane-intent-handoff-v1");if(raw){const item=JSON.parse(raw),field=document.getElementById("shaneBuildRequestGoal");if(item&&item.destination==="request-build.html"&&typeof item.text==="string"&&Date.now()-item.created<86400000&&field&&!field.value.trim()){field.value=item.text.slice(0,4000);document.getElementById("shaneBuildRequestReply").textContent="Your idea is ready to become a build request.";sessionStorage.removeItem("shane-intent-handoff-v1")}}}catch{}
 button.addEventListener("click",()=>{const input=document.getElementById("shaneBuildRequestGoal"),text=input.value.trim();if(!text){input.focus();return}
 const project=document.getElementById("project"),details=document.getElementById("details"),kind=document.getElementById("kind");
 const first=text.split(/[.!?\n]/).map(s=>s.trim()).find(Boolean)||text;
