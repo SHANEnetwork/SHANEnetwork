@@ -110,7 +110,7 @@ test('endeavor memory keeps conversations isolated and restores them on return',
   const second = '22222222-2222-4222-8222-222222222222';
   await page.locator('#visionPrompt').fill('Create an arts cooperative with neighborhood workshops.');
   await page.locator('#visionGuide').click();
-  await page.evaluate(id => document.dispatchEvent(new CustomEvent('shane:endeavor-changed', {detail:{id}})), first);
+  await page.evaluate(id => document.dispatchEvent(new CustomEvent('shane:endeavor-changed', {detail:{id,reason:'saved'}})), first);
   await expect(page.locator('#shaneIdeaTurns')).toContainText('arts cooperative');
   await page.evaluate(id => document.dispatchEvent(new CustomEvent('shane:endeavor-changed', {detail:{id}})), second);
   await expect(page.locator('#shaneIdeaTurns')).not.toContainText('arts cooperative');
@@ -126,7 +126,7 @@ test('starting a fresh endeavor clears the previous vision without deleting save
   await page.goto('http://127.0.0.1:8765/builder.html');
   await page.locator('#visionPrompt').fill('An arts festival for neighborhood musicians.');
   await page.locator('#visionGuide').click();
-  await page.evaluate(() => document.dispatchEvent(new CustomEvent('shane:endeavor-changed', {detail:{id:'33333333-3333-4333-8333-333333333333'}})));
+  await page.evaluate(() => document.dispatchEvent(new CustomEvent('shane:endeavor-changed', {detail:{id:'33333333-3333-4333-8333-333333333333',reason:'saved'}})));
   page.once('dialog', dialog => dialog.accept());
   await page.locator('#newEndeavor').click();
   await expect(page.locator('#visionPrompt')).toHaveValue('');
@@ -255,4 +255,14 @@ test('overlapping local edits and remote restore merge account history', async (
   await expect(page.locator('#shaneIdeaTurns')).toContainText('Earlier saved community choir');
   await expect.poll(() => page.evaluate(() => window.__conflictWrites.length)).toBeGreaterThan(0);
   expect(await page.evaluate(() => window.__conflictWrites.at(-1).history.map(t => t.text).join(' '))).toContain('community theater');
+});
+
+test('opening an existing endeavor with the same vision never adopts unsaved conversation', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.locator('#visionPrompt').fill('Create a neighborhood arts festival.');
+  await page.locator('#visionGuide').click();
+  await page.evaluate(() => document.dispatchEvent(new CustomEvent('shane:endeavor-changed', {detail:{id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',reason:'opened'}})));
+  await expect(page.locator('#shaneIdeaTurns')).not.toContainText('neighborhood arts festival');
+  const saved = await page.evaluate(() => sessionStorage.getItem('shane_idea_conversation_endeavor_aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'));
+  expect(saved).not.toContain('neighborhood arts festival');
 });
