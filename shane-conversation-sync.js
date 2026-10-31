@@ -183,7 +183,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     resume(requested);
    };
    if(window.SHANEAuthenticatedClient)openRequested();
-   else window.addEventListener("shane:authenticated-client-ready",openRequested,{once:true});
+   else window.addEventListener("shane:client-ready",()=>queueMicrotask(openRequested),{once:true});
   }else status("This endeavor link is invalid. Your existing conversation has not been changed.");
  }
 
