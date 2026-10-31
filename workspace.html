@@ -17,4 +17,18 @@ async function loadTasks(){const host=$("taskList");host.textContent="Loading sh
 $("refreshTasks").onclick=loadTasks;
 $("taskForm").onsubmit=async e=>{e.preventDefault();if(!user||!collaboration)return;const title=$("taskTitle").value.trim();if(title.length<3){$("taskStatus").textContent="Task title must contain at least three characters.";return}const button=e.target.querySelector("button");button.disabled=true;const {error}=await sb.from("shane_collaboration_tasks").insert({request_id:id,creator_id:user.id,title,details:$("taskDetails").value.trim(),assignee_id:$("taskAssignee").value||null,due_date:$("taskDue").value||null});button.disabled=false;$("taskStatus").textContent=error?"Could not add task: "+error.message:"Shared task added.";if(!error){e.target.reset();await Promise.all([loadTasks(),loadActivity()])}};
 await init();
+// Keep collaboration conversation and activity current while the workspace is open.
+// Refresh only read-only feeds; never replace a member's unsent draft or task editor.
+let feedRefreshInFlight = false;
+async function refreshLiveFeeds(){
+  if(!collaboration || document.hidden || feedRefreshInFlight) return;
+  feedRefreshInFlight = true;
+  try { await Promise.allSettled([messages(), loadActivity()]); }
+  finally { feedRefreshInFlight = false; }
+}
+const feedRefreshTimer = setInterval(refreshLiveFeeds, 30000);
+document.addEventListener("visibilitychange", () => {
+  if(!document.hidden) void refreshLiveFeeds();
+});
+window.addEventListener("pagehide", () => clearInterval(feedRefreshTimer));
 </script></body></html>
