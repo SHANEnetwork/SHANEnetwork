@@ -25,8 +25,12 @@
    if(message)message.textContent="Your earlier idea is safely waiting. This workspace already contains writing, so it has not been replaced. Return to the entrance to review it.";
    return;
   }
-  if(prompt&&!prompt.value.trim())prompt.value=vision;
-  if(reply&&!reply.value.trim())reply.value=vision;
+  // Place the transferred vision in one primary field, not two competing drafts.
+  const destination=prompt||reply;
+  if(destination&&!destination.value.trim()){
+   destination.value=vision;
+   destination.dispatchEvent(new Event("input",{bubbles:true}));
+  }
   if(message)message.textContent="Your idea came with you. Keep exploring, refining and creating here. A website is only one possibility; nothing is published automatically.";
   try{sessionStorage.removeItem(key);}catch{}
  };
