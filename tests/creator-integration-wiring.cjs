@@ -126,3 +126,12 @@ test("Connected endeavor exposes conversation discovery and collaboration routes
  assert.ok(sync.includes('["Collaborations and private messages","members.html#collaborationSection"]'));
  assert.ok(sync.includes('serviceList.className="shane-service-readiness"'));
 });
+
+test("Connected endeavor ignores stale asynchronous project results",()=>{
+ const sync=fs.readFileSync(require("node:path").join(__dirname,"../shane-conversation-sync.js"),"utf8");
+ const connected=sync.slice(sync.indexOf('async function openConnectedEndeavor(){'));
+ const firstCheck=connected.indexOf('if(version!==connectedViewVersion||id!==sessionStorage.getItem(key))return;');
+ assert.ok(firstCheck>connected.indexOf('await window.SHANEEndeavorStore.load(client,id)'));
+ assert.ok(firstCheck<connected.indexOf('details.replaceChildren()'));
+ assert.ok(connected.indexOf('if(version!==connectedViewVersion||id!==sessionStorage.getItem(key))return;',firstCheck+1)>firstCheck);
+});
