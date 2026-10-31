@@ -302,3 +302,8 @@ No action requested as of this update.
 - Account navigation now queries the selected endeavor's owner-scoped conversation entries when that endeavor is not represented in the latest forty account entries.
 - The creator opens with the selected endeavor identifier and available saved idea; existing work remains untouched.
 - Script syntax parsed before commit. Authenticated browser testing and unified AI orchestration remain pending.
+
+## 2026-10-31: shared endeavor continuation in core creation and discovery
+- `network.html`, `my-network.html`, and `builder.html` now load the shared vision-arrival and owner-scoped saved endeavor resume capability, extending coverage to nine major destination pages.
+- Creator reply text is not replaced by the incoming-vision notice. Existing manual and publishing controls remain in place.
+- JavaScript parsed. Browser and authenticated runtime verification remain pending; full persistent conversational AI and complete page transformation remain unfinished.
