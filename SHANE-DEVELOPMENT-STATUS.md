@@ -54,3 +54,8 @@ No action requested as of this update.
 - `growth.html` and `shane-growth-conversation.js`: conversational growth intake prepares existing local project and collaboration fields. Outreach drafts, tracking, and sending remain user-controlled.
 - `request-build.html` and `shane-build-request-conversation.js`: conversational custom-build intake prepares existing request details; email draft submission remains explicit.
 - Both use deterministic text parsing, not AI provider interpretation. Browser and end-to-end testing remain outstanding.
+
+## 2026-10-31: community publishing and opportunities
+- New `shane-community-publishing.js` is integrated into `community-feed.html` and `community-opportunities.html`.
+- Natural-language descriptions prepare announcement/event or volunteer opportunity drafts using the existing authorized publishing forms; posting and permission checks remain unchanged.
+- The script does not send, publish, or claim AI-generated content. End-to-end browser verification remains pending.
