@@ -118,3 +118,11 @@ test("Dashboard endeavor links restore the requested conversation safely",()=>{
  assert.ok(sync.includes('This endeavor link is invalid. Your existing conversation has not been changed.'));
  assert.ok(dashboard.includes('builder.html?endeavor='));
 });
+
+test("Connected endeavor exposes conversation discovery and collaboration routes",()=>{
+ const sync=fs.readFileSync(require("node:path").join(__dirname,"../shane-conversation-sync.js"),"utf8");
+ assert.ok(sync.includes('builder.html?endeavor="+encodeURIComponent(saved.id)'));
+ assert.ok(sync.includes('["Discover people and opportunities","network.html"]'));
+ assert.ok(sync.includes('["Collaborations and private messages","members.html#collaborationSection"]'));
+ assert.ok(sync.includes('serviceList.className="shane-service-readiness"'));
+});
