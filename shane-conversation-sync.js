@@ -270,6 +270,38 @@ document.addEventListener("DOMContentLoaded",()=>{
     }
     details.append(group);
    }
+   // Discover public opportunities without leaving the endeavor conversation.
+   const discovery=document.createElement("section");discovery.className="shane-creator-discovery";
+   const discoveryHeading=document.createElement("h4");discoveryHeading.textContent="Discover people and possibilities from here";
+   const discoveryForm=document.createElement("form");discoveryForm.setAttribute("role","search");
+   const discoveryInput=document.createElement("input");discoveryInput.type="search";discoveryInput.maxLength=100;discoveryInput.placeholder="People, projects, skills, interests…";discoveryInput.setAttribute("aria-label","Search public network opportunities");
+   const discoveryButton=document.createElement("button");discoveryButton.type="submit";discoveryButton.textContent="Explore network";
+   const discoveryStatus=document.createElement("p");discoveryStatus.setAttribute("role","status");
+   const discoveryResults=document.createElement("div");discoveryResults.className="shane-creator-discovery-results";
+   discoveryForm.append(discoveryInput,discoveryButton);discovery.append(discoveryHeading,discoveryForm,discoveryStatus,discoveryResults);details.append(discovery);
+   let discoveryVersion=0;
+   discoveryForm.addEventListener("submit",async event=>{
+    event.preventDefault();const query=discoveryInput.value.trim();const request=++discoveryVersion;
+    if(!query){discoveryStatus.textContent="Describe what you would like to discover.";return}
+    const terms=[...new Set(query.toLowerCase().replace(/[^\\p{L}\\p{N}\\s-]/gu," ").split(/\\s+/).filter(Boolean))].slice(0,5);
+    if(!terms.length){discoveryStatus.textContent="Try a word or phrase about what you are looking for.";return}
+    discoveryButton.disabled=true;discoveryStatus.textContent="Finding public opportunities…";
+    try{
+     let requestQuery=client.from("shane_listings").select("id,owner_id,title,category,description,region").eq("status","published").neq("owner_id",auth.user.id);
+     for(const term of terms)requestQuery=requestQuery.or(["title","description","region","category"].map(column=>column+".ilike.%"+term+"%").join(","));
+     const result=await requestQuery.order("created_at",{ascending:false}).limit(12);
+     if(request!==discoveryVersion||version!==connectedViewVersion||id!==sessionStorage.getItem(key)||!discovery.isConnected)return;
+     if(result.error)throw result.error;
+     discoveryResults.replaceChildren();discoveryStatus.textContent=(result.data||[]).length+" public opportunities found.";
+     for(const opportunity of result.data||[]){
+      const card=document.createElement("article");const name=document.createElement("strong");name.textContent=opportunity.title||"Untitled endeavor";
+      const description=document.createElement("p");description.textContent=String(opportunity.description||"").slice(0,350);
+      const view=document.createElement("a");view.href="network.html?endeavor="+encodeURIComponent(saved.id)+"&listing="+encodeURIComponent(opportunity.id);view.textContent="Explore and introduce yourself";
+      card.append(name,description,view);discoveryResults.append(card);
+     }
+    }catch(error){if(request===discoveryVersion&&version===connectedViewVersion&&id===sessionStorage.getItem(key))discoveryStatus.textContent="Discovery unavailable: "+error.message}
+    finally{if(request===discoveryVersion)discoveryButton.disabled=false}
+   });
    const links=[["Continue our conversation","builder.html?endeavor="+encodeURIComponent(saved.id)+"#vision-first"],["Discover people and opportunities","network.html?endeavor="+encodeURIComponent(saved.id)],["Review network presence","my-network.html"],["Manage network listing",listing?"members.html?listing="+encodeURIComponent(listing.id)+"#mineSection":"members.html#mineSection"],["Collaborations and private messages","members.html?endeavor="+encodeURIComponent(saved.id)+"#collaborationSection"],["Request Analyst review",null]];
    if(manifest.resources.organization)links.push(["Manage linked club or society","communities.html?organization="+encodeURIComponent(manifest.resources.organization)]);
    for(const [label,href] of links){const control=document.createElement(href?"a":"button");control.textContent=label;if(href)control.href=href;else{control.type="button";control.addEventListener("click",analystContext)}details.append(control,document.createTextNode(" · "))}
