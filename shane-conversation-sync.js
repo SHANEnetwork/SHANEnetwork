@@ -207,6 +207,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   if(!id||!client){status("Save or reopen an endeavor while signed in to view its connected capabilities.");return}
   try{
    const saved=await window.SHANEEndeavorStore.load(client,id);
+   if(version!==connectedViewVersion||id!==sessionStorage.getItem(key))return;
    const manifest=window.SHANECapabilityManifest.describe(saved);
    const details=get("shaneConnectedDetails");details.replaceChildren();
    const title=document.createElement("strong");title.textContent=saved.title||"Your endeavor";details.append(title);
@@ -215,8 +216,8 @@ document.addEventListener("DOMContentLoaded",()=>{
    const {data:auth,error:authError}=await client.auth.getUser();
    if(authError||!auth?.user?.id)throw Error("Sign in to inspect connected network listings.");
    const {data:linkedListing,error:listingError}=await client.from("shane_listings").select("id,status,endeavor_id").eq("endeavor_id",saved.id).eq("owner_id",auth.user.id).maybeSingle();
-   if(listingError)throw Error("Could not verify linked network listing: "+listingError.message);
    if(version!==connectedViewVersion||id!==sessionStorage.getItem(key))return;
+   if(listingError)throw Error("Could not verify linked network listing: "+listingError.message);
    listing=linkedListing;
    const readiness=window.SHANEEndeavorOrchestrator?.inspect(saved,listing);
    if(readiness){
