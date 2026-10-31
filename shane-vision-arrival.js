@@ -31,6 +31,7 @@ async function offerAccountResume(page,target,field){
    if(!chosen)throw Error("No saved conversation was found for this endeavor.");
    field.value=chosen.body.slice(0,field.maxLength>0?field.maxLength:4000);field.dispatchEvent(new Event("input",{bubbles:true}));
    note.textContent="Your saved idea is ready. Review and refine it before creating anything.";
+   document.dispatchEvent(new CustomEvent("shane:endeavor-arrived",{detail:{page,endeavorId:active.id,field:target.field,source:"account"}}));
    button.remove();
   }catch(error){note.textContent=String(error?.message||error);button.disabled=false}
  });
