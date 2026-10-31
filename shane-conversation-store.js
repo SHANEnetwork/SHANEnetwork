@@ -23,7 +23,7 @@ async function flush(){
    document.dispatchEvent(new CustomEvent("shane:conversation-saved",{detail:{endeavorId:item.endeavorId||null,page:item.page}}));
   }
  }catch(error){document.dispatchEvent(new CustomEvent("shane:conversation-save-error",{detail:{message:String(error?.message||error)}}))}
- finally{busy=false}
+ finally{busy=false;if(pending.length)document.dispatchEvent(new CustomEvent("shane:conversation-pending",{detail:{count:pending.length}}))}
 }
 document.addEventListener("shane:conversation-updated",event=>{
  const d=event.detail||{};
