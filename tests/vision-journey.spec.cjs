@@ -52,3 +52,15 @@ test('member network listing draft preserves endeavor context without publishing
   await expect.poll(() => page.evaluate(() => sessionStorage.getItem('shane-network-draft-v1'))).not.toBeNull();
   await expect(page).toHaveURL(/members\.html#listingSection/);
 });
+
+test('starting a new vision preserves earlier conversation turns', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  const vision = page.locator('#visionPrompt');
+  await vision.fill('Create a community makers festival with exhibits and workshops.');
+  await page.locator('#visionGuide').click();
+  await expect(page.locator('#shaneIdeaTurns')).toContainText('community makers festival');
+  await vision.fill('Add a volunteer schedule and a welcoming neighborhood map.');
+  await page.locator('#visionGuide').click();
+  await expect(page.locator('#shaneIdeaTurns')).toContainText('community makers festival');
+  await expect(page.locator('#shaneIdeaTurns')).toContainText('volunteer schedule');
+});
