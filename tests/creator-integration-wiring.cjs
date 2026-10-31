@@ -189,3 +189,13 @@ test("Creator distinguishes pending requests from accepted private collaboration
  assert.ok(sync.includes('collaboration.status==="accepted"?"Continue private collaboration":"Review pending collaboration request"'));
  assert.ok(sync.includes('heading.textContent="People connecting around this endeavor"'));
 });
+
+test("Endeavor context survives navigation into collaboration and back to Creator",()=>{
+ const sync=fs.readFileSync(require("node:path").join(__dirname,"../shane-conversation-sync.js"),"utf8");
+ const members=fs.readFileSync(require("node:path").join(__dirname,"../members.html"),"utf8");
+ assert.ok(sync.includes('"network.html?endeavor="+encodeURIComponent(saved.id)'));
+ assert.ok(sync.includes('"members.html?endeavor="+encodeURIComponent(saved.id)+"&conversation="+encodeURIComponent(collaboration.id)'));
+ assert.ok(members.includes('journeyEndeavor=new URLSearchParams(location.search).get("endeavor")'));
+ assert.ok(members.includes('back.href="builder.html?endeavor="+encodeURIComponent(journeyEndeavor)+"#vision-first"'));
+ assert.ok(members.includes('shane-return-journey'));
+});
