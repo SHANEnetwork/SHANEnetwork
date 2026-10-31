@@ -1,5 +1,5 @@
 const fs = require('node:fs');
-const vm = require('node:vm');
+const { spawnSync } = require('node:child_process');
 const pages = ['workspace.html', 'members.html', 'my-network.html', 'builder.html'];
 let failures = 0;
 for (const page of pages) {
@@ -8,17 +8,16 @@ for (const page of pages) {
   let checked = 0;
   for (const [, attrs, code] of scripts) {
     if (/\bsrc\s*=/.test(attrs) || !code.trim()) continue;
-    try {
-      if (/\btype\s*=\s*["']module["']/i.test(attrs)) {
-        const withoutImports = code.replace(/^\s*import\s*(?:\{[^}]*\}|\*\s+as\s+\w+|[\w$]+(?:\s*,\s*\{[^}]*\})?)\s*from\s*["'][^"']+["']\s*;?/gm, '');
-        new vm.Script('(async()=>{\n' + withoutImports + '\n})()', { filename: page });
-      } else {
-        new vm.Script(code, { filename: page });
-      }
-      checked++;
-    } catch (error) {
-      console.error(page + ': ' + error.message);
+    const isModule = /\btype\s*=\s*["']module["']/i.test(attrs);
+    const result = spawnSync(process.execPath, ['--check', '--input-type=' + (isModule ? 'module' : 'commonjs')], {
+      input: code, encoding: 'utf8'
+    });
+    if (result.status !== 0) {
+      const line = html.slice(0, html.indexOf(code)).split('\n').length;
+      console.error(page + ' inline script near line ' + line + ': ' + (result.stderr || result.error?.message || 'syntax check failed'));
       failures++;
+    } else {
+      checked++;
     }
   }
   console.log(page + ': ' + checked + ' inline scripts checked');
