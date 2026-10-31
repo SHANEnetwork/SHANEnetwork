@@ -67,3 +67,11 @@ test("Creator receives incoming vision once and triggers draft synchronization",
  assert.ok(handoff.includes('destination.dispatchEvent(new Event("input",{bubbles:true}))'));
  assert.ok(!handoff.includes('if(reply&&!reply.value.trim())reply.value=vision'));
 });
+
+test("Waiting vision can be resumed only after current writing is cleared",()=>{
+ const handoff=fs.readFileSync(require("node:path").join(__dirname,"../shane-vision-handoff.js"),"utf8");
+ assert.ok(handoff.includes('id="shaneBringWaitingVision"'));
+ assert.ok(handoff.includes('button.onclick=()=>'));
+ assert.ok(handoff.includes('if((prompt&&prompt.value.trim())||(reply&&reply.value.trim()))'));
+ assert.ok(handoff.includes('button.remove();apply()'));
+});
