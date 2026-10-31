@@ -19,6 +19,8 @@ function consumeHandoff(){try{const raw=sessionStorage.getItem("shane-intent-han
 consumeHandoff();
 function consumeCreatorListing(){if(config.kind!=="listing")return;try{const raw=sessionStorage.getItem("shane-network-draft-v1");if(!raw)return;const item=JSON.parse(raw);if(!item||typeof item.description!=="string")return;const prompt=section.querySelector("textarea");if(prompt.value.trim())return;prompt.value=item.description.slice(0,4000);section.querySelector("#shane-natural-response").textContent="Your creator draft is ready. Sign in, then prepare and review the listing before publishing.";sessionStorage.removeItem("shane-network-draft-v1")}catch{}}
 consumeCreatorListing();
+const handoffNotice=section.querySelector("#shane-natural-response");
+if(config.kind==="listing"&&target.closest("[hidden]"))handoffNotice.textContent=handoffNotice.textContent||"Sign in and open your listing editor to prepare a public listing.";
 const draftKey="shane-conversation-draft:"+page;
 const prompt=section.querySelector("#shane-natural-prompt");
 try{const stored=JSON.parse(sessionStorage.getItem(draftKey)||"null");if(stored&&typeof stored.text==="string"&&Date.now()-stored.updated<604800000&&!prompt.value.trim()){prompt.value=stored.text.slice(0,4000);section.querySelector("#shane-natural-response").textContent="Your unfinished description has been restored in this browser session."}}catch{}
