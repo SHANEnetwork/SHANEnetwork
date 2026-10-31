@@ -69,7 +69,13 @@ let feedRefreshInFlight = false;
 async function refreshLiveFeeds(){
   if(!collaboration || document.hidden || feedRefreshInFlight) return;
   feedRefreshInFlight = true;
-  try { await Promise.allSettled([messages(), loadActivity()]); }
+  try {
+    const updates=[messages(),loadActivity()];
+    // Refresh shared tasks too, unless someone is actively editing a task.
+    // This preserves their unsaved changes and avoids replacing form controls.
+    if(!$("taskList").querySelector("form")) updates.push(loadTasks());
+    await Promise.allSettled(updates);
+  }
   finally { feedRefreshInFlight = false; }
 }
 const feedRefreshTimer = setInterval(refreshLiveFeeds, 30000);
