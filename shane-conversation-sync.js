@@ -240,7 +240,33 @@ document.addEventListener("DOMContentLoaded",()=>{
     for(const collaboration of collaborations){
      if(collaboration.sender_id!==auth.user.id&&collaboration.recipient_id!==auth.user.id)continue;
      const conversation=document.createElement("a");conversation.href="members.html?endeavor="+encodeURIComponent(saved.id)+"&conversation="+encodeURIComponent(collaboration.id)+"#collaborationSection";
-     conversation.textContent=collaboration.status==="accepted"?"Continue private collaboration":"Review pending collaboration request";group.append(conversation);
+     conversation.textContent=collaboration.status==="accepted"?"Open full collaboration workspace":"Review pending collaboration request";group.append(conversation);
+     if(collaboration.status==="accepted"){
+      const openMessages=document.createElement("button");openMessages.type="button";openMessages.textContent="Read and write messages here";
+      const thread=document.createElement("section");thread.className="shane-creator-private-thread";thread.hidden=true;
+      const history=document.createElement("div");history.setAttribute("aria-live","polite");
+      const feedback=document.createElement("p");feedback.setAttribute("role","status");
+      const form=document.createElement("form");const field=document.createElement("textarea");field.required=true;field.maxLength=4000;field.rows=3;field.setAttribute("aria-label","Private collaboration message");field.placeholder="Write to your collaborator…";
+      const send=document.createElement("button");send.type="submit";send.textContent="Send private message";
+      const refresh=document.createElement("button");refresh.type="button";refresh.textContent="Refresh conversation";
+      form.append(field,send);thread.append(history,form,refresh,feedback);
+      let requestVersion=0;
+      async function loadMessages(){const current=++requestVersion;const result=await client.from("shane_collaboration_messages").select("id,sender_id,body,created_at").eq("request_id",collaboration.id).order("created_at",{ascending:false}).limit(100);
+       if(current!==requestVersion||version!==connectedViewVersion||id!==sessionStorage.getItem(key)||!thread.isConnected)return;
+       if(result.error){feedback.textContent="Messages unavailable: "+result.error.message;return}
+       history.replaceChildren();for(const message of [...(result.data||[])].reverse()){const p=document.createElement("p");p.textContent=(message.sender_id===auth.user.id?"You: ":"Collaborator: ")+message.body;history.append(p)}
+       if(!result.data?.length)history.textContent="No messages yet. Begin the conversation.";feedback.textContent="Conversation up to date.";
+      }
+      openMessages.addEventListener("click",()=>{thread.hidden=!thread.hidden;openMessages.textContent=thread.hidden?"Read and write messages here":"Hide private messages";if(!thread.hidden)loadMessages()});
+      refresh.addEventListener("click",loadMessages);
+      form.addEventListener("submit",async event=>{event.preventDefault();const body=field.value.trim();if(!body||body.length>4000)return;
+       send.disabled=true;const result=await client.from("shane_collaboration_messages").insert({request_id:collaboration.id,sender_id:auth.user.id,body});send.disabled=false;
+       if(version!==connectedViewVersion||id!==sessionStorage.getItem(key)||!thread.isConnected)return;
+       if(result.error){feedback.textContent="Message not sent: "+result.error.message;return}
+       field.value="";feedback.textContent="Message sent.";await loadMessages();
+      });
+      group.append(openMessages,thread);
+     }
     }
     details.append(group);
    }
