@@ -74,7 +74,9 @@ async function save(){
    status("Your conversation is saved, but the private website foundation could not be created: "+siteError.message+". SHANE will still prepare your private network draft.");
    // An optional website provisioning failure must not block the independent network draft.
    document.dispatchEvent(new CustomEvent("shane:endeavor-saved",{detail:{endeavorId:result.id,title,vision,siteId:null,organizationId:null}}));
-   return false;
+   // The private endeavor DID save. Report success so autosave does not restore
+   // an older endeavor identity over the newly persisted conversation.
+   return true;
   }
   return true;
  }catch(e){status("Conversation not saved: "+e.message);return false}
