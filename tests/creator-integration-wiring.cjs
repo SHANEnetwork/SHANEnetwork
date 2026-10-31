@@ -246,7 +246,7 @@ test("Creator discovers only published public listings without leaving the endea
  const sync=fs.readFileSync(require("node:path").join(__dirname,"../shane-conversation-sync.js"),"utf8");
  assert.ok(sync.includes('discoveryForm.addEventListener("submit"'));
  assert.ok(sync.includes('.eq("status","published").neq("owner_id",auth.user.id)'));
- assert.ok(sync.includes('.limit(12)'));
+ assert.ok(sync.includes('.limit(100)'));
  assert.ok(sync.includes('view.href="network.html?endeavor="+encodeURIComponent(saved.id)+"&listing="+encodeURIComponent(opportunity.id)'));
  assert.ok(sync.includes('name.textContent=opportunity.title'));
  assert.ok(sync.includes('description.textContent=String(opportunity.description'));
@@ -267,4 +267,13 @@ test("Network search matches any vision term, consistent with Creator discovery"
  assert.ok(network.includes('query=query.or(terms.flatMap('));
  assert.ok(network.includes('if(validCreatorEndeavor)params.set("endeavor",validCreatorEndeavor)'));
  assert.ok(network.includes('selectedDestination=initialFilters.get("listing")'));
+});
+
+test("Creator ranks matching opportunities by relevance and displays a bounded shortlist",()=>{
+ const sync=fs.readFileSync(require("node:path").join(__dirname,"../shane-conversation-sync.js"),"utf8");
+ assert.ok(sync.includes('const ranked=(result.data||[]).map(opportunity=>'));
+ assert.ok(sync.includes('title.includes(term)?5:0'));
+ assert.ok(sync.includes('description.includes(term)?2:0'));
+ assert.ok(sync.includes('.sort((a,b)=>b.score-a.score).slice(0,12)'));
+ assert.ok(sync.includes('for(const {opportunity} of ranked)'));
 });
