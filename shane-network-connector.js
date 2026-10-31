@@ -90,5 +90,16 @@ async function upsertEndeavorDraft(client,endeavorId,input){
  }
  return data;
 }
-return Object.freeze({prepare,discover,saveDraft,updateOwnDraft,upsertEndeavorDraft,publish,safeUrl});
+async function unpublish(client,id){
+ const user=await userFor(client);
+ if(!id)throw Error("Listing ID required.");
+ const {data,error}=await client.from("shane_listings")
+ .update({status:"draft",attribution_confirmed:false})
+ .eq("id",id).eq("owner_id",user.id).eq("status","published")
+ .select("id,title,status").maybeSingle();
+ if(error)throw error;
+ if(!data)throw Error("Owned published listing not found.");
+ return data;
+}
+return Object.freeze({prepare,discover,saveDraft,updateOwnDraft,upsertEndeavorDraft,publish,unpublish,safeUrl});
 });
