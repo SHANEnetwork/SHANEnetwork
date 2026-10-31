@@ -236,3 +236,9 @@ No action requested as of this update.
 - Shared snapshots now avoid duplicating the same text/page when it appears in both saved account history and the current session journal.
 - Conversation persistence emits `shane:conversation-pending` with an unsaved queue count, enabling visible save-state integration in future page work.
 - These changes are modest plumbing, not evidence of the complete AI-first experience. Focus next on substantial end-user creation and collaboration capabilities.
+
+## 2026-10-31: page-first experience transformation
+- Unified warm page layout and visual hierarchy across existing shared-stylesheet pages, preserving underlying actions and content.
+- Campaign creation now starts with a natural-language vision; a new external module prepares editable title, description and category fields without publishing automatically.
+- Campaign module JavaScript syntax parsed; visual and end-to-end browser verification remain pending. This is deterministic drafting, not a live AI generation service.
+- Priority is now setting up substantial user-facing page experiences before further synchronization refinements.
