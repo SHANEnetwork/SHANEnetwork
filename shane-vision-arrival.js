@@ -2,6 +2,9 @@
    This is a temporary navigation bridge, not durable account history or an AI service. */
 (()=>{"use strict";
 const destinations={
+ "network.html":{field:"shaneDiscoveryWish",status:"shaneDiscoveryReply"},
+ "my-network.html":{field:"visionInput",status:"visionMatches"},
+ "builder.html":{field:"visionPrompt",status:"shaneIdeaReply"},
  "communities.html":{field:"communityIdea",status:"communityDraftStatus"},
  "campaigns.html":{field:"campaignIdea",status:"campaignDraftStatus"},
  "members.html":{field:"listingIdea",status:"listingDraftStatus"},
@@ -42,7 +45,7 @@ function init(){
  field.value=item.text.slice(0,field.maxLength>0?field.maxLength:4000);
  field.dispatchEvent(new Event("input",{bubbles:true}));
  const status=document.getElementById(target.status);
- if(status)status.textContent="Your idea has arrived from the SHANE Network. Review or refine it, then prepare your draft when ready.";
+ if(status&&page!=="my-network.html")status.textContent="Your idea has arrived from the SHANE Network. Review or refine it when ready.";
  try{sessionStorage.removeItem("shane-intent-handoff-v1")}catch{}
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
