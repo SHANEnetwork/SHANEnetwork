@@ -3,6 +3,7 @@
 (()=>{"use strict";
 const destinations={
  "network.html":{field:"shaneDiscoveryWish",status:"shaneDiscoveryReply"},
+ "workspace.html":{field:"taskIdea",status:"taskDraftStatus"},
  "my-network.html":{field:"visionInput",status:"visionMatches"},
  "builder.html":{field:"visionPrompt"},
  "communities.html":{field:"communityIdea",status:"communityDraftStatus"},
