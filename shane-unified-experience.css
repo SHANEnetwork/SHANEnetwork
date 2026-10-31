@@ -20,3 +20,6 @@ input,textarea,select{border-radius:12px}
 .shane-unified-nav a{color:#fff!important;text-decoration:none;font:600 .88rem/1.3 system-ui,sans-serif;padding:9px 12px;border:1px solid #ffffff40;border-radius:999px;background:#ffffff12}
 .shane-unified-nav a:hover,.shane-unified-nav a[aria-current=page]{background:#fff!important;color:#54384d!important}
 @media(max-width:640px){.shane-unified-nav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}.shane-unified-nav a{flex:none}}
+
+.shane-unified-topbar{background:linear-gradient(110deg,#443047,#704760 65%,#966a70);padding:12px clamp(12px,4vw,48px);color:#fff}
+.shane-unified-topbar .shane-unified-nav{margin:0}
