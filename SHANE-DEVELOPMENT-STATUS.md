@@ -26,3 +26,9 @@ Transform actual interaction and layout on member, community, collaboration, cam
 
 ## User involvement
 No action requested as of this update.
+
+## 2026-10-31: conversational creation across Network
+- Added `shane-conversational-drafts.js` to `campaigns.html`, `communities.html`, and `members.html`. A natural-language description prepares a draft in each page's existing form, preserves existing save/publish handlers, and leaves required-field review and final submission to the member.
+- Added shared conversation-intake styling to `shane-unified-experience.css`.
+- These are deterministic draft helpers, NOT AI-generated campaigns or automated publishing. Existing permissions and publication actions remain authoritative.
+- Next: transform collaboration, member relationships and ongoing endeavor operation; ultimately connect real AI interpretation and orchestration, then verify page by page.
