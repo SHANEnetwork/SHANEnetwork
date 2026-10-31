@@ -332,3 +332,33 @@ test('account save lock covers delayed authentication as well as database writes
   await page.evaluate(() => {window.__authPending=false;window.__releaseAuth()});
   await expect.poll(() => page.evaluate(() => window.__writeCalls.length), {timeout:6000}).toBeGreaterThan(1);
 });
+
+test('saved account conversation restores in a fresh browser context', async ({ browser }) => {
+  const endeavor = 'dddddddd-dddd-4ddd-8ddd-dddddddddddd';
+  const accountHistory = [{role:'you',text:'Create a regional makers cooperative.'},{role:'shane',text:'We can connect workshops, mentors and events.'}];
+  const first = await browser.newContext();
+  const page1 = await first.newPage();
+  await page1.goto('http://127.0.0.1:8765/builder.html');
+  await page1.evaluate(({endeavor,accountHistory}) => {
+    window.shaneAccountDb = {
+      auth: {getUser: async () => ({data:{user:{id:'11111111-1111-4111-8111-111111111111'}}})},
+      from: () => ({select: () => ({eq: () => ({eq: () => ({maybeSingle: async () => ({data:{history:accountHistory,draft_ready:true},error:null})})})}),upsert: async () => ({error:null})})
+    };
+    document.dispatchEvent(new CustomEvent('shane:endeavor-changed',{detail:{id:endeavor,reason:'opened'}}));
+  }, {endeavor,accountHistory});
+  await expect(page1.locator('#shaneIdeaTurns')).toContainText('regional makers cooperative');
+  await first.close();
+  const second = await browser.newContext();
+  const page2 = await second.newPage();
+  await page2.goto('http://127.0.0.1:8765/builder.html');
+  await page2.evaluate(({endeavor,accountHistory}) => {
+    window.shaneAccountDb = {
+      auth: {getUser: async () => ({data:{user:{id:'11111111-1111-4111-8111-111111111111'}}})},
+      from: () => ({select: () => ({eq: () => ({eq: () => ({maybeSingle: async () => ({data:{history:accountHistory,draft_ready:true},error:null})})})}),upsert: async () => ({error:null})})
+    };
+    document.dispatchEvent(new CustomEvent('shane:endeavor-changed',{detail:{id:endeavor,reason:'opened'}}));
+  }, {endeavor,accountHistory});
+  await expect(page2.locator('#shaneIdeaTurns')).toContainText('regional makers cooperative');
+  await expect(page2.locator('#shaneIdeaTurns')).toContainText('connect workshops, mentors and events');
+  await second.close();
+});
