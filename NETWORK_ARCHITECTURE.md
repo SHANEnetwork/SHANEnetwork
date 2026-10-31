@@ -59,3 +59,25 @@ Before prioritizing a website builder improvement, ask: does this strengthen the
 - **After these pass:** review SHONnetworking v1 against the stable connector, propose non-destructive SHON upgrades, and request explicit approval before any SHON production change.
 
 A standalone descriptor validator is not a live destination registry. No member federation, automatic account transfer, or cross-network messaging may be advertised until independently implemented and tested.
+
+## Integrated SHANE delivery plan: experience and network in lockstep
+
+**Product invariant:** SHANE begins with an endeavor or idea, not a website configuration. Its response is a conversation plus useful working results. The SHANE Network connects independently governed endeavors; SHANEnetwork is the first participating experience. SHONnetworking v1 remains unchanged until both are verified.
+
+### Work packages and release gates
+
+1. **Experience and intake.** Keep the illustrated, welcoming interface; unify homepage, Creator and dashboard handoffs; support file intake with truthful format/size reporting. Gate: a new or returning person can start with an idea or supported file, continue without retyping, and find the same saved endeavor on return.
+2. **Shared endeavor context.** Version an endeavor record, decisions, source documents, generated artifacts and conversation context; implement explicit read/write boundaries and recovery. Gate: two modules use the same approved context without overwriting another module's edits, and a prior version can be recovered.
+3. **Orchestration contract.** Define capability discovery, input/output types, authorization requirements, execution status and error recovery for creation, network discovery, collaboration, events, messaging and publication. Gate: an endeavor can invoke two different modules, retain their results and recover from a failed step without data loss.
+4. **Network participation.** Use owner-scoped private drafts, explicit publish/unpublish, public discovery, verified origin and versioned destination descriptors. Gate: a second account can discover only published data; cannot edit the owner’s endeavor; withdrawal removes it from public discovery.
+5. **Real collaboration.** Connect invitation, acceptance, membership, private messages and revocation through enforced database policies. Gate: two separate accounts can collaborate after consent, and rejected/removed members lose access.
+6. **Working creation.** AI interpretation drives reusable generation, editable previews, versions, publish and rollback. Gate: an actual endeavor produces a usable result and can revise and restore it without losing its context.
+7. **Release.** Run cross-account RLS tests, keyboard and mobile accessibility, browser journeys, migration rollback, performance and abuse safeguards. Gate: publish a verified capability matrix, with unsupported features clearly marked.
+
+### Working rules
+- Each work package ships a user-visible interaction, a matching network/data contract, and an automated test wherever feasible.
+- Existing code and production remain intact until inspected; prefer additive changes on the development branch.
+- Never claim a descriptor, database table, mock test or CI success constitutes end-to-end federation.
+- Do not impose a fixed questionnaire, hard character cutoff or website-first flow on people bringing an endeavor.
+- Never publish, invite, message, or transfer private information automatically.
+- Before SHON integration, prove interoperability with a test destination and explicit owner consent.
