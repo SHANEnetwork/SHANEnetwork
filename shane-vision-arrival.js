@@ -46,6 +46,9 @@ function init(){
  if(field.value.trim())return;
  field.value=item.text.slice(0,field.maxLength>0?field.maxLength:4000);
  field.dispatchEvent(new Event("input",{bubbles:true}));
+ if(item.endeavorId&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(item.endeavorId)){
+  try{sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:item.endeavorId,updated:Date.now()}))}catch{}
+ }
  const status=document.getElementById(target.status);
  if(status&&page!=="my-network.html")status.textContent="Your idea has arrived from the SHANE Network. Review or refine it when ready.";
  try{sessionStorage.removeItem("shane-intent-handoff-v1")}catch{}
