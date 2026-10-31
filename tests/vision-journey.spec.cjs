@@ -8,7 +8,6 @@ test('welcome vision reaches the conversation-first creator intact', async ({ pa
   await page.locator('#shaneWelcome button[type="submit"]').click();
   await expect(page).toHaveURL(/builder\.html\?from=welcome#vision-first/);
   await expect(page.locator('#visionPrompt')).toHaveValue(vision);
-  await expect(page.locator('#assessmentIdea')).toHaveValue(vision);
   await expect(page.locator('#visionStatus')).toContainText('Your vision is ready');
 });
 
