@@ -38,4 +38,6 @@ document.getElementById("shanePeopleReply").textContent="Looking for published c
 document.getElementById("discoverForm").dispatchEvent(new Event("submit",{bubbles:true,cancelable:true}));
 document.getElementById("discoverResults").scrollIntoView({behavior:"smooth",block:"start"});
 })}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init()})();
+</script><script>
+(()=>{function init(){const link=document.getElementById("buildFromVision"),field=document.getElementById("visionInput");if(!link||!field)return;link.addEventListener("click",()=>{const text=field.value.trim();if(!text)return;try{sessionStorage.setItem("shane-creative-handoff-v1",JSON.stringify({text:text.slice(0,2000),created:Date.now()}))}catch{}})}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init()})();
 </script></body></html>
