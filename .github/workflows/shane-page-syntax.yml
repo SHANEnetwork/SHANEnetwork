@@ -2,10 +2,16 @@ name: SHANE page syntax
 on:
   push:
     paths:
+      - 'index.html'
       - 'workspace.html'
       - 'members.html'
       - 'my-network.html'
       - 'builder.html'
+      - 'site.html'
+      - 'dashboard.html'
+      - 'network.html'
+      - 'endeavor-invitations.html'
+      - 'endeavor-collaborators.html'
       - 'scripts/check-page-syntax.cjs'
       - '.github/workflows/shane-page-syntax.yml'
   pull_request:
