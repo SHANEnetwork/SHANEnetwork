@@ -66,6 +66,20 @@ function init(){
  const status=document.createElement("span");status.setAttribute("role","status");status.className="shane-action-status";
  const suggestion=document.createElement("span");suggestion.className="shane-action-suggestion";suggestion.setAttribute("aria-live","polite");
  const update=()=>{const text=idea(),destination=suggest(text),label=targets.find(([path])=>path===destination)?.[1];suggestion.textContent=select.value?"You chose "+targets.find(([path])=>path===select.value)?.[1]:label?"SHANE suggests: "+label:"Describe your idea and SHANE will suggest a next step."};
+ // Existing SHANE navigation links also carry the current endeavor when a member
+ // deliberately opens another creation or collaboration capability.
+ nav.addEventListener("click",event=>{
+  const link=event.target.closest?.("a[href]");
+  if(!link||event.defaultPrevented||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||event.button!==0)return;
+  const url=new URL(link.href,location.href);
+  if(url.origin!==location.origin)return;
+  const destination=url.pathname.split("/").pop();
+  if(!targets.some(([path])=>path===destination))return;
+  const text=idea();if(!text)return;
+  let endeavorId=null;
+  try{const saved=JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id;if(typeof saved==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(saved))endeavorId=saved}catch{}
+  try{sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination,text:text.slice(0,4000),endeavorId,created:Date.now()}))}catch{}
+ });
  select.addEventListener("change",update);
  document.addEventListener("input",event=>{if(event.target?.id&&(fields[location.pathname.split("/").pop()||"index.html"]||[]).includes(event.target.id))update()});
  button.addEventListener("click",async()=>{
