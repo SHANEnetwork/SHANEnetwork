@@ -74,3 +74,8 @@ No action requested as of this update.
 - `community-members.html` now loads `shane-community-admin-conversation.js`, allowing an organization owner to prepare a private member note in ordinary language using the existing save workflow.
 - Existing role changes, membership selection, authorization, and save behavior are preserved; the intake never submits automatically or overwrites a different unsaved note.
 - No browser or authorization end-to-end verification has been performed.
+
+## 2026-10-31: safer organization configuration continuity
+- `community-history.html` now shows a field-by-field comparison of a historical configuration with the latest saved configuration before an owner elects to restore it.
+- The existing restore RPC, owner-scoped organization lookup, and confirmation remain unchanged. This compares stored configuration snapshots; it does not inspect or alter community content.
+- Browser verification remains pending.
