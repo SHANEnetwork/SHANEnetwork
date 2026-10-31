@@ -413,7 +413,7 @@ test('creator discovery carries vision into Network search without publishing', 
   await page.goto('http://127.0.0.1:8765/builder.html');
   await page.locator('#visionPrompt').fill('Community pottery workshops and neighborhood makers');
   await page.locator('#shaneFindCollaborators').click();
-  await expect(page).toHaveURL(/network\\.html\\?q=/);
+  await expect(page).toHaveURL(/network\.html\?q=/);
   await expect(page.locator('#q')).toHaveValue(/pottery/i);
 });
 
@@ -421,7 +421,7 @@ test('creator prepares an editable private introduction without sending an invit
   await page.goto('http://127.0.0.1:8765/builder.html');
   await page.locator('#visionPrompt').fill('Community pottery workshops and neighborhood makers');
   await page.locator('#shanePrepareIntroduction').click();
-  await expect(page).toHaveURL(/network\\.html\\?q=/);
+  await expect(page).toHaveURL(/network\.html\?q=/);
   const draft = await page.evaluate(() => sessionStorage.getItem('shane_collaboration_intro_draft_v1'));
   expect(draft).toContain('Community pottery workshops');
   expect(draft).toContain('explore whether our ideas');
