@@ -17,6 +17,14 @@
   const prompt=document.getElementById("visionPrompt");
   const reply=document.getElementById("shaneIdeaReply");
   const message=document.getElementById("shaneIdeaMessage");
+  const available=prompt||reply;
+  if(!available)return;
+  const alreadyPresent=(prompt&&prompt.value.includes(vision))||(reply&&reply.value.includes(vision));
+  const occupied=(prompt&&prompt.value.trim())||(reply&&reply.value.trim());
+  if(occupied&&!alreadyPresent){
+   if(message)message.textContent="Your earlier idea is safely waiting. This workspace already contains writing, so it has not been replaced. Return to the entrance to review it.";
+   return;
+  }
   if(prompt&&!prompt.value.trim())prompt.value=vision;
   if(reply&&!reply.value.trim())reply.value=vision;
   if(message)message.textContent="Your idea came with you. Keep exploring, refining and creating here. A website is only one possibility; nothing is published automatically.";
