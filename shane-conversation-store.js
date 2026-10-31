@@ -17,7 +17,7 @@ async function flush(){
    const record={owner_id:account.id,body:item.text,source_page:item.page,entry_kind:item.kind};
    if(item.endeavorId)record.endeavor_id=item.endeavorId;
    let {error}=await db.from(table).insert(record);
-   if(error&&record.endeavor_id){delete record.endeavor_id;({error}=await db.from(table).insert(record))}
+   if(error&&record.endeavor_id){document.dispatchEvent(new CustomEvent("shane:conversation-save-error",{detail:{message:"Conversation not saved: endeavor association requires attention."}}))}
    if(error)throw error;
    pending.shift();
   }
