@@ -93,3 +93,13 @@ test('repeating the same vision does not duplicate the user request', async ({ p
   await page.locator('#visionGuide').click();
   await expect(page.locator('#shaneIdeaTurns [data-role="you"]')).toHaveCount(1);
 });
+
+test('oversized conversation requests remain editable and never trigger generation', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  const message = 'A'.repeat(12001);
+  await page.locator('#shaneIdeaReply').fill(message);
+  await page.locator('#shaneIdeaSend').click();
+  await expect(page.locator('#shaneIdeaReply')).toHaveValue(message);
+  await expect(page.locator('#shaneIdeaMessage')).toContainText('12,000-character conversation limit');
+  await expect(page.locator('#shaneIdeaTurns [data-role="you"]')).toHaveCount(0);
+});
