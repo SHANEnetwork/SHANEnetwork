@@ -8,9 +8,9 @@ if(!api)return;
 let pending=Promise.resolve();
 const status=document.createElement("p");status.id="shaneNetworkBridgeStatus";status.setAttribute("role","status");status.setAttribute("aria-live","polite");
 const link=document.createElement("a");link.href="members.html#mineSection";link.textContent="Review my network drafts";link.hidden=true;
-const panel=document.createElement("section");panel.id="shaneNetworkBridge";panel.style.cssText="margin:16px auto;padding:16px;max-width:900px;border:1px solid #bdd4e9;border-radius:14px;background:#f0f7ff;color:#183454";
-const heading=document.createElement("strong");heading.textContent="Your place in Shane Network";
-const intro=document.createElement("p");intro.textContent="When you save your endeavor, SHANE also prepares a private network presence. Nothing appears publicly until you approve it.";
+const panel=document.createElement("section");panel.id="shaneNetworkBridge";panel.className="shane-network-presence-panel";
+const heading=document.createElement("h3");heading.textContent="Your endeavor has a place in the network";
+const intro=document.createElement("p");intro.textContent="Keep creating together. SHANE quietly prepares a private network presence alongside your endeavor, ready whenever you choose to share it.";
 panel.append(heading,intro,status,link);
 function mount(){const target=document.getElementById("shaneContinuityStatus")?.parentElement||document.querySelector("main")||document.body;target.append(panel)}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mount,{once:true});else mount();
