@@ -122,8 +122,8 @@ test("Dashboard endeavor links restore the requested conversation safely",()=>{
 test("Connected endeavor exposes conversation discovery and collaboration routes",()=>{
  const sync=fs.readFileSync(require("node:path").join(__dirname,"../shane-conversation-sync.js"),"utf8");
  assert.ok(sync.includes('builder.html?endeavor="+encodeURIComponent(saved.id)'));
- assert.ok(sync.includes('["Discover people and opportunities","network.html"]'));
- assert.ok(sync.includes('["Collaborations and private messages","members.html#collaborationSection"]'));
+ assert.ok(sync.includes('["Discover people and opportunities","network.html?endeavor="+encodeURIComponent(saved.id)]'));
+ assert.ok(sync.includes('["Collaborations and private messages","members.html?endeavor="+encodeURIComponent(saved.id)+"#collaborationSection"]'));
  assert.ok(sync.includes('serviceList.className="shane-service-readiness"'));
 });
 
@@ -180,7 +180,7 @@ test("Creator displays only accepted collaborations for the active owned endeavo
  const sync=fs.readFileSync(require("node:path").join(__dirname,"../shane-conversation-sync.js"),"utf8");
  assert.ok(sync.includes('.eq("listing_id",listing.id).in("status",["pending","accepted"]).limit(25)'));
  assert.ok(sync.includes('collaboration.sender_id!==auth.user.id&&collaboration.recipient_id!==auth.user.id'));
- assert.ok(sync.includes('members.html?conversation="+encodeURIComponent(collaboration.id)'));
+ assert.ok(sync.includes('members.html?endeavor="+encodeURIComponent(saved.id)+"&conversation="+encodeURIComponent(collaboration.id)'));
  assert.ok(sync.includes('if(version!==connectedViewVersion||id!==sessionStorage.getItem(key))return;'));
 });
 
