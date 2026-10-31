@@ -2,6 +2,9 @@
 (()=>{"use strict";
 function init(){const button=document.getElementById("shaneGrowthPrepare");if(!button)return;
 try{const raw=sessionStorage.getItem("shane-intent-handoff-v1");if(raw){const item=JSON.parse(raw);const field=document.getElementById("shaneGrowthGoal");if(item&&item.destination==="growth.html"&&typeof item.text==="string"&&Date.now()-item.created<86400000&&field&&!field.value.trim()){field.value=item.text.slice(0,4000);document.getElementById("shaneGrowthReply").textContent="Your endeavor's direction is ready for outreach preparation.";sessionStorage.removeItem("shane-intent-handoff-v1")}}}catch{}
+const draftKey="shane-conversation-draft:growth.html",input=document.getElementById("shaneGrowthGoal");
+try{const saved=JSON.parse(sessionStorage.getItem(draftKey)||"null");if(saved&&typeof saved.text==="string"&&Date.now()-saved.updated<604800000&&!input.value.trim()){input.value=saved.text.slice(0,4000);document.getElementById("shaneGrowthReply").textContent="Your unfinished outreach idea is ready to continue."}}catch{}
+input.addEventListener("input",()=>{try{if(input.value.trim())sessionStorage.setItem(draftKey,JSON.stringify({text:input.value.slice(0,4000),updated:Date.now()}));else sessionStorage.removeItem(draftKey)}catch{}});
 button.addEventListener("click",()=>{
 const raw=document.getElementById("shaneGrowthGoal").value.trim();
 if(!raw){document.getElementById("shaneGrowthGoal").focus();return}
