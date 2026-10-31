@@ -69,3 +69,8 @@ No action requested as of this update.
 - `sports-district.html` now accepts a natural-language description of a sports organization, interpreted by `shane-sports-conversation.js` into existing demonstration settings.
 - The preview has no live security enforcement, and the changes do not involve actual students or school records.
 - Browser verification remains outstanding; full AI orchestration is not yet connected.
+
+## 2026-10-31: private member administration
+- `community-members.html` now loads `shane-community-admin-conversation.js`, allowing an organization owner to prepare a private member note in ordinary language using the existing save workflow.
+- Existing role changes, membership selection, authorization, and save behavior are preserved; the intake never submits automatically or overwrites a different unsaved note.
+- No browser or authorization end-to-end verification has been performed.
