@@ -5,7 +5,7 @@ const sb=createClient("https://ufxzogeixdwvbpdypojb.supabase.co","sb_publishable
  const $=id=>document.getElementById(id);
  const box=$("networkCollaborationInbox"),status=$("networkCollaborationStatus");
  if(!box||!status)return;
- let user=null;
+ let user=null,decisionPending=false;
  const el=(tag,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;return node};
  const action=(label,fn)=>{const button=el("button",label);button.type="button";button.addEventListener("click",fn);return button};
  async function load(){box.replaceChildren();status.textContent="Checking your invitations and collaborations…";try{
@@ -18,7 +18,7 @@ const sb=createClient("https://ufxzogeixdwvbpdypojb.supabase.co","sb_publishable
   const ids=[...new Set(rows.map(r=>r.listing_id).filter(Boolean))];let titles=new Map();
   if(ids.length){const names=await sb.from("shane_listings").select("id,title").in("id",ids);if(!names.error)titles=new Map((names.data||[]).map(n=>[n.id,n.title]));}
   for(const r of rows){const article=el("article");article.className="entry";const heading=el("h3",(r.recipient_id===user.id?"Received":"Sent")+" · "+(titles.get(r.listing_id)||"Collaboration"));const detail=el("p",r.message);const state=el("p","Status: "+r.status);article.append(heading,detail,state);
-   if(r.status==="pending"&&r.recipient_id===user.id){for(const decision of ["accepted","declined"]){const btn=action(decision==="accepted"?"Accept invitation":"Decline invitation",async()=>{btn.disabled=true;const result=await sb.from("shane_collaboration_requests").update({status:decision}).eq("id",r.id).eq("recipient_id",user.id).eq("status","pending").select("id").maybeSingle();if(result.error){state.textContent="Could not update invitation: "+result.error.message;btn.disabled=false;return}if(!result.data){state.textContent="This invitation has already changed. Refreshing…";await load();return}await load()});article.append(btn,document.createTextNode(" "));}}
+   if(r.status==="pending"&&r.recipient_id===user.id){for(const decision of ["accepted","declined"]){const btn=action(decision==="accepted"?"Accept invitation":"Decline invitation",async()=>{if(decisionPending)return;decisionPending=true;for(const b of article.querySelectorAll("button"))b.disabled=true;const result=await sb.from("shane_collaboration_requests").update({status:decision}).eq("id",r.id).eq("recipient_id",user.id).eq("status","pending").select("id").maybeSingle();if(result.error){state.textContent="Could not update invitation: "+result.error.message;decisionPending=false;for(const b of article.querySelectorAll("button"))b.disabled=false;return}decisionPending=false;if(!result.data){state.textContent="This invitation has already changed. Refreshing…";await load();return}await load()});article.append(btn,document.createTextNode(" "));}}
    if(r.status==="accepted"){const work=el("a","Open shared workspace");work.href="workspace.html?collaboration="+encodeURIComponent(r.id);const messages=el("a","Private conversation");messages.href="members.html?conversation="+encodeURIComponent(r.id)+"#collaborationSection";article.append(work,document.createTextNode(" · "),messages);}
    box.append(article);
   }
