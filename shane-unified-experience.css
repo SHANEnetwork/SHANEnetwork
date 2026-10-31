@@ -64,3 +64,6 @@ body:has(.shane-unified-nav) main :where(textarea,input[type=text],input[type=se
 .shane-resume-endeavor{display:inline-flex;margin:12px 12px 12px 0;padding:10px 16px;min-height:44px;border:1px solid #9b6e83;border-radius:999px;background:#fff9f7;color:#69445d;font:650 14px system-ui;cursor:pointer}
 .shane-resume-endeavor:hover,.shane-resume-endeavor:focus-visible{background:#f3e4e9}
 .shane-resume-endeavor:disabled{opacity:.6;cursor:wait}
+
+.shane-unified-nav .shane-endeavor-switcher{max-width:205px;min-height:38px;padding:7px 10px;border:1px solid #b68d9c;border-radius:10px;background:#fffaf7;color:#57394e;font:600 13px system-ui}
+.shane-unified-nav .shane-saved-resume-link{font-weight:700;text-decoration:underline;text-underline-offset:3px}
