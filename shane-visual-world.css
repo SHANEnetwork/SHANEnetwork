@@ -13,3 +13,11 @@ body button,body .button{transition:filter .18s ease,box-shadow .18s ease}
 body button:hover,body .button:hover{filter:brightness(1.06)}
 input,textarea,select{font:inherit}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}body button,body .button{transition:none}}
+
+/* Creator's network presence belongs to the same imaginative environment. */
+.shane-network-presence-panel{max-width:900px;margin:1.5rem auto;padding:clamp(1.2rem,3vw,2.2rem);border:1px solid rgba(135,91,113,.22);border-radius:24px;background:linear-gradient(135deg,rgba(255,244,225,.98),rgba(252,226,216,.93) 55%,rgba(236,222,250,.92));box-shadow:0 12px 34px rgba(70,37,68,.10);color:#352b40}
+.shane-network-presence-panel h3{margin:0 0 .6rem;font-size:clamp(1.25rem,2.4vw,1.65rem);line-height:1.25;color:#56345d}
+.shane-network-presence-panel p{line-height:1.65;max-width:70ch}
+.shane-network-presence-panel a:not([hidden]){display:inline-block;margin-top:.7rem;padding:.7rem 1.15rem;border-radius:999px;background:#643b70;color:white;font-weight:650;text-decoration:none}
+.shane-network-presence-panel a:focus-visible{outline:3px solid #b35d2c;outline-offset:4px}
+@media(prefers-reduced-motion:no-preference){.shane-network-presence-panel a:hover{transform:translateY(-1px)}}
