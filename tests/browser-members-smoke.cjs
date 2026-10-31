@@ -188,6 +188,8 @@ test('homepage idea reaches the conversational creator without being shortened',
   const page=await browser.newPage();
   const idea='Create a welcoming community with events, collaboration, and accessible pages. '.repeat(80);
   await page.goto(server.base+'/index.html');
+  // The legacy welcome creator remains available under progressive disclosure.
+  await page.locator('#shane-explore-details').evaluate(element=>{element.open=true});
   await page.locator('#welcomeIdea').fill(idea);
   await page.locator('#shaneWelcome button[type="submit"]').first().click();
   const continueLink=page.locator('#welcomePreview a[href*="builder.html"]').first();
