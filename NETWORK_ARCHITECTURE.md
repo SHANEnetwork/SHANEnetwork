@@ -47,3 +47,15 @@ Existing live tables as inspected 2026-10-28 include shane_profiles, shane_endea
 
 ## Scope guard
 Before prioritizing a website builder improvement, ask: does this strengthen the network's ability to connect people and endeavors? If not, prioritize missing network foundations and end-to-end flows first.
+
+## Delivery sequence agreed 2026-10-30
+
+**Build SHANEnetwork and the SHANE Network together. Defer SHONnetwork changes until both are finished and their interoperability has been tested.** SHONnetworking v1 is an existing independent implementation and must remain untouched during this phase. A future SHON upgrade will use the completed network protocol and a separately reviewed, opt-in integration. SHANEnetwork is the creation and member-facing website; SHANE Network is the interoperable connective layer, not merely a second name for the website.
+
+### Parallel implementation tracks
+- **SHANEnetwork experience:** original illustrated identity across pages; vision- and document-first conversation; real extraction for supported documents; durable endeavor notes, conversation continuity, editing, preview and publishing; accessible interaction without compulsory technical questionnaires.
+- **SHANE Network foundation:** destination registry and public discovery; verified destination ownership; opt-in registration, update and removal; versioned protocol; consent-scoped identities and connections; invitation and collaboration permissions; independent deployment and data boundaries.
+- **Integration and release verification:** connect SHANEnetwork as the first network destination, exercise the full create-save-discover-connect-collaborate lifecycle across accounts, verify RLS and revocation, run browser tests and document what remains incomplete.
+- **After these pass:** review SHONnetworking v1 against the stable connector, propose non-destructive SHON upgrades, and request explicit approval before any SHON production change.
+
+A standalone descriptor validator is not a live destination registry. No member federation, automatic account transfer, or cross-network messaging may be advertised until independently implemented and tested.
