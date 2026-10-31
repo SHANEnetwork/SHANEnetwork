@@ -100,3 +100,12 @@ test("Partially provisioned endeavor remains the active saved conversation",()=>
  assert.ok(!failure.includes('return false;'));
  assert.ok(sync.includes('if(!saved){'));
 });
+
+test("Switching saved endeavors does not change identity before consent",()=>{
+ const sync=fs.readFileSync(require("node:path").join(__dirname,"../shane-conversation-sync.js"),"utf8");
+ assert.ok(sync.includes('async function resume(requestedId)'));
+ assert.ok(sync.includes('button.addEventListener("click",()=>resume(item.id))'));
+ assert.ok(!sync.includes('sessionStorage.setItem(key,item.id);resume()'));
+ const resume=sync.slice(sync.indexOf('async function resume(requestedId)'),sync.indexOf('async function analystContext()'));
+ assert.ok(resume.indexOf('if(current?.turns?.length&&!confirm(')<resume.indexOf('sessionStorage.setItem(key,id)'));
+});
