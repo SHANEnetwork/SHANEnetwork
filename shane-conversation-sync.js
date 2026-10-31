@@ -231,16 +231,16 @@ document.addEventListener("DOMContentLoaded",()=>{
    }
    // Bring accepted collaborations for this exact endeavor into the same journey.
    const {data:collaborations,error:collabError}=listing?await client.from("shane_collaboration_requests")
-    .select("id,status,sender_id,recipient_id").eq("listing_id",listing.id).eq("status","accepted").limit(25):{data:[],error:null};
+    .select("id,status,sender_id,recipient_id").eq("listing_id",listing.id).in("status",["pending","accepted"]).limit(25):{data:[],error:null};
    if(version!==connectedViewVersion||id!==sessionStorage.getItem(key))return;
    if(collabError){const notice=document.createElement("p");notice.textContent="Collaborations could not be loaded: "+collabError.message;details.append(notice)}
    else if(collaborations?.length){
     const group=document.createElement("section");group.className="shane-endeavor-collaborations";
-    const heading=document.createElement("h4");heading.textContent="Conversations connected to this endeavor";group.append(heading);
+    const heading=document.createElement("h4");heading.textContent="People connecting around this endeavor";group.append(heading);
     for(const collaboration of collaborations){
      if(collaboration.sender_id!==auth.user.id&&collaboration.recipient_id!==auth.user.id)continue;
      const conversation=document.createElement("a");conversation.href="members.html?conversation="+encodeURIComponent(collaboration.id)+"#collaborationSection";
-     conversation.textContent="Continue private collaboration";group.append(conversation);
+     conversation.textContent=collaboration.status==="accepted"?"Continue private collaboration":"Review pending collaboration request";group.append(conversation);
     }
     details.append(group);
    }
