@@ -297,11 +297,12 @@ document.addEventListener("DOMContentLoaded",()=>{
     try{
      let requestQuery=client.from("shane_listings").select("id,owner_id,title,category,description,region").eq("status","published").neq("owner_id",auth.user.id);
      requestQuery=requestQuery.or(terms.flatMap(term=>["title","description","region","category"].map(column=>column+".ilike.%"+term+"%")).join(","));
-     const result=await requestQuery.order("created_at",{ascending:false}).limit(12);
+     const result=await requestQuery.order("created_at",{ascending:false}).limit(100);
      if(request!==discoveryVersion||version!==connectedViewVersion||id!==sessionStorage.getItem(key)||!discovery.isConnected)return;
      if(result.error)throw result.error;
-     discoveryResults.replaceChildren();discoveryStatus.textContent=(result.data||[]).length+" public opportunities found.";
-     for(const opportunity of result.data||[]){
+     const ranked=(result.data||[]).map(opportunity=>{const title=String(opportunity.title||"").toLowerCase();const description=String(opportunity.description||"").toLowerCase();const context=[opportunity.category,opportunity.region].filter(Boolean).join(" ").toLowerCase();const score=terms.reduce((total,term)=>total+(title.includes(term)?5:0)+(description.includes(term)?2:0)+(context.includes(term)?1:0),0);return {opportunity,score}}).sort((a,b)=>b.score-a.score).slice(0,12);
+     discoveryResults.replaceChildren();discoveryStatus.textContent=ranked.length+" relevant public opportunities shown.";
+     for(const {opportunity} of ranked){
       const card=document.createElement("article");const name=document.createElement("strong");name.textContent=opportunity.title||"Untitled endeavor";
       const description=document.createElement("p");description.textContent=String(opportunity.description||"").slice(0,350);
       const view=document.createElement("a");view.href="network.html?endeavor="+encodeURIComponent(saved.id)+"&listing="+encodeURIComponent(opportunity.id);view.textContent="Explore and introduce yourself";
