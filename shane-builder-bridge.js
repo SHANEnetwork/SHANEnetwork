@@ -26,7 +26,7 @@ function apply(text){
   const status=document.getElementById("shaneModuleStatus");
   if(status)status.textContent=selected.length
     ? "SHANE selected "+selected.length+" relevant network link(s) from your vision. These are links to existing SHANE services, not private services created for your endeavor."
-    : "No network links inferred. SHANE will begin with your website draft.";
+    : "No network links inferred yet. SHANE can continue developing your endeavor without requiring a website.";
   return selected;
 }
 document.addEventListener("DOMContentLoaded",()=>{
