@@ -211,3 +211,8 @@ No action requested as of this update.
 - `SHANEConversation.fullContext()` now requests saved conversation entries for the selected active endeavor, avoiding accidental mixing of unrelated endeavor histories.
 - Incoming endeavor handoff IDs are format-checked before being stored in session continuity. Database RLS remains the authority for record access.
 - Shared navigation passed a JavaScript syntax parse check; browser verification and unified AI orchestration remain outstanding.
+
+## Shared conversation access
+- History cards now expose their associated endeavor ID as a DOM data attribute for downstream interactions.
+- Shared `SHANEConversation.last()` provides the latest in-session conversational turn to existing feature modules without introducing another interface.
+- These are integration primitives, not a completed AI orchestration engine. End-to-end browser tests remain pending.
