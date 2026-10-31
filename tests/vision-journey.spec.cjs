@@ -210,7 +210,7 @@ test('reselecting the same endeavor does not interrupt account synchronization',
   await expect.poll(() => page.evaluate(() => window.__writes.length), {timeout:6000}).toBeGreaterThan(0);
 });
 
-test('late account restore does not erase conversation turns added during lookup', async ({ page }) => {
+test('late account restore merges conversation turns added during lookup', async ({ page }) => {
   await page.goto('http://127.0.0.1:8765/builder.html');
   await page.evaluate(() => {
     window.__resolveRestore = null;
@@ -229,10 +229,10 @@ test('late account restore does not erase conversation turns added during lookup
   await expect(page.locator('#shaneIdeaTurns')).toContainText('community orchestra');
   await page.evaluate(() => window.__resolveRestore({data:{history:[{role:'you',text:'Old astronomy club request'}],draft_ready:true},error:null}));
   await expect(page.locator('#shaneIdeaTurns')).toContainText('community orchestra');
-  await expect(page.locator('#shaneIdeaTurns')).not.toContainText('Old astronomy club request');
+  await expect(page.locator('#shaneIdeaTurns')).toContainText('Old astronomy club request');
 });
 
-test('overlapping local edits and remote restore do not overwrite account history', async ({ page }) => {
+test('overlapping local edits and remote restore merge account history', async ({ page }) => {
   await page.goto('http://127.0.0.1:8765/builder.html');
   await page.evaluate(() => {
     window.__resolveConflict = null;
@@ -252,5 +252,7 @@ test('overlapping local edits and remote restore do not overwrite account histor
   await page.evaluate(() => window.__resolveConflict({data:{history:[{role:'you',text:'Earlier saved community choir'}],draft_ready:true},error:null}));
   await expect(page.locator('#shaneIdeaTurns')).toContainText('community theater');
   await page.waitForTimeout(1600);
-  expect(await page.evaluate(() => window.__conflictWrites.length)).toBe(0);
+  await expect(page.locator('#shaneIdeaTurns')).toContainText('Earlier saved community choir');
+  await expect.poll(() => page.evaluate(() => window.__conflictWrites.length)).toBeGreaterThan(0);
+  expect(await page.evaluate(() => window.__conflictWrites.at(-1).history.map(t => t.text).join(' '))).toContain('community theater');
 });
