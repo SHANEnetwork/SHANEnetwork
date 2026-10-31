@@ -34,3 +34,19 @@ test("Orchestration receives persisted endeavor from owner-scoped store",()=>{
 test("Network readiness event only refreshes selected endeavor",()=>{
  assert.ok(sync.includes("event.detail?.endeavorId===sessionStorage.getItem(key)"));
 });
+
+const dashboard=fs.readFileSync(require("node:path").join(__dirname,"../dashboard.html"),"utf8");
+test("Dashboard integrates member network presence without changing publication",()=>{
+ assert.ok(dashboard.includes('id="myNetworkListings"'));
+ assert.ok(dashboard.includes('"shane_listings","id,title,status,created_at","owner_id"'));
+ assert.ok(dashboard.includes('query(table,cols,field,user.id'));
+ assert.ok(dashboard.includes('x.status==="published"?"Public network presence":"Private network draft"'));
+ assert.ok(!dashboard.includes('.update({status:"published"'));
+});
+test("Dashboard maintains vision-first journey and original artwork",()=>{
+ assert.ok(dashboard.includes('SHANE-journey-original.png'));
+ assert.ok(dashboard.includes('href="#launchpad"'));
+ assert.ok(dashboard.includes('builder.html#vision-first'));
+ assert.ok(!dashboard.includes('builder.html#endeavor-assessment'));
+ assert.ok(!dashboard.includes('maxlength="2000"'));
+});
