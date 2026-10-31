@@ -247,3 +247,8 @@ No action requested as of this update.
 - `communities.html` now invites natural-language description before the existing creation form.
 - `shane-community-vision.js` prepares editable community name, purpose and matching category without automatic creation, preserving existing membership, room, and organization controls.
 - New JavaScript parsed; browser workflow remains to be verified. Deterministic draft preparation is not yet a live AI service.
+
+## 2026-10-31: member listing page-first experience
+- `members.html` now offers a natural-language listing vision before the existing listing form.
+- `shane-listing-vision.js` prepares editable title, description and category, defaults publication to private draft, and preserves the existing authorization and publishing controls.
+- Script syntax parsed; authenticated end-to-end browser testing remains pending. This is deterministic drafting, not live AI generation.
