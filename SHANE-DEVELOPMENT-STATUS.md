@@ -221,3 +221,8 @@ No action requested as of this update.
 - Account-backed conversation persistence no longer silently drops the endeavor reference when a linked save fails. The pending entry stays queued and an error event is emitted.
 - Successful persistence emits `shane:conversation-saved` for future coordination with page and Network modules.
 - JavaScript module body syntax parsed. Durable retry across page unload and end-to-end authenticated testing remain outstanding.
+
+## 2026-10-31: normalized conversational context for Network capabilities
+- `SHANEConversation.snapshot()` provides normalized saved and recent session turns with active endeavor reference for future cross-program orchestration.
+- Shared conversation store import failures now emit `shane:conversation-save-error` rather than disappearing silently.
+- Shared navigation syntax parsed; browser verification and a live AI execution layer remain outstanding.
