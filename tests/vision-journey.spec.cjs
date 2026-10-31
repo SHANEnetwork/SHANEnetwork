@@ -85,3 +85,11 @@ test('vision AI prompt carries earlier requests and selects revision for existin
   expect(prompt).toContain('\nConversation context:\n');
   await expect(page.locator('#visionStatus')).toContainText('refining your existing website draft');
 });
+
+test('repeating the same vision does not duplicate the user request', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.locator('#visionPrompt').fill('Create a neighborhood volunteer network with shared projects.');
+  await page.locator('#visionGuide').click();
+  await page.locator('#visionGuide').click();
+  await expect(page.locator('#shaneIdeaTurns [data-role="you"]')).toHaveCount(1);
+});
