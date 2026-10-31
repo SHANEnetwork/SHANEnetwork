@@ -69,6 +69,7 @@
  link.addEventListener("click",()=>{try{sessionStorage.setItem("shane-creative-handoff-v1",JSON.stringify({text:remembered.text,created:Date.now()}))}catch{}});
  hint.append("Your conversation can continue across SHANE. ",link);nav.append(hint)}
  if(header){header.append(nav)}else{const landmark=document.createElement("div");landmark.className="shane-unified-topbar";landmark.append(nav);document.body.insertBefore(landmark,document.body.firstChild)}
+ const accountResume=document.createElement("script");accountResume.src="shane-account-resume-nav.js";accountResume.defer=true;document.head.append(accountResume);
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
