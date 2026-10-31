@@ -79,3 +79,8 @@ No action requested as of this update.
 - `community-history.html` now shows a field-by-field comparison of a historical configuration with the latest saved configuration before an owner elects to restore it.
 - The existing restore RPC, owner-scoped organization lookup, and confirmation remain unchanged. This compares stored configuration snapshots; it does not inspect or alter community content.
 - Browser verification remains pending.
+
+## 2026-10-31: member-to-workflow continuity
+- `members.html` now routes member intent using complete-word matching for collaboration, opportunities, fundraising and advertising, and stores a destination-scoped, timestamped session handoff.
+- `shane-conversational-drafts.js` consumes the matching handoff on campaigns, communities and listings, preloading the person's original words for explicit draft preparation without automatically publishing.
+- Existing builder handoff remains; this is same-tab, browser-session continuity rather than server-persisted endeavor memory. Browser verification pending.
