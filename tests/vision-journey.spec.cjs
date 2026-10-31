@@ -388,3 +388,23 @@ test('delayed account restoration excludes stale local turns but preserves new e
   await expect(page.locator('#shaneIdeaTurns')).toContainText('New request for a cooperative marketplace.');
   await expect(page.locator('#shaneIdeaTurns')).not.toContainText('Stale browser conversation about pottery.');
 });
+
+test('account client readiness restores an endeavor selected before database initialization', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(() => {
+    window.shaneAccountDb = null;
+    document.dispatchEvent(new CustomEvent('shane:endeavor-changed',{detail:{id:'ffffffff-ffff-4fff-8fff-ffffffffffff',reason:'opened'}}));
+  });
+  await expect(page.locator('#shaneIdeaTurns')).not.toContainText('Account-ready memory');
+  await page.evaluate(() => {
+    window.shaneAccountDb = {
+      auth:{getUser:async()=>({data:{user:{id:'11111111-1111-4111-8111-111111111111'}}})},
+      from:()=>({
+        select:()=>({eq:()=>({eq:()=>({maybeSingle:async()=>({data:{history:[{role:'you',text:'Account-ready memory for the festival.'}],draft_ready:false},error:null})})})}),
+        upsert:async()=>({error:null})
+      })
+    };
+    document.dispatchEvent(new Event('shane:account-db-ready'));
+  });
+  await expect(page.locator('#shaneIdeaTurns')).toContainText('Account-ready memory for the festival.');
+});
