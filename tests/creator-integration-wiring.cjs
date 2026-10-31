@@ -306,3 +306,10 @@ test("Creator invitation decisions require recipient ownership and pending statu
  assert.ok(sync.includes('decline.addEventListener("click",()=>decide("declined"))'));
  assert.ok(sync.includes('await openConnectedEndeavor()'));
 });
+
+test("Creator proactively discovers opportunities from saved vision without auto-inviting",()=>{
+ const sync=fs.readFileSync(require("node:path").join(__dirname,"../shane-conversation-sync.js"),"utf8");
+ assert.ok(sync.includes('if(suggestedTerms.length){discoveryInput.value=suggestedTerms.join(" ");discoveryForm.requestSubmit()}'));
+ assert.ok(sync.includes('invite.addEventListener("click",async()=>'));
+ assert.ok(sync.includes('form.addEventListener("submit",async event=>'));
+});
