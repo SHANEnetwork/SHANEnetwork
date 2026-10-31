@@ -189,3 +189,23 @@ test('account-backed history takes priority over stale browser history', async (
   await page.waitForTimeout(1500);
   expect(await page.evaluate(() => window.__writes.some(p => p.history.some(t => t.text.includes('neighborhood art fair'))))).toBe(false);
 });
+
+test('reselecting the same endeavor does not interrupt account synchronization', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.locator('#visionPrompt').fill('Create a neighborhood astronomy club.');
+  await page.locator('#visionGuide').click();
+  await page.evaluate(() => {
+    window.__writes = [];
+    window.shaneAccountDb = {
+      auth: {getUser: async () => ({data:{user:{id:'11111111-1111-4111-8111-111111111111'}}})},
+      from: () => ({
+        select: () => ({eq: () => ({eq: () => ({maybeSingle: async () => ({data:null,error:null})})})}),
+        upsert: async payload => {window.__writes.push(payload);return {error:null}}
+      })
+    };
+    const event = () => document.dispatchEvent(new CustomEvent('shane:endeavor-changed',{detail:{id:'77777777-7777-4777-8777-777777777777'}}));
+    event();
+    event();
+  });
+  await expect.poll(() => page.evaluate(() => window.__writes.length), {timeout:6000}).toBeGreaterThan(0);
+});
