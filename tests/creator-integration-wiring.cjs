@@ -145,3 +145,12 @@ test("Creator network presence uses shared visual language without changing priv
  assert.ok(bridgeSource.includes('api.upsertEndeavorDraft'));
  assert.ok(!bridgeSource.includes('api.publish('));
 });
+
+test("Network bridge does not show another endeavor's completed listing",()=>{
+ const bridgeSource=fs.readFileSync(require("node:path").join(__dirname,"../shane-creator-network-bridge.js"),"utf8");
+ assert.ok(bridgeSource.includes('let latestEndeavorId=null'));
+ assert.ok(bridgeSource.includes('if(!isCurrent(id))return;'));
+ assert.ok(bridgeSource.includes('document.addEventListener("shane:endeavor-resumed"'));
+ assert.ok(bridgeSource.includes('link.hidden=true'));
+ assert.ok(bridgeSource.includes('if(isCurrent(id))status.textContent='));
+});
