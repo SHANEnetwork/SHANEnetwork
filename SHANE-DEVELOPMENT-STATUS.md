@@ -357,3 +357,7 @@ No action requested as of this update.
 - Shared navigation can retrieve recent account-backed conversation text for the selected endeavor when the current page has no idea entered.
 - Retrieval is restricted to the selected endeavor; it does not substitute unrelated account history.
 - Existing cross-page handoff remains in place. No new panel or SHONnetwork changes. Browser integration still requires verification.
+
+## 2026-10-31: selected endeavor resume relevance
+- Shared navigation prefers substantive saved conversation entries over repeated cross-page transition records when recovering an idea for the selected endeavor.
+- No new UI panel, no SHONnetwork modifications. Full browser verification pending.
