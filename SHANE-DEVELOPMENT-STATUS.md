@@ -175,3 +175,8 @@ No action requested as of this update.
 - Conversation history now supports combined full-history text search, endeavor filter, and pagination. The filter loads member-owned endeavor titles from the existing `shane_endeavors` table instead of showing opaque IDs from only the first page of messages.
 - Earlier commits added resume-from-history into the creator with its associated endeavor. These improvements reuse existing authorized account records and preserve SHONnetwork.
 - Browser verification, unified AI orchestration, and complete versioned page history remain outstanding.
+
+## 2026-10-31: conversation continuity repair
+- Repaired a malformed JavaScript insertion in `shane-conversation-store.js` that had broken the shared history module. Search and owner-scoped endeavor listing are now separate complete functions again.
+- Continuing a historical conversation now checks that its associated endeavor belongs to the signed-in member before restoring the active endeavor pointer. Browser verification remains outstanding.
+- Full conversational AI orchestration and complete versioned creative artifacts remain future work.
