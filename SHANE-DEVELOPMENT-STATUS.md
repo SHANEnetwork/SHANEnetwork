@@ -49,3 +49,8 @@ No action requested as of this update.
 - Added `shane-creative-handoff.js` to the builder: carries a person's own vision from local Network/dashboard session handoff into the existing creator's `visionPrompt` when it is empty. It never auto-submits, publishes, or overwrites nonempty editor text.
 - `my-network.html` now saves the exact text from its vision form before the "Let SHANE bring it to life" link. A new bridge retrieves it in the builder.
 - This is a local-session handoff, not persistent AI memory. Full cross-device endeavor continuity and program orchestration still require implementation and testing.
+
+## 2026-10-31: growth and custom build requests
+- `growth.html` and `shane-growth-conversation.js`: conversational growth intake prepares existing local project and collaboration fields. Outreach drafts, tracking, and sending remain user-controlled.
+- `request-build.html` and `shane-build-request-conversation.js`: conversational custom-build intake prepares existing request details; email draft submission remains explicit.
+- Both use deterministic text parsing, not AI provider interpretation. Browser and end-to-end testing remain outstanding.
