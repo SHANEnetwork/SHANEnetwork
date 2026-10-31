@@ -287,3 +287,8 @@ No action requested as of this update.
 - Community, campaign, member listing and growth pages now offer an explicit resume action when an active endeavor pointer exists and no current handoff is available.
 - The action retrieves owner-scoped account conversation entries for that endeavor and fills an empty vision field without publishing or overwriting member edits.
 - Shared styling added. JavaScript syntax parsed. Authenticated browser testing remains pending; this is a selective account-backed resume, not complete persistent AI orchestration.
+
+## 2026-10-31: six-page vision continuity and privacy boundary
+- `request-build.html` and `sports-district.html` now load the shared vision-arrival and saved endeavor resume capability alongside communities, campaigns, member listings and growth.
+- Shared navigation now captures explicit vision fields rather than arbitrary textarea submissions; private collaboration messages and unrelated form text no longer enter the shared journal through the generic submit fallback.
+- Modified JavaScript parsed. Browser and authenticated cross-page verification remain pending. The persistent AI orchestration and complete user experience are still unfinished.
