@@ -277,3 +277,13 @@ test("Creator ranks matching opportunities by relevance and displays a bounded s
  assert.ok(sync.includes('.sort((a,b)=>b.score-a.score).slice(0,12)'));
  assert.ok(sync.includes('for(const {opportunity} of ranked)'));
 });
+
+test("Creator discovery can introduce members privately without leaving the endeavor",()=>{
+ const sync=fs.readFileSync(require("node:path").join(__dirname,"../shane-conversation-sync.js"),"utf8");
+ assert.ok(sync.includes('invite.textContent="Introduce myself privately"'));
+ assert.ok(sync.includes('.eq("listing_id",opportunity.id).eq("sender_id",auth.user.id).eq("recipient_id",opportunity.owner_id)'));
+ assert.ok(sync.includes('message.minLength=10;message.maxLength=2000'));
+ assert.ok(sync.includes('.insert({listing_id:opportunity.id,sender_id:auth.user.id,recipient_id:opportunity.owner_id,message:body}).select("id").single()'));
+ assert.ok(sync.includes('conversation.href="members.html?endeavor="+encodeURIComponent(saved.id)+"&conversation="+encodeURIComponent(result.data.id)'));
+ assert.ok(sync.includes('invitationFeedback.textContent="Invitation not sent: "'));
+});
