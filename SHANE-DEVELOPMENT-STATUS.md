@@ -89,3 +89,8 @@ No action requested as of this update.
 - `network.html` now consumes the member welcome's destination-scoped, timestamped intent handoff into its existing conversational discovery input, without automatically querying or publishing.
 - `my-network.html` accepts the same standardized handoff for its existing vision input, while preserving unfinished local drafts.
 - These remain session-scoped bridges rather than authenticated cross-device endeavor memory. Browser verification pending.
+
+## 2026-10-31: creator-to-community and campaign continuity
+- `shane-creative-continuity.js` now connects the existing builder vision directly to the community and campaign creation workflows via destination-scoped, timestamped session handoff, consumed by `shane-conversational-drafts.js`.
+- Existing manual save and publishing flows remain authoritative. No automatic publication or new panels were added.
+- An additional attempted discovery-handoff update was blocked and is not counted as completed. Browser verification pending.
