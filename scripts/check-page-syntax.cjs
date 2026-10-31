@@ -8,8 +8,18 @@ for (const page of pages) {
   let checked = 0;
   for (const [, attrs, code] of scripts) {
     if (/\bsrc\s*=/.test(attrs) || !code.trim()) continue;
-    try { new vm.Script(code, { filename: page }); checked++; }
-    catch (error) { console.error(page + ': ' + error.message); failures++; }
+    try {
+      if (/\btype\s*=\s*["']module["']/i.test(attrs)) {
+        const withoutImports = code.replace(/^\s*import\s+[^;]+;?/gm, '');
+        new vm.Script('(async()=>{\n' + withoutImports + '\n})()', { filename: page });
+      } else {
+        new vm.Script(code, { filename: page });
+      }
+      checked++;
+    } catch (error) {
+      console.error(page + ': ' + error.message);
+      failures++;
+    }
   }
   console.log(page + ': ' + checked + ' inline scripts checked');
 }
