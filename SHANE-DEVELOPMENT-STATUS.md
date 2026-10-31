@@ -118,3 +118,7 @@ No action requested as of this update.
 - `shane-conversational-drafts.js` now retains unfinished campaign, community, and listing descriptions within the browser session across reloads, without overwriting a destination handoff or automatically submitting.
 - `shane-community-publishing.js` adds the same session-scoped draft retention for announcements/events and opportunities. Drafts expire from automatic restoration after seven days and are not cross-device records.
 - Existing publishing controls and forms are preserved; live browser verification remains pending.
+
+## 2026-10-31: outreach and custom-build conversation continuity
+- Growth Center and custom-build request conversation inputs now restore unfinished text from session-scoped drafts across reloads (up to seven days), while preserving incoming handoff precedence and the existing submission flows.
+- No messages or requests are sent automatically. Browser verification remains pending.
