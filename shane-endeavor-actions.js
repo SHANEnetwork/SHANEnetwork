@@ -62,7 +62,7 @@ function init(){
  const update=()=>{const text=idea(),destination=suggest(text),label=targets.find(([path])=>path===destination)?.[1];suggestion.textContent=select.value?"You chose "+targets.find(([path])=>path===select.value)?.[1]:label?"SHANE suggests: "+label:"Describe your idea and SHANE will suggest a next step."};
  select.addEventListener("change",update);
  document.addEventListener("input",event=>{if(event.target?.id&&(fields[location.pathname.split("/").pop()||"index.html"]||[]).includes(event.target.id))update()});
- button.addEventListener("click",()=>{
+ button.addEventListener("click",async()=>{
   const text=idea();if(!text){status.textContent="Describe your idea on this page first.";return}
   const destination=select.value||suggest(text);
   if(!destination){status.textContent="Your idea spans several possibilities. Choose where to begin.";select.focus();return}
@@ -72,6 +72,12 @@ function init(){
    sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination,text:text.slice(0,4000),endeavorId,created:Date.now()}));
    if(destination==="builder.html")sessionStorage.setItem("shane-creative-handoff-v1",JSON.stringify({text:text.slice(0,4000),created:Date.now()}));
   }catch{status.textContent="Unable to carry the idea in this browser.";return}
+  if(window.SHANEConversationStore){
+   try{
+    window.SHANEConversation?.remember?.(text,"endeavor-transition");
+    await window.SHANEConversationStore.flush();
+   }catch(error){status.textContent="Your idea is carried to the next page, but account history could not be confirmed."}
+  }
   location.assign(destination);
  });
  group.append(select,button,suggestion,status);nav.append(group);update();
