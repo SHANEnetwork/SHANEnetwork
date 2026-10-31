@@ -226,3 +226,8 @@ No action requested as of this update.
 - `SHANEConversation.snapshot()` provides normalized saved and recent session turns with active endeavor reference for future cross-program orchestration.
 - Shared conversation store import failures now emit `shane:conversation-save-error` rather than disappearing silently.
 - Shared navigation syntax parsed; browser verification and a live AI execution layer remain outstanding.
+
+## 2026-10-31: shared endeavor context notifications
+- Shared `SHANEConversation.endeavorSnapshot()` makes the active endeavor's saved conversational context available through a consistent interface.
+- A successful account-backed conversation save triggers `shane:conversation-context-changed` for Network modules that need to refresh context.
+- Shared navigation JavaScript parsed successfully. Browser integration, cross-device persistence reliability, and live AI orchestration remain to be verified.
