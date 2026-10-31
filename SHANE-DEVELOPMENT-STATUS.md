@@ -64,3 +64,8 @@ No action requested as of this update.
 - `shane-conversational-support.js` integrated into `contact.html` and `system-health.html` to prepare existing email and incident-report forms from natural language.
 - The existing email-app handoff and incident-report authorization/submission code remain authoritative. No automatic sending or incident creation.
 - This is heuristic form preparation, not a connected AI provider. End-to-end browser testing remains pending.
+
+## 2026-10-31: sports district preview
+- `sports-district.html` now accepts a natural-language description of a sports organization, interpreted by `shane-sports-conversation.js` into existing demonstration settings.
+- The preview has no live security enforcement, and the changes do not involve actual students or school records.
+- Browser verification remains outstanding; full AI orchestration is not yet connected.
