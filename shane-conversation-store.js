@@ -47,5 +47,5 @@ async function exportHistory(){
  for(;;){const batch=await list({limit:500,offset,includeArchived:true});all.push(...batch);if(batch.length<500)break;offset+=500}
  return JSON.stringify({exported_at:new Date().toISOString(),entries:all},null,2);
 }
-window.SHANEConversationStore=Object.freeze({list,setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse()});
+window.SHANEConversationStore=Object.freeze({list,setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20)=>{const rows=await list({limit});return rows.slice().reverse().map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at}))}});
 void flush();
