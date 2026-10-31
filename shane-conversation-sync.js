@@ -279,6 +279,14 @@ document.addEventListener("DOMContentLoaded",()=>{
    const discoveryStatus=document.createElement("p");discoveryStatus.setAttribute("role","status");
    const discoveryResults=document.createElement("div");discoveryResults.className="shane-creator-discovery-results";
    discoveryForm.append(discoveryInput,discoveryButton);discovery.append(discoveryHeading,discoveryForm,discoveryStatus,discoveryResults);details.append(discovery);
+   // Interpret the saved endeavor into discovery terms, without requiring a second setup form.
+   const visionWords=String(saved.vision||"").toLowerCase().match(/[\\p{L}\\p{N}]{4,}/gu)||[];
+   const ignored=new Set(["this","that","with","from","have","will","would","should","could","there","their","about","want","need","make","create","build","help","people","some","into","your","they","them","what","when","where","then","also","like","more","very","just","only","because","which","while","through","network","shane","website"]);
+   const frequency=new Map();for(const word of visionWords.slice(0,600)){if(!ignored.has(word))frequency.set(word,(frequency.get(word)||0)+1)}
+   const suggestedTerms=[...frequency].sort((a,b)=>b[1]-a[1]).slice(0,3).map(entry=>entry[0]);
+   const suggest=document.createElement("button");suggest.type="button";suggest.textContent="Find opportunities for my vision";
+   suggest.addEventListener("click",()=>{if(!suggestedTerms.length){discoveryStatus.textContent="Tell SHANE more about your endeavor to discover relevant opportunities.";return}discoveryInput.value=suggestedTerms.join(" ");discoveryForm.requestSubmit()});
+   discovery.append(suggest);
    let discoveryVersion=0;
    discoveryForm.addEventListener("submit",async event=>{
     event.preventDefault();const query=discoveryInput.value.trim();const request=++discoveryVersion;
