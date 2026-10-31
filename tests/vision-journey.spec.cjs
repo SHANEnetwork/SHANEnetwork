@@ -64,3 +64,24 @@ test('starting a new vision preserves earlier conversation turns', async ({ page
   await expect(page.locator('#shaneIdeaTurns')).toContainText('community makers festival');
   await expect(page.locator('#shaneIdeaTurns')).toContainText('volunteer schedule');
 });
+
+test('vision AI prompt carries earlier requests and selects revision for existing drafts', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(() => {
+    sessionStorage.setItem('shane_idea_conversation_session_v2', JSON.stringify({
+      draftReady: true,
+      history: [{role:'you', text:'Include local artists and a shared event calendar.'}]
+    }));
+    document.getElementById('generateAI').addEventListener('click', event => {
+      event.stopImmediatePropagation();
+      event.preventDefault();
+    }, {capture:true});
+  });
+  await page.locator('#visionPrompt').fill('Create a welcoming makers community with an event calendar.');
+  await page.locator('#visionGuide').click();
+  await expect(page.locator('#aiMode')).toHaveValue('revise');
+  await expect(page.locator('#aiPrompt')).toContainText('Earlier request 1: Include local artists');
+  const prompt = await page.locator('#aiPrompt').inputValue();
+  expect(prompt).toContain('\nConversation context:\n');
+  await expect(page.locator('#visionStatus')).toContainText('refining your existing website draft');
+});
