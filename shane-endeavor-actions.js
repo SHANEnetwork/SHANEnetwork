@@ -70,7 +70,7 @@ function init(){
  // deliberately opens another creation or collaboration capability.
  nav.addEventListener("click",event=>{
   const link=event.target.closest?.("a[href]");
-  if(!link||event.defaultPrevented||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||event.button!==0)return;
+  if(!link||event.defaultPrevented||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||event.button!==0||link.target==="_blank"||link.hasAttribute("download"))return;
   const url=new URL(link.href,location.href);
   if(url.origin!==location.origin)return;
   const destination=url.pathname.split("/").pop();
