@@ -165,3 +165,13 @@ test("Resuming an endeavor restores only its owner-scoped existing network prese
  assert.ok(!restore.includes('.insert('));
  assert.ok(!restore.includes('.publish('));
 });
+
+test("Connected endeavor journey uses shared responsive visual system",()=>{
+ const sync=fs.readFileSync(require("node:path").join(__dirname,"../shane-conversation-sync.js"),"utf8");
+ const visual=fs.readFileSync(require("node:path").join(__dirname,"../shane-visual-world.css"),"utf8");
+ assert.ok(sync.includes('journey.className="shane-endeavor-journey"'));
+ assert.ok(visual.includes('#shaneConnectedDetails:not(:empty)'));
+ assert.ok(visual.includes('#shaneConnectedDetails .shane-service-readiness'));
+ assert.ok(visual.includes('grid-template-columns:repeat(auto-fit'));
+ assert.ok(sync.includes('["Collaborations and private messages","members.html#collaborationSection"]'));
+});
