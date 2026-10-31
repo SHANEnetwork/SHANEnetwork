@@ -257,3 +257,8 @@ No action requested as of this update.
 - Dashboard now presents the latest saved conversation entry when accessible and allows continuation into creator or discovery without automatic publication.
 - `shane-journey-resume.js` retrieves one owner-scoped saved entry, falls back to recent session history, and passes the idea to existing destination handoffs.
 - Script syntax parsed; browser verification and full account-backed cross-device endeavor resumption remain pending.
+
+## 2026-10-31: collaboration workspace page-first task drafting
+- `workspace.html` now provides a natural-language task intake before the existing shared task form.
+- `shane-workspace-task-vision.js` prepares editable task title/details and optional explicit ISO date; private messages and task submission remain separate and unchanged.
+- New JavaScript syntax parsed; authenticated collaboration workflow browser testing remains pending.
