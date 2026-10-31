@@ -216,3 +216,8 @@ No action requested as of this update.
 - History cards now expose their associated endeavor ID as a DOM data attribute for downstream interactions.
 - Shared `SHANEConversation.last()` provides the latest in-session conversational turn to existing feature modules without introducing another interface.
 - These are integration primitives, not a completed AI orchestration engine. End-to-end browser tests remain pending.
+
+## 2026-10-31: conversation attribution integrity
+- Account-backed conversation persistence no longer silently drops the endeavor reference when a linked save fails. The pending entry stays queued and an error event is emitted.
+- Successful persistence emits `shane:conversation-saved` for future coordination with page and Network modules.
+- JavaScript module body syntax parsed. Durable retry across page unload and end-to-end authenticated testing remain outstanding.
