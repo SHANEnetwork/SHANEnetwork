@@ -23,3 +23,16 @@ input,textarea,select{border-radius:12px}
 
 .shane-unified-topbar{background:linear-gradient(110deg,#443047,#704760 65%,#966a70);padding:12px clamp(12px,4vw,48px);color:#fff}
 .shane-unified-topbar .shane-unified-nav{margin:0}
+
+/* Conversation-led drafting across existing network tools */
+.shane-conversation-intake{margin:22px auto;padding:clamp(18px,3vw,30px);background:linear-gradient(135deg,#fff8f1,#fbeef1);border:1px solid #e6cbd0;border-radius:24px;box-shadow:0 12px 34px #70476014;color:#352b3d;max-width:1100px}
+.shane-conversation-intake h2{font:600 clamp(1.4rem,2.5vw,2rem)/1.2 Georgia,serif;margin:0 0 12px}
+.shane-conversation-intake p{margin:0 0 16px;color:#665063}
+.shane-conversation-intake label{display:block;font-weight:650;margin:12px 0 8px}
+.shane-conversation-intake textarea{display:block;width:100%;box-sizing:border-box;min-height:100px;padding:15px;border:1px solid #bda8b2;background:#fff;color:#352b3d;font:inherit;border-radius:15px}
+.shane-conversation-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:12px}
+.shane-conversation-actions button{background:#704760;color:#fff;border:0;border-radius:999px;padding:12px 22px;font:650 1rem system-ui;cursor:pointer}
+.shane-conversation-actions span{color:#6b5266;font-size:.93rem}
+.shane-manual-details,.shane-manual-discovery{margin:16px 0;border:1px solid #dfcad0;border-radius:14px;padding:12px;background:#fffaf7}
+.shane-manual-details>summary,.shane-manual-discovery>summary{cursor:pointer;font-weight:650;color:#704760;padding:5px}
+.shane-manual-details>form{margin-top:14px}
