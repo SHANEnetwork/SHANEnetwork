@@ -75,6 +75,7 @@ function init(){
   if(url.origin!==location.origin)return;
   const destination=url.pathname.split("/").pop();
   if(!targets.some(([path])=>path===destination))return;
+  if(destination===(location.pathname.split("/").pop()||"index.html"))return;
   const text=idea();if(!text)return;
   let endeavorId=null;
   try{const saved=JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id;if(typeof saved==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(saved))endeavorId=saved}catch{}
