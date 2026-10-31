@@ -23,6 +23,7 @@ function start(){
   try{sessionStorage.setItem("shane_network_vision_handoff_v1",JSON.stringify({vision:idea.slice(0,12000)}))}catch{}
   location.assign("network.html?q="+encodeURIComponent(idea.slice(0,120)));
  };
+ $("shane-continuity-discover").addEventListener("click",()=>{const idea=getVision();if(!idea)return;try{sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination:"network.html",text:idea.slice(0,4000),created:Date.now()}))}catch{}}, {capture:true});
  $("shane-continuity-listing").onclick=()=>{
   const idea=getVision();if(!idea){status.textContent="Describe your vision above first.";vision.focus();return}
   const name=($("business")?.value||"").trim();
