@@ -48,3 +48,8 @@ body:has(.shane-unified-nav) main :where(.card,article.card) h2{color:#52374f}
 body:has(.shane-unified-nav) main :where(.button,.action,button[type=submit]){border-radius:999px;min-height:42px}
 body:has(.shane-unified-nav) main :where(textarea,input[type=text],input[type=search]){background:#fffdfa;border:1px solid #c8aebd;padding:12px 14px}
 @media(max-width:680px){body:has(.shane-unified-nav) main{width:min(100% - 20px,1160px)}body:has(.shane-unified-nav) main>.hero{padding:22px}body:has(.shane-unified-nav) main .cards{grid-template-columns:1fr}}
+
+/* Discovery transitions belong to the page flow, not a floating control panel. */
+#shaneDiscoveryNext[hidden]{display:none!important}
+#shaneDiscoveryNext .shane-conversation-actions a{display:inline-flex;align-items:center;min-height:44px;padding:10px 16px;background:#704760;color:#fff;text-decoration:none;border-radius:999px;font-weight:650}
+#shaneDiscoveryNext .shane-conversation-actions a:hover,#shaneDiscoveryNext .shane-conversation-actions a:focus-visible{background:#50344b;color:#fff}
