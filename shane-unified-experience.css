@@ -53,3 +53,7 @@ body:has(.shane-unified-nav) main :where(textarea,input[type=text],input[type=se
 #shaneDiscoveryNext[hidden]{display:none!important}
 #shaneDiscoveryNext .shane-conversation-actions a{display:inline-flex;align-items:center;min-height:44px;padding:10px 16px;background:#704760;color:#fff;text-decoration:none;border-radius:999px;font-weight:650}
 #shaneDiscoveryNext .shane-conversation-actions a:hover,#shaneDiscoveryNext .shane-conversation-actions a:focus-visible{background:#50344b;color:#fff}
+
+#shaneNetworkVisionActions[hidden]{display:none!important}
+#shaneNetworkVisionActions .shane-conversation-actions a{display:inline-flex;align-items:center;min-height:44px;padding:10px 16px;background:#704760;color:#fff;text-decoration:none;border-radius:999px;font-weight:650}
+#shaneNetworkVisionActions .shane-conversation-actions a:hover,#shaneNetworkVisionActions .shane-conversation-actions a:focus-visible{background:#50344b;color:#fff}
