@@ -143,3 +143,8 @@ No action requested as of this update.
 ## 2026-10-31: shared conversation journal foundation
 - The common SHANE navigation module now maintains a bounded 30-turn browser-session conversation journal, recording the current page, text, kind, and time of preserved ideas. A read/remember interface (`window.SHANEConversation`) and `shane:conversation-updated` event allow existing SHANE modules to share conversational context without adding new panels.
 - Creator handoffs now record their incoming text in this journal. This is not yet a server-backed transcript or AI inference engine. Live verification pending.
+
+## 2026-10-31: authenticated persistent conversation storage foundation
+- Applied migration `create_owner_scoped_persistent_conversation_entries` to the SHANEnetwork Supabase project only. New `shane_conversation_entries` table stores individual entries without a 30-turn retention cap, with owner-scoped SELECT/INSERT/UPDATE/DELETE RLS, optional owner-validated endeavor ID, and archive timestamp. Verified four policies exist.
+- Shared navigation now emits entry text in its conversation event and attempts to save entries through the existing authenticated `window.shaneAccountDb` client where present. If the client is unavailable or saving fails, session continuity still works but account persistence is not guaranteed. No cross-device history reader, export, or user deletion interface yet; no automatic AI replies.
+- Browser and multi-account security testing still pending. Existing endeavors, SHONnetwork, and other site programs unchanged.
