@@ -66,12 +66,13 @@ function init(){
   const text=idea();if(!text){status.textContent="Describe your idea on this page first.";return}
   const destination=select.value||suggest(text);
   if(!destination){status.textContent="Your idea spans several possibilities. Choose where to begin.";select.focus();return}
+  button.disabled=true;status.textContent="Carrying your endeavor forward…";
   let endeavorId=null;
   try{const value=window.SHANECurrentEndeavor?.read?.();if(typeof value==="string")endeavorId=value}catch{}
   try{
    sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination,text:text.slice(0,4000),endeavorId,created:Date.now()}));
    if(destination==="builder.html")sessionStorage.setItem("shane-creative-handoff-v1",JSON.stringify({text:text.slice(0,4000),created:Date.now()}));
-  }catch{status.textContent="Unable to carry the idea in this browser.";return}
+  }catch{status.textContent="Unable to carry the idea in this browser.";button.disabled=false;return}
   if(window.SHANEConversationStore&&window.SHANEConversation){
    try{
     window.SHANEConversation.remember(text,"endeavor-transition");
