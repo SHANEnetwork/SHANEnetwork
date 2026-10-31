@@ -184,3 +184,7 @@ No action requested as of this update.
 ## Shared active endeavor context
 - Added an owner-scoped endeavor conversation retrieval method to the common conversation store, and exposed it through the shared navigation as `SHANECurrentEndeavor.context()` for reuse across Network pages.
 - This is an integration API, not yet autonomous conversational AI; browser verification remains outstanding.
+
+## Cross-page context event
+- Shared navigation now emits `shane:endeavor-context-ready` after the account-backed conversation store loads, allowing page modules to consume the active endeavor's saved entries without building their own database client.
+- This is a repository-level integration event; consumer modules and live verification remain outstanding.
