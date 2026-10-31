@@ -347,3 +347,8 @@ No action requested as of this update.
 - Shared network actions now fall back to the active endeavor selection when the page-level context does not expose an endeavor ID.
 - The fallback checks the identifier shape before including it in a navigation handoff.
 - JavaScript syntax checked; full authenticated browser integration pending. No changes to SHONnetwork.
+
+## 2026-10-31: awaitable conversation persistence
+- The shared account conversation store now returns the ongoing flush promise when a save is already in progress, and reports whether unsaved entries remain.
+- This improves navigation coordination but is not yet a durable offline queue or a guarantee against lost events on page unload.
+- No changes to SHONnetwork; browser/database verification pending.
