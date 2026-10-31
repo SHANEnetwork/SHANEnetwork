@@ -188,3 +188,7 @@ No action requested as of this update.
 ## Cross-page context event
 - Shared navigation now emits `shane:endeavor-context-ready` after the account-backed conversation store loads, allowing page modules to consume the active endeavor's saved entries without building their own database client.
 - This is a repository-level integration event; consumer modules and live verification remain outstanding.
+
+## 2026-10-31: shared conversation module integrity and combined context
+- Removed a lingering malformed duplicate function fragment in `shane-conversation-store.js` that prevented the module from parsing. The active endeavor reader now returns an empty result when no endeavor is selected instead of accidentally mixing all saved history.
+- Shared navigation exposes `SHANEConversation.fullContext()` combining recent session context and authorized saved entries for consumption by future page orchestration. Repository commits are not browser verification.
