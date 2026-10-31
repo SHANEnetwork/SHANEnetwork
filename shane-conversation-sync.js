@@ -71,7 +71,9 @@ async function save(){
    // A failed optional organization setup still preserves the saved endeavor and private network draft.
    document.dispatchEvent(new CustomEvent("shane:endeavor-saved",{detail:{endeavorId:result.id,title,vision,siteId:site.siteId,organizationId:linkedOrganizationId}}));
   }catch(siteError){
-   status("Your conversation is saved, but the private website foundation could not be created: "+siteError.message);
+   status("Your conversation is saved, but the private website foundation could not be created: "+siteError.message+". SHANE will still prepare your private network draft.");
+   // An optional website provisioning failure must not block the independent network draft.
+   document.dispatchEvent(new CustomEvent("shane:endeavor-saved",{detail:{endeavorId:result.id,title,vision,siteId:null,organizationId:null}}));
    return false;
   }
   return true;
