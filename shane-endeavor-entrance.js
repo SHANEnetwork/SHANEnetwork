@@ -11,9 +11,8 @@ function init(){
   event.preventDefault();
   const vision=field.value.trim();
   if(!vision){field.focus();status.textContent="Tell SHANE what you're imagining, even if it's only a few words.";return;}
-  if(vision.length>6000){status.textContent="Please shorten this first message. You can share more in the conversation.";return;}
   try{sessionStorage.setItem(key,JSON.stringify({vision,created:Date.now()}));}
-  catch{status.textContent="Your browser could not preserve the message. Copy it before continuing.";return;}
+  catch{status.textContent="Your browser could not preserve this message. Please keep a copy before continuing. Your writing is still here.";return;}
   location.assign("builder.html#vision-first");
  });
  document.querySelectorAll("[data-shane-starter]").forEach(function(button){
