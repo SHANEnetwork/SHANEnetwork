@@ -21,6 +21,7 @@ el("loadMore").addEventListener("click",loadPage);const initialFilters=new URLSe
 /* Conversational discovery delegates to the existing directory search and its permission-aware data loader. */
 (()=>{const ready=()=>{const form=document.getElementById("shaneDiscoveryConversation");if(!form)return;
 const wish=document.getElementById("shaneDiscoveryWish"),reply=document.getElementById("shaneDiscoveryReply"),q=document.getElementById("q"),category=document.getElementById("category");
+try{const raw=sessionStorage.getItem("shane-intent-handoff-v1");if(raw){const item=JSON.parse(raw);if(item&&item.destination==="network.html"&&typeof item.text==="string"&&Date.now()-item.created<86400000&&!wish.value.trim()){wish.value=item.text.slice(0,4000);reply.textContent="Your search idea arrived from the Network. Choose Discover to search published opportunities.";sessionStorage.removeItem("shane-intent-handoff-v1")}}}catch{}
 form.addEventListener("submit",e=>{e.preventDefault();const text=wish.value.trim();if(!text){wish.focus();return}
 const clean=text.replace(/^(i (?:want|need|would like|am looking|hope|wish) to?\s*|help me\s*|find me\s*)/i,"").trim();
 const tokens=clean.toLowerCase().match(/[a-z0-9'-]{3,}/g)||[];
