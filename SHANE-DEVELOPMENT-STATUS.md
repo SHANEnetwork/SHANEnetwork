@@ -127,3 +127,7 @@ No action requested as of this update.
 - Builder discovery now additionally writes the destination-scoped `shane-intent-handoff-v1` before following its existing Network discovery navigation, allowing the Network's conversational discovery input to receive the full original idea.
 - Member listing intake clarifies when the existing listing editor is unavailable; existing access and publishing paths are unchanged.
 - No new server AI or publishing actions were introduced. Live browser verification pending.
+
+## 2026-10-31: homepage intent continuity
+- The existing homepage journey links now carry a visitor's entered vision to Network discovery, community creation, and the personal Network page through the same destination-scoped session handoff as other SHANE flows.
+- This is client-side continuity, not autonomous AI orchestration or completed transformation of all pages. Live browser verification remains pending.
