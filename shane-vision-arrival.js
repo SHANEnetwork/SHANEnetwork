@@ -18,7 +18,8 @@ async function offerAccountResume(page,target,field){
  let active;try{active=JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")}catch{return}
  if(!active||typeof active.id!=="string"||!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(active.id))return;
  const container=field.closest(".shane-conversation-intake")||field.parentElement;if(!container)return;
- const button=document.createElement("button");button.type="button";button.className="shane-resume-endeavor";button.textContent="Continue my saved endeavor here";
+ if(container.querySelector(".shane-account-resume-choice"))return;
+ const button=document.createElement("button");button.type="button";button.className="shane-resume-endeavor shane-account-resume-choice";button.textContent="Continue my saved endeavor here";
  const note=document.createElement("span");note.setAttribute("role","status");note.setAttribute("aria-live","polite");
  button.addEventListener("click",async()=>{
   if(field.value.trim()){note.textContent="Your current writing is preserved. Clear it before restoring another idea.";return}
