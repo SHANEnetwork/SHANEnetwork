@@ -32,7 +32,7 @@ jobs:
           for(const [file,needles] of Object.entries({
             'site.html':['shane_sites','status','published'],
             'members.html':['shane_collaboration_messages','shane_collaboration_requests'],
-            'index.html':['id="shaneWelcome"','id="welcomePreview"','shane-welcome-v1','request-build.html'],
+            'index.html':['id="shaneWelcome"','id="welcomeIdea"','id="welcomeFeedback"','shane-welcome-v1','request-build.html'],
             'builder.html':['id="publishSite"','id="unpublishSite"','shane_sites','site.html','shane-welcome-v1','shane_endeavor_milestones']
           })){
             const html=fs.readFileSync(file,'utf8');
