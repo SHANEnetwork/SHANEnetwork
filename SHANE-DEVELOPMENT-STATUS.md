@@ -161,3 +161,7 @@ No action requested as of this update.
 ## 2026-10-31: cross-session context recovery foundation
 - The shared store now offers `recent(limit)` normalized entries, and announces readiness to other SHANE modules.
 - Shared navigation can retrieve the latest account-owned saved entry when there is no active browser-session continuity and populate its existing continuity record. This is not yet a full user-visible history or AI response engine. Browser verification remains pending.
+
+## 2026-10-31: member-controlled conversation history view
+- Added `conversation-history.html`, linked from shared navigation. It uses the authenticated owner-scoped history service to browse paginated entries, show archived records, archive/restore, export all, and explicitly confirm deletion. Existing Network pages and SHONnetwork unchanged.
+- Shared navigation records completed conversational input on field change, rather than relying solely on navigation clicks. Live browser verification pending; this is a history-management interface, not yet a full conversational AI or page/version archive.
