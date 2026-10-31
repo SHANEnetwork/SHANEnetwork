@@ -36,12 +36,22 @@ async function init(){
   };
   if(ideas.length||endeavors.length){
    nav.append(resume);
-   resume.addEventListener("click",event=>{
-    const id=chooser.value||active(),idea=chooseIdea();
-    if(!id&&!idea){event.preventDefault();return}
-    if(id&&UUID.test(id)){try{sessionStorage.setItem(key,JSON.stringify({id,updated:Date.now()}))}catch{}}
+   resume.addEventListener("click",async event=>{
+    event.preventDefault();
+    const id=chooser.value||active();
+    let idea=chooseIdea();
+    if(id&&UUID.test(id)){
+     try{sessionStorage.setItem(key,JSON.stringify({id,updated:Date.now()}))}catch{}
+     if(!idea){
+      try{
+       const rows=await store.list({endeavorId:id,limit:40});
+       idea=rows.find(row=>typeof row.body==="string"&&row.body.trim()&&["idea","vision","submitted-idea","community-vision","campaign-vision","listing-vision"].includes(row.entry_kind))||rows.find(row=>typeof row.body==="string"&&row.body.trim());
+      }catch{}
+     }
+    }
     if(idea){try{sessionStorage.setItem("shane-creative-handoff-v1",JSON.stringify({text:idea.body.slice(0,4000),created:Date.now()}))}catch{}}
-    if(!idea&&id)resume.href="builder.html?endeavor="+encodeURIComponent(id)+"#shane-idea-conversation";
+    if(!idea&&!id)return;
+    location.assign(id?"builder.html?endeavor="+encodeURIComponent(id)+"#shane-idea-conversation":"builder.html#shane-idea-conversation");
    });
   }
  }catch{/* Public navigation stays available without a connected account or data. */}
