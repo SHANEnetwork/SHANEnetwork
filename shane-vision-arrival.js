@@ -27,7 +27,7 @@ async function offerAccountResume(page,target,field){
    for(let n=0;n<25&&!window.SHANEConversationStore;n++)await new Promise(resolve=>setTimeout(resolve,120));
    const store=window.SHANEConversationStore;if(!store)throw Error("Conversation history is not available on this page.");
    const rows=await store.list({endeavorId:active.id,limit:30});
-   const chosen=rows.find(row=>row.entry_kind==="idea"||row.entry_kind==="vision"||row.entry_kind.endsWith("-vision"))||rows[0];
+   const chosen=rows.find(row=>typeof row.body==="string"&&(row.entry_kind==="idea"||row.entry_kind==="vision"||String(row.entry_kind||"").endsWith("-vision")))||rows.find(row=>typeof row.body==="string"&&row.entry_kind!=="endeavor-transition")||rows[0];
    if(!chosen)throw Error("No saved conversation was found for this endeavor.");
    field.value=chosen.body.slice(0,field.maxLength>0?field.maxLength:4000);field.dispatchEvent(new Event("input",{bubbles:true}));
    note.textContent="Your saved idea is ready. Review and refine it before creating anything.";
