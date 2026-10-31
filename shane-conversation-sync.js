@@ -296,7 +296,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     discoveryButton.disabled=true;discoveryStatus.textContent="Finding public opportunities…";
     try{
      let requestQuery=client.from("shane_listings").select("id,owner_id,title,category,description,region").eq("status","published").neq("owner_id",auth.user.id);
-     for(const term of terms)requestQuery=requestQuery.or(["title","description","region","category"].map(column=>column+".ilike.%"+term+"%").join(","));
+     requestQuery=requestQuery.or(terms.flatMap(term=>["title","description","region","category"].map(column=>column+".ilike.%"+term+"%")).join(","));
      const result=await requestQuery.order("created_at",{ascending:false}).limit(12);
      if(request!==discoveryVersion||version!==connectedViewVersion||id!==sessionStorage.getItem(key)||!discovery.isConnected)return;
      if(result.error)throw result.error;
