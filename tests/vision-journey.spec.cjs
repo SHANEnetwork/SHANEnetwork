@@ -103,3 +103,21 @@ test('oversized conversation requests remain editable and never trigger generati
   await expect(page.locator('#shaneIdeaMessage')).toContainText('12,000-character conversation limit');
   await expect(page.locator('#shaneIdeaTurns [data-role="you"]')).toHaveCount(0);
 });
+
+test('endeavor memory keeps conversations isolated and restores them on return', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  const first = '11111111-1111-4111-8111-111111111111';
+  const second = '22222222-2222-4222-8222-222222222222';
+  await page.locator('#visionPrompt').fill('Create an arts cooperative with neighborhood workshops.');
+  await page.locator('#visionGuide').click();
+  await page.evaluate(id => document.dispatchEvent(new CustomEvent('shane:endeavor-changed', {detail:{id}})), first);
+  await expect(page.locator('#shaneIdeaTurns')).toContainText('arts cooperative');
+  await page.evaluate(id => document.dispatchEvent(new CustomEvent('shane:endeavor-changed', {detail:{id}})), second);
+  await expect(page.locator('#shaneIdeaTurns')).not.toContainText('arts cooperative');
+  await page.locator('#visionPrompt').fill('Build a volunteer gardening network.');
+  await page.locator('#visionGuide').click();
+  await expect(page.locator('#shaneIdeaTurns')).toContainText('gardening network');
+  await page.evaluate(id => document.dispatchEvent(new CustomEvent('shane:endeavor-changed', {detail:{id}})), first);
+  await expect(page.locator('#shaneIdeaTurns')).toContainText('arts cooperative');
+  await expect(page.locator('#shaneIdeaTurns')).not.toContainText('gardening network');
+});
