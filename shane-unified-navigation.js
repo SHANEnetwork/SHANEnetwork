@@ -50,6 +50,7 @@
   try{
    const handoff=JSON.parse(sessionStorage.getItem("shane-intent-handoff-v1")||"null");
    if(!handoff||handoff.destination!==page||typeof handoff.text!=="string"||Date.now()-handoff.created>3600000)return;
+   if(handoff.endeavorId&&!window.SHANECurrentEndeavor.read())sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:handoff.endeavorId,updated:Date.now()}));
    const preferred={"network.html":["#query"],"my-network.html":["#visionInput","#query"],"communities.html":["#description"],"campaigns.html":["#description"],"members.html":["#description"],"growth.html":["#shaneGrowthGoal"],"request-build.html":["#shaneBuildRequestGoal"]};
    const field=(preferred[page]||[]).map(selector=>document.querySelector(selector)).find(element=>element&&typeof element.value==="string"&&!element.value.trim());
    if(!field)return;
