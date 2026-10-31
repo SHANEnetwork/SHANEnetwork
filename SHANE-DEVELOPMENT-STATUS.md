@@ -252,3 +252,8 @@ No action requested as of this update.
 - `members.html` now offers a natural-language listing vision before the existing listing form.
 - `shane-listing-vision.js` prepares editable title, description and category, defaults publication to private draft, and preserves the existing authorization and publishing controls.
 - Script syntax parsed; authenticated end-to-end browser testing remains pending. This is deterministic drafting, not live AI generation.
+
+## 2026-10-31: dashboard conversation resume
+- Dashboard now presents the latest saved conversation entry when accessible and allows continuation into creator or discovery without automatic publication.
+- `shane-journey-resume.js` retrieves one owner-scoped saved entry, falls back to recent session history, and passes the idea to existing destination handoffs.
+- Script syntax parsed; browser verification and full account-backed cross-device endeavor resumption remain pending.
