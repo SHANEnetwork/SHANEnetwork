@@ -241,3 +241,14 @@ test("Creator embeds private messaging only for accepted collaboration with safe
  assert.ok(sync.includes('send.disabled=true'));
  assert.ok(sync.includes('version!==connectedViewVersion||id!==sessionStorage.getItem(key)'));
 });
+
+test("Creator discovers only published public listings without leaving the endeavor",()=>{
+ const sync=fs.readFileSync(require("node:path").join(__dirname,"../shane-conversation-sync.js"),"utf8");
+ assert.ok(sync.includes('discoveryForm.addEventListener("submit"'));
+ assert.ok(sync.includes('.eq("status","published").neq("owner_id",auth.user.id)'));
+ assert.ok(sync.includes('.limit(12)'));
+ assert.ok(sync.includes('view.href="network.html?endeavor="+encodeURIComponent(saved.id)+"&listing="+encodeURIComponent(opportunity.id)'));
+ assert.ok(sync.includes('name.textContent=opportunity.title'));
+ assert.ok(sync.includes('description.textContent=String(opportunity.description'));
+ assert.ok(sync.includes('request!==discoveryVersion||version!==connectedViewVersion'));
+});
