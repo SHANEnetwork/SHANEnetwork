@@ -199,3 +199,11 @@ test("Endeavor context survives navigation into collaboration and back to Creato
  assert.ok(members.includes('back.href="builder.html?endeavor="+encodeURIComponent(journeyEndeavor)+"#vision-first"'));
  assert.ok(members.includes('shane-return-journey'));
 });
+
+test("Network discovery preserves the active Creator endeavor across searches",()=>{
+ const network=fs.readFileSync(require("node:path").join(__dirname,"../network.html"),"utf8");
+ assert.ok(network.includes('validCreatorEndeavor'));
+ assert.ok(network.includes('params.set("endeavor",validCreatorEndeavor)'));
+ assert.ok(network.includes('back.href="builder.html?endeavor="+encodeURIComponent(validCreatorEndeavor)+"#vision-first"'));
+ assert.ok(network.includes('shane-discovery-return'));
+});
