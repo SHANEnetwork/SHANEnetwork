@@ -4,7 +4,7 @@
 const destinations={
  "network.html":{field:"shaneDiscoveryWish",status:"shaneDiscoveryReply"},
  "my-network.html":{field:"visionInput",status:"visionMatches"},
- "builder.html":{field:"visionPrompt",status:"shaneIdeaReply"},
+ "builder.html":{field:"visionPrompt"},
  "communities.html":{field:"communityIdea",status:"communityDraftStatus"},
  "campaigns.html":{field:"campaignIdea",status:"campaignDraftStatus"},
  "members.html":{field:"listingIdea",status:"listingDraftStatus"},
