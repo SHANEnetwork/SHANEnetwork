@@ -282,3 +282,8 @@ No action requested as of this update.
 - Shared `shane-vision-arrival.js` now receives existing navigation handoffs on communities, campaigns, member listings and growth pages, without overwriting existing field edits.
 - It validates destination and age, preloads the corresponding conversation-first intake and consumes the handoff only after application.
 - Script syntax parsed. Browser verification remains pending. Session-based transfer is temporary, not durable cross-device history.
+
+## 2026-10-31: owner-scoped saved endeavor resume on creation pages
+- Community, campaign, member listing and growth pages now offer an explicit resume action when an active endeavor pointer exists and no current handoff is available.
+- The action retrieves owner-scoped account conversation entries for that endeavor and fills an empty vision field without publishing or overwriting member edits.
+- Shared styling added. JavaScript syntax parsed. Authenticated browser testing remains pending; this is a selective account-backed resume, not complete persistent AI orchestration.
