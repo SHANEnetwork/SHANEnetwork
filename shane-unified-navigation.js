@@ -10,7 +10,7 @@
  const journalAdd=(value,kind="idea")=>{const text=String(value||"").trim().slice(0,4000);if(!text)return;try{const j=journalRead(),last=j.turns[j.turns.length-1];if(last&&last.text===text&&last.page===page)return;j.turns.push({text,page,kind,at:Date.now()});j.turns=j.turns.slice(-30);j.updated=Date.now();sessionStorage.setItem(JOURNAL,JSON.stringify(j));document.dispatchEvent(new CustomEvent("shane:conversation-updated",{detail:{page,kind,text}}))}catch{}};
  const journalContext=()=>{const j=journalRead();return {page,turns:j.turns.slice(-12),updated:j.updated}};
  const fullContext=async()=>{const id=window.SHANECurrentEndeavor?.read()||null;return {session:journalContext(),saved:window.SHANEConversationStore?await window.SHANEConversationStore.context({endeavorId:id,limit:40}):[],endeavor:id}};
- Object.defineProperty(window,"SHANEConversation",{configurable:false,value:Object.freeze({read:journalContext,remember:journalAdd,fullContext})});
+ Object.defineProperty(window,"SHANEConversation",{configurable:false,value:Object.freeze({read:journalContext,remember:journalAdd,fullContext,last:()=>journalRead().turns.slice(-1)[0]||null})});
  import("./shane-conversation-store.js").catch(()=>{});
  const continuityKey="shane-conversation-continuity-v1";
  const conversationSelectors=["#visionPrompt","#shane-natural-prompt","#shaneDiscoveryWish","#shaneGrowthGoal","#shaneBuildRequestGoal","#shaneWorkspaceIdea","#shaneCommunityVision","#shaneMemberWelcome","#visionInput","#sharedPurpose","#sharedNext","#body","#description","#query","#shaneIdeaReply"];
