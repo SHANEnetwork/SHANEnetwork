@@ -153,3 +153,7 @@ No action requested as of this update.
 - Added `shane-conversation-store.js`, dynamically loaded by shared SHANE navigation across its pages. The pinned Supabase client uses the existing public publishable key and authenticated RLS, replacing the previous builder-only optional client dependency and avoiding duplicate write listeners.
 - The store exposes account-scoped paginated history retrieval, archive/unarchive, explicit deletion, JSON export, and pending-entry flush methods. The database remains the source of truth and has no 30-entry cap. Archive is distinct from delete.
 - These are service methods, not yet a finished history-management UI or AI context retrieval/orchestration. Browser and two-user RLS verification remain pending; unsigned visitors only have temporary session continuity.
+
+## 2026-10-31: shared chronological conversation context
+- The authenticated shared conversation store now exposes a `context(options)` reader that returns paginated owner-authorized history in chronological order for future shared AI interpretation and page context.
+- This is a retrieval API, not a working AI agent; user-facing integration and end-to-end tests remain outstanding.
