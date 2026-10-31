@@ -20,7 +20,7 @@
   const message=document.getElementById("shaneIdeaMessage");
   if(prompt&&!prompt.value.trim())prompt.value=vision;
   if(reply&&!reply.value.trim())reply.value=vision;
-  if(message)message.textContent="Your vision came with you from Shane Network. Review it, then ask SHANE to create or refine your website. Nothing is published automatically.";
+  if(message)message.textContent="Your idea came with you. Keep exploring, refining and creating here. A website is only one possibility; nothing is published automatically.";
  };
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",apply,{once:true});else apply();
 })();
