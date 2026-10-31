@@ -33,6 +33,12 @@
   if(!field)continue;
   field.addEventListener("change",()=>{if(field.value?.trim())journalAdd(field.value,"idea")});
  }
+ document.addEventListener("submit",event=>{
+  const form=event.target;
+  if(!(form instanceof HTMLFormElement))return;
+  const field=conversationSelectors.map(selector=>form.querySelector(selector)).find(element=>element&&typeof element.value==="string"&&element.value.trim());
+  if(field)journalAdd(field.value,"submitted-idea");
+ },true);
  const remembered=active();
  if(remembered&&remembered.source!==page){const hint=document.createElement("p");hint.className="shane-conversation-resume";hint.setAttribute("role","status");hint.style.cssText="margin:8px 0;font:500 13px system-ui;color:inherit";
  const link=document.createElement("a");link.href="builder.html#shane-idea-conversation";link.textContent="Continue our earlier idea in the creator";
