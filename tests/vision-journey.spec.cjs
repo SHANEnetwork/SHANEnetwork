@@ -134,3 +134,14 @@ test('starting a fresh endeavor clears the previous vision without deleting save
   const previous = await page.evaluate(() => JSON.parse(sessionStorage.getItem('shane_idea_conversation_endeavor_33333333-3333-4333-8333-333333333333')));
   expect(previous.history.some(turn => turn.text.includes('arts festival'))).toBeTruthy();
 });
+
+test('opening a different saved endeavor does not adopt an unrelated unsaved conversation', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.locator('#visionPrompt').fill('Create a neighborhood arts festival.');
+  await page.locator('#visionGuide').click();
+  await page.locator('#visionPrompt').fill('Create a community science workshop.');
+  await page.evaluate(() => document.dispatchEvent(new CustomEvent('shane:endeavor-changed', {detail:{id:'44444444-4444-4444-8444-444444444444'}})));
+  await expect(page.locator('#shaneIdeaTurns')).not.toContainText('arts festival');
+  const adopted = await page.evaluate(() => sessionStorage.getItem('shane_idea_conversation_endeavor_44444444-4444-4444-8444-444444444444'));
+  expect(adopted).not.toContain('arts festival');
+});
