@@ -50,7 +50,12 @@ async function searchHistory(term,{limit=100,offset=0,endeavorId=null,includeArc
  const account=await user();if(!account)throw Error("Sign in to search your history.");
  const needle=String(term||"").trim().slice(0,200);
  if(!needle)return list({limit,offset,endeavorId,includeArchived});
- const escaped=needle.replace(/[\\%_]/g,"\\async function endeavors(){
+ let query=db.from(table).select("id,endeavor_id,body,source_page,entry_kind,created_at,archived_at").eq("owner_id",account.id).ilike("body","%"+needle.replace(/[%_]/g,"")+"%").order("created_at",{ascending:false}).range(Math.max(0,offset),Math.max(0,offset)+Math.min(500,Math.max(1,limit))-1);
+ if(endeavorId)query=query.eq("endeavor_id",endeavorId);
+ if(!includeArchived)query=query.is("archived_at",null);
+ const {data,error}=await query;if(error)throw error;return data||[];
+}
+async function endeavors(){
  const account=await user();if(!account)throw Error("Sign in to view your endeavors.");
  const {data,error}=await db.from("shane_endeavors").select("id,title,updated_at").eq("owner_id",account.id).order("updated_at",{ascending:false}).limit(200);
  if(error)throw error;return data||[];
