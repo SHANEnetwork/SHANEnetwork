@@ -46,11 +46,20 @@ async function remove(id){
  const account=await user();if(!account)throw Error("Sign in first.");
  const {error}=await db.from(table).delete().eq("id",id).eq("owner_id",account.id);if(error)throw error;
 }
+async function searchHistory(term,{limit=100,includeArchived=false}={}){
+ const account=await user();if(!account)throw Error("Sign in to search your history.");
+ const needle=String(term||"").trim().slice(0,200);
+ if(!needle)return list({limit,includeArchived});
+ const escaped=needle.replace(/[\\%_]/g,"\\async function exportHistory(){");
+ let query=db.from(table).select("id,endeavor_id,body,source_page,entry_kind,created_at,archived_at").eq("owner_id",account.id).ilike("body","%"+escaped+"%").order("created_at",{ascending:false}).limit(Math.min(500,Math.max(1,limit)));
+ if(!includeArchived)query=query.is("archived_at",null);
+ const {data,error}=await query;if(error)throw error;return data||[];
+}
 async function exportHistory(){
  const all=[];let offset=0;
  for(;;){const batch=await list({limit:500,offset,includeArchived:true});all.push(...batch);if(batch.length<500)break;offset+=500}
  return JSON.stringify({exported_at:new Date().toISOString(),entries:all},null,2);
 }
-window.SHANEConversationStore=Object.freeze({list,setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20)=>{const rows=await list({limit});return rows.slice().reverse().map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at}))}});
+window.SHANEConversationStore=Object.freeze({list,searchHistory,setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20)=>{const rows=await list({limit});return rows.slice().reverse().map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at}))}});
 document.dispatchEvent(new Event("shane:conversation-store-ready"));
 void flush();
