@@ -71,7 +71,7 @@ function init(){
   button.disabled=true;status.textContent="Carrying your endeavor forward…";
   let endeavorId=null;
   try{const value=window.SHANECurrentEndeavor?.read?.();if(typeof value==="string")endeavorId=value}catch{}
-  if(!endeavorId){try{endeavorId=JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id||null}catch{}}
+  if(!endeavorId){try{const saved=JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id;if(typeof saved==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(saved))endeavorId=saved}catch{}}
   try{
    sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination,text:text.slice(0,4000),endeavorId,created:Date.now()}));
    if(destination==="builder.html")sessionStorage.setItem("shane-creative-handoff-v1",JSON.stringify({text:text.slice(0,4000),created:Date.now()}));
