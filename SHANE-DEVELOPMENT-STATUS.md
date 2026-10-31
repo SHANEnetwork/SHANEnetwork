@@ -113,3 +113,8 @@ No action requested as of this update.
 - `shane-creative-continuity.js` now offers direct handoffs from an existing builder vision into community announcement/event and opportunity drafting.
 - `shane-community-publishing.js` consumes destination-scoped, timestamped session handoffs into its existing conversational draft input; existing publishing handlers and authorization checks remain unchanged.
 - No publication occurs automatically. Browser verification pending.
+
+## 2026-10-31: unfinished conversational draft continuity
+- `shane-conversational-drafts.js` now retains unfinished campaign, community, and listing descriptions within the browser session across reloads, without overwriting a destination handoff or automatically submitting.
+- `shane-community-publishing.js` adds the same session-scoped draft retention for announcements/events and opportunities. Drafts expire from automatic restoration after seven days and are not cross-device records.
+- Existing publishing controls and forms are preserved; live browser verification remains pending.
