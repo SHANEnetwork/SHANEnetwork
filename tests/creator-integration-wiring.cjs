@@ -252,3 +252,12 @@ test("Creator discovers only published public listings without leaving the endea
  assert.ok(sync.includes('description.textContent=String(opportunity.description'));
  assert.ok(sync.includes('request!==discoveryVersion||version!==connectedViewVersion'));
 });
+
+test("Creator interprets saved vision into discovery terms without a second setup flow",()=>{
+ const sync=fs.readFileSync(require("node:path").join(__dirname,"../shane-conversation-sync.js"),"utf8");
+ assert.ok(sync.includes('String(saved.vision||"").toLowerCase()'));
+ assert.ok(sync.includes('suggest.textContent="Find opportunities for my vision"'));
+ assert.ok(sync.includes('discoveryInput.value=suggestedTerms.join(" ")'));
+ assert.ok(sync.includes('discoveryForm.requestSubmit()'));
+ assert.ok(sync.includes('requestQuery=requestQuery.or(terms.flatMap('));
+});
