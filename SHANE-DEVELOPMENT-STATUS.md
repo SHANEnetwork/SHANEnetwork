@@ -272,3 +272,8 @@ No action requested as of this update.
 - `my-network.html` now offers contextual next steps after the existing vision exploration form: creator, public discovery, communities, campaigns and member listings.
 - `shane-network-vision-paths.js` passes the original vision through existing destination handoffs, without publishing or changing authorization.
 - Shared stylesheet integrates these paths inline. Script syntax parsed; browser and cross-page verification remain pending.
+
+## 2026-10-31: creator-to-network endeavor pathways
+- `builder.html` now offers direct contextual transitions from the creative studio into Network discovery, communities, campaigns and growth.
+- `shane-builder-endeavor-paths.js` passes the current vision and optional active endeavor pointer to existing handoff receivers without automatic publication.
+- Existing creator, preview, save and publish tools remain in place. Script syntax parsed; cross-page browser verification and fully persistent shared AI context remain pending.
