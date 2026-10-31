@@ -9,7 +9,7 @@
  const journalRead=()=>{try{const x=JSON.parse(sessionStorage.getItem(JOURNAL)||"null");return x&&Array.isArray(x.turns)?x:{turns:[],updated:0}}catch{return {turns:[],updated:0}}};
  const journalAdd=(value,kind="idea")=>{const text=String(value||"").trim().slice(0,4000);if(!text)return;try{const j=journalRead(),last=j.turns[j.turns.length-1];if(last&&last.text===text&&last.page===page)return;j.turns.push({text,page,kind,at:Date.now()});j.turns=j.turns.slice(-30);j.updated=Date.now();sessionStorage.setItem(JOURNAL,JSON.stringify(j));document.dispatchEvent(new CustomEvent("shane:conversation-updated",{detail:{page,kind,text}}))}catch{}};
  const journalContext=()=>{const j=journalRead();return {page,turns:j.turns.slice(-12),updated:j.updated}};
- const fullContext=async()=>({session:journalContext(),saved:window.SHANEConversationStore?await window.SHANEConversationStore.context({limit:40}):[]});
+ const fullContext=async()=>({session:journalContext(),saved:window.SHANEConversationStore?await window.SHANEConversationStore.context({limit:40}):[],endeavor:window.SHANECurrentEndeavor?.read()||null});
  Object.defineProperty(window,"SHANEConversation",{configurable:false,value:Object.freeze({read:journalContext,remember:journalAdd,fullContext})});
  import("./shane-conversation-store.js").catch(()=>{});
  const continuityKey="shane-conversation-continuity-v1";
@@ -42,7 +42,8 @@
  },true);
  window.SHANECurrentEndeavor=Object.freeze({
   read:()=>{try{return JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id||null}catch{return null}},
-  context:async()=>{const id=window.SHANECurrentEndeavor.read();if(!id||!window.SHANEConversationStore)return [];return window.SHANEConversationStore.endeavorContext(id)}
+  context:async()=>{const id=window.SHANECurrentEndeavor.read();if(!id||!window.SHANEConversationStore)return [];return window.SHANEConversationStore.endeavorContext(id)},
+  continueIn:(destination,text)=>{const id=window.SHANECurrentEndeavor.read();const idea=String(text||journalRead().turns.at(-1)?.text||"").trim();if(!idea)return false;sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination,text:idea,endeavorId:id,created:Date.now()}));return true}
  });
  document.addEventListener("shane:conversation-store-ready",async()=>{try{const entries=await window.SHANECurrentEndeavor.context();document.dispatchEvent(new CustomEvent("shane:endeavor-context-ready",{detail:{entries}}))}catch{}});
  const receiveIntent=()=>{
