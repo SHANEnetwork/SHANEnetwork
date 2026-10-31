@@ -25,3 +25,49 @@ for (const page of pages) {
   console.log(page + ': ' + checked + ' inline scripts checked');
 }
 if (failures) process.exitCode = 1;
+
+/*
+ * SHANE journey contracts: fail CI if the essential conversation-to-network
+ * handoffs are accidentally removed. These are static integration guards,
+ * not substitutes for authenticated two-member browser tests.
+ */
+const contracts = [
+  ['index.html', [
+    ['welcome vision form', 'id="shaneWelcome"'],
+    ['welcome to creator handoff', 'builder.html?from=welcome#vision-first']
+  ]],
+  ['builder.html', [
+    ['welcome draft recovery', 'shane-welcome-v1'],
+    ['account endeavor persistence', 'sb.from("shane_endeavors").insert(payload)'],
+    ['saved endeavor vision recovery', 'visionField.value=data.idea.slice(0,12000)'],
+    ['latest endeavor vision recovery', 'latestVision.value=(data.idea||"").slice(0,12000)'],
+    ['vision-first creation prompt', 'id="visionPrompt"']
+  ]],
+  ['my-network.html', [
+    ['conversation-first return', 'continueLink.textContent="Continue the conversation"'],
+    ['saved endeavor context', 'continueLink.href="builder.html?endeavor="'],
+    ['network listing handoff', 'shane-network-draft-v1']
+  ]],
+  ['workspace.html', [
+    ['collaboration messages', 'shane_collaboration_messages'],
+    ['collaboration tasks', 'shane_collaboration_tasks'],
+    ['collaboration activity', 'shane_collaboration_activity'],
+    ['live feed refresh', 'setInterval(refreshLiveFeeds, 30000)']
+  ]],
+  ['members.html', [
+    ['network draft recovery', 'shane-network-draft-v1']
+  ]]
+];
+for (const [page, requirements] of contracts) {
+  if (!fs.existsSync(page)) continue;
+  const source = fs.readFileSync(page, 'utf8');
+  for (const [label, marker] of requirements) {
+    if (!source.includes(marker)) {
+      console.error(page + ': missing journey contract: ' + label);
+      failures++;
+    } else {
+      console.log(page + ': journey contract OK: ' + label);
+    }
+  }
+}
+if (failures) process.exitCode = 1;
