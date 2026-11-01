@@ -30,20 +30,32 @@ export function validateSpecialist(profile){
 // The catalog mirrors existing working SHANE modules and can be refined by a
 // trusted model later without granting it new privileges.
 const ENDEAVOR_CAPABILITIES=Object.freeze([
- {id:"builder",path:"builder.html",pattern:/website|webpage|storefront|online shop|landing page|portfolio/i},
+ {id:"builder",path:"builder.html",pattern:/website|webpage|storefront|online shop|landing page|portfolio|create a site/i},
+ {id:"dashboard",path:"dashboard.html",pattern:/my endeavors|my projects|dashboard|pick up where i left off/i},
+ {id:"conversation-history",path:"conversation-history.html",pattern:/conversation history|past conversations|previous ideas/i},
  {id:"communities",path:"communities.html",pattern:/community|club|association|member group/i},
+ {id:"community-conversations",path:"community-conversations.html",pattern:/community chat|chat room|discussion room|community conversation/i},
+ {id:"community-feed",path:"community-feed.html",pattern:/community announcement|post an update|community news/i},
+ {id:"community-opportunities",path:"community-opportunities.html",pattern:/volunteers?|community opportunity|community service/i},
+ {id:"community-members",path:"community-members.html",pattern:/member roles|community members|community permissions/i},
+ {id:"community-history",path:"community-history.html",pattern:/community rollback|community history|restore community/i},
  {id:"campaigns",path:"campaigns.html",pattern:/event|concert|festival|fundrais|campaign|craft fair/i},
  {id:"workspace",path:"workspace.html",pattern:/tasks?|milestones?|coordinate|project plan|responsibilities/i},
  {id:"my-network",path:"my-network.html",pattern:/collaborat|partners?|team up|cofounder/i},
  {id:"network",path:"network.html",pattern:/discover|find people|find organizations|search network/i},
  {id:"members",path:"members.html",pattern:/listing|offer services?|member profile/i},
  {id:"growth",path:"growth.html",pattern:/marketing|outreach|promotion|grow audience|attract customers/i},
- {id:"payments",path:"payments.html",pattern:/payments?|checkout|donations?|sell tickets/i}
+ {id:"payments",path:"payments.html",pattern:/payments?|checkout|donations?|sell tickets/i},
+ {id:"appearance",path:"appearance.html",pattern:/theme|appearance|colors|personalize/i},
+ {id:"request-build",path:"request-build.html",pattern:/custom build|done for me|build it for me/i},
+ {id:"sports-district",path:"sports-district.html",pattern:/sports district|sports league|school athletics/i}
 ]);
-export function planCapabilitySuggestions(request){
+export function planCapabilitySuggestions(request,vision=""){
  const text=String(request||"").slice(0,12000);
+ const purpose=String(vision||"").slice(0,12000);
  const matched=ENDEAVOR_CAPABILITIES.filter(item=>item.pattern.test(text));
- return (matched.length?matched:[ENDEAVOR_CAPABILITIES[0]]).map(({id,path})=>({
+ const selected=matched.length?matched:ENDEAVOR_CAPABILITIES.filter(item=>item.pattern.test(purpose));
+ return (selected.length?selected:[ENDEAVOR_CAPABILITIES[0]]).map(({id,path})=>({
   capabilityId:id,path,action:"prepare_editable_draft",requiresConfirmation:true
  }));
 }
@@ -57,7 +69,7 @@ export async function respondToEndeavor({endeavor,request,invoke,rounds=1}={}){
   request:String(request).slice(0,12000),
   response:result.synthesis,
   specialistContributions:result.history,
-  proposedCapabilities:planCapabilitySuggestions(request),
+  proposedCapabilities:planCapabilitySuggestions(request,endeavor?.vision),
   requiresApproval:result.requiresApproval,
   status:"proposal_ready"
  };
