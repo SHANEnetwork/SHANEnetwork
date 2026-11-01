@@ -48,3 +48,30 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   finally{trigger.disabled=false}
  },{capture:true});
 })().catch(()=>{});
+
+
+/* Explicit conversational creation keeps campaigns unpublished until the member chooses to publish. */
+(()=>{
+ const init=()=>{
+ const trigger=document.getElementById("campaignDraft"),idea=document.getElementById("campaignIdea"),status=document.getElementById("campaignDraftStatus");
+ if(!trigger||!idea||!status)return;
+ const button=document.createElement("button");button.type="button";button.textContent="Save my campaign privately";trigger.insertAdjacentElement("afterend",button);
+ button.addEventListener("click",async()=>{
+  const vision=idea.value.trim();if(vision.length<8){status.textContent="Describe your campaign first.";return}
+  button.disabled=true;status.textContent="SHANE is creating your private campaign draft.";
+  try{
+   await import("./shane-conversation-store.js");const store=window.SHANEConversationStore;
+   const draft=await store.interpretVision({capability:"campaign",vision});
+   const value=(id)=>document.getElementById(id)?.value||"";
+   const title=value("title").trim()||draft.title||"";
+   const description=value("description").trim()||draft.description||vision;
+   const deadline=value("deadline");
+   if(!deadline)throw Error("Set an interest deadline to save this campaign. Your vision remains here.");
+   const result=await store.createPrivateCampaign({vision,title,description,category:value("category")||draft.category,location:value("location")||draft.location,deadline,minimumSupporters:value("minimum")||10,eventDate:value("eventDate")||null});
+   status.textContent="Campaign saved privately as a draft. It has not been published or sent to anyone. Campaign ID: "+result.campaignId;
+  }catch(error){status.textContent="Campaign not saved: "+error.message}
+  finally{button.disabled=false}
+ });
+ };
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
