@@ -24,7 +24,7 @@ async function flush(){
     if(item.endeavorId)record.endeavor_id=item.endeavorId;
     const {error}=await db.from(table).insert(record);
     if(error)throw error;
-    pending.shift();
+    if(pending[0]===item)pending.shift();
     document.dispatchEvent(new CustomEvent("shane:conversation-saved",{detail:{endeavorId:item.endeavorId||null,page:item.page}}));
    }
   }catch(error){
