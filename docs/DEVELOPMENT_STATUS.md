@@ -170,3 +170,9 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Added saved-plan next-step links directly in the existing shared navigation, across the pages where that navigation loads. Links use the existing safe preparation handoff and leave publication and other consequential operations to their destination modules.
 - Avoids unnecessary duplicate plan revisions when a member continues an unchanged vision; excludes structured plan records from conversation fallback entirely.
 - This is a cross-page user-experience improvement, not proof of completed AI orchestration or full website transformation. Account-backed plan retrieval requires sign-in; browser and database end-to-end verification remain outstanding.
+
+## Long-lived plan continuity and revision recovery
+- The account-backed plan API now pages through older conversation entries (up to 5,000 entries) instead of losing access to plans after 200 newer messages.
+- Added `SHANEEndeavorPlan.history()` and `restore()` for non-destructive restoration: an earlier plan becomes a new revision, retaining subsequent history. Restoration is API-level; a dedicated visible restoration control is not yet implemented.
+- Added a plan-ready event and a shared-navigation listener to refresh saved next steps when dynamically injected scripts load in different orders.
+- Limitations: bounded 5,000-entry scan; full end-to-end testing remains pending; no AI model backend or autonomous actions added in this pass.
