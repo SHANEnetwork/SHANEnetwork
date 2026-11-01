@@ -84,6 +84,9 @@ function useVisionContext(event){
  const incoming=document.getElementById(sourceFields[page])?.value?.trim();
  const vision=String(incoming||context.vision||"").trim().slice(0,4000);
  if(!vision)return;
+ // Do not replay a stale event from another selected endeavor.
+ const active=window.SHANECurrentEndeavor?.read?.()||null;
+ if(context.endeavorId&&active&&context.endeavorId!==active)return;
  fillEmpty(spec.body,vision);
  const title=extractTitle(vision);
  if(title.length>=3)fillEmpty(spec.title,title);
