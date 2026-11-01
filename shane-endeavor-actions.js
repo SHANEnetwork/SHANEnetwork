@@ -173,6 +173,40 @@ function init(){
  document.addEventListener("shane:endeavor-context-ready",()=>void showSavedPlan());
  document.addEventListener("shane:conversation-context-changed",()=>void showSavedPlan());
  void showSavedPlan();
+ // Restore is an intentional, confirmed action, not a silent rollback.
+ const revisionControl=document.createElement("details");revisionControl.className="shane-plan-revisions";
+ const revisionSummary=document.createElement("summary");revisionSummary.textContent="Earlier versions";
+ const revisionChoices=document.createElement("div");revisionChoices.className="shane-action-workflow";
+ const revisionStatus=document.createElement("span");revisionStatus.setAttribute("role","status");
+ revisionControl.append(revisionSummary,revisionChoices,revisionStatus);
+ const loadRevisions=async()=>{
+  const selected=window.SHANECurrentEndeavor?.read?.();
+  revisionChoices.replaceChildren();revisionStatus.textContent="";
+  if(!selected||!window.SHANEEndeavorPlan?.history){revisionControl.hidden=true;return}
+  try{
+   const revisions=await window.SHANEEndeavorPlan.history(selected,{limit:15});
+   if(window.SHANECurrentEndeavor?.read?.()!==selected)return;
+   revisionControl.hidden=revisions.length<2;
+   for(const old of revisions.slice(1)){
+    const restore=document.createElement("button");restore.type="button";
+    restore.textContent="Restore revision "+old.revision;
+    restore.addEventListener("click",async()=>{
+     if(!window.confirm("Restore revision "+old.revision+" as a new plan version? Your newer versions will remain available."))return;
+     restore.disabled=true;
+     try{
+      await window.SHANEEndeavorPlan.restore({endeavorId:selected,revision:old.revision});
+      revisionStatus.textContent="Revision "+old.revision+" restored as a new version.";
+      await showSavedPlan();await loadRevisions();
+     }catch(error){revisionStatus.textContent="Could not restore that version. "+String(error?.message||error)}
+     finally{restore.disabled=false}
+    });
+    revisionChoices.append(restore);
+   }
+  }catch{revisionControl.hidden=true}
+ };
+ revisionControl.addEventListener("toggle",()=>{if(revisionControl.open)void loadRevisions()});
+ document.addEventListener("shane:endeavor-plan-ready",()=>{if(revisionControl.open)void loadRevisions()});
+ document.addEventListener("shane:endeavor-context-ready",()=>{if(revisionControl.open)void loadRevisions()});
  const status=document.createElement("span");status.setAttribute("role","status");status.className="shane-action-status";
  const suggestion=document.createElement("span");suggestion.className="shane-action-suggestion";suggestion.setAttribute("aria-live","polite");
  const update=()=>{const text=idea(),destination=suggest(text),label=targets.find(([path])=>path===destination)?.[1];suggestion.textContent=select.value?"You chose "+targets.find(([path])=>path===select.value)?.[1]:label?"SHANE suggests: "+label:"Describe your idea and SHANE will suggest a next step.";renderWorkflow()};
@@ -231,7 +265,7 @@ function init(){
   }
   location.assign(destination);
  });
- group.append(select,button,suggestion,workflow,planResume,status);nav.append(group);update();
+ group.append(select,button,suggestion,workflow,planResume,revisionControl,status);nav.append(group);update();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
