@@ -51,8 +51,8 @@ const ENDEAVOR_CAPABILITIES=Object.freeze([
  {id:"sports-district",path:"sports-district.html",pattern:/sports district|sports league|school athletics/i}
 ]);
 export function planCapabilitySuggestions(request,vision=""){
- const text=String(request||"").slice(0,12000);
- const purpose=String(vision||"").slice(0,12000);
+ const text=String(request||"");
+ const purpose=String(vision||"");
  const matched=ENDEAVOR_CAPABILITIES.filter(item=>item.pattern.test(text));
  const selected=matched.length?matched:ENDEAVOR_CAPABILITIES.filter(item=>item.pattern.test(purpose));
  return (selected.length?selected:[ENDEAVOR_CAPABILITIES[0]]).map(({id,path})=>({
@@ -74,7 +74,7 @@ export async function respondToEndeavor({endeavor,request,invoke,rounds=1}={}){
  const result=await collaborate({endeavor,request,invoke,rounds,synthesize:true});
  return {
   endeavorId:result.endeavorId,
-  request:String(request).slice(0,12000),
+  request:String(request),
   response:result.synthesis,
   specialistContributions:result.history,
   proposedCapabilities:planCapabilitySuggestions(request,endeavor?.vision),
@@ -87,7 +87,7 @@ export async function collaborate({endeavor,request,invoke,rounds=2,roles,synthe
  const selected=(roles||routeSpecialists(request)).filter(r=>Object.hasOwn(SPECIALISTS,r));
  if(!selected.length)throw Error("No supported specialists selected");
  const history=[],limit=Math.max(1,Math.min(MAX_ROUNDS,Math.floor(rounds)||1));
- const context={endeavorId:String(endeavor.id||""),vision:String(endeavor.vision||"").slice(0,12000),request:String(request).slice(0,12000)};
+ const context={endeavorId:String(endeavor.id||""),vision:String(endeavor.vision||""),request:String(request)};
  for(let round=0;round<limit;round++){
   for(const role of selected){
    const result=await invoke({role,instructions:SPECIALISTS[role].purpose,context,history:history.map(({role,output})=>({role,output}))});
