@@ -266,7 +266,28 @@ function init(){
      }));
     }
    }
-   composerStatus.textContent="Saved to this endeavor. Your editable draft is ready where supported.";
+   // Surface the next existing workspace as a conversational continuation,
+   // without introducing a new setup panel or automatically navigating away.
+   const next=await window.SHANEEndeavorPlan?.nextAction?.(selected);
+   if(window.SHANECurrentEndeavor?.read?.()!==selected)return;
+   const nextPath=next?.step?.path;
+   if(nextPath&&nextPath!==page){
+    composerStatus.replaceChildren();
+    composerStatus.append(document.createTextNode("Saved. Continue in "));
+    const link=document.createElement("a");
+    link.href=nextPath;
+    link.textContent=next.step.label||"the next workspace";
+    link.addEventListener("click",event=>{
+     event.preventDefault();
+     link.setAttribute("aria-disabled","true");
+     void window.SHANEEndeavorPlan.handoff({endeavorId:selected,capabilityId:next.step.capabilityId})
+      .then(()=>location.assign(nextPath))
+      .catch(error=>{link.removeAttribute("aria-disabled");composerStatus.textContent=String(error?.message||error)});
+    });
+    composerStatus.append(link,document.createTextNode("."));
+   }else{
+    composerStatus.textContent="Saved to this endeavor. Your editable draft is ready where supported.";
+   }
    document.dispatchEvent(new Event("shane:conversation-context-changed"));
   }catch(error){composerStatus.textContent="The idea could not be fully saved to your account. "+String(error?.message||error)}
   finally{saveIdea.disabled=false}
