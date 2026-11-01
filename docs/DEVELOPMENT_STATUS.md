@@ -129,3 +129,9 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Implemented `SHANEConversationStore.continuityPacket({endeavorId,limit})`: authenticated, selected-endeavor-scoped, bounded, chronological, source-attributed conversation entries, excluding navigation transitions. It does not fabricate memory or treat user statements as independently verified facts.
 - Integrated the packet into the existing `SHANEConversation.visionContext()` response for downstream capability modules. Existing page forms and programs remain unchanged.
 - This is a concrete context API, not a live model invocation, automated planning, or autonomous execution. Browser and Supabase end-to-end verification pending.
+
+## Reusable creative continuity (Story System and RPG materials)
+- Added `shane-endeavor-continuity.js`, a versioned, endeavor-scoped structured milestone API: `read`, `checkpoint`, `version`, `restore`, `exportState`. Restoring creates a new revision and preserves the original.
+- Shared navigation loads it on existing SHANE pages, except published customer sites.
+- Principles derived from user-supplied Story System and RPG documents: user-directed continuation, stable identity/world rules, explicit state transitions, and repair from last correct checkpoint. No document text is embedded or redistributed.
+- Current implementation is **sessionStorage only**, intentionally not cross-device or durable account storage. It does not generate stories, images, or run AI. Account-backed persistence and real module integrations remain outstanding.
