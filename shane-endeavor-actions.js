@@ -19,6 +19,7 @@ const targets=[
  ["community-conversations.html","Discuss with my community"],
  ["community-opportunities.html","Coordinate volunteers and opportunities"],
  ["community-history.html","Review community changes and rollback"],
+ ["community-members.html","Manage community members and roles"],
  ["appearance.html","Personalize SHANE appearance"],
  ["contact.html","Contact SHANE"],
  ["system-health.html","Report a technical problem"]
@@ -30,6 +31,7 @@ const intentRules=[
  ["dashboard.html",/my projects|my endeavors|my dashboard|what have i created/i],
  ["conversation-history.html",/conversation history|past conversations|previous ideas|what did we discuss/i],
  ["community-history.html",/restore community settings|rollback community|community configuration history|community version history/i],
+ ["community-members.html",/community members|manage members|member roles|community permissions|moderate members/i],
  ["appearance.html",/appearance settings|change theme|change colors|custom theme|my colors|font settings/i],
  ["workspace.html",/assign a task|create a task|task list|work plan|project milestone|coordinate work|to.do list|coordinate volunteers|organize responsibilities/i],
  ["network.html",/discover|search for|find people|find organizations|look for|who can help/i],
