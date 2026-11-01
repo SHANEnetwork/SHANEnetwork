@@ -1239,7 +1239,26 @@ function init(){
  const eyebrow=document.createElement("span");eyebrow.className="shane-workspace-eyebrow";eyebrow.textContent="SHANE · Collaborative Intelligence and Creation Network";
  const title=document.createElement("h2");title.textContent="What shall we bring to life together?";
  const intro=document.createElement("p");intro.textContent="Explore an idea, build something real, or continue an endeavor. SHANE carries the conversation across the Network.";
- heading.append(eyebrow,title,intro);
+ const activeContext=document.createElement("p");activeContext.className="shane-workspace-active-context";
+ activeContext.setAttribute("role","status");
+ let contextSerial=0;
+ const refreshActiveContext=async()=>{
+  const serial=++contextSerial;
+  const id=window.SHANECurrentEndeavor?.read?.();
+  if(!id){activeContext.textContent="No endeavor selected. Choose one below to continue together.";return}
+  activeContext.textContent="Loading your active endeavor…";
+  try{
+   const items=await window.SHANEConversationStore?.endeavors?.();
+   if(serial!==contextSerial||id!==window.SHANECurrentEndeavor?.read?.())return;
+   const match=items?.find(item=>item.id===id);
+   activeContext.textContent=match?"Currently creating: "+String(match.title||"Untitled endeavor"):"Select one of your saved endeavors to continue.";
+  }catch(error){if(serial===contextSerial)activeContext.textContent="Your selected endeavor could not be loaded."}
+ };
+ document.addEventListener("shane:conversation-store-ready",()=>void refreshActiveContext());
+ document.addEventListener("shane:conversation-context-changed",()=>void refreshActiveContext());
+ document.addEventListener("shane:endeavor-context-ready",()=>void refreshActiveContext());
+ void refreshActiveContext();
+ heading.append(eyebrow,title,intro,activeContext);
  host.append(heading,group);
  const main=document.querySelector("main");
  if(main){main.insertBefore(host,main.firstChild)}
