@@ -840,7 +840,7 @@ function init(){
  const showRecentCreation=()=>{
   let item;try{item=JSON.parse(sessionStorage.getItem("shane-last-created-artifact-v1")||"null")}catch{}
   recentCreation.replaceChildren();
-  if(!item||typeof item.url!=="string"||!item.url.match(/^(builder|campaigns|communities|members)\\.html[?]/)||!item.id||Date.now()-item.created>7*86400000)return;
+  if(!item||typeof item.url!=="string"||!["builder.html?","campaigns.html?","communities.html?","members.html?"].some(prefix=>item.url.startsWith(prefix))||!item.id||Date.now()-item.created>7*86400000)return;
   recentCreation.append(document.createTextNode("Continue your last creation: "));
   const link=document.createElement("a");link.href=item.url;link.textContent=item.type==="new-website"?"Website":item.type==="website"?"Revised website":item.type==="campaign"?"Campaign":item.type==="community"?"Community":"Network listing";
   recentCreation.append(link);
