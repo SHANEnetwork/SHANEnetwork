@@ -134,6 +134,21 @@ async function converse({endeavorId,request,purpose}){
  if(typeof data?.response!=="string"||!data.response.trim())throw Error("SHANE returned no response.");
  return data;
 }
-window.SHANEConversationStore=Object.freeze({converse,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
+
+// Revise a previously saved creation through the same authenticated AI endpoint.
+// The server must verify ownership, preserve prior versions, and return a durable
+// creation identifier. A conversational response alone is not a saved revision.
+async function reviseSavedCreation({endeavorId,creationId,request}={}){
+ const account=await user();
+ if(!account)throw Error("Sign in to revise a saved creation.");
+ if(!/^[0-9a-f-]{36}$/i.test(String(endeavorId||""))||!/^[0-9a-f-]{36}$/i.test(String(creationId||"")))throw Error("A saved endeavor and creation are required.");
+ const instruction=String(request||"").trim();
+ if(!instruction)throw Error("Describe the change you want.");
+ const {data,error}=await db.functions.invoke("shane-converse",{body:{endeavorId,creationId,request:instruction,purpose:"revise-saved-creation"}});
+ if(error||data?.error)throw Error(data?.error||error?.message||"Revision service unavailable.");
+ if(!data?.savedCreationId||!data?.revisionId)throw Error("Revision was not confirmed as saved. Your previous creation remains the authoritative version.");
+ return data;
+}
+window.SHANEConversationStore=Object.freeze({converse,reviseSavedCreation,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
 document.dispatchEvent(new Event("shane:conversation-store-ready"));
 void flush();
