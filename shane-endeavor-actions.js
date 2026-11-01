@@ -595,6 +595,12 @@ function init(){
     const summary=document.createElement("p");
     summary.textContent="SHANE can prepare "+proposal.steps.map(step=>step.type.replace("new-","")).join(", ")+".";
     aiNext.append(summary);
+    const evaluation=window.SHANEConversationStore?.evaluateCreationPlan?.({steps:proposal.steps});
+    if(evaluation?.alternatives?.length){
+     const repair=document.createElement("p");
+     repair.textContent="SHANE found a constructive path: "+evaluation.alternatives.map(item=>"Step "+item.step+": "+item.constructivePath).join(" ");
+     aiNext.append(repair);
+    }
     if(!proposal.ready){
      const refresh=document.createElement("button");
      refresh.type="button";
