@@ -473,7 +473,7 @@ function init(){
    }
    // The AI dialogue should lead directly into the existing working capability,
    // not ask members to copy its output into another form.
-   if(exchangeSaved&&window.SHANEEndeavorPlan?.nextAction){
+   if(exchangeSaved&&window.SHANECurrentEndeavor?.read?.()===endeavorId&&window.SHANEEndeavorPlan?.nextAction){
     try{
      const next=await window.SHANEEndeavorPlan.nextAction(endeavorId);
      if(window.SHANECurrentEndeavor?.read?.()===endeavorId&&next?.step?.path){
@@ -495,7 +495,7 @@ function init(){
    // The member's next message should be a fresh conversational turn.
    // Keep the saved endeavor and its underlying editable project unchanged.
    const composer=document.getElementById("shane-shared-vision-input");
-   if(exchangeSaved&&composer&&composer.value.trim()===request){
+   if(exchangeSaved&&window.SHANECurrentEndeavor?.read?.()===endeavorId&&composer&&composer.value.trim()===request){
     composer.value="";
     composer.dispatchEvent(new Event("input",{bubbles:true}));
     composer.focus();
