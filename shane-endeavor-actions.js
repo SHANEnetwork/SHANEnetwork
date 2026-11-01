@@ -1125,13 +1125,13 @@ function init(){
   const store=window.SHANEConversationStore;
   if(!store?.list){timelineBody.textContent="Connecting to your saved conversation…";return}
   try{
-   const rows=await store.list({endeavorId,limit:50,kinds:["ai-request","ai-response"]});
+   const rows=await store.list({endeavorId,limit:50,kinds:["ai-request","ai-response","creation-summary"]});
    if(serial!==timelineSerial||window.SHANECurrentEndeavor?.read?.()!==endeavorId)return;
    timelineBody.replaceChildren();
    if(!rows.length){timelineBody.textContent="Your conversation will appear here as we build together.";return}
    for(const item of rows.slice().reverse()){
-    const turn=document.createElement("article");turn.className="shane-timeline-turn "+(item.entry_kind==="ai-response"?"shane-timeline-ai":"shane-timeline-person");
-    const who=document.createElement("strong");who.textContent=item.entry_kind==="ai-response"?"SHANE":"You";
+    const turn=document.createElement("article");turn.className="shane-timeline-turn "+(item.entry_kind==="ai-response"||item.entry_kind==="creation-summary"?"shane-timeline-ai":"shane-timeline-person");
+    const who=document.createElement("strong");who.textContent=item.entry_kind==="ai-response"?"SHANE":item.entry_kind==="creation-summary"?"SHANE created":"You";
     const body=document.createElement("p");body.textContent=item.body||"";
     turn.append(who,body);timelineBody.append(turn);
    }
