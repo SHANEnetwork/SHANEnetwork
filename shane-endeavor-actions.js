@@ -539,7 +539,10 @@ function init(){
     supported.has(step?.type)&&typeof step?.vision==="string"&&step.vision.trim().length>=8&&step.vision.length<=10000);
    const interpreted=validAIPlan
     ?{steps:aiPlan.map(step=>({type:step.type,vision:step.vision.trim(),endeavorId})),requiresReview:true,executable:false}:null;
-   const initialProposal=interpreted||(aiPlan===null?window.SHANEConversationStore?.proposeCreationSequence?.({vision:request,endeavorId}):null);
+   // Do not turn a provider failure into an accidental build suggestion.
+   // Keyword fallback is reserved for an older conversation service without a planner field.
+   const plannerProvided=Object.prototype.hasOwnProperty.call(data||{},"creationPlan");
+   const initialProposal=interpreted||(!plannerProvided?window.SHANEConversationStore?.proposeCreationSequence?.({vision:request,endeavorId}):null);
    const proposal=initialProposal&&window.SHANEConversationStore?.prepareCreationSequence?.({proposal:initialProposal,updates:{deadline:deadline.value,siteId:siteChoice.value}})||initialProposal;
    // A private creation may span multiple capabilities, but only the member's
    // confirmed plan can enter the persistence and execution path.
@@ -553,6 +556,12 @@ function init(){
     aiNext.append(detail);
    }
    // Campaign deadlines remain the member's decision; a proposal never supplies one silently.
+   if(plannerProvided&&!validAIPlan){
+    const note=document.createElement("p");
+    note.textContent="SHANE can keep exploring this idea. Its creation plan is not ready, so no draft will be started.";
+    aiNext.append(note);
+    aiNext.hidden=false;
+   }
    if(validAIPlan&&aiPlan.length===0){
     aiNext.replaceChildren();
     aiNext.hidden=true;
