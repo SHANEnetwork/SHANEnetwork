@@ -854,7 +854,20 @@ function init(){
   }catch(error){historyList.textContent="Could not load saved creations: "+error.message}
   finally{historyButton.disabled=false}
  };
- historySearch.addEventListener("input",()=>{if(!historyList.hidden)void historyButton.onclick().then(()=>historyButton.onclick())});
+ historySearch.addEventListener("change",async()=>{
+  if(historyList.hidden)return;
+  historyList.textContent="Searching saved creations…";
+  try{
+   const items=await window.SHANEConversationStore.findSavedCreations({query:historySearch.value,limit:20});
+   historyList.replaceChildren();
+   if(!items.length){historyList.textContent="No matching saved creations.";return}
+   for(const item of items){
+    const line=document.createElement("p"),link=document.createElement("a");
+    link.href=item.url;link.textContent=item.title;
+    line.append(document.createTextNode(item.type+": "),link);historyList.append(line);
+   }
+  }catch(error){historyList.textContent="Search unavailable: "+error.message}
+ });
  document.addEventListener("shane:artifact-created",()=>{if(!historyList.hidden){historyList.hidden=true;historySearch.hidden=true;historyList.replaceChildren()}});
  conversation.append(createAction,deadline,siteChoice,createStatus,recentCreation,historyButton,historySearch,historyList);syncAction();showRecentCreation();
  group.append(conversation,aiReply,aiNext,continueConversation,planProgress,conversationReply,select,button,suggestion,workflow,planResume,revisionControl,status);nav.append(group);update();explainVision();
