@@ -279,3 +279,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 ## Focused continuation
 - The existing shared endeavor navigation now presents a single next unfinished saved-plan step instead of a row of competing destinations. Other steps remain in the account-backed plan and progress view.
 - This is presentation of existing deterministic planning, not model-driven orchestration. Browser verification remains pending.
+
+## Resuming active endeavor work
+- The shared saved-plan continuation link prioritizes prepared work before newly proposed work, matching the existing nextAction API.
+- When no prepared or proposed steps remain, the shared continuation area indicates that the saved plan has no unfinished steps rather than showing an empty call to action.
+- These changes are committed, with browser verification pending.
