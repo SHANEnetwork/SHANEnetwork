@@ -227,3 +227,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Updated headings and conversational framing on communities.html, members.html, community-feed.html, community-conversations.html, community-opportunities.html, appearance.html, conversation-history.html, request-build.html, sports-district.html, payments.html, contact.html, community-history.html, and community-members.html.
 - These changes retain existing controls and page-specific code. They are presentation alignment, not new AI-model execution or end-to-end browser verification.
 - SHONnetwork remains outside the changed repository.
+
+## Conversation to working page fields
+- The existing vision-arrival bridge now offers an explicit in-place action to carry the current shared conversation into supported creation, discovery, community, collaboration, campaign, growth, payments and other working forms.
+- Existing nonempty text is preserved unless the member confirms replacement. The bridge dispatches the existing endeavor-arrived event and never publishes, messages, or charges automatically.
+- Account-backed resume excludes structured endeavor-plan JSON. Existing page-specific code remains intact. Browser verification is pending.
