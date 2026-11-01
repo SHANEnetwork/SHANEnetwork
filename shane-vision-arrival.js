@@ -34,6 +34,7 @@ async function offerAccountResume(page,target,field){
    // Account selection may have changed while history was loading.
    const selected=window.SHANECurrentEndeavor?.read?.()||null;
    if(selected&&selected!==active.id)throw Error("The selected endeavor changed. Choose the project again before resuming.");
+   if(field.value.trim())throw Error("This field changed while loading. Your new writing has been preserved.");
    field.value=chosen.body.slice(0,field.maxLength>0?field.maxLength:4000);field.dispatchEvent(new Event("input",{bubbles:true}));
    note.textContent="Your saved idea is ready. Review and refine it before creating anything.";
    try{sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:active.id,updated:Date.now()}))}catch{}
