@@ -347,9 +347,17 @@ function init(){
   if(!selected||!window.SHANEConversationStore?.list){continueConversation.hidden=true;return}
   continueConversation.hidden=false;
   try{
-   const rows=await window.SHANEConversationStore.list({endeavorId:selected,limit:40});
+   // Find the latest conversational turns even when plans and transitions
+   // occupy many of the newest records. Keep the visible thread concise.
+   const rows=[];
+   for(let offset=0;offset<1000&&rows.length<12;offset+=100){
+    const batch=await window.SHANEConversationStore.list({endeavorId:selected,limit:100,offset});
+    if(window.SHANECurrentEndeavor?.read?.()!==selected)return;
+    rows.push(...batch.filter(row=>!["endeavor-plan","endeavor-transition"].includes(row.entry_kind)&&typeof row.body==="string"&&row.body.trim()));
+    if(batch.length<100)break;
+   }
    if(window.SHANECurrentEndeavor?.read?.()!==selected)return;
-   const ideas=rows.filter(row=>!["endeavor-plan","endeavor-transition"].includes(row.entry_kind)&&typeof row.body==="string"&&row.body.trim()).slice(0,12).reverse();
+   const ideas=rows.slice(0,12).reverse();
    if(!ideas.length){threadStatus.textContent="Your saved ideas will appear here as we develop this endeavor.";return}
    for(const idea of ideas){
     const message=document.createElement("p");message.className="shane-conversation-thread-message";
