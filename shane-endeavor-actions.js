@@ -454,6 +454,10 @@ function init(){
      try{
       const outcome=await window.SHANEConversationStore.continueSavedEndeavor(saved);
       aiReply.textContent=outcome.complete?"All private creations saved.":"Stopped at step "+outcome.failedStep+": "+outcome.error;
+      aiNext.replaceChildren();
+      const latest=await window.SHANEConversationStore.inspectSavedEndeavor(saved);
+      for(const item of latest.completed){const link=document.createElement("a");link.href=item.url;link.textContent="Open "+item.type;aiNext.append(link,document.createTextNode(" "))}
+      if(!latest.complete)aiNext.append(resume);
      }catch(error){aiReply.textContent=error.message}
      finally{resume.disabled=false}
     };
