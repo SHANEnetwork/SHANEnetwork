@@ -700,8 +700,16 @@ async function endeavorSnapshot({endeavorId}={}){
  const receipts=history.status==="fulfilled"?history.value.filter(row=>["creation-summary","creation"].includes(row.entry_kind)):[];
  const linked=creationItems.filter(item=>receipts.some(row=>new RegExp("(^|[^0-9a-f-])"+item.id+"([^0-9a-f-]|$)","i").test(String(row.body||""))));
  const allCreations=creationItems.map(item=>({...item,linkedToEndeavor:linked.some(found=>found.id===item.id)}));
+ // Saved creation plans are shared across pages. Recovery is read-only here:
+ // no action is executed and incomplete steps remain visible.
+ let plan=null,progress=null,planError=null;
+ try{
+  plan=await loadCreationPlan({endeavorId});
+  if(plan)progress=await inspectSavedEndeavor({endeavorId,steps:plan.steps});
+ }catch(error){planError=String(error?.message||error)}
  return {endeavor:{id:endeavor.id,title:endeavor.title,updatedAt:endeavor.updated_at},
   creations:linked,accountCreations:allCreations,collaborations:collaborations.status==="fulfilled"?collaborations.value.collaborations:[],
+  creationPlan:plan?{steps:plan.steps.length,types:plan.steps.map(step=>step.type),remaining:progress?.remaining??null,completed:progress?.completed||[],nextStep:progress?.nextStep||null,complete:progress?.complete===true}:null,planError,
   recentHistory:history.status==="fulfilled"?history.value.slice(0,12).map(row=>({kind:row.entry_kind,text:String(row.body||"").slice(0,900),at:row.created_at})):[],
   availability:{creations:creations.status==="fulfilled",collaborations:collaborations.status==="fulfilled",history:history.status==="fulfilled"},
   readOnly:true};
