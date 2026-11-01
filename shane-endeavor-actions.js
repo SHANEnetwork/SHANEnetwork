@@ -427,14 +427,15 @@ function init(){
  const conversationReply=document.createElement("div");conversationReply.className="shane-conversation-reply";
  conversationReply.setAttribute("role","status");conversationReply.setAttribute("aria-live","polite");
  const askAI=document.createElement("button");askAI.type="button";askAI.textContent="Talk with SHANE AI";
- const aiReply=document.createElement("p");aiReply.className="shane-ai-conversation-response";aiReply.setAttribute("aria-live","polite");aiReply.style.whiteSpace="pre-wrap";
+ const aiReply=document.createElement("p");aiReply.className="shane-ai-conversation-response";
+ const aiNext=document.createElement("a");aiNext.hidden=true;aiNext.textContent="Continue building this endeavor";aiReply.setAttribute("aria-live","polite");aiReply.style.whiteSpace="pre-wrap";
  askAI.addEventListener("click",async()=>{
   const request=sharedComposerText(),endeavorId=window.SHANECurrentEndeavor?.read?.();
   if(!request){aiReply.textContent="Describe what you want to create first.";return}
   if(!endeavorId){aiReply.textContent="Select a saved endeavor to explore it with AI.";return}
   const converse=window.SHANEConversationStore?.converse;
   if(!converse){aiReply.textContent="SHANE's conversation connection is still loading.";return}
-  askAI.disabled=true;aiReply.textContent="Exploring your vision…";
+  askAI.disabled=true;aiReply.textContent="Exploring your vision…";aiNext.hidden=true;
   let exchangeSaved=false;
   try{
    const plan=await window.SHANEEndeavorPlan?.latest?.(endeavorId);
@@ -470,6 +471,25 @@ function init(){
      }
     }catch(error){composerStatus.textContent="Conversation saved. The endeavor plan could not yet be updated.";}
    }
+   // The AI dialogue should lead directly into the existing working capability,
+   // not ask members to copy its output into another form.
+   if(exchangeSaved&&window.SHANEEndeavorPlan?.nextAction){
+    try{
+     const next=await window.SHANEEndeavorPlan.nextAction(endeavorId);
+     if(window.SHANECurrentEndeavor?.read?.()===endeavorId&&next?.step?.path){
+      aiNext.textContent="Continue in "+(next.step.label||"your workspace");
+      aiNext.href=next.step.path;
+      aiNext.hidden=false;
+      aiNext.onclick=async event=>{
+       event.preventDefault();
+       try{
+        const result=await window.SHANEEndeavorPlan.handoff({endeavorId,capabilityId:next.step.capabilityId});
+        if(result?.path)location.assign(result.path);
+       }catch(error){composerStatus.textContent=String(error?.message||error)}
+      };
+     }
+    }catch{}
+   }
    document.dispatchEvent(new CustomEvent("shane:ai-conversation-response",{detail:{endeavorId,request,response:data.response,executed:false}}));
    if(exchangeSaved){continueConversation.open=true;void loadThread();}
    // The member's next message should be a fresh conversational turn.
@@ -487,7 +507,7 @@ function init(){
  const replyText=document.createElement("p");
  const replyActions=document.createElement("div");replyActions.className="shane-conversation-reply-actions";
  conversationReply.append(replyHeading,replyText,replyActions,askAI);
- conversationReply.after(aiReply);
+ conversationReply.after(aiReply,aiNext);
  const explainVision=()=>{
   const text=sharedComposerText();
   conversationReply.hidden=!text;
