@@ -95,7 +95,11 @@ function suggest(text){
   ["builder.html",/\b(build|create|design|make|revise)\b.{0,45}\b(website|site|page|storefront|portfolio)\b/i]
  ];
  for(const [destination,pattern] of priorities)if(matches.some(([path])=>path===destination)&&pattern.test(value))return destination;
- return null; // Preserve choice for genuinely ambiguous visions.
+ // A multi-goal endeavor should still have a useful first step.
+ // Begin with the creator when the vision includes a website; otherwise choose
+ // the earliest relevant collaboration or organization capability.
+ const preferred=["builder.html","communities.html","campaigns.html","workspace.html","my-network.html","network.html","growth.html","members.html"];
+ return preferred.find(path=>matches.some(([matched])=>matched===path))||matches[0][0];
 }
 const fields={
  "index.html":["welcomeIdea"],
