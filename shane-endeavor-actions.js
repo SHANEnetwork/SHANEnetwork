@@ -766,6 +766,7 @@ function init(){
  const capability=()=>{
   const vision=sharedComposerText().trim();
   if(/(?:revise|edit|change|update|improve|redesign|rewrite|modify)\b.{0,90}\b(?:website|site|homepage|web page)|(?:website|site|homepage)\b.{0,90}\b(?:revise|edit|change|update|improve|redesign|rewrite|modify)/i.test(vision))return "website";
+  if(/build a website|create a website|make me a website|design my website|website for|build my site/i.test(vision))return "new-website";
   if(/concert|festival|fundrais|campaign|event|craft fair|gathering|ticket/i.test(vision))return "campaign";
   if(/community|club|association|group|chat room/i.test(vision))return "community";
   if(/listing|list my|offer my|share my service|looking for partners|find collaborators|opportunity|volunteer|advertise|promote my business/i.test(vision))return "listing";
@@ -776,7 +777,7 @@ function init(){
   createAction.hidden=!type||sharedComposerText().trim().length<8;
   deadline.hidden=type!=="campaign";
   siteChoice.hidden=type!=="website";
-  createAction.textContent=type==="website"?"Revise my saved website":type==="campaign"?"Create private campaign draft":type==="community"?"Create private community":"Save private Network listing";
+  createAction.textContent=type==="new-website"?"Create website draft":type==="website"?"Revise my saved website":type==="campaign"?"Create private campaign draft":type==="community"?"Create private community":"Save private Network listing";
  };
  entry.addEventListener("input",syncAction);
  document.addEventListener("shane:conversation-context-changed",syncAction);
@@ -800,7 +801,10 @@ function init(){
    const store=window.SHANEConversationStore;
    if(!store)throw Error("Creation connection is loading.");
    let result,linkTarget,linkLabel,record;
-   if(type==="website"){
+   if(type==="new-website"){
+    result=await store.createPrivateWebsite({vision});
+    linkTarget="builder.html";linkLabel="Open builder";record=result.siteId;
+   }else if(type==="website"){
     await loadSites();
     if(!siteChoice.value){siteChoice.hidden=false;throw Error("Choose the saved website to revise, then select Revise again.");}
     result=await store.reviseSite({siteId:siteChoice.value,request:vision});
