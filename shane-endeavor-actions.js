@@ -515,6 +515,16 @@ function init(){
  };
  const aiReply=document.createElement("p");aiReply.className="shane-ai-conversation-response";aiReply.setAttribute("role","status");
  const aiNext=document.createElement("div");aiNext.className="shane-conversation-reply-actions";aiNext.hidden=true;aiReply.setAttribute("aria-live","polite");aiReply.style.whiteSpace="pre-wrap";
+ // Proposals and replies belong to one endeavor. Never carry actionable
+ // approval buttons into another endeavor when switching context.
+ const resetConversationForEndeavor=()=>{
+  aiReply.textContent="";
+  aiNext.replaceChildren();
+  aiNext.hidden=true;
+  conversationReply.textContent="";
+ };
+ document.addEventListener("shane:conversation-context-changed",resetConversationForEndeavor);
+ document.addEventListener("shane:endeavor-context-ready",resetConversationForEndeavor);
  entry.addEventListener("keydown",event=>{if(event.key==="Enter"&&(event.ctrlKey||event.metaKey)&&!event.isComposing){event.preventDefault();if(!askAI.disabled)askAI.click()}});
  askAI.addEventListener("click",async()=>{
   const request=sharedComposerText(),endeavorId=window.SHANECurrentEndeavor?.read?.();
