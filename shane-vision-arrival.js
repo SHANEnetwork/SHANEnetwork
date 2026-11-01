@@ -51,8 +51,8 @@ async function offerAccountResume(page,target,field){
    field.value=savedVision.slice(0,field.maxLength>0?field.maxLength:4000);field.dispatchEvent(new Event("input",{bubbles:true}));
    note.textContent="Your saved idea is ready. Review and refine it before creating anything.";
    try{sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:active.id,updated:Date.now()}))}catch{}
-   document.dispatchEvent(new CustomEvent("shane:endeavor-arrived",{detail:{page,endeavorId:active.id,field:target.field,source:"account"}}));
-   Promise.resolve(window.SHANEConversation?.visionContext?.()).then(context=>{if(context)document.dispatchEvent(new CustomEvent("shane:vision-context-ready",{detail:{...context,vision:field.value.trim(),page}}))}).catch(()=>{});
+   prepareEditableDraft(page);
+   announceVision(page,target,field,"account",active.id);
    button.remove();
   }catch(error){note.textContent=String(error?.message||error);button.disabled=false}
  });
