@@ -204,6 +204,16 @@ function init(){
   finally{saveIdea.disabled=false}
  });
  composerActions.append(saveIdea,composerStatus);conversation.append(composerActions);
+ // Keep the member's own text separate from automatic routing suggestions.
+ const draftContext=document.createElement("small");draftContext.className="shane-draft-context";
+ const showDraftContext=()=>{
+  const id=window.SHANECurrentEndeavor?.read?.();
+  draftContext.textContent=id?"Draft for your selected endeavor":"Personal draft on this device";
+ };
+ showDraftContext();
+ document.addEventListener("shane:endeavor-context-ready",showDraftContext);
+ document.addEventListener("shane:conversation-context-changed",showDraftContext);
+ conversation.insertBefore(draftContext,composerActions);
  const continueConversation=document.createElement("details");continueConversation.className="shane-conversation-thread";
  const threadHeading=document.createElement("summary");threadHeading.textContent="Your endeavor conversation";
  const threadEntries=document.createElement("div");threadEntries.className="shane-conversation-thread-entries";
