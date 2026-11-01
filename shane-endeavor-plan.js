@@ -91,6 +91,17 @@
   const result=await handoff({endeavorId,capabilityId});
   return {...result,journeyRevision:current.revision};
  }
+ // A conversation can revise the existing plan without requiring a separate
+ // setup screen. This returns the durable revision and its current journey.
+ async function refineJourney({endeavorId,request}={}){
+  if(!valid(endeavorId))throw Error("Choose an endeavor.");
+  const text=String(request||"").trim();
+  if(!text)throw Error("Describe what you want to change.");
+  if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)
+   throw Error("The selected endeavor changed.");
+  const saved=await create({vision:text,endeavorId});
+  return {plan:saved,journey:await journey(endeavorId)};
+ }
  // A single next-action recommendation, derived from the member's saved plan,
  // is reusable by any page without creating another dashboard or form.
  async function nextAction(endeavorId){
@@ -214,6 +225,6 @@
  document.addEventListener("shane:conversation-store-ready",()=>{void replayArrival()});
  document.addEventListener("shane:endeavor-plan-ready",()=>{void replayArrival()});
  void replayArrival();
- window.SHANEEndeavorPlan=Object.freeze({latest,history,restore,draft,create,setStep,prepareStep,nextAction,handoff,journey,continueJourney});
+ window.SHANEEndeavorPlan=Object.freeze({latest,history,restore,draft,create,setStep,prepareStep,nextAction,handoff,journey,continueJourney,refineJourney});
  document.dispatchEvent(new Event("shane:endeavor-plan-ready"));
 })();
