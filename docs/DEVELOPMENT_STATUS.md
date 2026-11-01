@@ -186,3 +186,9 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Shared Continue now follows the capability interpretation contract, choosing a practical initial destination for multi-goal visions while retaining optional manual selection.
 - When no known capability keyword matches, the creator is used as a starting point instead of refusing an unfamiliar idea; the original vision is preserved.
 - This is deterministic routing, not LLM reasoning. The actual AI backend and full network integration are still pending, and these changes have not been browser verified.
+
+## Network-wide conversational entry surface
+- The existing shared navigation now includes a natural-language endeavor composer, allowing members to describe a goal from SHANE pages without switching to a separate builder first. Draft text is retained in session storage and used by the existing Continue action and deterministic capability routing.
+- Added responsive shared styles. Existing page forms, tools, and manual controls remain in place; private system-health page excludes the composer.
+- Filtered structured `endeavor-plan` JSON out of shared conversation summaries so it is not displayed as user prose.
+- This is a visible cross-page transformation, not a deployed AI model. Browser testing and full AI service integration are still pending.
