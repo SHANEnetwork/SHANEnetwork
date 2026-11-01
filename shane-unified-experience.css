@@ -113,3 +113,20 @@ main :where([role=status],[aria-live=polite]){overflow-wrap:anywhere}
 .shane-unified-topbar .shane-journey-label{color:#704760}
 .shane-unified-topbar .shane-journey-identity a{color:#704760!important}
 @media(max-width:640px){.shane-journey-identity{align-items:flex-start;gap:5px 12px}.shane-journey-thought{flex-basis:100%}}
+
+/* One conversational entry surface across existing SHANE network pages.
+   Existing page editors and optional manual controls remain available. */
+.shane-unified-nav .shane-endeavor-actions{display:flex;flex:1 1 100%;align-items:center;flex-wrap:wrap;gap:9px;padding:14px 0 8px;border-top:1px solid #ffffff33}
+.shane-shared-vision-composer{flex:1 1 340px;min-width:min(100%,280px)}
+.shane-shared-vision-composer label{display:block;margin:0 0 7px;color:#ffe6c1;font:700 .94rem/1.4 system-ui,sans-serif}
+.shane-shared-vision-composer textarea{display:block;width:100%;min-height:66px;max-height:220px;resize:vertical;box-sizing:border-box;padding:12px 15px;border:1px solid #f3d7c6;border-radius:17px;background:#fffaf6;color:#352b3d;font:500 1rem/1.45 system-ui,sans-serif}
+.shane-shared-vision-composer textarea::placeholder{color:#786b73}
+.shane-unified-nav .shane-endeavor-actions>select{flex:0 1 230px;max-width:100%;padding:10px;border-radius:13px;background:#fffaf6;color:#352b3d}
+.shane-unified-nav .shane-endeavor-actions>button{padding:12px 20px;border:0;border-radius:14px;background:#f4cb8b;color:#3d2d40;font-weight:800;cursor:pointer}
+.shane-unified-nav .shane-action-workflow{display:flex;flex:1 1 100%;gap:8px;flex-wrap:wrap;align-items:center}
+.shane-unified-nav .shane-action-workflow a{background:#fff9f1!important;color:#4c3650!important;border-color:#e8c7b0}
+.shane-unified-nav .shane-plan-revisions{flex:1 1 100%;font:500 .9rem system-ui,sans-serif}
+.shane-unified-nav .shane-plan-revisions summary{cursor:pointer;color:#ffe3b5;font-weight:700}
+.shane-unified-nav .shane-plan-revisions button{padding:7px 12px;border-radius:12px;background:#fff9f1;color:#4c3650}
+.shane-unified-nav .shane-action-status,.shane-unified-nav .shane-action-suggestion{font-size:.9rem;line-height:1.5}
+@media(max-width:700px){.shane-shared-vision-composer{flex-basis:100%}.shane-unified-nav .shane-endeavor-actions>select{flex:1 1 200px}}
