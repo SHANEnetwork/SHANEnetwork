@@ -303,3 +303,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Versioned endeavor plans now distinguish the original endeavor `vision` from `latestRequest`, so a narrow new instruction does not replace the project's overall purpose.
 - Plan creation records changed latest requests even when capabilities remain the same, and revision restore includes the corresponding request.
 - This is additive account-backed continuity; browser and end-to-end verification remain pending.
+
+## Evolving instruction continuity
+- Versioned endeavor plans now append the preceding `latestRequest` to bounded history when a new request arrives, rather than repeatedly storing the unchanged project purpose.
+- The shared cross-page vision context and reusable next-action result expose the latest request separately from the established endeavor purpose.
+- These are committed context integrations, not yet a generative AI engine or verified end-to-end browser behavior.
