@@ -326,7 +326,14 @@ function prepareCreationSequence({proposal,updates={}}={}){
  const allowed=["deadline","siteId"];
  const patch={};
  for(const key of allowed)if(Object.prototype.hasOwnProperty.call(updates,key))patch[key]=updates[key];
- const steps=proposal.steps.map(step=>({...step,...patch}));
+ const steps=proposal.steps.map(step=>{
+  // Shared UI values fill only the capability that needs them. They must not
+  // silently revise unrelated operations in a multi-creation endeavor.
+  const update={};
+  if(step.type==="campaign"&&Object.prototype.hasOwnProperty.call(patch,"deadline"))update.deadline=patch.deadline;
+  if(step.type==="website"&&Object.prototype.hasOwnProperty.call(patch,"siteId"))update.siteId=patch.siteId;
+  return {...step,...update};
+ });
  const preview=previewVisionSequence({steps});
  return {steps,ready:preview.ready,reason:preview.reason||null,requiresReview:true,executable:false};
 }
