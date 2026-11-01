@@ -441,3 +441,8 @@ No action requested as of this update.
 - Website creation and revision links now target the exact saved site using the builder's existing ?site= support (f0aab59).
 - Newly created campaign links carry the saved campaign ID (2b549e8). The campaign page now retrieves that specific owner-scoped campaign and displays its draft separately from public open campaigns (7af7ac1), avoiding the previous dead-end where private drafts were absent from the public list.
 - No public publication is triggered. Existing pages remain in place and SHONnetwork unchanged. Authenticated browser verification remains outstanding.
+
+## 2026-11-01: creation continuity across SHANE pages
+- The shared conversation records the most recently confirmed created artifact in session storage and emits an artifact-created event (f82466a).
+- The existing composer offers a direct continuation link to that saved artifact after navigation or reload, without another panel or wizard (04d763f, 3a3d364).
+- Continuation is browser-session scoped, not yet synchronized between devices. Existing backend persistence and visibility rules remain unchanged; authenticated browser verification is pending. SHONnetwork untouched.
