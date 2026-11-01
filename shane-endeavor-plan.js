@@ -8,9 +8,14 @@
  async function latest(endeavorId){
   if(!valid(endeavorId))throw Error("Choose an endeavor.");
   if(!store()?.list)throw Error("Conversation storage is not ready.");
-  const rows=await store().list({endeavorId,limit:200});
-  for(const row of rows){if(row.entry_kind!==kind)continue;
-   try{const plan=JSON.parse(row.body);if(plan.version===1&&plan.endeavorId===endeavorId)return {...plan,recordId:row.id,recordedAt:row.created_at}}catch{}
+  // Page through an active endeavor's records so ordinary conversation does
+  // not push its saved plan beyond a fixed 200-entry window.
+  for(let offset=0;offset<5000;offset+=200){
+   const rows=await store().list({endeavorId,limit:200,offset});
+   for(const row of rows){if(row.entry_kind!==kind)continue;
+    try{const plan=JSON.parse(row.body);if(plan.version===1&&plan.endeavorId===endeavorId)return {...plan,recordId:row.id,recordedAt:row.created_at}}catch{}
+   }
+   if(rows.length<200)break;
   }
   return null;
  }
@@ -49,6 +54,31 @@
   delete next.recordId;delete next.recordedAt;
   return save(next);
  }
+ async function history(endeavorId,{limit=20}={}){
+  if(!valid(endeavorId))throw Error("Choose an endeavor.");
+  const found=[];
+  for(let offset=0;offset<5000&&found.length<Math.min(100,Math.max(1,limit));offset+=200){
+   const rows=await store().list({endeavorId,limit:200,offset,includeArchived:true});
+   for(const row of rows){
+    if(row.entry_kind!==kind)continue;
+    try{const plan=JSON.parse(row.body);if(plan.version===1&&plan.endeavorId===endeavorId)found.push({...plan,recordId:row.id,recordedAt:row.created_at})}catch{}
+    if(found.length>=limit)break;
+   }
+   if(rows.length<200)break;
+  }
+  return found;
+ }
+ async function restore({endeavorId,revision}={}){
+  if(!Number.isSafeInteger(revision)||revision<1)throw Error("Invalid plan revision.");
+  const revisions=await history(endeavorId,{limit:100});
+  const prior=revisions.find(item=>item.revision===revision);
+  if(!prior)throw Error("Requested revision was not found.");
+  const current=await latest(endeavorId);
+  const restored={version:1,endeavorId,vision:prior.vision,
+   revision:(current?.revision||0)+1,createdAt:new Date().toISOString(),
+   restoredFrom:revision,steps:prior.steps.map(step=>({...step}))};
+  return save(restored);
+ }
  async function prepareStep({endeavorId,capabilityId}={}){
   const plan=await latest(endeavorId);if(!plan)throw Error("Create a plan first.");
   const step=plan.steps.find(item=>item.capabilityId===capabilityId);if(!step)throw Error("Step not in plan.");
@@ -57,5 +87,5 @@
   await setStep({endeavorId,capabilityId,status:"prepared"});
   return result;
  }
- window.SHANEEndeavorPlan=Object.freeze({latest,draft,create,setStep,prepareStep});
+ window.SHANEEndeavorPlan=Object.freeze({latest,history,restore,draft,create,setStep,prepareStep});
 })();
