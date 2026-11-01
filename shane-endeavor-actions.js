@@ -1277,12 +1277,49 @@ function init(){
  document.addEventListener("shane:conversation-store-ready",()=>void loadEndeavors());
  document.addEventListener("shane:endeavor-context-ready",()=>void loadEndeavors());
  void loadEndeavors();
+ // One compact, live endeavor continuity line across all Network pages.
+ // It reuses the existing conversation area rather than adding a control panel.
+ const endeavorContinuity=document.createElement("div");
+ endeavorContinuity.className="shane-endeavor-continuity-line";
+ endeavorContinuity.setAttribute("aria-label","Current endeavor connections");
+ endeavorContinuity.style.cssText="font:14px/1.55 system-ui;color:#65465b;margin:10px 0;overflow-wrap:anywhere";
+ let continuityRun=0;
+ const loadContinuity=async()=>{
+  const run=++continuityRun,id=window.SHANECurrentEndeavor?.read?.();
+  endeavorContinuity.replaceChildren();
+  if(!id)return;
+  const store=window.SHANEConversationStore;
+  if(!store?.endeavorSnapshot)return;
+  try{
+   const snapshot=await store.endeavorSnapshot({endeavorId:id});
+   if(run!==continuityRun||window.SHANECurrentEndeavor?.read?.()!==id)return;
+   const label=document.createElement("strong");
+   label.textContent="Together in this endeavor: ";
+   endeavorContinuity.append(label);
+   const bits=[snapshot.creations.length+" saved creations",snapshot.collaborations.length+" accepted collaborations"];
+   if(!snapshot.availability.creations||!snapshot.availability.collaborations)bits.push("some records unavailable");
+   endeavorContinuity.append(document.createTextNode(bits.join(" · ")));
+   for(const item of snapshot.collaborations.slice(0,3)){
+    const link=document.createElement("a");link.href=item.url;link.textContent=item.listingTitle;
+    link.style.cssText="margin-left:12px;color:#784b6c;text-decoration:underline";
+    endeavorContinuity.append(link);
+   }
+  }catch(error){
+   if(run===continuityRun)endeavorContinuity.textContent="Endeavor connections will appear after account access is available.";
+  }
+ };
+ document.addEventListener("shane:conversation-store-ready",()=>void loadContinuity());
+ document.addEventListener("shane:endeavor-context-ready",()=>void loadContinuity());
+ document.addEventListener("shane:conversation-context-changed",()=>void loadContinuity());
+ document.addEventListener("shane:artifact-created",()=>void loadContinuity());
+ document.addEventListener("shane:conversation-saved",()=>void loadContinuity());
+ void loadContinuity();
  const specialist=document.createElement("details");
  specialist.className="shane-specialist-capabilities";
  const specialistTitle=document.createElement("summary");
  specialistTitle.textContent="Explore SHANE's programs and manual controls";
  specialist.append(specialistTitle,select,button,suggestion,workflow,planResume,revisionControl,status);
- group.append(endeavorsSection,timeline,conversation,aiReply,aiNext,continueConversation,planProgress,conversationReply,creations,specialist);
+ group.append(endeavorsSection,endeavorContinuity,timeline,conversation,aiReply,aiNext,continueConversation,planProgress,conversationReply,creations,specialist);
  // One conversation workspace across the entire Network. The existing page
  // capabilities remain below it, available whenever a member wants manual control.
  const page=location.pathname.split("/").pop()||"index.html";
