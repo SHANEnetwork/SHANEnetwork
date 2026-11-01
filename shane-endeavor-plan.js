@@ -100,7 +100,8 @@
  async function replayArrival(){
   let pending=null;
   try{pending=JSON.parse(sessionStorage.getItem(arrivalKey)||"null")}catch{}
-  if(!pending||!Number.isFinite(pending.created)||Date.now()-pending.created>300000)return;
+  if(!pending||!Number.isFinite(pending.created))return;
+  if(Date.now()-pending.created<0||Date.now()-pending.created>300000){try{sessionStorage.removeItem(arrivalKey)}catch{}return}
   if(pending.page!==location.pathname.split("/").pop())return;
   await acknowledgeArrival(pending);
  }
