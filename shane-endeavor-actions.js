@@ -507,6 +507,10 @@ function init(){
       // plan. Offer the existing working module without inventing a route or
       // claiming that the AI has already performed the action.
       const listed=new Set(steps.map(step=>step.capabilityId));
+      // Carry the endeavor's original purpose and latest refinement together.
+      // A new instruction should extend the creation, not erase its foundations.
+      const purpose=journey?.purpose||plan?.vision||request;
+      const fullVision=purpose===request?request:purpose+"\n\nCurrent refinement: "+request;
       const interpreted=window.SHANECapabilities?.interpret?.(request);
       const suggested=interpreted?.capabilities||[];
       // The user may name several goals in one conversation. Keep every
@@ -522,7 +526,7 @@ function init(){
          composerStatus.textContent="Choose the current endeavor before continuing.";return;
         }
         const prepared=window.SHANECapabilities?.prepare?.({
-         capabilityId:capability.id,vision:request,endeavorId
+         capabilityId:capability.id,vision:fullVision,endeavorId
         });
         if(prepared?.ok&&prepared?.destination)location.assign(prepared.destination);
         else composerStatus.textContent="This workspace could not be prepared yet. Your conversation remains saved.";
