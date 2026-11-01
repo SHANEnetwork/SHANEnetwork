@@ -438,7 +438,7 @@ function init(){
     const active=JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id;
     if(!active||!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(active))throw Error("No selected endeavor");
     const entries=await window.SHANEConversationStore.list({endeavorId:active,limit:20});
-    const preferred=entries.find(entry=>!["endeavor-transition","endeavor-plan"].includes(entry.entry_kind)&&typeof entry.body==="string"&&entry.body.trim());
+    const preferred=entries.find(entry=>["idea","vision"].includes(entry.entry_kind)&&typeof entry.body==="string"&&entry.body.trim())||entries.find(entry=>!["endeavor-transition","endeavor-plan"].includes(entry.entry_kind)&&typeof entry.body==="string"&&entry.body.trim());
     text=preferred?.body?.trim()||"";
    }catch{}
   }
