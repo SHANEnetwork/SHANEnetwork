@@ -87,7 +87,7 @@
   const text=(plan.vision+(refinement?"\n\nCurrent refinement: "+refinement:"")).slice(0,4000);
   const result=capabilities()?.prepare?.({capabilityId,vision:text,endeavorId});
   if(!result?.ok)throw Error(result?.reason||"Could not prepare the workspace.");
-  return {...result,path:capability.path,vision:text,revision:plan.revision};
+  return {...result,path:capability.path,vision:text,revision:plan.revision,context:{purpose:plan.vision,latestRequest:plan.latestRequest||plan.vision,revision:plan.revision,steps:plan.steps.map(step=>({capabilityId:step.capabilityId,status:step.status}))}};
  }
  async function setStep({endeavorId,capabilityId,status,note=""}={}){
   if(!["proposed","prepared","completed","deferred"].includes(status))throw Error("Invalid status.");
