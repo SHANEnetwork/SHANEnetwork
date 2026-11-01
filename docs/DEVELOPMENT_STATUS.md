@@ -48,3 +48,10 @@ Describe a festival on homepage; continue in creator; refine actual working draf
 - Checked community-opportunities.html, community-history.html, workspace.html, growth.html, my-network.html, campaigns.html, members.html, and conversation-history.html: each already references shared navigation and styling.
 - Messenger, chat-room, video-meeting, profile, event, and publish pages were **not** found at the guessed standalone filenames; their actual implementations need discovery before editing. Do not invent replacement applications.
 - This pass is source-level integration only. Runtime behavior, persistence, and cross-page flows are not yet browser-verified. Phase 1 remains in progress.
+
+## Repository-wide page inventory — current pass
+Inspected the actual default-branch Git tree (rather than guessing filenames). There are **25 HTML entry points**: appearance, builder, campaigns, communities, community-conversations, community-feed, community-history, community-members, community-opportunities, contact, conversation-history, dashboard, growth, index, members, my-network, network, payments, recover, request-build, site, sports-district, system-health, vision, workspace.
+
+All 25 now reference both the shared SHANE visual stylesheet and the shared navigation/endeavor-context script, after connecting community-members.html in this pass. This is **shared-shell coverage**, not proof of complete interface transformation or functional integration. Some systems (messenger, chat rooms, meetings, profiles, events, publishing) may be embedded in existing pages or scripts rather than separate HTML files; their actual implementations still need tracing.
+
+Next: transform page content and workflows, not merely shared links. Make each capability a view of the same endeavor and conversation while preserving existing services and user permissions. Do not count this shell coverage as Phase 1 completion. No SHONnetwork changes.
