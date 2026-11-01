@@ -84,3 +84,9 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Loaded that receiver on those three pages; incoming ideas populate their conversation composers, not the payment-provider credentials, private administration, or publication forms.
 - Extended shared endeavor actions with payment planning, community update preparation, and community discussion destinations; payment-specific intent detection routes explicit checkout requests to payments.
 - Existing conflict prompts and current-field preservation in the arrival receiver remain in place. No automatic publishing or messaging. End-to-end browser testing pending.
+
+## Community opportunities transformation
+- Added a free-form idea composer to community-opportunities.html, preparing existing opportunity title/description fields only when the current organizer is authorized by the existing form visibility gate.
+- Protected unpublished opportunity drafts with explicit replacement confirmation; creation remains an explicit action through the existing form.
+- Connected opportunity visions to shared per-endeavor draft continuity, safe incoming endeavor handoffs, and the existing capability action router, including volunteer-oriented intent matching.
+- No new database tables, no automatic public posting, and no changes to SHONnetwork. Source committed; live browser verification pending.
