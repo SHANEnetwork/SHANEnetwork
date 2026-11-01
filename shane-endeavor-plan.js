@@ -74,6 +74,21 @@
   return {endeavorId,revision:plan.revision,done:false,
    step:{...step,path:capability?.path||null},vision:plan.vision,latestRequest:plan.latestRequest||plan.vision};
  }
+ // Build one coherent handoff from the stable purpose, current request and
+ // active capability. Existing destination pages still own their draft actions.
+ async function handoff({endeavorId,capabilityId}={}){
+  const plan=await latest(endeavorId);
+  if(!plan)throw Error("Choose a saved endeavor plan first.");
+  const step=plan.steps.find(item=>item.capabilityId===capabilityId);
+  if(!step||step.status==="deferred"||step.status==="completed")throw Error("This plan step is not active.");
+  const capability=capabilities()?.catalog?.().find(item=>item.id===capabilityId);
+  if(!capability?.path)throw Error("The requested workspace is unavailable.");
+  const parts=[plan.vision,plan.latestRequest&&plan.latestRequest!==plan.vision?plan.latestRequest:null].filter(Boolean);
+  const text=parts.join("\n\nCurrent refinement: ").slice(0,4000);
+  const result=capabilities()?.prepare?.({capabilityId,vision:text,endeavorId});
+  if(!result?.ok)throw Error(result?.reason||"Could not prepare the workspace.");
+  return {...result,path:capability.path,vision:text,revision:plan.revision};
+ }
  async function setStep({endeavorId,capabilityId,status,note=""}={}){
   if(!["proposed","prepared","completed","deferred"].includes(status))throw Error("Invalid status.");
   const previous=await latest(endeavorId);if(!previous)throw Error("Create a plan first.");
@@ -163,6 +178,6 @@
  document.addEventListener("shane:conversation-store-ready",()=>{void replayArrival()});
  document.addEventListener("shane:endeavor-plan-ready",()=>{void replayArrival()});
  void replayArrival();
- window.SHANEEndeavorPlan=Object.freeze({latest,history,restore,draft,create,setStep,prepareStep,nextAction});
+ window.SHANEEndeavorPlan=Object.freeze({latest,history,restore,draft,create,setStep,prepareStep,nextAction,handoff});
  document.dispatchEvent(new Event("shane:endeavor-plan-ready"));
 })();
