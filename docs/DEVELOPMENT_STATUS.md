@@ -252,3 +252,7 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Cross-page vision arrival now recognizes when the destination already contains exactly the incoming idea, consumes the handoff without a false conflict prompt, and prepares an eligible editable draft.
 - When a member explicitly chooses incoming text over existing writing, the destination's input event now updates its normal draft listeners before applying the handoff.
 - Browser verification remains pending. No changes were made to SHONnetwork.
+
+## Unified context delivery for conversation-driven workspaces
+- Shared conversation transfer, ordinary cross-page handoff and matching restored drafts now use the same vision-context event dispatch, allowing existing listeners to receive the current vision and available account-backed endeavor context consistently.
+- The bridge continues to use the destination's existing non-submit draft controls, without automatic publishing or payments. This is event integration, not an LLM backend; browser verification remains pending.
