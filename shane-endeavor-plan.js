@@ -40,8 +40,11 @@
    }
   }
   const visionHistory=(previous?.visionHistory||[]).filter(item=>typeof item==="string"&&item.trim()).slice(-19);
+  // Track refinement as a new instruction without erasing the established
+  // endeavor purpose. The latest request remains separately available.
+  const request=interpretation.vision;
   if(previous?.vision&&previous.vision!==interpretation.vision)visionHistory.push(previous.vision);
-  return {version:1,endeavorId,vision:interpretation.vision,visionHistory:visionHistory.slice(-20),revision:(previous?.revision||0)+1,
+  return {version:1,endeavorId,vision:previous?.vision||request,latestRequest:request,visionHistory:visionHistory.slice(-20),revision:(previous?.revision||0)+1,
    createdAt:new Date().toISOString(),steps};
  }
  async function save(plan){
