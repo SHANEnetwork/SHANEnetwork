@@ -197,3 +197,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - The shared natural-language composer now offers an immediate next-step response and relevant links into existing SHANE programs, updating as the member changes their vision.
 - Guidance uses the existing deterministic capability interpreter and safe preparation bridge. It is not a generated AI response or autonomous execution.
 - Shared responsive styling added; existing pages and manual controls remain. Full rendered-page and backend verification remains pending.
+
+## Save a vision without leaving the page
+- The shared conversation composer now provides a Remember this idea action for a selected account-backed endeavor. It saves the user's text as an idea record and attempts to revise the endeavor plan, preserving the existing capability handoff and manual controls.
+- Shared composer draft is cleared only after Continue has prepared the destination handoff, reducing stale draft reuse. Responsive styling for the save control is included.
+- This is not an LLM-driven response or full autonomous orchestration. End-to-end browser verification remains outstanding.
