@@ -168,6 +168,25 @@ function init(){
  const placeholder=document.createElement("option");placeholder.value="";placeholder.textContent="Let SHANE choose the next step";select.append(placeholder);
  for(const [path,label] of targets){const option=document.createElement("option");option.value=path;option.textContent=label;select.append(option)}
  const button=document.createElement("button");button.type="button";button.textContent="Continue";
+ const composerActions=document.createElement("div");composerActions.className="shane-composer-actions";
+ const saveIdea=document.createElement("button");saveIdea.type="button";saveIdea.textContent="Remember this idea";
+ const composerStatus=document.createElement("span");composerStatus.setAttribute("role","status");
+ saveIdea.addEventListener("click",async()=>{
+  const text=sharedComposerText();
+  if(!text){composerStatus.textContent="Describe an idea first.";return}
+  const selected=window.SHANECurrentEndeavor?.read?.()||null;
+  if(!selected){composerStatus.textContent="Select an endeavor to save this idea to your account.";return}
+  saveIdea.disabled=true;composerStatus.textContent="Saving your idea…";
+  try{
+   const saved=await window.SHANEConversationStore?.saveTurn?.(text,{page:location.pathname.split("/").pop()||"index.html",kind:"idea",endeavorId:selected});
+   if(!saved?.saved)throw Error("Account history is unavailable.");
+   if(window.SHANEEndeavorPlan?.create)await window.SHANEEndeavorPlan.create({vision:text,endeavorId:selected});
+   composerStatus.textContent="Saved to this endeavor. You can continue refining it.";
+   document.dispatchEvent(new Event("shane:conversation-context-changed"));
+  }catch(error){composerStatus.textContent="The idea could not be fully saved to your account. "+String(error?.message||error)}
+  finally{saveIdea.disabled=false}
+ });
+ composerActions.append(saveIdea,composerStatus);conversation.append(composerActions);
  const conversationReply=document.createElement("div");conversationReply.className="shane-conversation-reply";
  conversationReply.setAttribute("role","status");conversationReply.setAttribute("aria-live","polite");
  const replyHeading=document.createElement("strong");replyHeading.textContent="SHANE's next step";
