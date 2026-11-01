@@ -18,6 +18,7 @@ const targets=[
  ["community-feed.html","Prepare a community update"],
  ["community-conversations.html","Discuss with my community"],
  ["community-opportunities.html","Coordinate volunteers and opportunities"],
+ ["community-history.html","Review community changes and rollback"],
  ["contact.html","Contact SHANE"],
  ["system-health.html","Report a technical problem"]
 ];
@@ -27,6 +28,7 @@ const intentRules=[
  ["my-network.html",/collaborat|find partners|team up|cofound|co-found|connect with people|work together/i],
  ["dashboard.html",/my projects|my endeavors|my dashboard|what have i created/i],
  ["conversation-history.html",/conversation history|past conversations|previous ideas|what did we discuss/i],
+ ["community-history.html",/restore community settings|rollback community|community configuration history|community version history/i],
  ["workspace.html",/assign a task|create a task|task list|work plan|project milestone|coordinate work|to.do list|coordinate volunteers|organize responsibilities/i],
  ["network.html",/discover|search for|find people|find organizations|look for|who can help/i],
  ["growth.html",/promot|advertis|outreach|marketing|grow my|attract customers|spread the word|launch campaign awareness|reach more people/i],
@@ -47,6 +49,7 @@ function suggest(text){
  if(matches.length===1)return matches[0][0];
  if(!matches.length)return null;
  const priorities=[
+  ["community-history.html",/\b(restore community settings|rollback community|community configuration history|community version history)\b/i],
   ["request-build.html",/\b(hire|done for me|build it for me|custom build)\b/i],
   ["payments.html",/\b(accept payments|take payments|checkout|payment provider|pay online|sell tickets)\b/i],
   ["community-opportunities.html",/\b(recruit volunteers|volunteer opportunity|find volunteers|community opportunity)\b/i],
