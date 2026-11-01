@@ -336,7 +336,7 @@ async function resumeVisionSequence({steps,completed=[],endeavorId}={}){
  await verifySequenceProgress({steps,completed});
  if(completed.length===steps.length)return {complete:true,completed,failedStep:null};
  const remaining=steps.slice(completed.length);
- const result=await executeVisionSequence({steps:remaining,endeavorId});
+ const result=await executeVisionSequence({steps:remaining,endeavorId,startIndex:completed.length});
  return {...result,completed:completed.concat(result.completed),failedStep:result.failedStep===null?null:completed.length+result.failedStep};
 }
 function endeavorStepFingerprint(step,index){
@@ -380,7 +380,7 @@ async function continueSavedEndeavor({endeavorId,steps}={}){
  if(progress.complete)return {complete:true,completed:progress.completed,failedStep:null};
  return resumeVisionSequence({steps,completed:progress.completed,endeavorId});
 }
-async function executeVisionSequence({steps,endeavorId}={}){
+async function executeVisionSequence({steps,endeavorId,startIndex=0}={}){
  const preview=previewVisionSequence({steps});
  if(!preview.ready)throw Error("Cannot start endeavor: "+(preview.reason||"Invalid steps."));
  const completed=[];
@@ -393,7 +393,7 @@ async function executeVisionSequence({steps,endeavorId}={}){
    completed.push(result);
    const historyEndeavor=step.endeavorId||endeavorId;
    if(historyEndeavor){
-    try{await saveTurn("Created "+result.type+" "+result.id+" fingerprint "+endeavorStepFingerprint(step,index),{page:"shane-computer",kind:"creation",endeavorId:historyEndeavor})}
+    try{await saveTurn("Created "+result.type+" "+result.id+" fingerprint "+endeavorStepFingerprint(step,index+startIndex),{page:"shane-computer",kind:"creation",endeavorId:historyEndeavor})}
     catch{result.historySaved=false}
    }
   }catch(error){
