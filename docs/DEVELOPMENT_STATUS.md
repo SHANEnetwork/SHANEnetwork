@@ -176,3 +176,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Added `SHANEEndeavorPlan.history()` and `restore()` for non-destructive restoration: an earlier plan becomes a new revision, retaining subsequent history. Restoration is API-level; a dedicated visible restoration control is not yet implemented.
 - Added a plan-ready event and a shared-navigation listener to refresh saved next steps when dynamically injected scripts load in different orders.
 - Limitations: bounded 5,000-entry scan; full end-to-end testing remains pending; no AI model backend or autonomous actions added in this pass.
+
+## Member-facing endeavor revision recovery
+- The shared SHANE navigation now offers an expandable Earlier versions control for a selected signed-in endeavor, with available plan revisions and explicit confirmation before restoring an earlier revision.
+- Restore creates a new revision, leaving later versions in account history. Controls refresh after plan saves. No new standalone setup page was introduced.
+- The feature has been committed but not yet browser or database tested; the actual AI model execution layer remains a separate unfinished milestone.
