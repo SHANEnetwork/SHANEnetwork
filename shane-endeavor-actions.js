@@ -795,7 +795,8 @@ function init(){
  createAction.onclick=async()=>{
   const vision=sharedComposerText().trim(),type=capability(),endeavorId=window.SHANECurrentEndeavor?.read?.()||null;
   if(!type||vision.length<8){createStatus.textContent="Describe what you want SHANE to create.";return}
-  if(type==="campaign"&&!deadline.value){createStatus.textContent="Choose the campaign interest deadline.";return}
+  const readiness=window.SHANEConversationStore?.inspectOperation?.({type,vision,siteId:siteChoice.value,deadline:deadline.value});
+  if(readiness&&!readiness.ready){createStatus.textContent=readiness.reason;return}
   createAction.disabled=true;createStatus.textContent="SHANE is working on your "+type+".";
   try{
    const store=window.SHANEConversationStore;
