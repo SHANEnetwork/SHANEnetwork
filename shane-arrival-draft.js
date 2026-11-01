@@ -106,7 +106,7 @@ function useVisionContext(event){
  if(!vision)return;
  // Do not replay a stale event from another selected endeavor.
  const active=window.SHANECurrentEndeavor?.read?.()||null;
- if(context.endeavorId&&active&&context.endeavorId!==active)return;
+ if(context.endeavorId&&context.endeavorId!==active)return;
  fillEmpty(spec.body,vision);
  const details=inferDetails(vision,page);
  // Prefer a name the person explicitly supplied over a generated title.
