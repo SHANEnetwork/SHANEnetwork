@@ -78,3 +78,9 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Repaired a malformed literal newline in the shared navigation source introduced by the published-site guard. The guard now has an actual line break and the subsequent navigation initialization is reachable.
 - Added payment and community conversational idea fields to the existing per-endeavor draft restoration and cross-page continuity selectors. These are draft ideas, not private administrative notes or published content.
 - The published-site privacy exclusion remains intact. Browser verification still pending.
+
+## Capability routing: payments and community
+- Extended the existing single-owner shane-vision-arrival.js handoff receiver to payments.html, community-feed.html, and community-conversations.html.
+- Loaded that receiver on those three pages; incoming ideas populate their conversation composers, not the payment-provider credentials, private administration, or publication forms.
+- Extended shared endeavor actions with payment planning, community update preparation, and community discussion destinations; payment-specific intent detection routes explicit checkout requests to payments.
+- Existing conflict prompts and current-field preservation in the arrival receiver remain in place. No automatic publishing or messaging. End-to-end browser testing pending.
