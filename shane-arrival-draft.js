@@ -35,13 +35,17 @@ const pageFields={
  "growth.html":{body:["purpose"],title:["project"]},
  "request-build.html":{body:["details"],title:["project"]},
  "sports-district.html":{body:["organizationDescription","description"],title:["organizationName"]},
- "my-network.html":{body:["visionInput"]}
+ "my-network.html":{body:["visionInput"]},
+ "network.html":{body:["shaneDiscoveryWish"]},
+ "builder.html":{body:["visionPrompt"]},
+ "dashboard.html":{body:["goalInput"]}
 };
 const sourceFields={
  "communities.html":"communityIdea","campaigns.html":"campaignIdea",
  "workspace.html":"taskIdea","members.html":"listingIdea",
  "growth.html":"shaneGrowthGoal","request-build.html":"shaneBuildRequestGoal",
- "my-network.html":"visionInput","sports-district.html":"shaneSportsGoal"
+ "my-network.html":"visionInput","sports-district.html":"shaneSportsGoal",
+ "network.html":"shaneDiscoveryWish","builder.html":"visionPrompt","dashboard.html":"goalInput"
 };
 function fillEmpty(ids,value){
  if(!value)return false;
@@ -112,6 +116,7 @@ function useVisionContext(event){
  for(const [id,value] of Object.entries(details))fillEmpty([id],value);
  if(page==="workspace.html")fillEmpty(["sharedPurpose"],vision);
  if(page==="growth.html")fillEmpty(["purpose"],vision);
+ if(page==="network.html")fillEmpty(["q"],extractTitle(vision));
  if(spec.next)fillEmpty(spec.next,"Identify the first shared action and agree who will take it.");
  // Keep the draft editable; downstream features can react to the prepared event.
  document.dispatchEvent(new CustomEvent("shane:vision-draft-prepared",{
