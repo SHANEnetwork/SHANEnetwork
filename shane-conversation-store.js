@@ -49,7 +49,7 @@ document.addEventListener("shane:conversation-updated",event=>{
    const verified=await user();
    if(!verified||verified.id!==account.id)return;
    pending.push({
-    ownerId:account.id,text:d.text.slice(0,20000),
+    ownerId:account.id,text:d.text,
     page:String(d.page||"unknown").slice(0,120),
     kind:String(d.kind||"idea").slice(0,40),
     endeavorId:typeof d.endeavorId==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(d.endeavorId)?d.endeavorId:activeEndeavor()
@@ -66,7 +66,7 @@ db.auth.onAuthStateChange((event)=>{
 });
 async function saveTurn(text,{page="unknown",kind="idea",endeavorId=activeEndeavor()}={}){
  const account=await user();if(!account)return {saved:false,reason:"signed-out"};
- const record={owner_id:account.id,body:String(text||"").trim().slice(0,20000),source_page:String(page).slice(0,120),entry_kind:String(kind).slice(0,40)};
+ const record={owner_id:account.id,body:String(text||"").trim(),source_page:String(page).slice(0,120),entry_kind:String(kind).slice(0,40)};
  if(!record.body)return {saved:false,reason:"empty"};
  if(endeavorId)record.endeavor_id=endeavorId;
  const {error}=await db.from(table).insert(record);
