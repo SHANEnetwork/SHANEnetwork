@@ -360,9 +360,10 @@ async function recoverCreationProgress({endeavorId,steps}={}){
  }).filter(Boolean).reverse();
  const completed=[];
  if(steps.some(step=>!step||!step.type))throw Error("Invalid endeavor steps.");
- if(new Set(steps.map(step=>step.type)).size!==steps.length)throw Error("Repeated creation types need an explicit sequence identity before safe recovery.");
- for(const step of steps){
-  const match=receipts.findIndex(row=>row.type===step.type);
+ for(let index=0;index<steps.length;index++){
+  const step=steps[index];
+  const fingerprint=endeavorStepFingerprint(step,index);
+  const match=receipts.findIndex(row=>row.type===step.type&&row.fingerprint===fingerprint);
   if(match<0)break;
   completed.push(receipts.splice(match,1)[0]);
  }
