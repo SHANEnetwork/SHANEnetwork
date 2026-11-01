@@ -1136,12 +1136,45 @@ function init(){
  document.addEventListener("shane:conversation-context-changed",()=>void loadTimeline());
  document.addEventListener("shane:conversation-store-ready",()=>void loadTimeline());
  void loadTimeline();
+ // The creation shelf is fed by actual owner-scoped persisted resources,
+ // not links inferred from chat text or browser-only drafts.
+ const creations=document.createElement("section");creations.className="shane-workspace-creations";
+ const creationsHeading=document.createElement("div");creationsHeading.className="shane-timeline-heading";
+ const creationsTitle=document.createElement("strong");creationsTitle.textContent="Things we've brought to life";
+ const creationsRefresh=document.createElement("button");creationsRefresh.type="button";creationsRefresh.textContent="Refresh creations";
+ creationsHeading.append(creationsTitle,creationsRefresh);
+ const creationsBody=document.createElement("div");creationsBody.className="shane-workspace-creation-grid";
+ creations.append(creationsHeading,creationsBody);
+ let creationsSerial=0;
+ const loadCreations=async()=>{
+  const serial=++creationsSerial;
+  const store=window.SHANEConversationStore;
+  if(!store?.recentCreations){creationsBody.textContent="Connecting to your saved creations…";return}
+  try{
+   const items=await store.recentCreations({limit:12});
+   if(serial!==creationsSerial)return;
+   creationsBody.replaceChildren();
+   if(!items.length){creationsBody.textContent="Your saved websites, communities, campaigns, and listings will appear here.";return}
+   for(const item of items){
+    if(!["website","community","campaign","listing"].includes(item.type)||typeof item.url!=="string"||! /^(builder|communities|campaigns|members)\.html\?/.test(item.url))continue;
+    const card=document.createElement("article");card.className="shane-workspace-creation";
+    const kind=document.createElement("small");kind.textContent=item.type;
+    const name=document.createElement("strong");name.textContent=item.title||"Untitled creation";
+    const open=document.createElement("a");open.href=item.url;open.textContent="Continue working";
+    card.append(kind,name,open);creationsBody.append(card);
+   }
+  }catch(error){if(serial===creationsSerial)creationsBody.textContent="Saved creations are unavailable: "+String(error?.message||error)}
+ };
+ creationsRefresh.onclick=()=>void loadCreations();
+ document.addEventListener("shane:artifact-created",()=>void loadCreations());
+ document.addEventListener("shane:conversation-store-ready",()=>void loadCreations());
+ void loadCreations();
  const specialist=document.createElement("details");
  specialist.className="shane-specialist-capabilities";
  const specialistTitle=document.createElement("summary");
  specialistTitle.textContent="Explore SHANE's programs and manual controls";
  specialist.append(specialistTitle,select,button,suggestion,workflow,planResume,revisionControl,status);
- group.append(timeline,conversation,aiReply,aiNext,continueConversation,planProgress,conversationReply,specialist);
+ group.append(timeline,conversation,aiReply,aiNext,continueConversation,planProgress,conversationReply,creations,specialist);
  // One conversation workspace across the entire Network. The existing page
  // capabilities remain below it, available whenever a member wants manual control.
  const page=location.pathname.split("/").pop()||"index.html";
