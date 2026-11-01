@@ -72,10 +72,24 @@ function inferDetails(vision,page){
  if(page==="growth.html"){
   const ask=vision.match(/\b(?:looking for|seeking|need|want to find)\s+([^.!?\n]{5,180})/i);
   if(ask)result.ask=ask[1].trim();
+  const website=vision.match(/https?:\/\/[^\s<>"']+/i);
+  if(website)result.url=website[0].replace(/[.,;!?]+$/,"");
  }
  if(page==="workspace.html"){
   const task=vision.match(/\b(?:first|next|start by|need to)\s+([^.!?\n]{5,180})/i);
   if(task)result.sharedNext=task[1].trim();
+ }
+ if(page==="communities.html"){
+  const named=vision.match(/\b(?:community|group|club)\s+(?:called|named)\s+["“]?([^"”.,!?\n]{3,90})/i);
+  if(named)result.name=named[1].trim();
+ }
+ if(page==="campaigns.html"){
+  const named=vision.match(/\b(?:campaign|event|fundraiser)\s+(?:called|named)\s+["“]?([^"”.,!?\n]{3,90})/i);
+  if(named)result.title=named[1].trim();
+ }
+ if(page==="request-build.html"){
+  const budget=vision.match(/\b(?:budget|spend|funding)\s*(?:is|of|around|about|:)?\s*(\$[\d,]+(?:\.\d{2})?)/i);
+  if(budget)result.budget=budget[1];
  }
  return result;
 }
