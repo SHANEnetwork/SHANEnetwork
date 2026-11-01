@@ -51,9 +51,29 @@ async function offerAccountResume(page,target,field){
  });
  container.append(button,note);
 }
+function enableInPlaceConversation(page,target,field){
+ const container=field.closest(".shane-conversation-intake")||field.parentElement;
+ if(!container||container.querySelector(".shane-use-conversation-here"))return;
+ const button=document.createElement("button");button.type="button";
+ button.className="shane-resume-endeavor shane-use-conversation-here";
+ button.textContent="Use our current conversation here";
+ const note=document.createElement("span");note.setAttribute("role","status");
+ button.addEventListener("click",()=>{
+  const source=document.getElementById("shane-shared-vision-input");
+  const vision=source?.value?.trim()||window.SHANEConversation?.currentVision?.()||"";
+  if(!vision){note.textContent="Describe your idea in the shared SHANE conversation first.";source?.focus();return}
+  if(field.value.trim()&&field.value.trim()!==vision&&!confirm("Replace this field with your current SHANE conversation?"))return;
+  field.value=vision.slice(0,field.maxLength>0?field.maxLength:4000);
+  field.dispatchEvent(new Event("input",{bubbles:true}));
+  note.textContent="Your conversation is ready in this workspace. Review and refine it before proceeding.";
+  document.dispatchEvent(new CustomEvent("shane:endeavor-arrived",{detail:{page,endeavorId:window.SHANECurrentEndeavor?.read?.()||null,field:target.field,source:"conversation"}}));
+ });
+ container.append(button,note);
+}
 function init(){
  const page=location.pathname.split("/").pop(),target=destinations[page];if(!target)return;
  const field=document.getElementById(target.field);if(!field)return;
+ if(!target.private)enableInPlaceConversation(page,target,field);
  if(target.private){try{sessionStorage.removeItem("shane-intent-handoff-v1")}catch{}return} // Do not import general creative visions into confidential incident reports.
  // Apply the arriving endeavor identity before resolving per-endeavor drafts.
  try{const handoff=JSON.parse(sessionStorage.getItem("shane-intent-handoff-v1")||"null");if(handoff?.destination===page&&Number.isFinite(handoff.created)&&Date.now()-handoff.created>=0&&Date.now()-handoff.created<86400000&&typeof handoff.endeavorId==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(handoff.endeavorId))sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:handoff.endeavorId,updated:Date.now()}))}catch{}
