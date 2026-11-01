@@ -49,7 +49,21 @@ const intentRules=[
  ["community-opportunities.html",/volunteer opportunity|recruit volunteers|community opportunity|find volunteers|organize volunteers/i],
  ["system-health.html",/report a bug|report an error|technical incident|system problem|site crashed/i],
  ["contact.html",/contact shane|send a message to shane|contact support|ask shane team/i],
- ["builder.html",/website|webpage|storefront|online shop|create a site|build a site|portfolio|landing page|online presence/i]
+ ["builder.html",/website|webpage|storefront|online shop|create a site|build a site|portfolio|landing page|online presence/i],
+ // Everyday descriptions should connect to the working network modules without
+ // requiring members to know product names or configure a workflow first.
+ ["builder.html",/bakery|baker|restaurant|food truck|cafe|small business|sell my|sell our|shop|boutique|craft business|artist portfolio|musician website|photography business|freelance business/i],
+ ["campaigns.html",/wedding|reunion|meetup|workshop|class registration|conference|seminar|performance|recital|fundraising dinner|ticketed show|open house|farmers market/i],
+ ["communities.html",/book club|parent group|neighborhood group|hobby group|fan club|church group|support group|alumni group|local chapter/i],
+ ["community-conversations.html",/message board|discussion forum|group chat|member discussion|talk with members|conversation room/i],
+ ["community-feed.html",/newsletter|bulletin|community updates|announce to members|news for members/i],
+ ["community-opportunities.html",/volunteer shifts|sign up to help|volunteer roster|helpers needed|volunteer schedule/i],
+ ["my-network.html",/find a collaborator|find a cofounder|find a partner|partner with|work with other|join forces|collaborative project/i],
+ ["workspace.html",/organize our work|team tasks|project schedule|coordinate activities|shared checklist|to-do board|plan the project/i],
+ ["payments.html",/sell subscriptions|membership dues|charge customers|collect fees|collect payments|paid registration|accept donations/i],
+ ["growth.html",/get visitors|attract clients|find supporters|promote the launch|grow membership|reach an audience|find an audience/i],
+ ["members.html",/directory listing|service directory|offer a room|offer a space|find a home|room and board|post a listing/i],
+ ["sports-district.html",/sports team|youth league|school sports|athletic club|tournament|team schedule/i]
 ];
 // A machine-readable capability contract for future model-driven orchestration.
 // Only registered local destinations are allowed. Sensitive actions stay gated
@@ -152,7 +166,10 @@ function suggest(text){
   ["communities.html",/\b(start|create|form|organize)\b.{0,45}\b(community|club|group|association)\b/i],
   ["my-network.html",/\b(find|meet|invite|connect|collaborate)\b.{0,55}\b(partners|collaborators|people|team)\b/i],
   ["growth.html",/\b(promote|market|advertise|grow|reach)\b/i],
-  ["builder.html",/\b(build|create|design|make|revise)\b.{0,45}\b(website|site|page|storefront|portfolio)\b/i]
+  ["builder.html",/\b(build|create|design|make|revise)\b.{0,45}\b(website|site|page|storefront|portfolio)\b/i],
+  ["campaigns.html",/\b(wedding|reunion|meetup|workshop|conference|performance|recital|open house|farmers market)\b/i],
+  ["communities.html",/\b(book club|parent group|neighborhood group|fan club|church group|alumni group)\b/i],
+  ["payments.html",/\b(membership dues|collect fees|charge customers|paid registration|accept donations)\b/i]
  ];
  for(const [destination,pattern] of priorities)if(matches.some(([path])=>path===destination)&&pattern.test(value))return destination;
  // A multi-goal endeavor should still have a useful first step.
