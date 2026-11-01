@@ -524,6 +524,8 @@ function init(){
  const replyActions=document.createElement("div");replyActions.className="shane-conversation-reply-actions";
  conversationReply.append(replyHeading,replyText,replyActions,askAI);
  conversationReply.after(aiReply,aiNext);
+ // Keep AI conversation available as the primary action even after sending.
+ conversation.append(askAI);
  const explainVision=()=>{
   const text=sharedComposerText();
   conversationReply.hidden=!text;
