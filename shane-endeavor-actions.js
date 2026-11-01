@@ -816,7 +816,7 @@ function init(){
    }else if(type==="campaign"){
     const draft=await store.interpretVision({capability:"campaign",vision});
     result=await store.createPrivateCampaign({vision,title:draft.title,description:draft.description||vision,category:draft.category,location:draft.location,deadline:deadline.value});
-    linkTarget="campaigns.html";linkLabel="Open campaigns";record=result.campaignId;
+    linkTarget="campaigns.html?campaign="+encodeURIComponent(result.campaignId);linkLabel="Review campaign";record=result.campaignId;
    }else{
     const title=vision.split(/[.!?]/)[0].trim().slice(0,150);
     result=await store.createPrivateListing({vision,title,description:vision,endeavorId});
