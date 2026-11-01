@@ -19,7 +19,7 @@ function init(){
    workspace.scrollIntoView({behavior:"smooth",block:"start"});
    const active=window.SHANECurrentEndeavor?.read?.();
    const talk=Array.from(workspace.querySelectorAll("button")).find(button=>button.textContent==="Talk with SHANE AI");
-   if(active&&talk&&!talk.disabled){
+   if(talk&&!talk.disabled){
     talk.click();
     if(heroStatus)heroStatus.textContent="Your idea is continuing in SHANE's shared conversation.";
    }else{
