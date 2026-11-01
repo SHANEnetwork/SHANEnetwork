@@ -464,7 +464,7 @@ function init(){
       execute.disabled=true;
       summary.textContent="Creating private drafts…";
       try{
-       const outcome=await window.SHANEConversationStore.executeVisionSequence({steps:proposal.steps,endeavorId});
+       const outcome=await window.SHANEConversationStore.continueSavedEndeavor({steps:proposal.steps,endeavorId});
        if(!outcome.complete&&outcome.completed.length){
         const resume=document.createElement("button");resume.type="button";resume.textContent="Continue remaining creations";
         resume.onclick=async()=>{
