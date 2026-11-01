@@ -114,6 +114,10 @@ function init(){
  let item;
  try{item=JSON.parse(sessionStorage.getItem("shane-intent-handoff-v1")||"null")}catch{return}
  if(!item||item.destination!==page||typeof item.text!=="string"||!item.text.trim()||!Number.isFinite(item.created)||Date.now()-item.created<0||Date.now()-item.created>86400000){offerAccountResume(page,target,field);return;}
+ // A handoff is a one-time workspace instruction. Keep its project identity
+ // isolated from other endeavors and never import a stale selected project.
+ const selected=window.SHANECurrentEndeavor?.read?.()||null;
+ if(item.endeavorId&&selected&&selected!==item.endeavorId){offerAccountResume(page,target,field);return;}
  if(field.value.trim()&&field.value.trim()===item.text.trim()){
   // The receiving page may already have restored the same idea as a draft.
   // Treat that as an arrival, not a conflicting edit.
