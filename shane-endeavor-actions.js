@@ -432,14 +432,13 @@ function init(){
   const request=sharedComposerText(),endeavorId=window.SHANECurrentEndeavor?.read?.();
   if(!request){aiReply.textContent="Describe what you want to create first.";return}
   if(!endeavorId){aiReply.textContent="Select a saved endeavor to explore it with AI.";return}
-  const sb=window.shaneAccountDb;
-  if(!sb?.functions?.invoke){aiReply.textContent="SHANE's account connection is not ready.";return}
+  const converse=window.SHANEConversationStore?.converse;
+  if(!converse){aiReply.textContent="SHANE's conversation connection is still loading.";return}
   askAI.disabled=true;aiReply.textContent="Exploring your vision…";
   try{
    const plan=await window.SHANEEndeavorPlan?.latest?.(endeavorId);
    if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)return;
-   const {data,error}=await sb.functions.invoke("shane-converse",{body:{endeavorId,request,purpose:plan?.vision||request}});
-   if(error||data?.error)throw Error(data?.error||error?.message||"AI is unavailable.");
+   const data=await converse({endeavorId,request,purpose:plan?.vision||request});
    if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)return;
    if(typeof data?.response!=="string"||!data.response.trim())throw Error("SHANE returned no response.");
    aiReply.textContent=data.response;
