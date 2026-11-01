@@ -443,6 +443,18 @@ function init(){
    if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)return;
    if(typeof data?.response!=="string"||!data.response.trim())throw Error("SHANE returned no response.");
    aiReply.textContent=data.response;
+   // Preserve the actual exchange in the same owner-scoped endeavor history
+   // already used by every SHANE workspace. Never mistake an AI suggestion
+   // for a completed action or publish it as public content.
+   if(window.SHANEConversationStore?.saveTurn){
+    try{
+     const page=location.pathname.split("/").pop()||"index.html";
+     await window.SHANEConversationStore.saveTurn(request,{page,kind:"ai-request",endeavorId});
+     await window.SHANEConversationStore.saveTurn(data.response,{page,kind:"ai-response",endeavorId});
+    }catch(error){
+     aiReply.textContent=data.response+"\\n\\nThis response is visible here, but saving it to account history could not be confirmed.";
+    }
+   }
    document.dispatchEvent(new CustomEvent("shane:ai-conversation-response",{detail:{endeavorId,request,response:data.response,executed:false}}));
   }catch(error){aiReply.textContent=String(error?.message||error)}
   finally{askAI.disabled=false}
