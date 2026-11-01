@@ -142,6 +142,13 @@ async function converse({endeavorId,request,purpose}){
   const artifacts=await creationContext({limit:8});
   if(artifacts.length)groundedPurpose+="\nExisting member creations: "+artifacts.map(x=>x.type+" "+x.title+" ["+x.id+"]").join("; ");
  }catch{}
+ try{
+  const savedPlan=await describeSavedCreationPlan({endeavorId});
+  if(savedPlan.found){
+   groundedPurpose+="\nSaved endeavor creation plan: "+savedPlan.message;
+   groundedPurpose+="\nPlan steps: "+savedPlan.steps.map(step=>step.number+" "+step.type+" ("+step.status+")").join("; ");
+  }
+ }catch{}
  const {data,error}=await db.functions.invoke("shane-converse",{body:{endeavorId,request,purpose:groundedPurpose}});
  if(error||data?.error)throw Error(data?.error||error?.message||"SHANE AI is unavailable.");
  if(typeof data?.response!=="string"||!data.response.trim())throw Error("SHANE returned no response.");
