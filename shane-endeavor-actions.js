@@ -441,7 +441,7 @@ function init(){
  askAI.addEventListener("click",async()=>{
   const request=sharedComposerText(),endeavorId=window.SHANECurrentEndeavor?.read?.();
   if(!request){aiReply.textContent="Describe what you want to create first.";return}
-  if(!endeavorId){aiReply.textContent="Select a saved endeavor to explore it with AI.";return}
+  if(!endeavorId){aiReply.textContent="Save or select an endeavor to keep this conversation connected to your work.";return}
   const converse=window.SHANEConversationStore?.converse;
   if(!converse){aiReply.textContent="SHANE's conversation connection is still loading.";return}
   askAI.disabled=true;aiReply.textContent="Exploring your vision…";aiNext.hidden=true;aiNext.replaceChildren();
