@@ -457,6 +457,16 @@ function init(){
     summary.textContent="SHANE can prepare "+proposal.steps.map(step=>step.type.replace("new-","")).join(", ")+".";
     aiNext.append(summary);
     if(proposal.ready){
+     try{
+      const progress=await window.SHANEConversationStore.inspectSavedEndeavor({endeavorId,steps:proposal.steps});
+      if(progress.completed.length){
+       summary.textContent=progress.completed.length+" saved creations verified; "+progress.remaining+" remaining.";
+       for(const item of progress.completed){
+        const link=document.createElement("a");link.href=item.url;link.textContent="Open saved "+item.type;
+        aiNext.append(link,document.createTextNode(" "));
+       }
+      }
+     }catch(error){summary.textContent="SHANE can prepare these drafts. Saved progress could not be inspected: "+error.message;}
      const execute=document.createElement("button");
      execute.type="button";
      execute.textContent="Create these private drafts";
