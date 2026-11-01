@@ -446,3 +446,8 @@ No action requested as of this update.
 - The shared conversation records the most recently confirmed created artifact in session storage and emits an artifact-created event (f82466a).
 - The existing composer offers a direct continuation link to that saved artifact after navigation or reload, without another panel or wizard (04d763f, 3a3d364).
 - Continuation is browser-session scoped, not yet synchronized between devices. Existing backend persistence and visibility rules remain unchanged; authenticated browser verification is pending. SHONnetwork untouched.
+
+## 2026-11-01: account-backed cross-system creation continuity
+- Added owner-scoped recentCreations in shared store, retrieving saved sites, organizations, campaigns and listings, merging them into one chronological collection (4ddb72c). Queries run under the signed-in account and existing row-level security.
+- Added a collapsible 'Continue a saved creation' action within the existing shared conversation on all SHANE pages, linking to the actual saved creation without introducing a new panel or workflow (b917129).
+- The previously added session-scoped recent creation link remains as an immediate shortcut; the account-backed list extends continuity beyond that browser session. This is artifact continuity, not yet a unified AI agent memory or general AI intent executor. Browser end-to-end verification pending; SHONnetwork unchanged.
