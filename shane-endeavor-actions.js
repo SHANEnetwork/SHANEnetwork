@@ -515,7 +515,12 @@ function init(){
       const suggested=interpreted?.capabilities||[];
       // The user may name several goals in one conversation. Keep every
       // supported destination discoverable rather than hiding all but four.
-      const availableDestinations=suggested.filter(capability=>!listed.has(capability.id)&&capability.path);
+      // Match both the new request and the enduring purpose. An endeavor can
+      // involve a shop, a community and an event even when this turn mentions
+      // only one of those activities.
+      const original=purpose===request?[]:(window.SHANECapabilities?.interpret?.(purpose)?.capabilities||[]);
+      const availableDestinations=[...suggested,...original].filter((capability,index,all)=>
+       capability.path&&!listed.has(capability.id)&&all.findIndex(item=>item.id===capability.id)===index);
       for(const capability of availableDestinations){
        if(listed.has(capability.id)||!capability.path)continue;
        const link=document.createElement("a");
