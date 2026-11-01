@@ -457,6 +457,19 @@ function init(){
      aiReply.textContent=data.response+"\\n\\nThis response is visible here, but saving it to account history could not be confirmed.";
     }
    }
+   // A conversation refinement becomes part of the saved endeavor plan,
+   // so the builder and other workspaces receive the updated intent.
+   if(exchangeSaved&&window.SHANEEndeavorPlan?.refineJourney){
+    try{
+     const refined=await window.SHANEEndeavorPlan.refineJourney({endeavorId,request});
+     if(refined?.plan){
+      document.dispatchEvent(new CustomEvent("shane:conversation-journey-updated",{detail:{
+       endeavorId,revision:refined.plan.revision,purpose:refined.plan.vision,
+       latestRequest:request,steps:refined.plan.steps||[],executed:false
+      }}));
+     }
+    }catch(error){composerStatus.textContent="Conversation saved. The endeavor plan could not yet be updated.";}
+   }
    document.dispatchEvent(new CustomEvent("shane:ai-conversation-response",{detail:{endeavorId,request,response:data.response,executed:false}}));
    if(exchangeSaved){continueConversation.open=true;void loadThread();}
    // The member's next message should be a fresh conversational turn.
