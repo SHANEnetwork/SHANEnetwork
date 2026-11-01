@@ -247,3 +247,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - When a member explicitly continues a vision into an eligible SHANE destination, the arrival bridge now calls that destination's existing non-submit draft-preparation handler after filling its vision field.
 - One shared allowlist serves both in-place conversation transfer and cross-page arrival, avoiding duplicate handler mappings.
 - Existing edits still trigger the incoming-idea choice instead of being silently overwritten. Publishing, payment, messaging, and invitations are not triggered. Browser verification remains pending.
+
+## Idempotent conversation arrival
+- Cross-page vision arrival now recognizes when the destination already contains exactly the incoming idea, consumes the handoff without a false conflict prompt, and prepares an eligible editable draft.
+- When a member explicitly chooses incoming text over existing writing, the destination's input event now updates its normal draft listeners before applying the handoff.
+- Browser verification remains pending. No changes were made to SHONnetwork.
