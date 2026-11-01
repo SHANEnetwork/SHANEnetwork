@@ -397,3 +397,8 @@ No action requested as of this update.
 - Added owner-scoped `createPrivateCommunity` to shared conversation store (ab64fcd), inserting into existing `shane_organizations` with invitation-only membership and private profile visibility.
 - Connected a deliberate 'Create my private community' action on the existing community vision experience (63128d5). The action interprets the member's vision, saves the private community, and returns an organization link without a configuration wizard.
 - Confirmed `shane_organizations` has RLS enabled and owner INSERT/SELECT/UPDATE policies. Browser-authenticated execution still requires verification. No changes to SHONnetwork.
+
+## 2026-11-01: conversational campaign draft persistence
+- Shared store now exposes `createPrivateCampaign` (5c0f40d), saving a member-owned `shane_campaigns` record in `draft` status, requiring a future deadline and supporter target, and never publishing automatically.
+- Campaign vision page offers direct 'Save my campaign privately' operation (8223346) using AI interpretation and existing member-provided fields. Existing publication workflow is preserved.
+- Confirmed database campaign owner INSERT policy permits drafts and public SELECT policy limits visibility to open campaigns. Authenticated browser end-to-end verification remains outstanding. No changes to SHONnetwork.
