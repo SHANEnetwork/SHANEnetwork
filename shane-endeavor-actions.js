@@ -473,7 +473,7 @@ function init(){
  findPlans.onclick=async()=>{
   findPlans.disabled=true;
   try{
-   const plans=await window.SHANEConversationStore.listSavedCreationPlans({limit:20});
+   const plans=await window.SHANEConversationStore.searchSavedCreationPlans({query:sharedComposerText(),limit:20});
    aiNext.replaceChildren();
    if(!plans.length){aiReply.textContent="No saved creation plans found.";return}
    aiReply.textContent="Found "+plans.length+" saved endeavors. Select a plan to inspect its creations.";
