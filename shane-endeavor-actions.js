@@ -30,8 +30,23 @@ const intentRules=[
  ["builder.html",/website|webpage|storefront|online shop|create a site|build a site|portfolio|landing page|online presence/i]
 ];
 function suggest(text){
- const matches=intentRules.filter(([,pattern])=>pattern.test(text));
- return matches.length===1?matches[0][0]:null;
+ // Interpret several goals together instead of failing whenever a vision mentions
+ // both a website and the people, event, or community it is meant to serve.
+ const value=String(text||"").trim();if(!value)return null;
+ const matches=intentRules.filter(([,pattern])=>pattern.test(value));
+ if(matches.length===1)return matches[0][0];
+ if(!matches.length)return null;
+ const priorities=[
+  ["request-build.html",/\\b(hire|done for me|build it for me|custom build)\\b/i],
+  ["workspace.html",/\\b(assign|task|responsibilit|milestone|coordinate volunteers)\\b/i],
+  ["campaigns.html",/\\b(organize|host|plan|launch|schedule)\\b.{0,55}\\b(event|festival|concert|fair|campaign)\\b/i],
+  ["communities.html",/\\b(start|create|form|organize)\\b.{0,45}\\b(community|club|group|association)\\b/i],
+  ["my-network.html",/\\b(find|meet|invite|connect|collaborate)\\b.{0,55}\\b(partners|collaborators|people|team)\\b/i],
+  ["growth.html",/\\b(promote|market|advertise|grow|reach)\\b/i],
+  ["builder.html",/\\b(build|create|design|make|revise)\\b.{0,45}\\b(website|site|page|storefront|portfolio)\\b/i]
+ ];
+ for(const [destination,pattern] of priorities)if(matches.some(([path])=>path===destination)&&pattern.test(value))return destination;
+ return null; // Preserve choice for genuinely ambiguous visions.
 }
 const fields={
  "index.html":["welcomeIdea"],
