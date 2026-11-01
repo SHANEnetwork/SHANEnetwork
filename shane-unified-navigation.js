@@ -48,20 +48,9 @@
   continueIn:(destination,text)=>{const id=window.SHANECurrentEndeavor.read();const idea=String(text||journalRead().turns.at(-1)?.text||"").trim();if(!idea)return false;sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination,text:idea,endeavorId:id,created:Date.now()}));return true}
  });
  document.addEventListener("shane:conversation-store-ready",async()=>{try{const entries=await window.SHANECurrentEndeavor.context();document.dispatchEvent(new CustomEvent("shane:endeavor-context-ready",{detail:{entries}}))}catch{}});
- const receiveIntent=()=>{
-  try{
-   const handoff=JSON.parse(sessionStorage.getItem("shane-intent-handoff-v1")||"null");
-   if(!handoff||handoff.destination!==page||typeof handoff.text!=="string"||Date.now()-handoff.created>3600000)return;
-   if(handoff.endeavorId&&!window.SHANECurrentEndeavor.read()&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(handoff.endeavorId))sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:handoff.endeavorId,updated:Date.now()}));
-   const preferred={"network.html":["#query"],"my-network.html":["#visionInput","#query"],"communities.html":["#description"],"campaigns.html":["#description"],"members.html":["#description"],"growth.html":["#shaneGrowthGoal"],"request-build.html":["#shaneBuildRequestGoal"]};
-   const field=(preferred[page]||[]).map(selector=>document.querySelector(selector)).find(element=>element&&typeof element.value==="string"&&!element.value.trim());
-   if(!field)return;
-   field.value=handoff.text.slice(0,field.maxLength>0?field.maxLength:4000);
-   field.dispatchEvent(new Event("input",{bubbles:true}));
-   sessionStorage.removeItem("shane-intent-handoff-v1");
-  }catch{}
- };
- receiveIntent();
+ // One receiver owns incoming vision text. shane-vision-arrival.js preserves existing
+ // edits, restores the endeavor identity and announces arrival for page workflows.
+ // Do not consume its handoff here by filling a different, possibly private form.
  document.addEventListener("shane:conversation-saved",()=>document.dispatchEvent(new Event("shane:conversation-context-changed")));
  const remembered=active();
  if(remembered&&remembered.source!==page){const hint=document.createElement("p");hint.className="shane-conversation-resume";hint.setAttribute("role","status");hint.style.cssText="margin:8px 0;font:500 13px system-ui;color:inherit";
