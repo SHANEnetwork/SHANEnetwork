@@ -1,4 +1,4 @@
-/* Versioned, user-controlled endeavor state. Shared across SHANE pages, not published sites.
+/* Versioned, user-controlled endeavor state. Shared across SHANE pages in one browser session, not published sites.
    Story scenes, campaigns, communities and other modules can save structured milestones
    without changing existing forms or replacing their databases. */
 (()=>{"use strict";
@@ -9,7 +9,7 @@
  const clean=value=>JSON.parse(JSON.stringify(value));
  const read=(id=active())=>{
   if(!validId(id))return {endeavorId:null,revision:0,milestones:[]};
-  try{const raw=JSON.parse(localStorage.getItem(key(id))||"null");return raw&&raw.endeavorId===id&&Array.isArray(raw.milestones)?raw:{endeavorId:id,revision:0,milestones:[]}}
+  try{const raw=JSON.parse(sessionStorage.getItem(key(id))||"null");return raw&&raw.endeavorId===id&&Array.isArray(raw.milestones)?raw:{endeavorId:id,revision:0,milestones:[]}}
   catch{return {endeavorId:id,revision:0,milestones:[]}}
  };
  const checkpoint=({endeavorId=active(),kind="milestone",title="",state={},note=""}={})=>{
@@ -20,7 +20,7 @@
   if(JSON.stringify(item).length>100000)throw Error("Milestone exceeds storage limit.");
   doc.revision=item.revision;doc.milestones.push(item);
   // Never silently discard earlier revisions. Surface storage errors to caller.
-  localStorage.setItem(key(endeavorId),JSON.stringify(doc));
+  sessionStorage.setItem(key(endeavorId),JSON.stringify(doc));
   document.dispatchEvent(new CustomEvent("shane:endeavor-milestone",{detail:{endeavorId,revision:item.revision,kind:item.kind}}));
   return clean(item);
  };
