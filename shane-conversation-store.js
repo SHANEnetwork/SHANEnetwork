@@ -372,6 +372,36 @@ function proposeCreationSequence({vision,endeavorId}={}){
  const preview=previewVisionSequence({steps});
  return {steps,ready:preview.ready,reason:preview.reason||null,requiresReview:true,executable:false};
 }
+// Whole-to-parts endeavor synthesis: compare complete paths before choosing
+// capabilities. This is a deterministic planning aid, not an AI execution claim.
+function synthesizeEndeavor({vision,endeavorId,existing=[]}={}){
+ const goal=String(vision||"").trim();
+ if(goal.length<8)return {goal,paths:[],recommended:null,reason:"Describe the endeavor first."};
+ const existingTypes=new Set((Array.isArray(existing)?existing:[]).map(x=>x.type));
+ const matches={
+  website:/\\b(?:web(?:site| site)|homepage|online presence|portfolio|storefront|shop)\\b/i.test(goal),
+  community:/\\b(?:community|club|group|association|members?|team|network)\\b/i.test(goal),
+  campaign:/\\b(?:campaign|fundrais|festival|concert|event|launch|ticket)\\b/i.test(goal),
+  listing:/\\b(?:listing|directory|advertis|opportunity|collaborat|discover|recruit)\\b/i.test(goal)
+ };
+ const templates=[
+  {id:"presence",name:"Establish a welcoming presence",types:["new-website","listing"],signals:["website","listing"],focus:"Give the endeavor a discoverable home before expanding its operations."},
+  {id:"gather",name:"Bring people together",types:["community","listing","new-website"],signals:["community","listing"],focus:"Create a private gathering place, then connect discovery and presentation."},
+  {id:"activate",name:"Organize an activity",types:["campaign","new-website","community"],signals:["campaign","community"],focus:"Prepare the activity and its supporting presence while keeping publication and invitations separate."},
+  {id:"integrated",name:"Build a connected Network endeavor",types:["new-website","community","listing","campaign"],signals:["website","community","campaign","listing"],focus:"Coordinate several programs as one endeavor rather than isolated projects."}
+ ];
+ const paths=templates.map(template=>{
+  const types=template.types.filter(type=>type!=="new-website"||!existingTypes.has("new-website"));
+  const steps=types.map(type=>({type,vision:goal,endeavorId}));
+  const evaluation=evaluateCreationPlan({steps});
+  const relevance=template.signals.filter(signal=>matches[signal]).length;
+  const reuse=template.types.length-types.length;
+  // Explicit factors keep this recommendation explainable and reversible.
+  const score=relevance*5+evaluation.executableSteps*2+reuse*3-evaluation.alternatives.length*2-(steps.length>3?1:0);
+  return {id:template.id,name:template.name,focus:template.focus,steps,evaluation,score,relevance,reusesExisting:reuse,requiresReview:true,executable:false};
+ }).sort((a,b)=>b.score-a.score||a.steps.length-b.steps.length);
+ return {goal,paths,recommended:paths[0]||null,signals:matches,privateByDefault:true,requiresReview:true,executed:false};
+}
 function prepareCreationSequence({proposal,updates={}}={}){
  if(!proposal||!Array.isArray(proposal.steps))throw Error("A creation proposal is required.");
  const allowed=["deadline","siteId"];
@@ -638,6 +668,6 @@ async function restoreSiteVersion({siteId,versionId,confirmed=false}={}){
  if(error)throw error;if(!updated)throw Error("Site changed since restoration began. Reload before trying again.");
  return {restored:true,siteId,versionId};
 }
-window.SHANEConversationStore=Object.freeze({beginEndeavor,converse,evaluateCreationPlan,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,computerCapabilities,inspectOperation,previewVisionSequence,proposeCreationSequence,prepareCreationSequence,executeVision,executeVisionSequence,verifySequenceProgress,saveCreationPlan,loadCreationPlan,listSavedCreationPlans,searchSavedCreationPlans,recallEndeavor,describeSavedCreationPlan,recoverCreationProgress,inspectSavedEndeavor,continueSavedEndeavor,resumeVisionSequence,recentCreations,findSavedCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
+window.SHANEConversationStore=Object.freeze({beginEndeavor,converse,evaluateCreationPlan,synthesizeEndeavor,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,computerCapabilities,inspectOperation,previewVisionSequence,proposeCreationSequence,prepareCreationSequence,executeVision,executeVisionSequence,verifySequenceProgress,saveCreationPlan,loadCreationPlan,listSavedCreationPlans,searchSavedCreationPlans,recallEndeavor,describeSavedCreationPlan,recoverCreationProgress,inspectSavedEndeavor,continueSavedEndeavor,resumeVisionSequence,recentCreations,findSavedCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
 document.dispatchEvent(new Event("shane:conversation-store-ready"));
 void flush();
