@@ -39,7 +39,9 @@
     included.add(prior.capabilityId);
    }
   }
-  return {version:1,endeavorId,vision:interpretation.vision,revision:(previous?.revision||0)+1,
+  const visionHistory=(previous?.visionHistory||[]).filter(item=>typeof item==="string"&&item.trim()).slice(-19);
+  if(previous?.vision&&previous.vision!==interpretation.vision)visionHistory.push(previous.vision);
+  return {version:1,endeavorId,vision:interpretation.vision,visionHistory:visionHistory.slice(-20),revision:(previous?.revision||0)+1,
    createdAt:new Date().toISOString(),steps};
  }
  async function save(plan){
