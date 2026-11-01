@@ -558,7 +558,6 @@ function init(){
     aiNext.hidden=true;
    }
    if(proposal?.steps?.length>=1&&!proposal.ready&&proposal.steps.some(step=>step.type==="campaign")&&!deadline.value){
-    aiNext.replaceChildren();
     const note=document.createElement("p");
     note.textContent="SHANE has interpreted your campaign idea. Choose its interest deadline to create a private draft; nothing will be published.";
     aiNext.append(note);
@@ -568,6 +567,20 @@ function init(){
     const summary=document.createElement("p");
     summary.textContent="SHANE can prepare "+proposal.steps.map(step=>step.type.replace("new-","")).join(", ")+".";
     aiNext.append(summary);
+    if(!proposal.ready){
+     const refresh=document.createElement("button");
+     refresh.type="button";
+     refresh.textContent="Use my updated details";
+     refresh.onclick=()=>{
+      const updated=window.SHANEConversationStore?.prepareCreationSequence?.({proposal:initialProposal,updates:{deadline:deadline.value,siteId:siteChoice.value}});
+      if(updated?.ready){
+       aiReply.textContent="Your creation details are ready. Ask SHANE to create these private drafts using the updated details.";
+      }else{
+       aiReply.textContent=updated?.reason||"More information is needed to prepare your private drafts.";
+      }
+     };
+     aiNext.append(refresh);
+    }
     if(proposal.ready){
      try{
       const progress=await window.SHANEConversationStore.inspectSavedEndeavor({endeavorId,steps:proposal.steps});
