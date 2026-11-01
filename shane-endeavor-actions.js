@@ -786,6 +786,43 @@ function init(){
   finally{createCommunity.disabled=false}
  });
  conversation.append(createCommunity,createFeedback);syncCreation();
+
+ // A campaign stays a private draft. The member supplies the required deadline
+ // in the conversation, so SHANE need not send them into a configuration form.
+ const createCampaign=document.createElement("button");createCampaign.type="button";
+ createCampaign.textContent="Create private campaign draft";createCampaign.hidden=true;
+ const campaignFeedback=document.createElement("span");campaignFeedback.setAttribute("role","status");
+ const campaignDeadline=document.createElement("input");campaignDeadline.type="datetime-local";
+ campaignDeadline.setAttribute("aria-label","Campaign interest deadline");campaignDeadline.hidden=true;
+ const campaignControls=document.createElement("span");campaignControls.append(createCampaign,campaignDeadline,campaignFeedback);
+ const syncCampaign=()=>{
+  const vision=sharedComposerText().trim();
+  const relevant=/concert|festival|fundrais|campaign|event|market day|craft fair|gathering|ticket|organize a fair/i.test(vision)&&vision.length>=8;
+  createCampaign.hidden=!relevant;campaignDeadline.hidden=!relevant;
+ };
+ entry.addEventListener("input",syncCampaign);
+ document.addEventListener("shane:conversation-context-changed",syncCampaign);
+ document.addEventListener("shane:endeavor-context-ready",syncCampaign);
+ createCampaign.addEventListener("click",async()=>{
+  const vision=sharedComposerText().trim(),endeavorId=window.SHANECurrentEndeavor?.read?.()||null;
+  if(!campaignDeadline.value){campaignFeedback.textContent="Choose an interest deadline first.";return}
+  createCampaign.disabled=true;campaignFeedback.textContent="SHANE is creating an unpublished campaign.";
+  try{
+   const store=window.SHANEConversationStore;
+   if(!store?.interpretVision||!store?.createPrivateCampaign)throw Error("The creation connection is still loading.");
+   const draft=await store.interpretVision({capability:"campaign",vision});
+   const result=await store.createPrivateCampaign({vision,title:draft.title,description:draft.description||vision,category:draft.category,location:draft.location,deadline:campaignDeadline.value});
+   campaignFeedback.replaceChildren(document.createTextNode("Private campaign draft saved. "));
+   const link=document.createElement("a");link.href="campaigns.html";link.textContent="Open campaigns";campaignFeedback.append(link);
+   if(endeavorId){
+    try{await store.saveTurn("Created unpublished campaign "+result.campaignId+" from vision: "+vision,{page:location.pathname.split("/").pop()||"index.html",kind:"creation",endeavorId})}
+    catch{campaignFeedback.append(document.createTextNode(" History save unconfirmed."))}
+   }
+  }catch(error){campaignFeedback.textContent="Campaign not saved: "+error.message}
+  finally{createCampaign.disabled=false}
+ });
+ conversation.append(campaignControls);syncCampaign();
+
  group.append(conversation,aiReply,aiNext,continueConversation,planProgress,conversationReply,select,button,suggestion,workflow,planResume,revisionControl,status);nav.append(group);update();explainVision();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
