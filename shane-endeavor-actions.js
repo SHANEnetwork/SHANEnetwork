@@ -193,6 +193,12 @@ function init(){
    sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination,text:text.slice(0,4000),endeavorId,created:Date.now()}));
    if(destination==="builder.html")sessionStorage.setItem("shane-creative-handoff-v1",JSON.stringify({text:text.slice(0,4000),created:Date.now()}));
   }catch{status.textContent="Unable to carry the idea in this browser.";button.disabled=false;return}
+  // The ordinary Continue action now creates or revises the durable plan,
+  // without asking members to copy their vision into a second form.
+  if(endeavorId&&window.SHANEEndeavorPlan?.create){
+   try{await window.SHANEEndeavorPlan.create({vision:text,endeavorId})}
+   catch(error){status.textContent="Your idea continues, but the saved plan could not be confirmed."}
+  }
   if(window.SHANEConversationStore?.saveTurn){
    try{
     const result=await window.SHANEConversationStore.saveTurn(text,{page:location.pathname.split("/").pop()||"index.html",kind:"endeavor-transition",endeavorId});
