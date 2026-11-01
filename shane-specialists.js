@@ -26,7 +26,7 @@ export function validateSpecialist(profile){
  if(!name||!purpose)throw Error("Specialist needs a name and purpose");
  return {name,purpose,visibility:"private",price:null,verified:false};
 }
-export async function collaborate({endeavor,request,invoke,rounds=2,roles}){
+export async function collaborate({endeavor,request,invoke,rounds=2,roles,synthesize=false}){
  if(!endeavor||!request||typeof invoke!=="function")throw Error("Endeavor, request and trusted model adapter are required");
  const selected=(roles||routeSpecialists(request)).filter(r=>Object.hasOwn(SPECIALISTS,r));
  if(!selected.length)throw Error("No supported specialists selected");
@@ -39,5 +39,18 @@ export async function collaborate({endeavor,request,invoke,rounds=2,roles}){
    history.push({role,round:round+1,output:result.slice(0,30000)});
   }
  }
- return {endeavorId:context.endeavorId,roles:selected,history,requiresApproval:["publish","payment","external_contact","share_private_data"],status:"review_required"};
+ // Optional synthesis turns separate specialist perspectives into one conversational
+ // proposal. The trusted adapter remains responsible for real model execution.
+ // Neither specialist results nor synthesis can trigger irreversible actions.
+ let synthesis=null;
+ if(synthesize){
+  const output=await invoke({
+   role:"synthesizer",
+   instructions:"Unify the specialist findings into one actionable response to the person's latest request. Preserve the original endeavor vision and distinguish confirmed facts from suggestions. Identify contradictions, open questions, and next steps. Do not claim that publishing, payments, outreach, or code deployment has happened.",
+   context,history:history.map(({role,output})=>({role,output}))
+  });
+  if(typeof output!=="string"||!output.trim())throw Error("Synthesis returned no usable response");
+  synthesis=output.slice(0,30000);
+ }
+ return {endeavorId:context.endeavorId,roles:selected,history,synthesis,requiresApproval:["publish","payment","external_contact","share_private_data"],status:"review_required"};
 }
