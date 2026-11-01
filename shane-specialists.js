@@ -26,6 +26,27 @@ export function validateSpecialist(profile){
  if(!name||!purpose)throw Error("Specialist needs a name and purpose");
  return {name,purpose,visibility:"private",price:null,verified:false};
 }
+// Suggested destinations are proposals, never automatic execution.
+// The catalog mirrors existing working SHANE modules and can be refined by a
+// trusted model later without granting it new privileges.
+const ENDEAVOR_CAPABILITIES=Object.freeze([
+ {id:"builder",path:"builder.html",pattern:/website|webpage|storefront|online shop|landing page|portfolio/i},
+ {id:"communities",path:"communities.html",pattern:/community|club|association|member group/i},
+ {id:"campaigns",path:"campaigns.html",pattern:/event|concert|festival|fundrais|campaign|craft fair/i},
+ {id:"workspace",path:"workspace.html",pattern:/tasks?|milestones?|coordinate|project plan|responsibilities/i},
+ {id:"my-network",path:"my-network.html",pattern:/collaborat|partners?|team up|cofounder/i},
+ {id:"network",path:"network.html",pattern:/discover|find people|find organizations|search network/i},
+ {id:"members",path:"members.html",pattern:/listing|offer services?|member profile/i},
+ {id:"growth",path:"growth.html",pattern:/marketing|outreach|promotion|grow audience|attract customers/i},
+ {id:"payments",path:"payments.html",pattern:/payments?|checkout|donations?|sell tickets/i}
+]);
+export function planCapabilitySuggestions(request){
+ const text=String(request||"").slice(0,12000);
+ const matched=ENDEAVOR_CAPABILITIES.filter(item=>item.pattern.test(text));
+ return (matched.length?matched:[ENDEAVOR_CAPABILITIES[0]]).map(({id,path})=>({
+  capabilityId:id,path,action:"prepare_editable_draft",requiresConfirmation:true
+ }));
+}
 // One orchestration entry point for a conversational SHANE endeavor.
 // Trusted server adapters provide actual AI output; browser modules may only
 // prepare editable drafts and never silently publish or contact other people.
@@ -36,7 +57,7 @@ export async function respondToEndeavor({endeavor,request,invoke,rounds=1}={}){
   request:String(request).slice(0,12000),
   response:result.synthesis,
   specialistContributions:result.history,
-  proposedCapabilities:[],
+  proposedCapabilities:planCapabilitySuggestions(request),
   requiresApproval:result.requiresApproval,
   status:"proposal_ready"
  };
