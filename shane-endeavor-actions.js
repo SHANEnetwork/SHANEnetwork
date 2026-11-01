@@ -458,7 +458,7 @@ function init(){
     }
    }
    document.dispatchEvent(new CustomEvent("shane:ai-conversation-response",{detail:{endeavorId,request,response:data.response,executed:false}}));
-   if(exchangeSaved)void loadThread();
+   if(exchangeSaved){continueConversation.open=true;void loadThread();}
    // The member's next message should be a fresh conversational turn.
    // Keep the saved endeavor and its underlying editable project unchanged.
    const composer=document.getElementById("shane-shared-vision-input");
