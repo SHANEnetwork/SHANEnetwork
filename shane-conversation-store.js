@@ -14,7 +14,7 @@ async function flush(){
  busy=true;
  currentFlush=(async()=>{
  try{
-  const account=await user();if(!account)return;
+  const account=await user();if(!account)return {saved:false,reason:"signed-out",pending:pending.length};
   while(pending.length){
    const item=pending[0];
    const record={owner_id:account.id,body:item.text,source_page:item.page,entry_kind:item.kind};
