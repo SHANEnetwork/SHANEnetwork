@@ -150,6 +150,21 @@ async function reviseSavedCreation({endeavorId,creationId,request}={}){
  return data;
 }
 
+async function createPrivateCampaign({vision,title,description,category="gathering",location="",deadline,minimumSupporters=10,eventDate=null}={}){
+ const account=await user();if(!account)throw Error("Sign in to save a campaign.");
+ const name=String(title||"").trim().slice(0,160);
+ if(name.length<3)throw Error("A campaign needs a title.");
+ const when=new Date(deadline);
+ if(!Number.isFinite(when.getTime())||when.getTime()<=Date.now())throw Error("Choose a future interest deadline before saving.");
+ const valid=["gathering","fair","concert","conference","advertising","other"];
+ const count=Number(minimumSupporters);
+ if(!Number.isInteger(count)||count<1||count>1000000)throw Error("Choose a valid supporter target.");
+ const payload={owner_id:account.id,title:name,description:String(description||vision||"").slice(0,4000),category:valid.includes(category)?category:"other",location:String(location||"").slice(0,250),deadline:when.toISOString(),minimum_supporters:count,status:"draft"};
+ if(eventDate){const event=new Date(eventDate);if(!Number.isFinite(event.getTime()))throw Error("Event date is invalid.");payload.event_date=event.toISOString();}
+ const {data,error}=await db.from("shane_campaigns").insert(payload).select("id").single();
+ if(error)throw error;if(!data?.id)throw Error("Campaign draft was not confirmed as saved.");
+ return {saved:true,campaignId:data.id,published:false};
+}
 async function createPrivateCommunity({vision,name,description,category}={}){
  const account=await user();if(!account)throw Error("Sign in to save a community.");
  const title=String(name||"").trim().slice(0,120),details=String(description||vision||"").trim().slice(0,3000);
@@ -191,6 +206,6 @@ async function restoreSiteVersion({siteId,versionId,confirmed=false}={}){
  if(error)throw error;if(!updated)throw Error("Site changed since restoration began. Reload before trying again.");
  return {restored:true,siteId,versionId};
 }
-window.SHANEConversationStore=Object.freeze({converse,reviseSavedCreation,createPrivateCommunity,interpretVision,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
+window.SHANEConversationStore=Object.freeze({converse,reviseSavedCreation,createPrivateCampaign,createPrivateCommunity,interpretVision,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
 document.dispatchEvent(new Event("shane:conversation-store-ready"));
 void flush();
