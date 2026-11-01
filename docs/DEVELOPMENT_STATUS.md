@@ -256,3 +256,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 ## Unified context delivery for conversation-driven workspaces
 - Shared conversation transfer, ordinary cross-page handoff and matching restored drafts now use the same vision-context event dispatch, allowing existing listeners to receive the current vision and available account-backed endeavor context consistently.
 - The bridge continues to use the destination's existing non-submit draft controls, without automatic publishing or payments. This is event integration, not an LLM backend; browser verification remains pending.
+
+## Account-backed plan preparation across SHANE programs
+- Shared conversational arrival now includes the actual incoming vision in its event payload.
+- The existing endeavor plan module listens for arrival in a registered capability and, when the active account endeavor and exact saved plan vision match, records the corresponding proposed step as prepared in a new account-backed plan revision.
+- This never marks a step completed, publishes, sends messages or authorizes payments. It does not change SHONnetwork. Runtime/browser verification remains pending.
