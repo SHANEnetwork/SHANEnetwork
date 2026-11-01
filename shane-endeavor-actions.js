@@ -823,6 +823,27 @@ function init(){
  });
  conversation.append(campaignControls);syncCampaign();
 
+ const listingAction=document.createElement("button");listingAction.type="button";listingAction.textContent="Save private Network listing";
+ const listingStatus=document.createElement("span");listingStatus.setAttribute("role","status");
+ listingAction.onclick=async()=>{
+  const vision=sharedComposerText().trim();
+  if(vision.length<8){listingStatus.textContent="Describe your listing first.";return}
+  listingAction.disabled=true;
+  try{
+   const store=window.SHANEConversationStore;
+   if(!store?.createPrivateListing)throw Error("Network creation is still loading.");
+   const endeavorId=window.SHANECurrentEndeavor?.read?.()||null;
+   const title=vision.split(/[.!?]/)[0].trim().slice(0,150);
+   const result=await store.createPrivateListing({vision,title,description:vision,endeavorId});
+   listingStatus.replaceChildren(document.createTextNode("Private listing saved. "));
+   const link=document.createElement("a");link.href="members.html?listing="+encodeURIComponent(result.listingId);link.textContent="Review listing";listingStatus.append(link);
+   if(endeavorId)await store.saveTurn("Created private listing "+result.listingId,{page:"network",kind:"creation",endeavorId}).catch(()=>{});
+  }catch(error){listingStatus.textContent="Listing not saved: "+error.message}
+  finally{listingAction.disabled=false}
+ };
+ conversation.append(listingAction,listingStatus);
+
+
  group.append(conversation,aiReply,aiNext,continueConversation,planProgress,conversationReply,select,button,suggestion,workflow,planResume,revisionControl,status);nav.append(group);update();explainVision();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
