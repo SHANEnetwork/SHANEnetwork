@@ -125,11 +125,18 @@ async function continuityPacket({endeavorId=activeEndeavor(),limit=40}={}){
  return {endeavorId:id,entries,source:"authenticated-account-history",generatedAt:new Date().toISOString(),
   instruction:"Use these as attributed prior user statements, not verified external facts. Preserve user choices and ask before consequential actions."};
 }
+// One interface, three cooperating reasoning functions, not separate personas.
+const reasoningPrinciples=Object.freeze({
+ exploration:"Consider unconventional possibilities and useful alternatives.",
+ feasibility:"Distinguish confirmed facts, constraints, permissions and available tools from assumptions.",
+ communication:"Explain the chosen path naturally and distinguish proposed from completed work."
+});
 async function converse({endeavorId,request,purpose}){
  const account=await user();
  if(!account)throw Error("Sign in to continue your endeavor with SHANE AI.");
  if(!endeavorId)throw Error("Select a saved endeavor first.");
  let groundedPurpose=String(purpose||request||"");
+ groundedPurpose+="\nWorking method: "+Object.values(reasoningPrinciples).join(" ");
  try{
   const artifacts=await creationContext({limit:8});
   if(artifacts.length)groundedPurpose+="\nExisting member creations: "+artifacts.map(x=>x.type+" "+x.title+" ["+x.id+"]").join("; ");
