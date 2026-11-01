@@ -528,8 +528,20 @@ function init(){
         const prepared=window.SHANECapabilities?.prepare?.({
          capabilityId:capability.id,vision:fullVision,endeavorId
         });
-        if(prepared?.ok&&prepared?.destination)location.assign(prepared.destination);
-        else composerStatus.textContent="This workspace could not be prepared yet. Your conversation remains saved.";
+        if(prepared?.ok&&prepared?.destination){
+         // Attach the current revision to the same handoff already consumed
+         // by the destination's shared arrival adapter.
+         try{
+          const key="shane-intent-handoff-v1";
+          const pending=JSON.parse(sessionStorage.getItem(key)||"null");
+          if(pending?.destination===prepared.destination&&pending.endeavorId===endeavorId){
+           pending.context={purpose,latestRequest:request,revision:journey?.revision||plan?.revision||null,
+            steps:(journey?.steps||[]).map(step=>({capabilityId:step.capabilityId,status:step.status}))};
+           sessionStorage.setItem(key,JSON.stringify(pending));
+          }
+         }catch{}
+         location.assign(prepared.destination);
+        }else composerStatus.textContent="This workspace could not be prepared yet. Your conversation remains saved.";
        });
        aiNext.append(link);listed.add(capability.id);
       }
