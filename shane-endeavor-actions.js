@@ -450,7 +450,8 @@ function init(){
    if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)return;
    if(typeof data?.response!=="string"||!data.response.trim())throw Error("SHANE returned no response.");
    aiReply.textContent=data.response;
-   const proposal=window.SHANEConversationStore?.proposeCreationSequence?.({vision:request,endeavorId});
+   const initialProposal=window.SHANEConversationStore?.proposeCreationSequence?.({vision:request,endeavorId});
+   const proposal=initialProposal&&window.SHANEConversationStore?.prepareCreationSequence?.({proposal:initialProposal,updates:{deadline:deadline.value,siteId:siteChoice.value}})||initialProposal;
    if(proposal?.steps?.length>1){
     const summary=document.createElement("p");
     summary.textContent="SHANE can prepare "+proposal.steps.map(step=>step.type.replace("new-","")).join(", ")+".";
