@@ -30,7 +30,7 @@ prompt.addEventListener("input",()=>{try{if(prompt.value.trim())sessionStorage.s
 document.addEventListener("shane:vision-context-ready",event=>{
  const context=event.detail||{};
  if(context.page!==page||!context.vision)return;
- const incoming=String(context.arrivalContext?.latestRequest||context.vision).trim().slice(0,4000);
+ const incoming=String(context.arrivalContext?.latestRequest||context.latestRequest||context.vision).trim().slice(0,4000);
  if(!incoming||prompt.value.trim())return;
  prompt.value=incoming;
  prompt.dispatchEvent(new Event("input",{bubbles:true}));
