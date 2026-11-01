@@ -83,3 +83,23 @@ body:has(.shane-unified-nav) main :where(textarea,input[type=text],input[type=se
 :where(#shane-idea-conversation,#shaneDiscoveryConversation,#visionForm,#communityVision,#campaignVision,#listingVision,#taskVision) h2{color:#4e3447}
 .shane-action-status,.shane-action-suggestion{line-height:1.45}
 @media(prefers-contrast:more){:where(#shane-idea-conversation,#shaneDiscoveryConversation,#visionForm) textarea{border:2px solid currentColor}}
+
+/* Shared editorial language and layout for the Network's existing working pages. */
+body>main>h1,main>h1{font-size:clamp(2.15rem,4.5vw,4.2rem);line-height:1.1;max-width:1000px;color:#493449}
+body>main>p:first-of-type,main>header+p{font-size:clamp(1rem,1.35vw,1.18rem);line-height:1.7;max-width:820px}
+main :where(section,article,.card,.panel){scroll-margin-top:24px}
+main :where(.card,.panel){border-color:#e8d9d4}
+main :where(input,textarea,select){font-family:inherit;line-height:1.45}
+main :where(button,.button){font-weight:650}
+main :where(button:disabled){opacity:.65;cursor:not-allowed;transform:none}
+main :where([role=status],[aria-live=polite]){overflow-wrap:anywhere}
+.shane-unified-nav{align-items:center;row-gap:9px}
+.shane-unified-nav :where(select,button){min-height:40px}
+.shane-unified-nav a[aria-current=page]{text-decoration:underline;text-underline-offset:4px}
+@media(max-width:700px){
+ main{padding-inline:clamp(14px,4vw,24px)}
+ main :where(.card,.panel){padding:clamp(15px,4vw,24px)}
+ main :where(input,textarea,select){max-width:100%}
+ .shane-unified-nav{flex-wrap:wrap;overflow:visible}
+ .shane-unified-nav a{white-space:normal}
+}
