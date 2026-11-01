@@ -138,3 +138,7 @@ main :where([role=status],[aria-live=polite]){overflow-wrap:anywhere}
 .shane-conversation-reply-actions{display:flex;flex-wrap:wrap;gap:7px}
 .shane-unified-nav .shane-conversation-reply-actions a{display:inline-block;padding:8px 12px;background:#704760!important;color:#fff!important;border:0;border-radius:12px;font-size:.86rem}
 .shane-conversation-reply[hidden]{display:none!important}
+
+.shane-composer-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:9px}
+.shane-unified-nav .shane-composer-actions button{padding:9px 15px;border:1px solid #f4d8c3;border-radius:12px;background:#fff7e8;color:#4d3450;font:700 .88rem system-ui,sans-serif;cursor:pointer}
+.shane-composer-actions [role=status]{font:500 .86rem/1.4 system-ui,sans-serif;color:#fff2d8}
