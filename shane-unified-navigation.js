@@ -15,6 +15,23 @@
  const conversationBrief=async()=>{const context=await fullContext();const saved=context.saved.filter(entry=>entry.entry_kind!=="endeavor-transition"&&typeof entry.body==="string"&&entry.body.trim()).map(entry=>({role:"user",content:entry.body,page:entry.source_page,at:entry.created_at}));const session=journalTimeline().filter(turn=>!saved.some(entry=>entry.content===turn.content&&entry.page===turn.page));return {endeavorId:context.endeavor,messages:[...saved,...session].sort((a,b)=>new Date(a.at).getTime()-new Date(b.at).getTime()).slice(-40),vision:currentVision()}};
  const draftFields=["welcomeIdea","visionPrompt","shaneDiscoveryWish","visionInput","communityIdea","campaignIdea","listingIdea","taskIdea","shaneGrowthGoal","shaneBuildRequestGoal","shaneSportsGoal","goalInput","shaneWorkspaceIdea","shaneCommunityVision","shaneMemberWelcome","shane-natural-prompt","sharedPurpose"];
  const draftKey=id=>{let endeavor="personal";try{const selected=JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id;if(typeof selected==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(selected))endeavor=selected}catch{}return "shane-conversation-draft:"+page+":"+endeavor+":"+id};
+ // The selected endeavor can change after the page initializes. Restore its own
+ // drafts only into empty fields, without overwriting anything the person typed.
+ const restoreSelectedDrafts=()=>{
+  for(const id of draftFields){
+   const field=document.getElementById(id);
+   if(!field||typeof field.value!=="string"||field.value.trim())continue;
+   try{
+    const item=JSON.parse(sessionStorage.getItem(draftKey(id))||"null");
+    if(item&&typeof item.text==="string"&&Number.isFinite(item.at)&&Date.now()-item.at>=0&&Date.now()-item.at<604800000){
+     field.value=item.text.slice(0,field.maxLength>0?field.maxLength:10000);
+     field.dispatchEvent(new Event("input",{bubbles:true}));
+    }
+   }catch{}
+  }
+ };
+ document.addEventListener("shane:endeavor-arrived",restoreSelectedDrafts);
+ document.addEventListener("shane:endeavor-selected",restoreSelectedDrafts);
  const restoreDrafts=()=>{for(const id of draftFields){const field=document.getElementById(id);if(!field||typeof field.value!=="string")continue;try{const item=JSON.parse(sessionStorage.getItem(draftKey(id))||"null");if(!field.value.trim()&&item&&typeof item.text==="string"&&Date.now()-item.at<604800000){field.value=item.text.slice(0,field.maxLength>0?field.maxLength:10000);field.dispatchEvent(new Event("input",{bubbles:true}))}}catch{}field.addEventListener("input",()=>{try{const value=field.value.trim();if(value)sessionStorage.setItem(draftKey(id),JSON.stringify({text:value.slice(0,10000),at:Date.now()}));else sessionStorage.removeItem(draftKey(id))}catch{}})}};
  restoreDrafts();
  const recentSubstantive=()=>journalContext().turns.slice().reverse().find(turn=>turn&&typeof turn.text==="string"&&turn.text.trim()&&turn.kind!=="endeavor-transition")||null;
