@@ -87,7 +87,40 @@ function prepareCapability({capabilityId,vision,endeavorId=null}={}){
   return {ok:true,destination:capability.path,requiresConfirmation:true,executed:false};
  }catch{return {ok:false,reason:"storage-unavailable"}}
 }
-window.SHANECapabilities=Object.freeze({catalog:()=>capabilityCatalog.slice(),interpret:interpretVision,prepare:prepareCapability});
+// Turn a multi-part endeavor into an ordered journey using the existing
+// capability catalog. Preparing a step is separate from executing it.
+function journeyFor({vision,latestRequest="",endeavorId=null}={}){
+ const purpose=String(vision||"").trim();
+ const request=String(latestRequest||"").trim();
+ const combined=[purpose,request].filter(Boolean).join("\\n");
+ const interpretation=interpretVision(combined);
+ const capabilities=interpretation.capabilities;
+ return {
+  version:1,endeavorId,purpose,latestRequest:request||purpose,
+  steps:capabilities.map((item,index)=>({
+   capabilityId:item.id,path:item.path,label:item.label,order:index+1,
+   status:"proposed",requiresConfirmation:true
+  })),
+  preferredDestination:interpretation.preferredDestination,
+  execution:"not-started"
+ };
+}
+function prepareJourneyStep({journey,capabilityId}={}){
+ if(!journey||!Array.isArray(journey.steps))return {ok:false,reason:"missing-journey"};
+ const step=journey.steps.find(item=>item.capabilityId===capabilityId);
+ if(!step||step.status!=="proposed")return {ok:false,reason:"unavailable-step"};
+ if(!capabilityCatalog.some(item=>item.id===step.capabilityId&&item.path===step.path))
+  return {ok:false,reason:"unknown-capability"};
+ return prepareCapability({
+  capabilityId:step.capabilityId,
+  vision:journey.latestRequest||journey.purpose,
+  endeavorId:journey.endeavorId||null
+ });
+}
+window.SHANECapabilities=Object.freeze({
+ catalog:()=>capabilityCatalog.slice(),interpret:interpretVision,
+ prepare:prepareCapability,journey:journeyFor,prepareJourneyStep
+});
 function suggest(text){
  // Interpret several goals together instead of failing whenever a vision mentions
  // both a website and the people, event, or community it is meant to serve.
