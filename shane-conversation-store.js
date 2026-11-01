@@ -379,10 +379,10 @@ function synthesizeEndeavor({vision,endeavorId,existing=[]}={}){
  if(goal.length<8)return {goal,paths:[],recommended:null,reason:"Describe the endeavor first."};
  const existingTypes=new Set((Array.isArray(existing)?existing:[]).map(x=>x.type));
  const matches={
-  website:/\\b(?:web(?:site| site)|homepage|online presence|portfolio|storefront|shop)\\b/i.test(goal),
-  community:/\\b(?:community|club|group|association|members?|team|network)\\b/i.test(goal),
-  campaign:/\\b(?:campaign|fundrais|festival|concert|event|launch|ticket)\\b/i.test(goal),
-  listing:/\\b(?:listing|directory|advertis|opportunity|collaborat|discover|recruit)\\b/i.test(goal)
+  website:/\b(?:web(?:site| site)|homepage|online presence|portfolio|storefront|shop)\b/i.test(goal),
+  community:/\b(?:community|club|group|association|members?|team|network)\b/i.test(goal),
+  campaign:/\b(?:campaign|fundrais|festival|concert|event|launch|ticket)\b/i.test(goal),
+  listing:/\b(?:listing|directory|advertis|opportunity|collaborat|discover|recruit)\b/i.test(goal)
  };
  const templates=[
   {id:"presence",name:"Establish a welcoming presence",types:["new-website","listing"],signals:["website","listing"],focus:"Give the endeavor a discoverable home before expanding its operations."},
