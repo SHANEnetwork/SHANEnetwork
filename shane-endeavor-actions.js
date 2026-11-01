@@ -787,6 +787,7 @@ function init(){
   if(!store?.ownedSites)return;
   const sites=await store.ownedSites();
   siteChoice.replaceChildren();
+  const placeholder=document.createElement("option");placeholder.value="";placeholder.textContent="Choose the saved website to revise";siteChoice.append(placeholder);
   for(const site of sites){const option=document.createElement("option");option.value=site.id;option.textContent=site.name+" ("+site.status+")";siteChoice.append(option)}
   sitesLoaded=true;
  };
@@ -801,7 +802,7 @@ function init(){
    let result,linkTarget,linkLabel,record;
    if(type==="website"){
     await loadSites();
-    if(!siteChoice.value){siteChoice.hidden=false;throw Error("No saved website found. Create a website first.");}
+    if(!siteChoice.value){siteChoice.hidden=false;throw Error("Choose the saved website to revise, then select Revise again.");}
     result=await store.reviseSite({siteId:siteChoice.value,request:vision});
     linkTarget="builder.html";linkLabel="Review website";record=result.siteId;
    }else if(type==="community"){
