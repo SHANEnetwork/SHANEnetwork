@@ -562,7 +562,9 @@ function init(){
    // Keyword fallback is reserved for an older conversation service without a planner field.
    const plannerProvided=Object.prototype.hasOwnProperty.call(data||{},"creationPlan");
    const initialProposal=interpreted||(!plannerProvided?window.SHANEConversationStore?.proposeCreationSequence?.({vision:request,endeavorId}):null);
-   const proposal=initialProposal&&window.SHANEConversationStore?.prepareCreationSequence?.({proposal:initialProposal,updates:{deadline:deadline.value,siteId:siteChoice.value}})||initialProposal;
+   const harmonized=initialProposal?.steps?.length?window.SHANEConversationStore?.harmonizeEndeavorPlan?.({vision:request,endeavorId,aiSteps:initialProposal.steps}):null;
+   const coordinated=harmonized?{...initialProposal,steps:harmonized.steps}:initialProposal;
+   const proposal=coordinated&&window.SHANEConversationStore?.prepareCreationSequence?.({proposal:coordinated,updates:{deadline:deadline.value,siteId:siteChoice.value}})||coordinated;
    // A private creation may span multiple capabilities, but only the member's
    // confirmed plan can enter the persistence and execution path.
    if(proposal?.steps?.length){
@@ -595,6 +597,11 @@ function init(){
     const summary=document.createElement("p");
     summary.textContent="SHANE can prepare "+proposal.steps.map(step=>step.type.replace("new-","")).join(", ")+".";
     aiNext.append(summary);
+    if(harmonized?.warnings?.length){
+     const perspective=document.createElement("p");
+     perspective.textContent="Whole-endeavor review: "+harmonized.warnings.join(" ");
+     aiNext.append(perspective);
+    }
     const evaluation=window.SHANEConversationStore?.evaluateCreationPlan?.({steps:proposal.steps});
     if(evaluation?.alternatives?.length){
      const repair=document.createElement("p");
