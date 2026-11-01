@@ -718,7 +718,14 @@ async function executeApprovedSequence({steps,endeavorId,approved=false,complete
  if(steps.some(step=>step.endeavorId&&step.endeavorId!==endeavorId))throw Error("All steps must belong to the same endeavor.");
  if(completed.length)await verifySequenceProgress({steps,completed});
  if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)throw Error("Return to the selected endeavor before creating.");
- const outcome=await resumeVisionSequence({steps,completed,endeavorId});
+ // Reconcile with durable receipts before executing, including when a member
+ // returns after a refresh. Never replay already-confirmed creations.
+ const recovered=await recoverCreationProgress({endeavorId,steps});
+ if(completed.length>recovered.completed.length)throw Error("Previous creation receipts could not be recovered. Review before continuing.");
+ for(let index=0;index<completed.length;index++){
+  if(completed[index].id!==recovered.completed[index].id)throw Error("Previous creation receipts differ from saved progress.");
+ }
+ const outcome=await resumeVisionSequence({steps,completed:recovered.completed,endeavorId});
  try{await verifySequenceProgress({steps,completed:outcome.completed})}
  catch(error){return {...outcome,complete:false,verified:false,verificationError:String(error.message||error)}}
  return {...outcome,verified:true};
