@@ -162,7 +162,9 @@
    if(!plan||typeof detail?.vision!=="string")return;
    const refinement=plan.latestRequest&&plan.latestRequest!==plan.vision?"\n\nCurrent refinement: "+plan.latestRequest:"";
    const expected=(plan.vision+refinement).slice(0,4000);
-   if(detail.vision.trim()!==plan.vision.trim()&&detail.vision.trim()!==expected.trim()&&detail.context?.revision!==plan.revision)return;
+   if(detail.context?.revision!=null&&detail.context.revision!==plan.revision)return;
+   if(detail.context?.purpose&&detail.context.purpose!==plan.vision)return;
+   if(detail.vision.trim()!==plan.vision.trim()&&detail.vision.trim()!==expected.trim()&&!(detail.context?.revision===plan.revision&&detail.context?.purpose===plan.vision))return;
    const step=plan.steps.find(item=>item.capabilityId===capability.id);
    if(!step)return;
    if(step.status==="prepared"){try{sessionStorage.removeItem(arrivalKey)}catch{}return}
