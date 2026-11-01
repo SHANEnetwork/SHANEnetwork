@@ -59,7 +59,7 @@ const capabilityCatalog=Object.freeze(targets.filter(([path])=>path!=="system-he
  action:"prepare",execution:"requires-module",requiresConfirmation:true
 })));
 function interpretVision(text){
- const vision=String(text||"").trim().slice(0,4000);
+ const vision=String(text||"").trim();
  if(!vision)return {version:1,vision:"",capabilities:[],status:"needs-vision"};
  const capabilities=capabilityCatalog.filter(item=>intentRules.some(([path,pattern])=>path===item.path&&pattern.test(vision)));
  // A new, unfamiliar kind of endeavor still has a place to begin: SHANE's
@@ -75,7 +75,7 @@ function interpretVision(text){
 function prepareCapability({capabilityId,vision,endeavorId=null}={}){
  const capability=capabilityCatalog.find(item=>item.id===capabilityId);
  if(!capability)return {ok:false,reason:"unknown-capability"};
- const text=String(vision||"").trim().slice(0,4000);
+ const text=String(vision||"").trim();
  if(!text)return {ok:false,reason:"empty-vision"};
  const selected=window.SHANECurrentEndeavor?.read?.()||null;
  if(endeavorId!==null&&endeavorId!==selected)return {ok:false,reason:"endeavor-mismatch"};
