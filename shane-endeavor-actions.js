@@ -106,9 +106,33 @@ function init(){
  const placeholder=document.createElement("option");placeholder.value="";placeholder.textContent="Let SHANE choose the next step";select.append(placeholder);
  for(const [path,label] of targets){const option=document.createElement("option");option.value=path;option.textContent=label;select.append(option)}
  const button=document.createElement("button");button.type="button";button.textContent="Continue";
+ const workflow=document.createElement("span");workflow.className="shane-action-workflow";workflow.setAttribute("aria-live","polite");
+ const stages=[
+  ["builder.html","Create the website"],
+  ["communities.html","Organize the community"],
+  ["my-network.html","Find collaborators"],
+  ["campaigns.html","Plan an event or campaign"],
+  ["payments.html","Prepare payment setup"],
+  ["growth.html","Plan outreach"]
+ ];
+ const stageMatch=(text)=>stages.filter(([path])=>intentRules.some(([target,pattern])=>target===path&&pattern.test(text))).map(([path,label])=>({path,label}));
+ const renderWorkflow=()=>{
+  workflow.replaceChildren();
+  const text=idea(),matches=stageMatch(text);if(matches.length<2)return;
+  const label=document.createElement("span");label.textContent="Your idea involves several steps: ";workflow.append(label);
+  for(const item of matches){
+   const link=document.createElement("a");link.href=item.path;link.textContent=item.label;link.className="shane-action-workflow-link";
+   link.addEventListener("click",()=>{
+    if((location.pathname.split("/").pop())==="system-health.html")return;
+    let endeavorId=null;try{endeavorId=JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id||null}catch{}
+    try{sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination:item.path,text:text.slice(0,4000),endeavorId,created:Date.now()}))}catch{}
+   });workflow.append(link);
+  }
+ };
+
  const status=document.createElement("span");status.setAttribute("role","status");status.className="shane-action-status";
  const suggestion=document.createElement("span");suggestion.className="shane-action-suggestion";suggestion.setAttribute("aria-live","polite");
- const update=()=>{const text=idea(),destination=suggest(text),label=targets.find(([path])=>path===destination)?.[1];suggestion.textContent=select.value?"You chose "+targets.find(([path])=>path===select.value)?.[1]:label?"SHANE suggests: "+label:"Describe your idea and SHANE will suggest a next step."};
+ const update=()=>{const text=idea(),destination=suggest(text),label=targets.find(([path])=>path===destination)?.[1];suggestion.textContent=select.value?"You chose "+targets.find(([path])=>path===select.value)?.[1]:label?"SHANE suggests: "+label:"Describe your idea and SHANE will suggest a next step.";renderWorkflow()};
  // Existing SHANE navigation links also carry the current endeavor when a member
  // deliberately opens another creation or collaboration capability.
  nav.addEventListener("click",event=>{
@@ -158,7 +182,7 @@ function init(){
   }
   location.assign(destination);
  });
- group.append(select,button,suggestion,status);nav.append(group);update();
+ group.append(select,button,suggestion,workflow,status);nav.append(group);update();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
