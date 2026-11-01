@@ -463,6 +463,32 @@ function harmonizeEndeavorPlan({vision,endeavorId,aiSteps,existing=[]}={}){
 }
 // Coordinate existing owner-scoped artifacts with a new vision without
 // silently overwriting, republishing or creating duplicates.
+// Network-wide, owner-authorized endeavor collaboration context.
+// Read-only: messages and invitations remain under their existing explicit UI.
+async function collaborationContext({endeavorId,limit=12}={}){
+ const account=await user();if(!account)throw Error("Sign in to inspect collaborations.");
+ if(!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(String(endeavorId||"")))throw Error("Select a valid endeavor.");
+ const {data:owned,error:ownerError}=await db.from("shane_endeavors").select("id").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
+ if(ownerError||!owned)throw Error("The selected endeavor does not belong to your account.");
+ const max=Math.max(1,Math.min(30,Number(limit)||12));
+ const {data:listings,error:listingError}=await db.from("shane_listings").select("id,title").eq("endeavor_id",endeavorId).eq("owner_id",account.id).limit(100);
+ if(listingError)throw listingError;
+ if(!listings?.length)return {endeavorId,listings:[],collaborations:[],confirmed:true};
+ const ids=listings.map(item=>item.id);
+ const {data:requests,error:requestError}=await db.from("shane_collaboration_requests").select("id,listing_id,sender_id,recipient_id,status").in("listing_id",ids).eq("status","accepted").limit(100);
+ if(requestError)throw requestError;
+ const accepted=(requests||[]).filter(item=>item.sender_id===account.id||item.recipient_id===account.id).slice(0,max);
+ const titles=new Map(listings.map(item=>[item.id,item.title]));
+ const collaborations=await Promise.all(accepted.map(async item=>{
+  const {data,error}=await db.from("shane_collaboration_messages").select("sender_id,body,created_at").eq("request_id",item.id).order("created_at",{ascending:false}).limit(3);
+  return {id:item.id,listingId:item.listing_id,listingTitle:titles.get(item.listing_id)||"Network opportunity",
+   url:"workspace.html?collaboration="+encodeURIComponent(item.id),status:"accepted",
+   messagesAvailable:!error,messages:error?[]:(data||[]).slice().reverse().map(message=>({
+    fromSelf:message.sender_id===account.id,body:String(message.body||"").slice(0,500),at:message.created_at
+   }))};
+ }));
+ return {endeavorId,listings:listings.map(item=>({id:item.id,title:item.title})),collaborations,confirmed:true};
+}
 async function coordinateEndeavor({vision,endeavorId,aiSteps=[]}={}){
  const goal=String(vision||"").trim();
  if(goal.length<8)throw Error("Describe the complete endeavor first.");
@@ -753,6 +779,6 @@ async function restoreSiteVersion({siteId,versionId,confirmed=false}={}){
  if(error)throw error;if(!updated)throw Error("Site changed since restoration began. Reload before trying again.");
  return {restored:true,siteId,versionId};
 }
-window.SHANEConversationStore=Object.freeze({beginEndeavor,converse,evaluateCreationPlan,synthesizeEndeavor,compassReview,harmonizeEndeavorPlan,coordinateEndeavor,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,computerCapabilities,inspectOperation,previewVisionSequence,proposeCreationSequence,prepareCreationSequence,executeVision,executeVisionSequence,verifySequenceProgress,saveCreationPlan,loadCreationPlan,listSavedCreationPlans,searchSavedCreationPlans,recallEndeavor,describeSavedCreationPlan,recoverCreationProgress,inspectSavedEndeavor,continueSavedEndeavor,resumeVisionSequence,recentCreations,findSavedCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
+window.SHANEConversationStore=Object.freeze({beginEndeavor,converse,evaluateCreationPlan,synthesizeEndeavor,compassReview,harmonizeEndeavorPlan,coordinateEndeavor,collaborationContext,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,computerCapabilities,inspectOperation,previewVisionSequence,proposeCreationSequence,prepareCreationSequence,executeVision,executeVisionSequence,verifySequenceProgress,saveCreationPlan,loadCreationPlan,listSavedCreationPlans,searchSavedCreationPlans,recallEndeavor,describeSavedCreationPlan,recoverCreationProgress,inspectSavedEndeavor,continueSavedEndeavor,resumeVisionSequence,recentCreations,findSavedCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
 document.dispatchEvent(new Event("shane:conversation-store-ready"));
 void flush();
