@@ -534,11 +534,11 @@ function init(){
    // An explicit empty AI plan means this is a conversation, not an order to build.
    // Only fall back to keyword interpretation when the AI planner is unavailable.
    const aiPlan=Array.isArray(data?.creationPlan?.steps)?data.creationPlan.steps:null;
-   const supported=new Set(["new-website","community","campaign","listing"]);
+   const supported=new Set(["new-website","website","community","campaign","listing"]);
    const validAIPlan=aiPlan!==null&&aiPlan.length<=8&&aiPlan.every(step=>
     supported.has(step?.type)&&typeof step?.vision==="string"&&step.vision.trim().length>=8&&step.vision.length<=10000);
    const interpreted=validAIPlan
-    ?{steps:aiPlan.map(step=>({type:step.type,vision:step.vision.trim(),endeavorId})),requiresReview:true,executable:false}:null;
+    ?{steps:aiPlan.map(step=>({type:step.type,vision:step.vision.trim(),endeavorId,...(step.type==="website"&&siteChoice.value?{siteId:siteChoice.value}:{})})),requiresReview:true,executable:false}:null;
    // Do not turn a provider failure into an accidental build suggestion.
    // Keyword fallback is reserved for an older conversation service without a planner field.
    const plannerProvided=Object.prototype.hasOwnProperty.call(data||{},"creationPlan");
