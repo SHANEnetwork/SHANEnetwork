@@ -663,7 +663,7 @@ async function recoverCreationProgress({endeavorId,steps}={}){
  }
  const receipts=history.map(row=>{
   const match=/^Created (new-website|website|community|campaign|listing) ([0-9a-f-]{36}) fingerprint ([0-9a-f]{8})$/i.exec(String(row.body||""));
-  return match?{type:match[1],id:match[2],fingerprint:match[3],saved:true}:null;
+  return match?{type:match[1],id:match[2],fingerprint:match[3],saved:true,url:({"new-website":"builder.html?site=","website":"builder.html?site=","community":"communities.html?organization=","campaign":"campaigns.html?campaign=","listing":"members.html?listing="})[match[1]]+encodeURIComponent(match[2])}:null;
  }).filter(Boolean).reverse();
  const completed=[];
  if(steps.some(step=>!step||!step.type))throw Error("Invalid endeavor steps.");
