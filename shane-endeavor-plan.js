@@ -124,7 +124,7 @@
   const capability=capabilities()?.catalog?.().find(item=>item.id===capabilityId);
   if(!capability?.path)throw Error("The requested workspace is unavailable.");
   const refinement=plan.latestRequest&&plan.latestRequest!==plan.vision?plan.latestRequest:null;
-  const text=(plan.vision+(refinement?"\n\nCurrent refinement: "+refinement:"")).slice(0,4000);
+  const text=(plan.vision+(refinement?"\n\nCurrent refinement: "+refinement:""));
   const result=capabilities()?.prepare?.({capabilityId,vision:text,endeavorId});
   if(!result?.ok)throw Error(result?.reason||"Could not prepare the workspace.");
   // Keep the receiving page aligned with the exact saved revision being continued.
@@ -203,7 +203,7 @@
    const plan=await latest(endeavorId);
    if(!plan||typeof detail?.vision!=="string")return;
    const refinement=plan.latestRequest&&plan.latestRequest!==plan.vision?"\n\nCurrent refinement: "+plan.latestRequest:"";
-   const expected=(plan.vision+refinement).slice(0,4000);
+   const expected=(plan.vision+refinement);
    if(detail.context?.revision!=null&&detail.context.revision!==plan.revision)return;
    if(detail.context?.purpose&&detail.context.purpose!==plan.vision)return;
    if(detail.vision.trim()!==plan.vision.trim()&&detail.vision.trim()!==expected.trim()&&!(detail.context?.revision===plan.revision&&detail.context?.purpose===plan.vision))return;
