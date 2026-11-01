@@ -212,3 +212,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Shared composer session drafts now use a selected-endeavor-specific key, with a separate personal draft and restoration on endeavor context change.
 - A small context label identifies whether the draft belongs to the selected endeavor or personal workspace. Existing pages and manual tools remain untouched.
 - This is client-side draft isolation, not server-side authorization. Full browser verification and model-powered orchestration remain pending.
+
+## Account-backed endeavor progress in the shared conversation
+- The shared SHANE navigation now exposes an expandable progress view for the selected endeavor's saved plan, including its existing steps and statuses.
+- Members can mark a step completed or reopen it. Changes call the versioned endeavor-plan API and are saved as new account-backed revisions, without executing the step's underlying program.
+- Existing page editors and tools are retained. Browser testing and actual AI-model orchestration remain outstanding.
