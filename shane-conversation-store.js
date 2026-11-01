@@ -694,11 +694,11 @@ async function endeavorSnapshot({endeavorId}={}){
  const {data:endeavor,error}=await db.from("shane_endeavors").select("id,title,updated_at").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
  if(error||!endeavor)throw Error("The selected endeavor is unavailable to this account.");
  const [creations,collaborations,history]=await Promise.allSettled([
-  recentCreations({limit:40}),collaborationContext({endeavorId,limit:20}),list({endeavorId,limit:30})
+  recentCreations({limit:40}),collaborationContext({endeavorId,limit:20}),list({endeavorId,limit:200,kinds:["creation-summary","creation","ai-request","ai-response","idea"]})
  ]);
  const creationItems=creations.status==="fulfilled"?creations.value:[];
  const receipts=history.status==="fulfilled"?history.value.filter(row=>["creation-summary","creation"].includes(row.entry_kind)):[];
- const linked=creationItems.filter(item=>receipts.some(row=>String(row.body||"").includes(item.id)));
+ const linked=creationItems.filter(item=>receipts.some(row=>new RegExp("(^|[^0-9a-f-])"+item.id+"([^0-9a-f-]|$)","i").test(String(row.body||""))));
  const allCreations=creationItems.map(item=>({...item,linkedToEndeavor:linked.some(found=>found.id===item.id)}));
  return {endeavor:{id:endeavor.id,title:endeavor.title,updatedAt:endeavor.updated_at},
   creations:linked,accountCreations:allCreations,collaborations:collaborations.status==="fulfilled"?collaborations.value.collaborations:[],
