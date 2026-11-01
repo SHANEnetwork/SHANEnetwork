@@ -149,6 +149,13 @@
   .shane-conversation-workspace button:focus-visible,.shane-conversation-workspace textarea:focus-visible,.shane-conversation-workspace a:focus-visible{outline:3px solid #bd7e9d;outline-offset:3px}
   .shane-conversation-workspace .shane-ai-conversation-response{white-space:pre-wrap;line-height:1.65}
   .shane-conversation-workspace .shane-conversation-reply-actions{margin-top:14px}
+  .shane-conversation-workspace .shane-specialist-capabilities{margin-top:24px;padding:14px 18px;border:1px solid #e3d5d9;border-radius:14px;background:#ffffffb8}
+  .shane-conversation-workspace .shane-specialist-capabilities>summary{cursor:pointer;color:#6c4865;font-weight:700}
+  .shane-conversation-workspace .shane-specialist-capabilities[open]>summary{margin-bottom:16px}
+  .shane-conversation-workspace .shane-specialist-capabilities select{max-width:100%}
+  .shane-conversation-workspace .shane-ai-conversation-response:not(:empty){padding:16px 19px;border-radius:16px;background:#fffefa;border:1px solid #e8dfe1}
+  .shane-conversation-workspace .shane-shared-vision-composer>button{margin:8px 8px 8px 0}
+  .shane-conversation-workspace .shane-workspace-heading{pointer-events:auto}
   .shane-conversation-workspace [hidden]{display:none!important}
   @media(max-width:640px){.shane-conversation-workspace{border-radius:18px;padding:18px;margin:12px auto 24px}}
   `;
