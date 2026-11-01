@@ -527,14 +527,23 @@ function init(){
  document.addEventListener("shane:endeavor-context-ready",resetConversationForEndeavor);
  entry.addEventListener("keydown",event=>{if(event.key==="Enter"&&(event.ctrlKey||event.metaKey)&&!event.isComposing){event.preventDefault();if(!askAI.disabled)askAI.click()}});
  askAI.addEventListener("click",async()=>{
-  const request=sharedComposerText(),endeavorId=window.SHANECurrentEndeavor?.read?.();
+  const request=sharedComposerText();
+  let endeavorId=window.SHANECurrentEndeavor?.read?.();
   if(!request){aiReply.textContent="Describe what you want to create first.";return}
-  if(!endeavorId){aiReply.textContent="Save or select an endeavor to keep this conversation connected to your work.";return}
-  const converse=window.SHANEConversationStore?.converse;
-  if(!converse){aiReply.textContent="SHANE's conversation connection is still loading.";return}
+  const store=window.SHANEConversationStore;
+  if(!store?.converse){aiReply.textContent="SHANE's conversation connection is still loading.";return}
   askAI.disabled=true;aiReply.textContent="Exploring your vision…";aiNext.hidden=true;aiNext.replaceChildren();
   let exchangeSaved=false;
   try{
+   if(!endeavorId){
+    aiReply.textContent="Saving your new endeavor and exploring your vision…";
+    const started=await store.beginEndeavor({vision:request});
+    endeavorId=started.id;
+    // Context listeners can restore a different draft. Preserve the member's
+    // original message through the first AI turn.
+    entry.value=request;
+    entry.dispatchEvent(new Event("input",{bubbles:true}));
+   }
    const plan=await window.SHANEEndeavorPlan?.latest?.(endeavorId);
    if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)return;
    const data=await converse({endeavorId,request,purpose:plan?.vision||request});
