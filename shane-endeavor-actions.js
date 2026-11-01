@@ -319,6 +319,7 @@ function init(){
     if(!result.saved)status.textContent="Your idea will continue on the next page. Sign in to preserve it in account history.";
    }catch(error){status.textContent="Your idea is carried to the next page, but account history could not be confirmed."}
   }
+  if(sharedComposerText()===text){try{sessionStorage.removeItem(conversationKey)}catch{}}
   location.assign(destination);
  });
  group.append(conversation,conversationReply,select,button,suggestion,workflow,planResume,revisionControl,status);nav.append(group);update();explainVision();
