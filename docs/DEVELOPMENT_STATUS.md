@@ -242,3 +242,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Connected the existing conversation handoff to real draft-preparation controls for community updates, opportunities, community conversations, member listings and custom build requests.
 - Only non-submit buttons are invoked. Existing form submission, publication, messaging and payment controls remain separate and subject to their own review and permissions.
 - This is a client-side connection to existing deterministic draft preparation, not AI-model orchestration; browser verification is still pending.
+
+## Automatic editable drafts on conversational arrival
+- When a member explicitly continues a vision into an eligible SHANE destination, the arrival bridge now calls that destination's existing non-submit draft-preparation handler after filling its vision field.
+- One shared allowlist serves both in-place conversation transfer and cross-page arrival, avoiding duplicate handler mappings.
+- Existing edits still trigger the incoming-idea choice instead of being silently overwritten. Publishing, payment, messaging, and invitations are not triggered. Browser verification remains pending.
