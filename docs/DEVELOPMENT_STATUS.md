@@ -107,3 +107,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Restricted incident-report entry in the vision arrival receiver: general endeavor content is no longer imported into confidential incident reports.
 - The shared action button can still resume an existing saved endeavor from account history, but does not use the current incident narrative as the creative vision.
 - This closes an additional cross-page privacy pathway without modifying the underlying incident reporting workflow. Browser verification pending.
+
+## Community configuration lifecycle
+- Connected the existing community configuration version history and rollback page to SHANE's shared endeavor action menu and explicit rollback/version-history intent routing.
+- Updated the rollback page's introduction to describe deliberate version restoration in the context of an ongoing community endeavor. Existing version comparison, confirmation, owner authentication, and database RPC restoration logic remain unchanged.
+- This is capability discovery and experience integration, not AI-driven rollback or an automated repair service. Browser verification pending.
