@@ -28,7 +28,7 @@ function prepare(event){
 const pageFields={
  "communities.html":{body:["description"],title:["name"]},
  "campaigns.html":{body:["description"],title:["title"]},
- "workspace.html":{body:["taskDetails","sharedPurpose"],title:["taskTitle"]},
+ "workspace.html":{body:["taskDetails","sharedPurpose"],title:["taskTitle"],next:["sharedNext"]},
  "members.html":{body:["listingDescription","description"],title:["listingTitle"]},
  "growth.html":{body:["purpose"],title:["project"]},
  "request-build.html":{body:["details"],title:["project"]},
@@ -72,6 +72,7 @@ function useVisionContext(event){
  fillEmpty(spec.body,vision);
  const title=extractTitle(vision);
  if(title.length>=3)fillEmpty(spec.title,title);
+ if(spec.next)fillEmpty(spec.next,"Identify the first shared action and agree who will take it.");
  document.dispatchEvent(new CustomEvent("shane:vision-draft-prepared",{
   detail:{page,endeavorId:context.endeavorId||null}
  }));
