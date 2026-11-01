@@ -150,6 +150,13 @@ async function reviseSavedCreation({endeavorId,creationId,request}={}){
  return data;
 }
 
+async function interpretVision({capability,vision}={}){
+ const account=await user();if(!account)throw Error("Sign in to create with SHANE.");
+ const {data,error}=await db.functions.invoke("shane-interpret-vision",{body:{capability,vision}});
+ if(error||data?.error)throw Error(data?.error||error.message);
+ if(data?.capability!==capability||!data?.draft||data?.published!==false)throw Error("SHANE did not return a reviewable private draft.");
+ return data.draft;
+}
 async function reviseSite({siteId,request}={}){
  const account=await user();if(!account)throw Error("Sign in first.");
  if(!/^[0-9a-f-]{36}$/i.test(String(siteId||"")))throw Error("Select a saved website.");
@@ -176,6 +183,6 @@ async function restoreSiteVersion({siteId,versionId,confirmed=false}={}){
  if(error)throw error;if(!updated)throw Error("Site changed since restoration began. Reload before trying again.");
  return {restored:true,siteId,versionId};
 }
-window.SHANEConversationStore=Object.freeze({converse,reviseSavedCreation,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
+window.SHANEConversationStore=Object.freeze({converse,reviseSavedCreation,interpretVision,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
 document.dispatchEvent(new Event("shane:conversation-store-ready"));
 void flush();
