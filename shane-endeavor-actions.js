@@ -48,6 +48,8 @@ function suggest(text){
  if(!matches.length)return null;
  const priorities=[
   ["request-build.html",/\b(hire|done for me|build it for me|custom build)\b/i],
+  ["payments.html",/\b(accept payments|take payments|checkout|payment provider|pay online|sell tickets)\b/i],
+  ["community-opportunities.html",/\b(recruit volunteers|volunteer opportunity|find volunteers|community opportunity)\b/i],
   ["workspace.html",/\b(assign|task|responsibilit|milestone|coordinate volunteers)\b/i],
   ["campaigns.html",/\b(organize|host|plan|launch|schedule)\b.{0,55}\b(event|festival|concert|fair|campaign)\b/i],
   ["communities.html",/\b(start|create|form|organize)\b.{0,45}\b(community|club|group|association)\b/i],
