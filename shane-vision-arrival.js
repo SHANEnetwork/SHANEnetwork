@@ -100,6 +100,13 @@ function init(){
  let item;
  try{item=JSON.parse(sessionStorage.getItem("shane-intent-handoff-v1")||"null")}catch{return}
  if(!item||item.destination!==page||typeof item.text!=="string"||!item.text.trim()||!Number.isFinite(item.created)||Date.now()-item.created<0||Date.now()-item.created>86400000){offerAccountResume(page,target,field);return;}
+ if(field.value.trim()&&field.value.trim()===item.text.trim()){
+  // The receiving page may already have restored the same idea as a draft.
+  // Treat that as an arrival, not a conflicting edit.
+  try{sessionStorage.removeItem("shane-intent-handoff-v1")}catch{}
+  document.dispatchEvent(new CustomEvent("shane:endeavor-arrived",{detail:{page,endeavorId:item.endeavorId||null,field:target.field,source:"existing-draft"}}));
+  return;
+ }
  if(field.value.trim()){
   const container=field.closest(".shane-conversation-intake")||field.parentElement;
   if(container&&!container.querySelector(".shane-incoming-idea-choice")){const restore=document.createElement("button");restore.type="button";restore.className="shane-resume-endeavor shane-incoming-idea-choice";restore.textContent="Use incoming idea instead";restore.addEventListener("click",()=>{
