@@ -381,3 +381,8 @@ No action requested as of this update.
 - Controls are authenticated through the store, and restoration leaves unsaved editor fields alone; members reopen the saved site to review.
 - **Pending**: browser testing, RLS/trigger runtime verification, server-side conversational AI revision execution, and full cross-network capability execution. This is not yet complete phase 1 or phase 2.
 - Continue with server-side saved-creation revision and persistent cross-page orchestration. Preserve SHONnetwork.
+
+## 2026-11-01: conversational saved-site revision service and creator integration
+- Deployed new production Supabase Edge Function `shane-revise-site` (version 2, ACTIVE, JWT verification enabled). It authenticates the caller, reads an owner-scoped existing site, requests a structured revision from the configured AI provider, and writes to the same owner-scoped site with updated_at conflict guard. The database update trigger is intended to retain the prior site version.
+- Committed shared `reviseSite` API (0b3c14b) and creator conversational revision controls (5e2f7ef). Member can describe changes to an existing saved website without filling configuration forms.
+- **Not yet verified**: successful authenticated AI provider call, actual database mutation and history snapshot, browser integration, regression testing, or every Network program. `reviseSavedCreation` remains a separate unimplemented `shane-converse` purpose. Review site content validation and potential malicious HTML before production public publishing. Preserve SHONnetwork.
