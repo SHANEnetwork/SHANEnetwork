@@ -432,7 +432,7 @@ function init(){
  const conversationReply=document.createElement("div");conversationReply.className="shane-conversation-reply";
  conversationReply.setAttribute("role","status");conversationReply.setAttribute("aria-live","polite");
  const askAI=document.createElement("button");askAI.type="button";askAI.textContent="Talk with SHANE AI";
- const aiReply=document.createElement("p");aiReply.className="shane-ai-conversation-response";
+ const aiReply=document.createElement("p");aiReply.className="shane-ai-conversation-response";aiReply.setAttribute("role","status");
  const aiNext=document.createElement("div");aiNext.className="shane-conversation-reply-actions";aiNext.hidden=true;aiReply.setAttribute("aria-live","polite");aiReply.style.whiteSpace="pre-wrap";
  entry.addEventListener("keydown",event=>{if(event.key==="Enter"&&(event.ctrlKey||event.metaKey)&&!event.isComposing){event.preventDefault();if(!askAI.disabled)askAI.click()}});
  askAI.addEventListener("click",async()=>{
