@@ -286,6 +286,7 @@ function inspectOperation({type,vision,siteId,deadline}={}){
 async function executeVisionSequence({steps,endeavorId}={}){
  if(!Array.isArray(steps)||!steps.length||steps.length>8)throw Error("Provide between one and eight creation steps.");
  const completed=[];
+ const account=await user();if(!account)throw Error("Sign in before executing an endeavor.");
  for(let index=0;index<steps.length;index++){
   const step=steps[index];
   if(!step||typeof step!=="object"||Array.isArray(step))throw Error("Invalid creation step "+(index+1));
