@@ -62,3 +62,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Existing unpublished drafts require confirmation before replacement; no automatic publishing or private-record sharing.
 - The conversation journal is updated on explicit preparation; the existing Supabase publishing implementation is untouched.
 - No invented AI generation or automated event scheduling is claimed. This is an honest transitional conversation-to-working-draft path, not a full AI agent.
+
+## Community conversations continuity
+- Updated the existing community discussion composer to respect disabled discussion rooms, request confirmation before overwriting an unpublished message, and record an explicitly prepared message in the shared conversation journal.
+- Existing organization membership and room-setting checks, private discussion loading, and posting remain unchanged.
+- No automatic post or unauthorized room enablement. Browser verification remains pending.
