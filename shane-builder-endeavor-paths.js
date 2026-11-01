@@ -17,7 +17,7 @@ function init(){
    event.preventDefault();
    window.SHANEEndeavorPlan.create({vision:text,endeavorId}).then(plan=>{
     const combined=(plan.vision+(plan.latestRequest!==plan.vision?"\n\nCurrent refinement: "+plan.latestRequest:"")).slice(0,4000);
-    sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination,text:combined,endeavorId,created:Date.now(),context:{purpose:plan.vision,latestRequest:plan.latestRequest,revision:plan.revision}}));
+    sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination,text:combined,endeavorId,created:Date.now(),context:{purpose:plan.vision,latestRequest:plan.latestRequest,revision:plan.revision,steps:plan.steps.map(step=>({capabilityId:step.capabilityId,status:step.status}))}}));
     location.assign(link.href);
    }).catch(()=>location.assign(link.href));
   }
