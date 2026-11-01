@@ -687,9 +687,11 @@ async function endeavorSnapshot({endeavorId}={}){
   recentCreations({limit:40}),collaborationContext({endeavorId,limit:20}),list({endeavorId,limit:30})
  ]);
  const creationItems=creations.status==="fulfilled"?creations.value:[];
- const linked=creationItems.filter(item=>history.status==="fulfilled"&&history.value.some(row=>row.entry_kind==="creation-summary"&&String(row.body||"").includes(item.id)));
+ const receipts=history.status==="fulfilled"?history.value.filter(row=>["creation-summary","creation"].includes(row.entry_kind)):[];
+ const linked=creationItems.filter(item=>receipts.some(row=>String(row.body||"").includes(item.id)));
+ const allCreations=creationItems.map(item=>({...item,linkedToEndeavor:linked.some(found=>found.id===item.id)}));
  return {endeavor:{id:endeavor.id,title:endeavor.title,updatedAt:endeavor.updated_at},
-  creations:linked,collaborations:collaborations.status==="fulfilled"?collaborations.value.collaborations:[],
+  creations:linked,accountCreations:allCreations,collaborations:collaborations.status==="fulfilled"?collaborations.value.collaborations:[],
   recentHistory:history.status==="fulfilled"?history.value.slice(0,12).map(row=>({kind:row.entry_kind,text:String(row.body||"").slice(0,900),at:row.created_at})):[],
   availability:{creations:creations.status==="fulfilled",collaborations:collaborations.status==="fulfilled",history:history.status==="fulfilled"},
   readOnly:true};
