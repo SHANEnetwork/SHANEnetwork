@@ -29,6 +29,7 @@ const supportingFields={
  "communities.html":["description"],
  "campaigns.html":["description"],
  "workspace.html":["taskDetails","sharedPurpose"],
+ "sports-district.html":["organizationDescription","description"],
  "members.html":["listingDescription","description"],
  "growth.html":["purpose"],
  "request-build.html":["details"],
@@ -37,7 +38,7 @@ const supportingFields={
 function useVisionContext(event){
  const context=event.detail||{},page=location.pathname.split("/").pop();
  if(context.page!==page||typeof context.vision!=="string"||!context.vision.trim())return;
- const sourceField={ "communities.html":"communityIdea","campaigns.html":"campaignIdea","workspace.html":"taskIdea","members.html":"listingIdea","growth.html":"shaneGrowthGoal","request-build.html":"shaneBuildRequestGoal","my-network.html":"visionInput" }[page];
+ const sourceField={ "communities.html":"communityIdea","campaigns.html":"campaignIdea","workspace.html":"taskIdea","members.html":"listingIdea","growth.html":"shaneGrowthGoal","request-build.html":"shaneBuildRequestGoal","my-network.html":"visionInput","sports-district.html":"shaneSportsGoal" }[page];
  const vision=(document.getElementById(sourceField)?.value?.trim()||context.vision.trim()).slice(0,4000);
  for(const id of supportingFields[page]||[]){
   const field=document.getElementById(id);
