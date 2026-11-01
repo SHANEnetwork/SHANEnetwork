@@ -37,7 +37,8 @@ const supportingFields={
 function useVisionContext(event){
  const context=event.detail||{},page=location.pathname.split("/").pop();
  if(context.page!==page||typeof context.vision!=="string"||!context.vision.trim())return;
- const vision=context.vision.trim().slice(0,4000);
+ const sourceField={ "communities.html":"communityIdea","campaigns.html":"campaignIdea","workspace.html":"taskIdea","members.html":"listingIdea","growth.html":"shaneGrowthGoal","request-build.html":"shaneBuildRequestGoal","my-network.html":"visionInput" }[page];
+ const vision=(document.getElementById(sourceField)?.value?.trim()||context.vision.trim()).slice(0,4000);
  for(const id of supportingFields[page]||[]){
   const field=document.getElementById(id);
   if(!field||typeof field.value!=="string"||field.value.trim()||field.disabled||field.readOnly)continue;
