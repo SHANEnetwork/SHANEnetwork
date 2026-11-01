@@ -192,3 +192,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Added responsive shared styles. Existing page forms, tools, and manual controls remain in place; private system-health page excludes the composer.
 - Filtered structured `endeavor-plan` JSON out of shared conversation summaries so it is not displayed as user prose.
 - This is a visible cross-page transformation, not a deployed AI model. Browser testing and full AI service integration are still pending.
+
+## Immediate shared conversational guidance
+- The shared natural-language composer now offers an immediate next-step response and relevant links into existing SHANE programs, updating as the member changes their vision.
+- Guidance uses the existing deterministic capability interpreter and safe preparation bridge. It is not a generated AI response or autonomous execution.
+- Shared responsive styling added; existing pages and manual controls remain. Full rendered-page and backend verification remains pending.
