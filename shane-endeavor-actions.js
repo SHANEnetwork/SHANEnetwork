@@ -341,6 +341,8 @@ function init(){
    if(window.SHANECurrentEndeavor?.read?.()!==selected)return;
    planResume.replaceChildren();
    if(!plan?.steps?.length)return;
+   const remaining=plan.steps.filter(x=>x.status==="prepared"||x.status==="proposed");
+   if(!remaining.length){planResume.textContent="Your saved endeavor plan has no unfinished steps.";return}
    const intro=document.createElement("span");intro.textContent="Next step for your endeavor: ";planResume.append(intro);
    for(const step of plan.steps.filter(x=>x.status==="prepared").concat(plan.steps.filter(x=>x.status==="proposed")).slice(0,1)){
     const item=capabilityCatalog.find(x=>x.id===step.capabilityId);if(!item)continue;
