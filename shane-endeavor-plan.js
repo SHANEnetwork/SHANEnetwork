@@ -65,6 +65,32 @@
   if(previous&&previous.vision===proposed.vision&&previous.latestRequest===proposed.latestRequest&&JSON.stringify(previous.steps)===JSON.stringify(proposed.steps))return previous;
   return save(proposed);
  }
+ // Expose a durable cross-workspace journey using the actual saved plan.
+ // This never overwrites statuses with transient inferred suggestions.
+ async function journey(endeavorId){
+  const plan=await latest(endeavorId);
+  if(!plan)return null;
+  const catalog=new Map((capabilities()?.catalog?.()||[]).map(item=>[item.id,item]));
+  return {
+   version:1,endeavorId,revision:plan.revision,
+   purpose:plan.vision,latestRequest:plan.latestRequest||plan.vision,
+   steps:plan.steps.map((step,index)=>{
+    const item=catalog.get(step.capabilityId);
+    return {...step,order:index+1,path:item?.path||null};
+   }),
+   next:plan.steps.find(step=>step.status==="prepared"||step.status==="proposed")?.capabilityId||null,
+   source:"account-plan"
+  };
+ }
+ async function continueJourney({endeavorId,capabilityId}={}){
+  const current=await journey(endeavorId);
+  if(!current)throw Error("Save an endeavor before continuing.");
+  const step=current.steps.find(item=>item.capabilityId===capabilityId);
+  if(!step||!["proposed","prepared"].includes(step.status))
+   throw Error("That step is not ready to continue.");
+  const result=await handoff({endeavorId,capabilityId});
+  return {...result,journeyRevision:current.revision};
+ }
  // A single next-action recommendation, derived from the member's saved plan,
  // is reusable by any page without creating another dashboard or form.
  async function nextAction(endeavorId){
@@ -188,6 +214,6 @@
  document.addEventListener("shane:conversation-store-ready",()=>{void replayArrival()});
  document.addEventListener("shane:endeavor-plan-ready",()=>{void replayArrival()});
  void replayArrival();
- window.SHANEEndeavorPlan=Object.freeze({latest,history,restore,draft,create,setStep,prepareStep,nextAction,handoff});
+ window.SHANEEndeavorPlan=Object.freeze({latest,history,restore,draft,create,setStep,prepareStep,nextAction,handoff,journey,continueJourney});
  document.dispatchEvent(new Event("shane:endeavor-plan-ready"));
 })();
