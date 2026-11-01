@@ -13,31 +13,54 @@ async function flush(){
  if(!pending.length)return {saved:true,pending:0};
  busy=true;
  currentFlush=(async()=>{
- try{
-  const account=await user();if(!account)return {saved:false,reason:"signed-out",pending:pending.length};
-  while(pending.length){
-   const item=pending[0];
-   const record={owner_id:account.id,body:item.text,source_page:item.page,entry_kind:item.kind};
-   if(item.endeavorId)record.endeavor_id=item.endeavorId;
-   let {error}=await db.from(table).insert(record);
-
-   if(error)throw error;
-   pending.shift();
-   document.dispatchEvent(new CustomEvent("shane:conversation-saved",{detail:{endeavorId:item.endeavorId||null,page:item.page}}));
+  try{
+   const account=await user();
+   if(!account)return {saved:false,reason:"signed-out",pending:pending.length};
+   while(pending.length){
+    const item=pending[0];
+    // Never attach an earlier visitor's conversation to another account.
+    if(item.ownerId!==account.id){pending.shift();continue}
+    const record={owner_id:account.id,body:item.text,source_page:item.page,entry_kind:item.kind};
+    if(item.endeavorId)record.endeavor_id=item.endeavorId;
+    const {error}=await db.from(table).insert(record);
+    if(error)throw error;
+    pending.shift();
+    document.dispatchEvent(new CustomEvent("shane:conversation-saved",{detail:{endeavorId:item.endeavorId||null,page:item.page}}));
+   }
+  }catch(error){
+   document.dispatchEvent(new CustomEvent("shane:conversation-save-error",{detail:{message:String(error?.message||error)}}));
+  }finally{
+   busy=false;
+   if(pending.length)document.dispatchEvent(new CustomEvent("shane:conversation-pending",{detail:{count:pending.length}}));
   }
- }catch(error){document.dispatchEvent(new CustomEvent("shane:conversation-save-error",{detail:{message:String(error?.message||error)}}))}
- finally{busy=false;if(pending.length)document.dispatchEvent(new CustomEvent("shane:conversation-pending",{detail:{count:pending.length}}))}
- return {saved:pending.length===0,pending:pending.length};
+  return {saved:pending.length===0,pending:pending.length};
  })();
  try{return await currentFlush}finally{currentFlush=null}
 }
 document.addEventListener("shane:conversation-updated",event=>{
  const d=event.detail||{};
  if(typeof d.text!=="string"||!d.text.trim())return;
- pending.push({text:d.text.slice(0,20000),page:String(d.page||"unknown").slice(0,120),kind:String(d.kind||"idea").slice(0,40),endeavorId:typeof d.endeavorId==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(d.endeavorId)?d.endeavorId:activeEndeavor()});
- void flush();
+ // Capture the owner at event time, not when a later account signs in.
+ void (async()=>{
+  try{
+   const account=await user();
+   if(!account)return; // Signed-out drafts remain local, not in another person's account.
+   pending.push({
+    ownerId:account.id,text:d.text.slice(0,20000),
+    page:String(d.page||"unknown").slice(0,120),
+    kind:String(d.kind||"idea").slice(0,40),
+    endeavorId:typeof d.endeavorId==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(d.endeavorId)?d.endeavorId:activeEndeavor()
+   });
+   await flush();
+  }catch(error){
+   document.dispatchEvent(new CustomEvent("shane:conversation-save-error",{detail:{message:String(error?.message||error)}}));
+  }
+ })();
 });
-db.auth.onAuthStateChange((event)=>{if(event==="SIGNED_OUT"){pending.length=0;return}queueMicrotask(()=>void flush())});
+db.auth.onAuthStateChange((event)=>{
+ if(event==="SIGNED_OUT"){pending.length=0;return}
+ queueMicrotask(()=>void flush());
+});
 async function saveTurn(text,{page="unknown",kind="idea",endeavorId=activeEndeavor()}={}){
  const account=await user();if(!account)return {saved:false,reason:"signed-out"};
  const record={owner_id:account.id,body:String(text||"").trim().slice(0,20000),source_page:String(page).slice(0,120),entry_kind:String(kind).slice(0,40)};
