@@ -298,3 +298,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - New versioned endeavor plans preserve a bounded history of prior vision texts while retaining previously planned capabilities and their states.
 - Restoring an earlier plan revision also carries forward the recently active vision in bounded history rather than discarding it.
 - These are account-backed continuity improvements, not a generative AI model or autonomous orchestration. Browser verification pending.
+
+## Stable purpose and conversational refinements
+- Versioned endeavor plans now distinguish the original endeavor `vision` from `latestRequest`, so a narrow new instruction does not replace the project's overall purpose.
+- Plan creation records changed latest requests even when capabilities remain the same, and revision restore includes the corresponding request.
+- This is additive account-backed continuity; browser and end-to-end verification remain pending.
