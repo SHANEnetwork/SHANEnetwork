@@ -87,6 +87,8 @@
   const text=(plan.vision+(refinement?"\n\nCurrent refinement: "+refinement:"")).slice(0,4000);
   const result=capabilities()?.prepare?.({capabilityId,vision:text,endeavorId});
   if(!result?.ok)throw Error(result?.reason||"Could not prepare the workspace.");
+  // Keep the receiving page aligned with the exact saved revision being continued.
+  try{const key="shane-intent-handoff-v1";const pending=JSON.parse(sessionStorage.getItem(key)||"null");if(pending?.destination===capability.path&&pending.endeavorId===endeavorId){pending.context={purpose:plan.vision,latestRequest:plan.latestRequest||plan.vision,revision:plan.revision,steps:plan.steps.map(step=>({capabilityId:step.capabilityId,status:step.status}))};sessionStorage.setItem(key,JSON.stringify(pending))}}catch{}
   return {...result,path:capability.path,vision:text,revision:plan.revision,context:{purpose:plan.vision,latestRequest:plan.latestRequest||plan.vision,revision:plan.revision,steps:plan.steps.map(step=>({capabilityId:step.capabilityId,status:step.status}))}};
  }
  async function setStep({endeavorId,capabilityId,status,note=""}={}){
