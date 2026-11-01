@@ -261,3 +261,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Shared conversational arrival now includes the actual incoming vision in its event payload.
 - The existing endeavor plan module listens for arrival in a registered capability and, when the active account endeavor and exact saved plan vision match, records the corresponding proposed step as prepared in a new account-backed plan revision.
 - This never marks a step completed, publishes, sends messages or authorizes payments. It does not change SHONnetwork. Runtime/browser verification remains pending.
+
+## Deferred endeavor arrival recognition
+- The endeavor plan module now stores a short-lived session receipt of a conversation-driven page arrival and can replay it when the account conversation store becomes ready, reducing missed prepared-step updates caused by asynchronous script loading.
+- A receipt is cleared after a successful account-backed preparation revision. Matching endeavor, exact vision and registered capability remain required; no execution or completion is inferred.
+- Runtime verification remains pending.
