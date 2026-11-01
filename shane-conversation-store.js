@@ -355,8 +355,8 @@ async function recoverCreationProgress({endeavorId,steps}={}){
   if(offset===9500)throw Error("Creation history exceeds the supported recovery range.");
  }
  const receipts=history.map(row=>{
-  const match=/^Created (new-website|website|community|campaign|listing) ([0-9a-f-]{36})$/i.exec(String(row.body||""));
-  return match?{type:match[1],id:match[2],saved:true}:null;
+  const match=/^Created (new-website|website|community|campaign|listing) ([0-9a-f-]{36}) fingerprint ([0-9a-f]{8})$/i.exec(String(row.body||""));
+  return match?{type:match[1],id:match[2],fingerprint:match[3],saved:true}:null;
  }).filter(Boolean).reverse();
  const completed=[];
  if(steps.some(step=>!step||!step.type))throw Error("Invalid endeavor steps.");
