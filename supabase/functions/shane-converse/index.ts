@@ -22,9 +22,18 @@ Deno.serve(async req=>{
  if(request.length<2||request.length>30000||purpose.length>30000)return reply({error:"Request must contain 2 to 30000 characters; nothing was shortened"},413);
  const secret=Deno.env.get("SHANE_OPENAI_API_KEY")||Deno.env.get("OPENAI_API_KEY");
  if(!secret)return reply({error:"SHANE conversational AI provider is not configured"},503);
+ let history=[];
+ try {
+  const query=base+"/rest/v1/shane_conversation_entries?owner_id=eq."+encodeURIComponent(user.id)+"&endeavor_id=eq."+encodeURIComponent(endeavorId)+"&entry_kind=in.(ai-request,ai-response)&archived_at=is.null&select=entry_kind,body,created_at&order=created_at.desc&limit=12";
+  const prior=await fetch(query,{headers});
+  if(prior.ok){
+   const rows=await prior.json();
+   if(Array.isArray(rows))history=rows.reverse().filter(row=>typeof row.body==="string").map(row=>({role:row.entry_kind==="ai-response"?"assistant":"user",content:row.body}));
+  }
+ }catch{}
  const system="You are SHANE, a creative and practical AI partner helping an individual realize an endeavor. Understand the person's goal, propose concrete next steps and suitable capabilities, and preserve their original vision. Respond conversationally, without forms or jargon. Do not claim that you executed, published, messaged, charged, deployed or researched anything. No invented facts. Keep changes as proposals for the member to approve. Use concise plain text.";
  try{
-  const provider=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+secret},body:JSON.stringify({model:"gpt-4.1-mini",temperature:0.6,max_tokens:1800,messages:[{role:"system",content:system},{role:"user",content:JSON.stringify({endeavorTitle:endeavor.title,originalVision:endeavor.idea,conversationPurpose:purpose,latestRequest:request})}]})});
+  const provider=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+secret},body:JSON.stringify({model:"gpt-4.1-mini",temperature:0.6,max_tokens:1800,messages:[{role:"system",content:system},{role:"system",content:JSON.stringify({endeavorTitle:endeavor.title,originalVision:endeavor.idea,conversationPurpose:purpose})},...history,{role:"user",content:request}]})});
   if(!provider.ok)return reply({error:"SHANE's AI provider is unavailable"},502);
   const data=await provider.json(),answer=data.choices?.[0]?.message?.content;
   if(typeof answer!=="string"||!answer.trim())return reply({error:"No AI response returned"},502);
