@@ -99,7 +99,7 @@
   const prior=revisions.find(item=>item.revision===revision);
   if(!prior)throw Error("Requested revision was not found.");
   const current=await latest(endeavorId);
-  const restored={version:1,endeavorId,vision:prior.vision,
+  const restored={version:1,endeavorId,vision:prior.vision,visionHistory:[...(current?.visionHistory||[]),current?.vision].filter(Boolean).slice(-20),
    revision:(current?.revision||0)+1,createdAt:new Date().toISOString(),
    restoredFrom:revision,steps:prior.steps.map(step=>({...step}))};
   return save(restored);
