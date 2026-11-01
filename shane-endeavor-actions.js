@@ -752,6 +752,40 @@ function init(){
   if(sharedComposerText()===text){try{sessionStorage.removeItem(activeDraftKey())}catch{}}
   location.assign(destination);
  });
+
+ // Execute a supported creation from the same conversation used on every page.
+ // No second composer, wizard, or automatic public action.
+ const createCommunity=document.createElement("button");createCommunity.type="button";
+ createCommunity.textContent="Create my private community";
+ createCommunity.hidden=true;
+ const createFeedback=document.createElement("span");createFeedback.setAttribute("role","status");
+ const syncCreation=()=>{
+  const vision=sharedComposerText();
+  createCommunity.hidden=!(/community|club|association|group|network of friends|chat room/i.test(vision)&&vision.trim().length>=8);
+ };
+ entry.addEventListener("input",syncCreation);
+ document.addEventListener("shane:conversation-context-changed",syncCreation);
+ document.addEventListener("shane:endeavor-context-ready",syncCreation);
+ createCommunity.addEventListener("click",async()=>{
+  const vision=sharedComposerText().trim(),endeavorId=window.SHANECurrentEndeavor?.read?.()||null;
+  if(vision.length<8){createFeedback.textContent="Describe your community first.";return}
+  createCommunity.disabled=true;createFeedback.textContent="SHANE is creating your private community.";
+  try{
+   if(!window.SHANEConversationStore?.interpretVision||!window.SHANEConversationStore?.createPrivateCommunity)throw Error("The creation connection is still loading.");
+   const store=window.SHANEConversationStore;
+   const draft=await store.interpretVision({capability:"community",vision});
+   const result=await store.createPrivateCommunity({vision,name:draft.name,description:draft.description||vision,category:draft.category||"community"});
+   createFeedback.replaceChildren(document.createTextNode("Community saved privately. "));
+   const link=document.createElement("a");link.href="communities.html?organization="+encodeURIComponent(result.organizationId);link.textContent="Open your community";
+   createFeedback.append(link);
+   if(endeavorId){
+    try{await store.saveTurn("Created private community "+result.organizationId+" from vision: "+vision,{page:location.pathname.split("/").pop()||"index.html",kind:"creation",endeavorId})}
+    catch{createFeedback.append(document.createTextNode(" Conversation history could not be confirmed."))}
+   }
+  }catch(error){createFeedback.textContent="Community not created: "+error.message}
+  finally{createCommunity.disabled=false}
+ });
+ conversation.append(createCommunity,createFeedback);syncCreation();
  group.append(conversation,aiReply,aiNext,continueConversation,planProgress,conversationReply,select,button,suggestion,workflow,planResume,revisionControl,status);nav.append(group);update();explainVision();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
