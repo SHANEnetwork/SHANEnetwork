@@ -320,32 +320,44 @@ async function creationContext({limit=8}={}){
  const items=await recentCreations({limit});
  return items.map(item=>({type:item.type,title:item.title,id:item.id,url:item.url,updatedAt:item.at}));
 }
+// Shared, declarative computer capability registry. All UI and execution
+// routes consume this same contract instead of inventing separate operations.
 const computerCapabilities=Object.freeze([
- {id:"new-website",operation:"create",resource:"shane_sites",privateByDefault:true},
- {id:"website",operation:"revise",resource:"shane_sites",requires:["siteId"],privateByDefault:true},
- {id:"community",operation:"create",resource:"shane_organizations",privateByDefault:true},
- {id:"campaign",operation:"create",resource:"shane_campaigns",requires:["deadline"],privateByDefault:true},
- {id:"listing",operation:"create",resource:"shane_listings",privateByDefault:true}
-]);
+ {id:"new-website",label:"Create a private website",operation:"create",resource:"shane_sites",requires:[],privateByDefault:true,approval:"review",reversible:"versioned"},
+ {id:"website",label:"Revise an existing website",operation:"revise",resource:"shane_sites",requires:["siteId"],privateByDefault:true,approval:"review",reversible:"versioned"},
+ {id:"community",label:"Create a private community",operation:"create",resource:"shane_organizations",requires:[],privateByDefault:true,approval:"review",reversible:"manual"},
+ {id:"campaign",label:"Prepare a private campaign",operation:"create",resource:"shane_campaigns",requires:["deadline"],privateByDefault:true,approval:"review",reversible:"manual"},
+ {id:"listing",label:"Create a private Network listing",operation:"create",resource:"shane_listings",requires:[],privateByDefault:true,approval:"review",reversible:"manual"}
+].map(capability=>Object.freeze(capability)));
 function inspectOperation({type,vision,siteId,deadline}={}){
  const capability=computerCapabilities.find(item=>item.id===type);
  const request=String(vision||"").trim();
  if(!capability)return {ready:false,reason:"This operation is not connected yet.",type};
  if(request.length<8)return {ready:false,reason:"Describe what you want SHANE to do.",type};
  if(request.length>12000)return {ready:false,reason:"This request is too long for this operation.",type};
- if(type==="website"&&!siteId)return {ready:false,reason:"Select the website to revise.",type};
- if(type==="campaign"&&!deadline)return {ready:false,reason:"The campaign needs an interest deadline.",type};
+ const missing=capability.requires.filter(field=>field==="siteId"?!siteId:field==="deadline"?!deadline:true);
+ if(missing.length)return {ready:false,reason:missing[0]==="siteId"?"Choose the saved website to revise.":"The campaign needs an interest deadline.",type,missing};
+ if(type==="website"&&!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(String(siteId)))return {ready:false,reason:"Select a valid saved website.",type};
  if(type==="campaign"&&(!Number.isFinite(Date.parse(deadline))||Date.parse(deadline)<=Date.now()))return {ready:false,reason:"Choose a future campaign interest deadline.",type};
- return {ready:true,type,operation:capability.operation,privateByDefault:true};
+ return {ready:true,type,operation:capability.operation,resource:capability.resource,privateByDefault:true,approval:capability.approval};
 }
-function previewVisionSequence({steps}={}){
- if(!Array.isArray(steps)||!steps.length||steps.length>8)return {ready:false,reason:"Provide between one and eight creation steps.",steps:[]};
+function evaluateCreationPlan({steps}={}){
+ if(!Array.isArray(steps)||!steps.length||steps.length>8)return {ready:false,reason:"Provide between one and eight creation steps.",steps:[],alternatives:[]};
  const preview=steps.map((step,index)=>{
   const check=step&&typeof step==="object"&&!Array.isArray(step)?inspectOperation(step):{ready:false,reason:"Invalid creation step."};
-  return {number:index+1,type:step?.type||null,ready:check.ready,reason:check.reason||null,privateByDefault:check.ready?true:null};
+  const capability=computerCapabilities.find(item=>item.id===step?.type);
+  return {number:index+1,type:step?.type||null,label:capability?.label||"Unsupported operation",ready:check.ready,reason:check.reason||null,missing:check.missing||[],privateByDefault:check.ready?true:null};
  });
- return {ready:preview.every(x=>x.ready),steps:preview,reason:preview.find(x=>!x.ready)?.reason||null};
+ // Ponderer: assess capability readiness. Harmonizer: locate the smallest
+ // repair that preserves the vision. Maximizer: identify executable value now.
+ const alternatives=preview.filter(step=>!step.ready).map(step=>({
+  step:step.number,issue:step.reason,
+  constructivePath:step.missing.includes("deadline")?"Keep the campaign as a private proposal until a deadline is chosen.":step.missing.includes("siteId")?"Use a member-owned website for revision, or create a new private website instead.":"Keep this step in the plan and refine its request before execution."
+ }));
+ const ready=preview.every(step=>step.ready);
+ return {ready,steps:preview,reason:preview.find(step=>!step.ready)?.reason||null,alternatives,executableSteps:preview.filter(step=>step.ready).length,privateByDefault:true,requiresReview:true};
 }
+function previewVisionSequence({steps}={}){return evaluateCreationPlan({steps})}
 function proposeCreationSequence({vision,endeavorId}={}){
  const request=String(vision||"").trim();
  if(request.length<8)return {steps:[],ready:false,reason:"Describe your endeavor first."};
@@ -626,6 +638,6 @@ async function restoreSiteVersion({siteId,versionId,confirmed=false}={}){
  if(error)throw error;if(!updated)throw Error("Site changed since restoration began. Reload before trying again.");
  return {restored:true,siteId,versionId};
 }
-window.SHANEConversationStore=Object.freeze({beginEndeavor,converse,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,computerCapabilities,inspectOperation,previewVisionSequence,proposeCreationSequence,prepareCreationSequence,executeVision,executeVisionSequence,verifySequenceProgress,saveCreationPlan,loadCreationPlan,listSavedCreationPlans,searchSavedCreationPlans,recallEndeavor,describeSavedCreationPlan,recoverCreationProgress,inspectSavedEndeavor,continueSavedEndeavor,resumeVisionSequence,recentCreations,findSavedCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
+window.SHANEConversationStore=Object.freeze({beginEndeavor,converse,evaluateCreationPlan,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,computerCapabilities,inspectOperation,previewVisionSequence,proposeCreationSequence,prepareCreationSequence,executeVision,executeVisionSequence,verifySequenceProgress,saveCreationPlan,loadCreationPlan,listSavedCreationPlans,searchSavedCreationPlans,recallEndeavor,describeSavedCreationPlan,recoverCreationProgress,inspectSavedEndeavor,continueSavedEndeavor,resumeVisionSequence,recentCreations,findSavedCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
 document.dispatchEvent(new Event("shane:conversation-store-ready"));
 void flush();
