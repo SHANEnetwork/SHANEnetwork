@@ -32,6 +32,8 @@ const intentRules=[
  ["conversation-history.html",/conversation history|past conversations|previous ideas|what did we discuss/i],
  ["community-history.html",/restore community settings|rollback community|community configuration history|community version history/i],
  ["community-members.html",/community members|manage members|member roles|community permissions|moderate members/i],
+ ["community-conversations.html",/community chat|community conversation|discussion room|chat room with members/i],
+ ["community-feed.html",/community announcement|post an update|share community news|community feed/i],
  ["appearance.html",/appearance settings|change theme|change colors|custom theme|my colors|font settings/i],
  ["workspace.html",/assign a task|create a task|task list|work plan|project milestone|coordinate work|to.do list|coordinate volunteers|organize responsibilities/i],
  ["network.html",/discover|search for|find people|find organizations|look for|who can help/i],
