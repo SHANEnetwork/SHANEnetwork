@@ -342,6 +342,7 @@ async function resumeVisionSequence({steps,completed=[],endeavorId}={}){
 async function recoverCreationProgress({endeavorId,steps}={}){
  if(!endeavorId||!Array.isArray(steps))throw Error("An endeavor and its creation steps are required.");
  const history=await list({endeavorId,kinds:["creation"],limit:500});
+ if(history.length===500)throw Error("Endeavor history is too large for safe automatic recovery; narrow the endeavor first.");
  const receipts=history.map(row=>{
   const match=/^Created (new-website|website|community|campaign|listing) ([0-9a-f-]{36})$/i.exec(String(row.body||""));
   return match?{type:match[1],id:match[2],saved:true}:null;
