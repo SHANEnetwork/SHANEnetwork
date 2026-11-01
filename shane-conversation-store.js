@@ -171,6 +171,16 @@ async function converse({endeavorId,request,purpose}){
    .select("id,title").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
   if(endeavorError||!endeavor)throw Error("The selected endeavor is unavailable or does not belong to this account.");
   groundedPurpose+="\nSelected endeavor: "+String(endeavor.title||"Untitled").slice(0,200)+" ["+endeavor.id+"]. Keep new work associated with this endeavor unless the member explicitly changes it.";
+  // Include real accepted collaboration workspaces in the same AI endeavor
+  // context as creations. Never treat conversation as permission to send.
+  try{
+   const collaboration=await collaborationContext({endeavorId,limit:10});
+   if(collaboration.collaborations.length){
+    groundedPurpose+="\\nConfirmed accepted collaborations for this endeavor (read-only context, never send messages without member action): "+
+     collaboration.collaborations.map(item=>item.listingTitle+" workspace="+item.url+
+      " recent="+item.messages.map(message=>(message.fromSelf?"member":"collaborator")+": "+message.body).join(" | ")).join("; ");
+   }
+  }catch(error){console.warn("Collaboration context not available",error)}
   // Keep conversational continuity and concrete creation receipts together.
   // Query by kind so unrelated navigation records cannot crowd out the memory.
   const rows=await list({endeavorId,limit:48,kinds:["ai-request","ai-response","idea","creation","creation-summary"]});
