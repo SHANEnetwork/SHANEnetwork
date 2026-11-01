@@ -436,3 +436,8 @@ No action requested as of this update.
 - Added createPrivateWebsite to account-backed conversation store (e2e6340): invokes existing shane-generate-site, checks required structured output, and inserts an unpublished owner-scoped shane_sites draft.
 - Connected new-website requests in the shared conversation to this creation operation (675aa0a), alongside the existing website-revision, community, campaign and listing paths. No public publishing is performed.
 - Existing builder and SHONnetwork untouched. End-to-end authenticated browser verification and builder deep-link selection remain outstanding; the new website link currently opens the builder without automatically selecting the created site.
+
+## 2026-11-01: exact-artifact continuity after conversational creation
+- Website creation and revision links now target the exact saved site using the builder's existing ?site= support (f0aab59).
+- Newly created campaign links carry the saved campaign ID (2b549e8). The campaign page now retrieves that specific owner-scoped campaign and displays its draft separately from public open campaigns (7af7ac1), avoiding the previous dead-end where private drafts were absent from the public list.
+- No public publication is triggered. Existing pages remain in place and SHONnetwork unchanged. Authenticated browser verification remains outstanding.
