@@ -90,6 +90,7 @@ function useVisionContext(event){
  const details=inferDetails(vision,page);
  for(const [id,value] of Object.entries(details))fillEmpty([id],value);
  if(page==="workspace.html")fillEmpty(["sharedPurpose"],vision);
+ if(page==="growth.html")fillEmpty(["purpose"],vision);
  if(spec.next)fillEmpty(spec.next,"Identify the first shared action and agree who will take it.");
  // Keep the draft editable; downstream features can react to the prepared event.
  document.dispatchEvent(new CustomEvent("shane:vision-draft-prepared",{
