@@ -47,3 +47,26 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   finally{trigger.disabled=false}
  },{capture:true});
 })().catch(()=>{});
+
+(()=>{
+ const init=()=>{
+  const draft=document.getElementById("taskDraft"),idea=document.getElementById("taskIdea"),form=document.getElementById("taskForm"),status=document.getElementById("taskDraftStatus");
+  if(!draft||!idea||!form||!status)return;
+  const action=document.createElement("button");action.type="button";action.textContent="Create shared task";draft.after(action);
+  action.onclick=async()=>{
+   if(idea.value.trim().length<8){status.textContent="Describe the task first.";return}
+   action.disabled=true;
+   try{
+    await import("./shane-conversation-store.js");
+    const result=await window.SHANEConversationStore.interpretVision({capability:"task",vision:idea.value.trim()});
+    for(const [key,id] of [["title","taskTitle"],["details","taskDetails"]]){
+     const field=document.getElementById(id);if(!field.value.trim())field.value=String(result[key]||idea.value.trim()).slice(0,field.maxLength||4000);
+    }
+    form.requestSubmit();
+    status.textContent="Task submitted to the existing collaboration workflow. See the task status for save confirmation.";
+   }catch(e){status.textContent="Task preparation failed: "+e.message}
+   finally{action.disabled=false}
+  };
+ };
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
