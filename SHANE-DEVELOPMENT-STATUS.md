@@ -386,3 +386,9 @@ No action requested as of this update.
 - Deployed new production Supabase Edge Function `shane-revise-site` (version 2, ACTIVE, JWT verification enabled). It authenticates the caller, reads an owner-scoped existing site, requests a structured revision from the configured AI provider, and writes to the same owner-scoped site with updated_at conflict guard. The database update trigger is intended to retain the prior site version.
 - Committed shared `reviseSite` API (0b3c14b) and creator conversational revision controls (5e2f7ef). Member can describe changes to an existing saved website without filling configuration forms.
 - **Not yet verified**: successful authenticated AI provider call, actual database mutation and history snapshot, browser integration, regression testing, or every Network program. `reviseSavedCreation` remains a separate unimplemented `shane-converse` purpose. Review site content validation and potential malicious HTML before production public publishing. Preserve SHONnetwork.
+
+## 2026-11-01: AI-first interpretation for community, campaign, and workspace task creation
+- Deployed production `shane-interpret-vision` Edge Function (ACTIVE, JWT required). Authenticated members can describe a community, campaign, or collaborative task and receive a bounded, structured, private draft. No automatic publication, invitation, payment, or task assignment.
+- Shared conversation store now exposes `interpretVision` (commit 5abcbf8).
+- Connected existing community (86bbd8b), campaign (514331e), and workspace task (e1a8d0a) vision buttons to the AI interpretation endpoint, preserving existing forms and manual fallback. Existing nonempty fields are not overwritten.
+- Deployed and committed; authenticated end-to-end browser tests, AI provider response checks, and full Network execution remain outstanding. No SHONnetwork modifications.
