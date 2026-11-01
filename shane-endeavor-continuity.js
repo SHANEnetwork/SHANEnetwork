@@ -31,6 +31,18 @@
   return checkpoint({endeavorId:id,kind:"restore",title:previous.title,state:previous.state,note:"Restored from revision "+revision});
  };
  const exportState=(id=active())=>JSON.stringify(read(id),null,2);
+ // An explicitly prepared idea is a meaningful checkpoint, not every keystroke.
+ // This lets existing campaign, community and contact composers contribute to
+ // a recoverable endeavor timeline without changing their submission behavior.
+ const preparedKinds=new Set(["community-update-vision","contact-vision","community-opportunity-vision","campaign-vision","community-conversation-vision"]);
+ document.addEventListener("shane:conversation-updated",event=>{
+  const detail=event.detail||{};
+  if(!preparedKinds.has(detail.kind)||!validId(detail.endeavorId))return;
+  const latest=read(detail.endeavorId).milestones.at(-1);
+  if(latest?.kind===detail.kind&&latest?.state?.idea===detail.text)return;
+  try{checkpoint({endeavorId:detail.endeavorId,kind:detail.kind,title:"Prepared on "+(detail.page||"SHANE"),state:{idea:String(detail.text||"").slice(0,4000),sourcePage:detail.page||""}})}
+  catch(error){document.dispatchEvent(new CustomEvent("shane:endeavor-milestone-error",{detail:{message:String(error?.message||error)}}))}
+ });
  window.SHANEEndeavorMilestones=Object.freeze({read,checkpoint,version,restore,exportState});
  document.dispatchEvent(new Event("shane:endeavor-milestones-ready"));
 })();
