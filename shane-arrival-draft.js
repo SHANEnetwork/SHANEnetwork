@@ -23,5 +23,29 @@ function prepare(event){
  if(button.tagName==="FORM")queueMicrotask(()=>{if(button.isConnected&&typeof button.requestSubmit==="function")button.requestSubmit()});
  else if(!button.disabled)queueMicrotask(()=>button.click());
 }
+// Carry the person's intent into existing creation forms, without replacing edits
+// or automatically publishing, messaging, inviting, or changing permissions.
+const supportingFields={
+ "communities.html":["description"],
+ "campaigns.html":["description"],
+ "workspace.html":["taskDetails","sharedPurpose"],
+ "members.html":["listingDescription"],
+ "growth.html":["purpose"],
+ "request-build.html":["details"],
+ "my-network.html":["visionInput"]
+};
+function useVisionContext(event){
+ const context=event.detail||{},page=location.pathname.split("/").pop();
+ if(context.page!==page||typeof context.vision!=="string"||!context.vision.trim())return;
+ const vision=context.vision.trim().slice(0,4000);
+ for(const id of supportingFields[page]||[]){
+  const field=document.getElementById(id);
+  if(!field||typeof field.value!=="string"||field.value.trim()||field.disabled||field.readOnly)continue;
+  field.value=vision.slice(0,field.maxLength>0?field.maxLength:4000);
+  field.dispatchEvent(new Event("input",{bubbles:true}));
+  break;
+ }
+}
+document.addEventListener("shane:vision-context-ready",useVisionContext);
 document.addEventListener("shane:endeavor-arrived",prepare);
 })();
