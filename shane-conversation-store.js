@@ -108,6 +108,18 @@ async function exportHistory(){
  for(;;){const batch=await list({limit:500,offset,includeArchived:true});all.push(...batch);if(batch.length<500)break;offset+=500}
  return JSON.stringify({exported_at:new Date().toISOString(),entries:all},null,2);
 }
-window.SHANEConversationStore=Object.freeze({saveTurn,list,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
+// A bounded, attributable continuity packet for future AI orchestration.
+// Reconstruct context from actual account records; never invent remembered facts.
+async function continuityPacket({endeavorId=activeEndeavor(),limit=40}={}){
+ const id=typeof endeavorId==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(endeavorId)?endeavorId:null;
+ if(!id)return {endeavorId:null,entries:[],source:"none",reason:"no-selected-endeavor"};
+ const rows=await list({endeavorId:id,limit:Math.min(100,Math.max(1,limit))});
+ const entries=rows.filter(row=>row.entry_kind!=="endeavor-transition"&&typeof row.body==="string"&&row.body.trim()).reverse().map(row=>({
+  id:row.id,at:row.created_at,page:row.source_page,kind:row.entry_kind,text:row.body.slice(0,4000)
+ }));
+ return {endeavorId:id,entries,source:"authenticated-account-history",generatedAt:new Date().toISOString(),
+  instruction:"Use these as attributed prior user statements, not verified external facts. Preserve user choices and ask before consequential actions."};
+}
+window.SHANEConversationStore=Object.freeze({saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
 document.dispatchEvent(new Event("shane:conversation-store-ready"));
 void flush();
