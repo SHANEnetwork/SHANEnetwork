@@ -71,7 +71,10 @@ function enableInPlaceConversation(page,target,field){
    "communities.html":"communityDraft",
    "growth.html":"shaneGrowthPrepare",
    "community-feed.html":"communityUpdatePrepare",
-   "community-opportunities.html":"opportunityPrepare"
+   "community-opportunities.html":"opportunityPrepare",
+   "community-conversations.html":"shaneCommunityPrepare",
+   "members.html":"listingDraft",
+   "request-build.html":"shaneBuildRequestPrepare"
   };
   const prepare=document.getElementById(prepareIds[page]);
   if(prepare&&!prepare.disabled){
