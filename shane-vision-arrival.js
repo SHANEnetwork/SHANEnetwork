@@ -70,6 +70,22 @@ const draftButtons=Object.freeze({
  "members.html":"listingDraft",
  "request-build.html":"shaneBuildRequestPrepare"
 });
+function deliverVision(field,text){
+ const full=String(text||"");
+ const limited=field.maxLength>0&&full.length>field.maxLength;
+ if(limited){
+  // Preserve the full original in the shared composer session draft rather than
+  // silently discarding material that a particular legacy form cannot hold.
+  try{
+   const id=window.SHANECurrentEndeavor?.read?.();
+   const key="shane-shared-idea-draft-v2:"+(id||"personal");
+   sessionStorage.setItem(key,full);
+  }catch{}
+ }
+ field.value=limited?full.slice(0,field.maxLength):full;
+ field.dispatchEvent(new Event("input",{bubbles:true}));
+ return limited;
+}
 function prepareEditableDraft(page){
  const button=document.getElementById(draftButtons[page]);
  if(!button||button.disabled||button.type!=="button")return false;
@@ -139,13 +155,12 @@ function init(){
   });container.append(restore)}
   return;
  }
- field.value=item.text.slice(0,field.maxLength>0?field.maxLength:item.text.length);
- field.dispatchEvent(new Event("input",{bubbles:true}));
+ const limited=deliverVision(field,item.text);
  if(item.endeavorId&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(item.endeavorId)){
   try{sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:item.endeavorId,updated:Date.now()}))}catch{}
  }
  const status=document.getElementById(target.status);
- if(status&&page!=="my-network.html")status.textContent="Your idea has arrived from the SHANE Network. Review or refine it when ready.";
+ if(status&&page!=="my-network.html")status.textContent=limited?"Your full idea is preserved in the shared SHANE conversation draft. This workspace field has a shorter limit, so review its shortened copy before proceeding.":"Your idea has arrived from the SHANE Network. Review or refine it when ready.";
  // The explicit Continue action already chose this destination. Prepare its
  // editable draft automatically, but never submit or publish the result.
  const draftPrepared=prepareEditableDraft(page);
