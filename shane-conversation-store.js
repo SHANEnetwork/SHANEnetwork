@@ -392,7 +392,7 @@ async function executeVisionSequence({steps,endeavorId}={}){
    completed.push(result);
    const historyEndeavor=step.endeavorId||endeavorId;
    if(historyEndeavor){
-    try{await saveTurn("Created "+result.type+" "+result.id,{page:"shane-computer",kind:"creation",endeavorId:historyEndeavor})}
+    try{await saveTurn("Created "+result.type+" "+result.id+" fingerprint "+endeavorStepFingerprint(step,index),{page:"shane-computer",kind:"creation",endeavorId:historyEndeavor})}
     catch{result.historySaved=false}
    }
   }catch(error){
