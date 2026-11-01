@@ -37,7 +37,7 @@ document.addEventListener("shane:conversation-updated",event=>{
  pending.push({text:d.text.slice(0,20000),page:String(d.page||"unknown").slice(0,120),kind:String(d.kind||"idea").slice(0,40),endeavorId:typeof d.endeavorId==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(d.endeavorId)?d.endeavorId:activeEndeavor()});
  void flush();
 });
-db.auth.onAuthStateChange(()=>{queueMicrotask(()=>void flush())});
+db.auth.onAuthStateChange((event)=>{if(event==="SIGNED_OUT"){pending.length=0;return}queueMicrotask(()=>void flush())});
 async function saveTurn(text,{page="unknown",kind="idea",endeavorId=activeEndeavor()}={}){
  const account=await user();if(!account)return {saved:false,reason:"signed-out"};
  const record={owner_id:account.id,body:String(text||"").trim().slice(0,20000),source_page:String(page).slice(0,120),entry_kind:String(kind).slice(0,40)};
