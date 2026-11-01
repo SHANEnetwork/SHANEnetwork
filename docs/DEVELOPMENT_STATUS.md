@@ -141,3 +141,9 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - `SHANEConversation.visionContext()` now includes the structured milestone timeline alongside sourced conversation context for future AI-driven execution.
 - This is deterministic context integration, not AI reasoning or an autonomous operation. Existing publication and submission actions still require their own user authorization.
 - Current milestone storage remains session-scoped; full browser and database verification pending.
+
+## Capability contract toward AI execution
+- Added `window.SHANECapabilities.catalog()` and `interpret(vision)`: a machine-readable, allowlisted capability catalog with multiple matching destinations, explicit prepare-only status, and confirmation requirements.
+- Exposed `capabilityPlan` through the shared `SHANEConversation.visionContext()` so an eventual AI orchestrator can receive conversation, milestones, grounded memory, and registered capability descriptions together.
+- This is **not** a model integration or autonomous tool execution. Each underlying program retains its existing permissions, and no publishing, payments, invitations, or public actions occur automatically.
+- Reviewed the user-supplied Sentient Reality Codex and Dreams and Religious Symbolism materials as creative philosophy and consent/autonomy design inspiration, not verified scientific or engineering specifications. No document text was copied into public pages.
