@@ -472,6 +472,7 @@ function init(){
       }catch(error){summary.textContent=error.message}
      };
      aiNext.append(execute);
+     aiNext.hidden=false;
     }else summary.textContent+=" "+(proposal.reason||"More details are needed before creation.");
    }
    // Preserve the actual exchange in the same owner-scoped endeavor history
