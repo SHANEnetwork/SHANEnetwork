@@ -149,6 +149,23 @@ async function reviseSavedCreation({endeavorId,creationId,request}={}){
  if(!data?.savedCreationId||!data?.revisionId)throw Error("Revision was not confirmed as saved. Your previous creation remains the authoritative version.");
  return data;
 }
-window.SHANEConversationStore=Object.freeze({converse,reviseSavedCreation,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
+
+async function siteVersions(siteId){
+ const account=await user();if(!account)throw Error("Sign in first.");
+ const {data,error}=await db.from("shane_site_versions").select("id,site_id,version_number,name,status,recorded_at").eq("site_id",siteId).eq("owner_id",account.id).order("version_number",{ascending:false});
+ if(error)throw error;return data||[];
+}
+async function restoreSiteVersion({siteId,versionId,confirmed=false}={}){
+ if(!confirmed)throw Error("Confirm restoration before changing a saved site.");
+ const account=await user();if(!account)throw Error("Sign in first.");
+ const {data:site,error:siteError}=await db.from("shane_sites").select("id,owner_id,updated_at").eq("id",siteId).eq("owner_id",account.id).single();
+ if(siteError||!site)throw Error("Saved site not found in your account.");
+ const {data:version,error:versionError}=await db.from("shane_site_versions").select("name,content,status").eq("id",versionId).eq("site_id",siteId).eq("owner_id",account.id).single();
+ if(versionError||!version)throw Error("Saved version not found.");
+ const {data:updated,error}=await db.from("shane_sites").update({name:version.name,content:version.content,status:version.status}).eq("id",siteId).eq("owner_id",account.id).eq("updated_at",site.updated_at).select("id").maybeSingle();
+ if(error)throw error;if(!updated)throw Error("Site changed since restoration began. Reload before trying again.");
+ return {restored:true,siteId,versionId};
+}
+window.SHANEConversationStore=Object.freeze({converse,reviseSavedCreation,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
 document.dispatchEvent(new Event("shane:conversation-store-ready"));
 void flush();
