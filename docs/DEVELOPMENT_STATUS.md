@@ -67,3 +67,9 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Updated the existing community discussion composer to respect disabled discussion rooms, request confirmation before overwriting an unpublished message, and record an explicitly prepared message in the shared conversation journal.
 - Existing organization membership and room-setting checks, private discussion loading, and posting remain unchanged.
 - No automatic post or unauthorized room enablement. Browser verification remains pending.
+
+## Payment and published-site experience
+- Added a conversation-first payment planning experience to payments.html. The member describes what they want to sell; the page produces an editable-by-conversation starting checklist and a continuation link to the creator while retaining the original provider reference in a disclosure.
+- This is deterministic planning, not AI service execution or live payment processing; the page clearly says so.
+- Shared navigation now explicitly avoids site.html, because published customer websites must not inherit the creator's private conversation or SHANE editor navigation. Published site rendering logic is unchanged.
+- Both changes are committed; browser-level verification remains pending.
