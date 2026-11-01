@@ -800,28 +800,13 @@ function init(){
   try{
    const store=window.SHANEConversationStore;
    if(!store)throw Error("Creation connection is loading.");
-   let result,linkTarget,linkLabel,record;
-   if(type==="new-website"){
-    result=await store.createPrivateWebsite({vision});
-    linkTarget="builder.html?site="+encodeURIComponent(result.siteId);linkLabel="Open created website";record=result.siteId;
-   }else if(type==="website"){
+   if(type==="website"){
     await loadSites();
-    if(!siteChoice.value){siteChoice.hidden=false;throw Error("Choose the saved website to revise, then select Revise again.");}
-    result=await store.reviseSite({siteId:siteChoice.value,request:vision});
-    linkTarget="builder.html?site="+encodeURIComponent(result.siteId);linkLabel="Review revised website";record=result.siteId;
-   }else if(type==="community"){
-    const draft=await store.interpretVision({capability:"community",vision});
-    result=await store.createPrivateCommunity({vision,name:draft.name,description:draft.description||vision,category:draft.category});
-    linkTarget="communities.html?organization="+encodeURIComponent(result.organizationId);linkLabel="Open community";record=result.organizationId;
-   }else if(type==="campaign"){
-    const draft=await store.interpretVision({capability:"campaign",vision});
-    result=await store.createPrivateCampaign({vision,title:draft.title,description:draft.description||vision,category:draft.category,location:draft.location,deadline:deadline.value});
-    linkTarget="campaigns.html?campaign="+encodeURIComponent(result.campaignId);linkLabel="Review campaign";record=result.campaignId;
-   }else{
-    const title=vision.split(/[.!?]/)[0].trim().slice(0,150);
-    result=await store.createPrivateListing({vision,title,description:vision,endeavorId});
-    linkTarget="members.html?listing="+encodeURIComponent(result.listingId);linkLabel="Review listing";record=result.listingId;
+    if(!siteChoice.value)throw Error("Choose the saved website to revise.");
    }
+   const operation=await store.executeVision({type,vision,siteId:siteChoice.value,deadline:deadline.value,endeavorId});
+   const linkTarget=operation.url,record=operation.id;
+   const linkLabel=type==="website"?"Review revised website":type==="new-website"?"Open created website":type==="campaign"?"Review campaign":type==="community"?"Open community":"Review listing";
    // Keep the concrete creation available to the next page and to the next conversation.
    const creation={type,id:record,url:linkTarget,vision,endeavorId:endeavorId||null,created:Date.now()};
    try{sessionStorage.setItem("shane-last-created-artifact-v1",JSON.stringify(creation))}catch{}
