@@ -166,8 +166,8 @@ const activeDraftKey=()=>{
  const id=window.SHANECurrentEndeavor?.read?.();
  return conversationKey+":"+(typeof id==="string"&&/^[0-9a-f-]{36}$/i.test(id)?id:"personal");
 };
-const readDraft=()=>{try{return String(sessionStorage.getItem(activeDraftKey())||"").slice(0,4000)}catch{return ""}};
-const writeDraft=value=>{try{sessionStorage.setItem(activeDraftKey(),String(value||"").slice(0,4000))}catch{}};
+const readDraft=()=>{try{return String(sessionStorage.getItem(activeDraftKey())||"")}catch{return ""}};
+const writeDraft=value=>{try{sessionStorage.setItem(activeDraftKey(),String(value||""))}catch{}};
 
 function sharedComposerText(){
  const node=document.getElementById("shane-shared-vision-input");
@@ -362,7 +362,7 @@ function init(){
    if(!saved){composerStatus.textContent="No saved idea was found for this endeavor.";return}
    if(entry.value.trim()&&entry.value.trim()!==saved.trim()&&!window.confirm("Replace your current conversation draft with the saved endeavor request?"))return;
    if(window.SHANECurrentEndeavor?.read?.()!==selected){composerStatus.textContent="The selected endeavor changed. Choose it again to resume.";return}
-   entry.value=saved.slice(0,4000);
+   entry.value=saved;
    try{writeDraft(entry.value)}catch{}
    update();explainVision();entry.focus();
    composerStatus.textContent="Saved idea restored to the conversation. Refine it or continue.";
@@ -522,7 +522,7 @@ function init(){
   if((location.pathname.split("/").pop())==="system-health.html")return;
   let endeavorId=null;
   try{const saved=JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id;if(typeof saved==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(saved))endeavorId=saved}catch{}
-  try{sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination,text:text.slice(0,4000),endeavorId,created:Date.now()}));if(destination==="builder.html")sessionStorage.setItem("shane-creative-handoff-v1",JSON.stringify({text:text.slice(0,4000),created:Date.now()}))}catch{}
+  try{sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination,text:text,endeavorId,created:Date.now()}));if(destination==="builder.html")sessionStorage.setItem("shane-creative-handoff-v1",JSON.stringify({text:text,created:Date.now()}))}catch{}
  });
  select.addEventListener("change",update);
  document.addEventListener("input",event=>{if(event.target?.id&&((fields[location.pathname.split("/").pop()||"index.html"]||[]).includes(event.target.id)||window.SHANEConversation?.draftSnapshot?.().some(item=>item.field===event.target.id)))update()});
@@ -550,8 +550,8 @@ function init(){
   try{const value=window.SHANECurrentEndeavor?.read?.();if(typeof value==="string")endeavorId=value}catch{}
   if(!endeavorId){try{const saved=JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id;if(typeof saved==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(saved))endeavorId=saved}catch{}}
   try{
-   sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination,text:text.slice(0,4000),endeavorId,created:Date.now()}));
-   if(destination==="builder.html")sessionStorage.setItem("shane-creative-handoff-v1",JSON.stringify({text:text.slice(0,4000),created:Date.now()}));
+   sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination,text:text,endeavorId,created:Date.now()}));
+   if(destination==="builder.html")sessionStorage.setItem("shane-creative-handoff-v1",JSON.stringify({text:text,created:Date.now()}));
   }catch{status.textContent="Unable to carry the idea in this browser.";button.disabled=false;return}
   // The ordinary Continue action now creates or revises the durable plan,
   // without asking members to copy their vision into a second form.
@@ -559,7 +559,7 @@ function init(){
    try{
     const plan=await window.SHANEEndeavorPlan.create({vision:text,endeavorId});
     if(plan?.vision){
-     const combined=(plan.vision+(plan.latestRequest&&plan.latestRequest!==plan.vision?"\n\nCurrent refinement: "+plan.latestRequest:"")).slice(0,4000);
+     const combined=(plan.vision+(plan.latestRequest&&plan.latestRequest!==plan.vision?"\n\nCurrent refinement: "+plan.latestRequest:""));
      const payload={destination,text:combined,endeavorId,created:Date.now(),context:{purpose:plan.vision,latestRequest:plan.latestRequest||plan.vision,revision:plan.revision,steps:plan.steps.map(step=>({capabilityId:step.capabilityId,status:step.status}))}};
      sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify(payload));
      if(destination==="builder.html")sessionStorage.setItem("shane-creative-handoff-v1",JSON.stringify({text:combined,created:payload.created}));
