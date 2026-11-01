@@ -104,9 +104,11 @@ function useVisionContext(event){
  const active=window.SHANECurrentEndeavor?.read?.()||null;
  if(context.endeavorId&&active&&context.endeavorId!==active)return;
  fillEmpty(spec.body,vision);
- const title=extractTitle(vision);
- if(title.length>=3)fillEmpty(spec.title,title);
  const details=inferDetails(vision,page);
+ // Prefer a name the person explicitly supplied over a generated title.
+ const explicitTitle=details.name||details.title||"";
+ const title=explicitTitle||extractTitle(vision);
+ if(title.length>=3)fillEmpty(spec.title,title);
  for(const [id,value] of Object.entries(details))fillEmpty([id],value);
  if(page==="workspace.html")fillEmpty(["sharedPurpose"],vision);
  if(page==="growth.html")fillEmpty(["purpose"],vision);
