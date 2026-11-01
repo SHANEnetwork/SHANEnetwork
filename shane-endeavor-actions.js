@@ -1095,12 +1095,53 @@ function init(){
  conversation.append(createAction,deadline,siteChoice,createStatus,recentCreation,historyButton,historySearch,historyList);syncAction();showRecentCreation();
  // Present conversation and its persistent creations first. Keep specialist
  // controls in the same workspace as an optional, collapsible capability shelf.
+ // Account-backed conversation timeline, shared across pages and endeavors.
+ // Render saved turns as text, never HTML; do not expose other members' entries.
+ const timeline=document.createElement("section");
+ timeline.className="shane-endeavor-timeline";
+ timeline.setAttribute("aria-label","Saved conversation with SHANE");
+ const timelineHeading=document.createElement("div");timelineHeading.className="shane-timeline-heading";
+ const timelineTitle=document.createElement("strong");timelineTitle.textContent="Our continuing conversation";
+ const timelineRefresh=document.createElement("button");timelineRefresh.type="button";timelineRefresh.textContent="Refresh conversation";
+ timelineHeading.append(timelineTitle,timelineRefresh);
+ const timelineBody=document.createElement("div");timelineBody.className="shane-timeline-body";
+ timelineBody.setAttribute("aria-live","polite");
+ timeline.append(timelineHeading,timelineBody);
+ let timelineSerial=0;
+ const loadTimeline=async()=>{
+  const serial=++timelineSerial;
+  const endeavorId=window.SHANECurrentEndeavor?.read?.();
+  if(!endeavorId){timelineBody.textContent="Select an endeavor to see our saved conversation here.";return}
+  const store=window.SHANEConversationStore;
+  if(!store?.list){timelineBody.textContent="Connecting to your saved conversation…";return}
+  try{
+   const rows=await store.list({endeavorId,limit:50,kinds:["ai-request","ai-response"]});
+   if(serial!==timelineSerial||window.SHANECurrentEndeavor?.read?.()!==endeavorId)return;
+   timelineBody.replaceChildren();
+   if(!rows.length){timelineBody.textContent="Your conversation will appear here as we build together.";return}
+   for(const item of rows.slice().reverse()){
+    const turn=document.createElement("article");turn.className="shane-timeline-turn "+(item.entry_kind==="ai-response"?"shane-timeline-ai":"shane-timeline-person");
+    const who=document.createElement("strong");who.textContent=item.entry_kind==="ai-response"?"SHANE":"You";
+    const body=document.createElement("p");body.textContent=item.body||"";
+    turn.append(who,body);timelineBody.append(turn);
+   }
+   timelineBody.scrollTop=timelineBody.scrollHeight;
+  }catch(error){
+   if(serial===timelineSerial)timelineBody.textContent="Saved conversation is unavailable: "+String(error?.message||error);
+  }
+ };
+ timelineRefresh.onclick=()=>void loadTimeline();
+ document.addEventListener("shane:conversation-saved",()=>void loadTimeline());
+ document.addEventListener("shane:endeavor-context-ready",()=>void loadTimeline());
+ document.addEventListener("shane:conversation-context-changed",()=>void loadTimeline());
+ document.addEventListener("shane:conversation-store-ready",()=>void loadTimeline());
+ void loadTimeline();
  const specialist=document.createElement("details");
  specialist.className="shane-specialist-capabilities";
  const specialistTitle=document.createElement("summary");
  specialistTitle.textContent="Explore SHANE's programs and manual controls";
  specialist.append(specialistTitle,select,button,suggestion,workflow,planResume,revisionControl,status);
- group.append(conversation,aiReply,aiNext,continueConversation,planProgress,conversationReply,specialist);
+ group.append(timeline,conversation,aiReply,aiNext,continueConversation,planProgress,conversationReply,specialist);
  // One conversation workspace across the entire Network. The existing page
  // capabilities remain below it, available whenever a member wants manual control.
  const page=location.pathname.split("/").pop()||"index.html";
