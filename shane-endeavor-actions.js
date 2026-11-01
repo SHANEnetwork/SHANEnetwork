@@ -443,6 +443,8 @@ function init(){
    }catch{}
   }
   if(!text){status.textContent="Describe your idea here or choose a saved endeavor to continue.";return}
+  // Prefer the most recently expressed request for routing, while preserving
+  // the whole saved endeavor as context for the receiving workspace.
   const destination=select.value||interpretVision(text).preferredDestination;
   if(!destination){status.textContent="Tell SHANE what you want to create, or choose a destination.";select.focus();return}
   button.disabled=true;status.textContent="Carrying your endeavor forward…";
