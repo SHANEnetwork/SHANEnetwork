@@ -134,8 +134,7 @@ function init(){
  const draftPrepared=prepareEditableDraft(page);
  if(status&&draftPrepared&&page!=="my-network.html")status.textContent="Your idea has arrived and its editable draft is prepared. Review before continuing.";
  try{sessionStorage.removeItem("shane-intent-handoff-v1")}catch{}
- document.dispatchEvent(new CustomEvent("shane:endeavor-arrived",{detail:{page,endeavorId:item.endeavorId||null,field:target.field}}));
- Promise.resolve(window.SHANEConversation?.visionContext?.()).then(context=>{if(context)document.dispatchEvent(new CustomEvent("shane:vision-context-ready",{detail:{...context,vision:field.value.trim(),page}}))}).catch(()=>{});
+ announceVision(page,target,field,"handoff",item.endeavorId||null);
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
