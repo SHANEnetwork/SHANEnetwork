@@ -541,14 +541,17 @@ function init(){
     ?{steps:aiPlan.map(step=>({type:step.type,vision:step.vision.trim(),endeavorId})),requiresReview:true,executable:false}:null;
    const initialProposal=interpreted||(aiPlan===null?window.SHANEConversationStore?.proposeCreationSequence?.({vision:request,endeavorId}):null);
    const proposal=initialProposal&&window.SHANEConversationStore?.prepareCreationSequence?.({proposal:initialProposal,updates:{deadline:deadline.value,siteId:siteChoice.value}})||initialProposal;
-   // Keep the AI's chosen creations distinct from a broad keyword match.
-   // Campaign deadlines are supplied by the member, not invented by the planner.
-   if(proposal?.steps?.some(step=>step.type==="campaign")&&!deadline.value){
-    aiNext.hidden=false;
-   }
+   // Campaign deadlines remain the member's decision; a proposal never supplies one silently.
    if(validAIPlan&&aiPlan.length===0){
     aiNext.replaceChildren();
     aiNext.hidden=true;
+   }
+   if(proposal?.steps?.length>=1&&!proposal.ready&&proposal.steps.some(step=>step.type==="campaign")&&!deadline.value){
+    aiNext.replaceChildren();
+    const note=document.createElement("p");
+    note.textContent="SHANE has interpreted your campaign idea. Choose its interest deadline to create a private draft; nothing will be published.";
+    aiNext.append(note);
+    aiNext.hidden=false;
    }
    if(proposal?.steps?.length>=1){
     const summary=document.createElement("p");
