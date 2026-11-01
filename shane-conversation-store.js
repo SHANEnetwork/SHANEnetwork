@@ -549,7 +549,11 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
   "new-website":"builder.html?site=","website":"builder.html?site=",
   "community":"communities.html?organization=","campaign":"campaigns.html?campaign=","listing":"members.html?listing="
  };
- return {saved:true,published:false,type,id,url:destinations[type]+encodeURIComponent(id),result,receipt:{operation:type,resource:computerCapabilities.find(x=>x.id===type).resource,id,verifiedSaved:true,published:false,at:new Date().toISOString()}};
+ const url=destinations[type]+encodeURIComponent(id);
+ const creation={type,id,url,vision:request,endeavorId:endeavorId||null,created:Date.now()};
+ try{sessionStorage.setItem("shane-last-created-artifact-v1",JSON.stringify(creation))}catch{}
+ document.dispatchEvent(new CustomEvent("shane:artifact-created",{detail:creation}));
+ return {saved:true,published:false,type,id,url,result,receipt:{operation:type,resource:computerCapabilities.find(x=>x.id===type).resource,id,verifiedSaved:true,published:false,at:new Date().toISOString()}};
 }
 async function ownedSites(){
  const account=await user();if(!account)throw Error("Sign in to access your websites.");
