@@ -107,7 +107,14 @@ function suggest(text){
  const preferred=["builder.html","communities.html","campaigns.html","workspace.html","my-network.html","network.html","growth.html","members.html"];
  return preferred.find(path=>matches.some(([matched])=>matched===path))||matches[0][0];
 }
-const conversationKey="shane-shared-idea-draft-v1";
+const conversationKey="shane-shared-idea-draft-v2";
+const activeDraftKey=()=>{
+ const id=window.SHANECurrentEndeavor?.read?.();
+ return conversationKey+":"+(typeof id==="string"&&/^[0-9a-f-]{36}$/i.test(id)?id:"personal");
+};
+const readDraft=()=>{try{return String(sessionStorage.getItem(activeDraftKey())||"").slice(0,4000)}catch{return ""}};
+const writeDraft=value=>{try{sessionStorage.setItem(activeDraftKey(),String(value||"").slice(0,4000))}catch{}};
+
 function sharedComposerText(){
  const node=document.getElementById("shane-shared-vision-input");
  return node&&typeof node.value==="string"?node.value.trim():"";
@@ -154,14 +161,24 @@ function init(){
  const entry=document.createElement("textarea");entry.id="shane-shared-vision-input";entry.rows=2;
  entry.placeholder="Describe your endeavor naturally. Continue it across SHANE.";
  if((location.pathname.split("/").pop()||"index.html")!=="system-health.html"){
-  try{entry.value=String(sessionStorage.getItem(conversationKey)||"").slice(0,4000)}catch{}
+  try{entry.value=readDraft()}catch{}
  }
  entry.addEventListener("input",()=>{
-  try{sessionStorage.setItem(conversationKey,entry.value.slice(0,4000))}catch{}
+  try{writeDraft(entry.value)}catch{}
   update();
   explainVision();
  });
  conversation.append(prompt,entry);
+ let previousDraftKey=activeDraftKey();
+ const refreshDraftContext=()=>{
+  const next=activeDraftKey();
+  if(next===previousDraftKey)return;
+  previousDraftKey=next;
+  entry.value=readDraft();
+  update();explainVision();
+ };
+ document.addEventListener("shane:endeavor-context-ready",refreshDraftContext);
+ document.addEventListener("shane:conversation-context-changed",refreshDraftContext);
  if((location.pathname.split("/").pop()||"index.html")==="system-health.html")conversation.hidden=true;
 
  const select=document.createElement("select");select.setAttribute("aria-label","Choose what SHANE should do with this idea");
@@ -223,7 +240,7 @@ function init(){
    const last=rows?.find(row=>!["endeavor-plan","endeavor-transition"].includes(row.entry_kind)&&typeof row.body==="string"&&row.body.trim());
    if(!last){composerStatus.textContent="No saved idea was found for this endeavor.";return}
    entry.value=last.body.slice(0,4000);
-   try{sessionStorage.setItem(conversationKey,entry.value)}catch{}
+   try{writeDraft(entry.value)}catch{}
    update();explainVision();entry.focus();
    composerStatus.textContent="Saved idea restored to the conversation. Refine it or continue.";
   }catch{composerStatus.textContent="Saved ideas are unavailable right now."}
@@ -380,7 +397,7 @@ function init(){
     if(!result.saved)status.textContent="Your idea will continue on the next page. Sign in to preserve it in account history.";
    }catch(error){status.textContent="Your idea is carried to the next page, but account history could not be confirmed."}
   }
-  if(sharedComposerText()===text){try{sessionStorage.removeItem(conversationKey)}catch{}}
+  if(sharedComposerText()===text){try{sessionStorage.removeItem(activeDraftKey())}catch{}}
   location.assign(destination);
  });
  group.append(conversation,continueConversation,conversationReply,select,button,suggestion,workflow,planResume,revisionControl,status);nav.append(group);update();explainVision();
