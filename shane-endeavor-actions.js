@@ -54,7 +54,13 @@ function interpretVision(text){
  const vision=String(text||"").trim().slice(0,4000);
  if(!vision)return {version:1,vision:"",capabilities:[],status:"needs-vision"};
  const capabilities=capabilityCatalog.filter(item=>intentRules.some(([path,pattern])=>path===item.path&&pattern.test(vision)));
- return {version:1,vision,capabilities,preferredDestination:suggest(vision),status:"proposed",execution:"not-started"};
+ // A new, unfamiliar kind of endeavor still has a place to begin: SHANE's
+ // conversational creator. The original vision remains unchanged.
+ if(!capabilities.length){
+  const startingPoint=capabilityCatalog.find(item=>item.path==="builder.html");
+  if(startingPoint)capabilities.push(startingPoint);
+ }
+ return {version:1,vision,capabilities,preferredDestination:suggest(vision)||"builder.html",status:"proposed",execution:"not-started"};
 }
 // One controlled bridge for preparing existing module workflows. It never
 // publishes, pays, messages, invites, or modifies third-party data.
