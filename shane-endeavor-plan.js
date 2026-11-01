@@ -118,7 +118,9 @@
    const plan=await latest(endeavorId);
    if(!plan||typeof detail?.vision!=="string"||detail.vision.trim()!==plan.vision.trim())return;
    const step=plan.steps.find(item=>item.capabilityId===capability.id);
-   if(!step||step.status!=="proposed")return;
+   if(!step)return;
+   if(step.status==="prepared"){try{sessionStorage.removeItem(arrivalKey)}catch{}return}
+   if(step.status!=="proposed")return;
    // Merely opening a destination means prepared, never completed.
    await setStep({endeavorId,capabilityId:capability.id,status:"prepared",note:"Vision delivered to "+detail.page});
    try{sessionStorage.removeItem(arrivalKey)}catch{}
