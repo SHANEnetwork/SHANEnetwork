@@ -74,3 +74,12 @@ body:has(.shane-unified-nav) main :where(textarea,input[type=text],input[type=se
 .shane-unified-nav .shane-action-status{font-size:12px;max-width:180px}
 
 .shane-unified-nav .shane-action-suggestion{font-size:12px;max-width:205px;line-height:1.4;opacity:.9}
+
+/* Cohesive conversation-led surfaces across creator, discovery, collaboration and growth. */
+:where(#shane-idea-conversation,#shaneDiscoveryConversation,#visionForm,#communityVision,#campaignVision,#listingVision,#taskVision,#shaneGrowthWorkspace,#shaneBuildRequestDetails){border-radius:24px;border-color:#e4cfd2;box-shadow:0 14px 38px #51364b0c}
+:where(#shane-idea-conversation,#shaneDiscoveryConversation,#visionForm,#communityVision,#campaignVision,#listingVision,#taskVision) textarea{font-size:1.04rem;line-height:1.65;background:#fffdfb;border:1.5px solid #cdb5c1;min-height:112px}
+:where(#shane-idea-conversation,#shaneDiscoveryConversation,#visionForm,#communityVision,#campaignVision,#listingVision,#taskVision) textarea:focus{border-color:#82526d;box-shadow:0 0 0 4px #ebd8e2}
+:where(#shane-idea-conversation,#shaneDiscoveryConversation,#visionForm,#communityVision,#campaignVision,#listingVision,#taskVision) button[type=submit]{background:#704760;color:white;border-radius:12px;padding:12px 20px;font-weight:700}
+:where(#shane-idea-conversation,#shaneDiscoveryConversation,#visionForm,#communityVision,#campaignVision,#listingVision,#taskVision) h2{color:#4e3447}
+.shane-action-status,.shane-action-suggestion{line-height:1.45}
+@media(prefers-contrast:more){:where(#shane-idea-conversation,#shaneDiscoveryConversation,#visionForm) textarea{border:2px solid currentColor}}
