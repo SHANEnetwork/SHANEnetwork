@@ -1093,7 +1093,25 @@ function init(){
  });
  document.addEventListener("shane:artifact-created",()=>{if(!historyList.hidden){historyList.hidden=true;historySearch.hidden=true;historyList.replaceChildren()}});
  conversation.append(createAction,deadline,siteChoice,createStatus,recentCreation,historyButton,historySearch,historyList);syncAction();showRecentCreation();
- group.append(conversation,aiReply,aiNext,continueConversation,planProgress,conversationReply,select,button,suggestion,workflow,planResume,revisionControl,status);nav.append(group);update();explainVision();
+ group.append(conversation,aiReply,aiNext,continueConversation,planProgress,conversationReply,select,button,suggestion,workflow,planResume,revisionControl,status);
+ // One conversation workspace across the entire Network. The existing page
+ // capabilities remain below it, available whenever a member wants manual control.
+ const page=location.pathname.split("/").pop()||"index.html";
+ const host=document.createElement("section");
+ host.id="shane-conversation-workspace";
+ host.className="shane-conversation-workspace";
+ host.setAttribute("aria-label","Create and collaborate with SHANE");
+ const heading=document.createElement("div");heading.className="shane-workspace-heading";
+ const eyebrow=document.createElement("span");eyebrow.className="shane-workspace-eyebrow";eyebrow.textContent="SHANE · Collaborative Intelligence and Creation Network";
+ const title=document.createElement("h2");title.textContent="What shall we bring to life together?";
+ const intro=document.createElement("p");intro.textContent="Explore an idea, build something real, or continue an endeavor. SHANE carries the conversation across the Network.";
+ heading.append(eyebrow,title,intro);
+ host.append(heading,group);
+ const main=document.querySelector("main");
+ if(main){main.insertBefore(host,main.firstChild)}
+ else{const topbar=document.querySelector(".shane-unified-topbar");(topbar||document.body).insertAdjacentElement(topbar?"afterend":"afterbegin",host)}
+ if(page==="system-health.html")host.hidden=true;
+ update();explainVision();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
