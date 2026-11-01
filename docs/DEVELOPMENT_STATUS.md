@@ -55,3 +55,10 @@ Inspected the actual default-branch Git tree (rather than guessing filenames). T
 All 25 now reference both the shared SHANE visual stylesheet and the shared navigation/endeavor-context script, after connecting community-members.html in this pass. This is **shared-shell coverage**, not proof of complete interface transformation or functional integration. Some systems (messenger, chat rooms, meetings, profiles, events, publishing) may be embedded in existing pages or scripts rather than separate HTML files; their actual implementations still need tracing.
 
 Next: transform page content and workflows, not merely shared links. Make each capability a view of the same endeavor and conversation while preserving existing services and user permissions. Do not count this shell coverage as Phase 1 completion. No SHONnetwork changes.
+
+## Conversation-first community publishing
+- Added a free-form community update idea composer to community-feed.html.
+- The explicit **Prepare an update** action converts the idea into the existing editable title/body publication form, only when the existing owner/coordinator permission gate exposes it.
+- Existing unpublished drafts require confirmation before replacement; no automatic publishing or private-record sharing.
+- The conversation journal is updated on explicit preparation; the existing Supabase publishing implementation is untouched.
+- No invented AI generation or automated event scheduling is claimed. This is an honest transitional conversation-to-working-draft path, not a full AI agent.
