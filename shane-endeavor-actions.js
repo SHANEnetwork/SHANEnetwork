@@ -532,6 +532,7 @@ function init(){
   if(!request){aiReply.textContent="Describe what you want to create first.";return}
   const store=window.SHANEConversationStore;
   if(!store?.converse){aiReply.textContent="SHANE's conversation connection is still loading.";return}
+  const converse=store.converse;
   askAI.disabled=true;aiReply.textContent="Exploring your vision…";aiNext.hidden=true;aiNext.replaceChildren();
   let exchangeSaved=false;
   try{
