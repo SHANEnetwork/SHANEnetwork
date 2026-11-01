@@ -761,8 +761,11 @@ function init(){
  const createStatus=document.createElement("span");createStatus.setAttribute("role","status");
  const deadline=document.createElement("input");deadline.type="datetime-local";deadline.hidden=true;
  deadline.setAttribute("aria-label","Interest deadline for campaign");
+ const siteChoice=document.createElement("select");siteChoice.hidden=true;siteChoice.setAttribute("aria-label","Website to revise");
+ let sitesLoaded=false;
  const capability=()=>{
   const vision=sharedComposerText().trim();
+  if(/(?:revise|edit|change|update|improve|redesign|rewrite|modify)\\b.{0,90}\\b(?:website|site|homepage|web page)|(?:website|site|homepage)\\b.{0,90}\\b(?:revise|edit|change|update|improve|redesign|rewrite|modify)/i.test(vision))return "website";
   if(/concert|festival|fundrais|campaign|event|craft fair|gathering|ticket/i.test(vision))return "campaign";
   if(/community|club|association|group|chat room/i.test(vision))return "community";
   if(/listing|list my|offer my|share my service|looking for partners|find collaborators|opportunity|volunteer|advertise|promote my business/i.test(vision))return "listing";
@@ -772,21 +775,36 @@ function init(){
   const type=capability();
   createAction.hidden=!type||sharedComposerText().trim().length<8;
   deadline.hidden=type!=="campaign";
-  createAction.textContent=type==="campaign"?"Create private campaign draft":type==="community"?"Create private community":"Save private Network listing";
+  siteChoice.hidden=type!=="website";
+  createAction.textContent=type==="website"?"Revise my saved website":type==="campaign"?"Create private campaign draft":type==="community"?"Create private community":"Save private Network listing";
  };
  entry.addEventListener("input",syncAction);
  document.addEventListener("shane:conversation-context-changed",syncAction);
  document.addEventListener("shane:endeavor-context-ready",syncAction);
+ const loadSites=async()=>{
+  if(sitesLoaded)return;
+  const store=window.SHANEConversationStore;
+  if(!store?.ownedSites)return;
+  const sites=await store.ownedSites();
+  siteChoice.replaceChildren();
+  for(const site of sites){const option=document.createElement("option");option.value=site.id;option.textContent=site.name+" ("+site.status+")";siteChoice.append(option)}
+  sitesLoaded=true;
+ };
  createAction.onclick=async()=>{
   const vision=sharedComposerText().trim(),type=capability(),endeavorId=window.SHANECurrentEndeavor?.read?.()||null;
   if(!type||vision.length<8){createStatus.textContent="Describe what you want SHANE to create.";return}
   if(type==="campaign"&&!deadline.value){createStatus.textContent="Choose the campaign interest deadline.";return}
-  createAction.disabled=true;createStatus.textContent="SHANE is creating your private "+type+".";
+  createAction.disabled=true;createStatus.textContent="SHANE is working on your "+type+".";
   try{
    const store=window.SHANEConversationStore;
    if(!store)throw Error("Creation connection is loading.");
    let result,linkTarget,linkLabel,record;
-   if(type==="community"){
+   if(type==="website"){
+    await loadSites();
+    if(!siteChoice.value){siteChoice.hidden=false;throw Error("No saved website found. Create a website first.");}
+    result=await store.reviseSite({siteId:siteChoice.value,request:vision});
+    linkTarget="builder.html";linkLabel="Review website";record=result.siteId;
+   }else if(type==="community"){
     const draft=await store.interpretVision({capability:"community",vision});
     result=await store.createPrivateCommunity({vision,name:draft.name,description:draft.description||vision,category:draft.category});
     linkTarget="communities.html?organization="+encodeURIComponent(result.organizationId);linkLabel="Open community";record=result.organizationId;
@@ -799,7 +817,7 @@ function init(){
     result=await store.createPrivateListing({vision,title,description:vision,endeavorId});
     linkTarget="members.html?listing="+encodeURIComponent(result.listingId);linkLabel="Review listing";record=result.listingId;
    }
-   createStatus.replaceChildren(document.createTextNode("Saved privately. "));
+   createStatus.replaceChildren(document.createTextNode(type==="website"?"Website revision saved privately. ":"Saved privately. "));
    const link=document.createElement("a");link.href=linkTarget;link.textContent=linkLabel;createStatus.append(link);
    if(endeavorId){
     try{await store.saveTurn("Created private "+type+" "+record,{page:location.pathname.split("/").pop()||"index.html",kind:"creation",endeavorId})}
@@ -808,7 +826,8 @@ function init(){
   }catch(error){createStatus.textContent="Creation not confirmed: "+error.message}
   finally{createAction.disabled=false}
  };
- conversation.append(createAction,deadline,createStatus);syncAction();
+ createAction.addEventListener("pointerenter",()=>{if(capability()==="website")void loadSites().catch(()=>{})});
+ conversation.append(createAction,deadline,siteChoice,createStatus);syncAction();
  group.append(conversation,aiReply,aiNext,continueConversation,planProgress,conversationReply,select,button,suggestion,workflow,planResume,revisionControl,status);nav.append(group);update();explainVision();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
