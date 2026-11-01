@@ -16,7 +16,8 @@ const targets=[
  ["sports-district.html","Explore sports networks"],
  ["payments.html","Plan how customers pay"],
  ["community-feed.html","Prepare a community update"],
- ["community-conversations.html","Discuss with my community"]
+ ["community-conversations.html","Discuss with my community"],
+ ["community-opportunities.html","Coordinate volunteers and opportunities"]
 ];
 const intentRules=[
  ["campaigns.html",/concert|festival|fundrais|campaign|event|market day|craft fair|gathering|ticket|organize a fair/i],
@@ -31,6 +32,7 @@ const intentRules=[
  ["sports-district.html",/sports district|school athletics|sports league|athlete|school teams/i],
  ["request-build.html",/hire someone|request a custom|done for me|build it for me/i],
  ["payments.html",/accept payments|checkout|payment provider|take payments|pay online|sell tickets/i],
+ ["community-opportunities.html",/volunteer opportunity|recruit volunteers|community opportunity|find volunteers|organize volunteers/i],
  ["builder.html",/website|webpage|storefront|online shop|create a site|build a site|portfolio|landing page|online presence/i]
 ];
 function suggest(text){
@@ -67,7 +69,8 @@ const fields={
  "dashboard.html":["goalInput"],
  "payments.html":["paymentVision"],
  "community-feed.html":["communityUpdateIdea"],
- "community-conversations.html":["shaneCommunityIdea"]
+ "community-conversations.html":["shaneCommunityIdea"],
+ "community-opportunities.html":["opportunityIdea"]
 };
 function idea(){
  const page=location.pathname.split("/").pop()||"index.html";
