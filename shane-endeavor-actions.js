@@ -499,7 +499,29 @@ function init(){
        });
        aiNext.append(link);
       }
-      aiNext.hidden=!steps.length;
+      // A newly described capability may not yet appear in an older saved
+      // plan. Offer the existing working module without inventing a route or
+      // claiming that the AI has already performed the action.
+      const listed=new Set(steps.map(step=>step.capabilityId));
+      const suggested=window.SHANECapabilities?.interpret?.(request)?.capabilities||[];
+      for(const capability of suggested.slice(0,4)){
+       if(listed.has(capability.id)||!capability.path)continue;
+       const link=document.createElement("a");
+       link.href=capability.path;link.textContent="Explore: "+capability.label;
+       link.addEventListener("click",event=>{
+        event.preventDefault();
+        if(window.SHANECurrentEndeavor?.read?.()!==endeavorId){
+         composerStatus.textContent="Choose the current endeavor before continuing.";return;
+        }
+        const prepared=window.SHANECapabilities?.prepare?.({
+         capabilityId:capability.id,vision:request,endeavorId
+        });
+        if(prepared?.ok&&prepared?.path)location.assign(prepared.path);
+        else composerStatus.textContent="This workspace could not be prepared yet. Your conversation remains saved.";
+       });
+       aiNext.append(link);listed.add(capability.id);
+      }
+      aiNext.hidden=!aiNext.children.length;
      }
     }catch{}
    }
