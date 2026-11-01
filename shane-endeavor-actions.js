@@ -254,10 +254,15 @@ function init(){
   const selected=window.SHANECurrentEndeavor?.read?.()||null;
   if(!selected){composerStatus.textContent="Select an endeavor first.";return}
   try{
-   const rows=await window.SHANEConversationStore?.list?.({endeavorId:selected,limit:100});
-   const last=rows?.find(row=>!["endeavor-plan","endeavor-transition"].includes(row.entry_kind)&&typeof row.body==="string"&&row.body.trim());
-   if(!last){composerStatus.textContent="No saved idea was found for this endeavor.";return}
-   entry.value=last.body.slice(0,4000);
+   const plan=await window.SHANEEndeavorPlan?.latest?.(selected);
+   let saved=plan?.latestRequest||plan?.vision||"";
+   if(!saved){
+    const rows=await window.SHANEConversationStore?.list?.({endeavorId:selected,limit:100});
+    const last=rows?.find(row=>!["endeavor-plan","endeavor-transition"].includes(row.entry_kind)&&typeof row.body==="string"&&row.body.trim());
+    saved=last?.body||"";
+   }
+   if(!saved){composerStatus.textContent="No saved idea was found for this endeavor.";return}
+   entry.value=saved.slice(0,4000);
    try{writeDraft(entry.value)}catch{}
    update();explainVision();entry.focus();
    composerStatus.textContent="Saved idea restored to the conversation. Refine it or continue.";
