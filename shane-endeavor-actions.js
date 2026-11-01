@@ -181,7 +181,7 @@ function init(){
  revisionControl.append(revisionSummary,revisionChoices,revisionStatus);
  const loadRevisions=async()=>{
   const selected=window.SHANECurrentEndeavor?.read?.();
-  revisionChoices.replaceChildren();revisionStatus.textContent="";
+  revisionChoices.replaceChildren();
   if(!selected||!window.SHANEEndeavorPlan?.history){revisionControl.hidden=true;return}
   try{
    const revisions=await window.SHANEEndeavorPlan.history(selected,{limit:15});
@@ -207,6 +207,7 @@ function init(){
  revisionControl.addEventListener("toggle",()=>{if(revisionControl.open)void loadRevisions()});
  document.addEventListener("shane:endeavor-plan-ready",()=>{if(revisionControl.open)void loadRevisions()});
  document.addEventListener("shane:endeavor-context-ready",()=>{if(revisionControl.open)void loadRevisions()});
+ document.addEventListener("shane:endeavor-plan-saved",()=>{if(revisionControl.open)void loadRevisions()});
  const status=document.createElement("span");status.setAttribute("role","status");status.className="shane-action-status";
  const suggestion=document.createElement("span");suggestion.className="shane-action-suggestion";suggestion.setAttribute("aria-live","polite");
  const update=()=>{const text=idea(),destination=suggest(text),label=targets.find(([path])=>path===destination)?.[1];suggestion.textContent=select.value?"You chose "+targets.find(([path])=>path===select.value)?.[1]:label?"SHANE suggests: "+label:"Describe your idea and SHANE will suggest a next step.";renderWorkflow()};
