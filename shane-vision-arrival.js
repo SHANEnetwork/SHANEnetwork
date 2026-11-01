@@ -46,7 +46,7 @@ function init(){
  try{const handoff=JSON.parse(sessionStorage.getItem("shane-intent-handoff-v1")||"null");if(handoff?.destination===page&&Number.isFinite(handoff.created)&&Date.now()-handoff.created>=0&&Date.now()-handoff.created<86400000&&typeof handoff.endeavorId==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(handoff.endeavorId))sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:handoff.endeavorId,updated:Date.now()}))}catch{}
  let item;
  try{item=JSON.parse(sessionStorage.getItem("shane-intent-handoff-v1")||"null")}catch{return}
- if(!item||item.destination!==page||typeof item.text!=="string"||!item.text.trim()||!Number.isFinite(item.created)||Date.now()-item.created>86400000){offerAccountResume(page,target,field);return;}
+ if(!item||item.destination!==page||typeof item.text!=="string"||!item.text.trim()||!Number.isFinite(item.created)||Date.now()-item.created<0||Date.now()-item.created>86400000){offerAccountResume(page,target,field);return;}
  if(field.value.trim()){
   const container=field.closest(".shane-conversation-intake")||field.parentElement;
   if(container&&!container.querySelector(".shane-incoming-idea-choice")){const restore=document.createElement("button");restore.type="button";restore.className="shane-resume-endeavor shane-incoming-idea-choice";restore.textContent="Use incoming idea instead";restore.addEventListener("click",()=>{
