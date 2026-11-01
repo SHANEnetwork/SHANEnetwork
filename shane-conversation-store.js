@@ -391,7 +391,7 @@ async function searchSavedCreationPlans({query="",limit=20}={}){
   const saved=await loadCreationPlan({endeavorId:plan.endeavorId});
   if(!saved)continue;
   const haystack=saved.steps.map(step=>[step.type,step.vision].join(" ")).join(" ").toLowerCase();
-  const words=term.split(/\s+/).filter(word=>word.length>2);
+  const words=term.split(/\s+/).filter(word=>word.length>2&&!["the","and","for","with","from","that","this","please","find","show","about","again","saved","project"].includes(word));
   if(haystack.includes(term)||(words.length&&words.every(word=>haystack.includes(word))))matches.push(plan);
   if(matches.length>=limit)break;
  }
