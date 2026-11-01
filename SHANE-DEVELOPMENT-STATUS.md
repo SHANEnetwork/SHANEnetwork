@@ -368,3 +368,10 @@ No action requested as of this update.
 - Calls existing `shane-converse` endpoint with revision purpose; only acknowledges success when durable saved creation and revision identifiers are returned. Server-side support for this purpose and version history are **not verified or implemented by this change**.
 - No SHONnetwork modifications. No public publishing. Browser and authenticated database tests pending.
 - Next priority: implement and verify owner-scoped server revision operation, immutable version snapshot and rollback, then wire conversational refinement to the creator's live preview. Continue transforming remaining pages without replacing working services.
+
+## 2026-11-01: database-backed site version snapshots and restoration API
+- Applied migrations `site_revision_snapshots_20261101` and `harden_site_revision_snapshot_20261101` to the connected SHANEnetwork Supabase project only. Created owner-readable `shane_site_versions` and a site-update snapshot trigger, with explicit ownership check and no direct client insertion into version history.
+- Confirmed database metadata reports one owner-read policy and one snapshot trigger. This is **schema verification**, not an authenticated end-to-end test.
+- Shared conversation store now exposes `siteVersions` and `restoreSiteVersion` (commit bcff39f), using signed-in ownership checks, explicit confirmation, and updated-at conflict detection. Restore updates the existing site and triggers a snapshot of the previous state.
+- Caveats: site version snapshot trigger has not been tested under an authenticated session; the site table's existing update policies must allow the operation. Concurrent simultaneous updates and exact snapshot sequencing need verification. `reviseSavedCreation` server purpose remains unsupported; creator UI not yet wired to these methods. No SHONnetwork modifications.
+- Next: implement owner-scoped AI revision endpoint with atomic persisted versions, then wire creator's conversational refinement and version restoration UI; extend reusable execution to community and campaign modules.
