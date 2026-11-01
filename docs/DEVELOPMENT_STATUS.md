@@ -33,3 +33,11 @@ Recent commits through 32e563e connect conversational arrivals and editable draf
 
 ## Acceptance test
 Describe a festival on homepage; continue in creator; refine actual working draft; discover collaborators; create endeavor-specific community and event with authorization; return signed in on another device with complete history and undo. Do not mark done until demonstrated.
+
+## Development pass — continuous endeavor identity
+- Added a shared contextual endeavor identity to `shane-unified-navigation.js` and matching responsive styling in `shane-unified-experience.css`.
+- It displays the most recent relevant vision from the existing conversation brief or journal, links to conversation history, and refreshes when endeavor/conversation context events fire.
+- Reuses existing context services; no new independent chatbot, private-form write, publishing action or SHONnetwork modification.
+- Applicable to pages already loading both shared assets. Other pages require inventory and adoption; not a claim of full-site completion.
+- Bakery example reinforces one living endeavor record, real network matches, optional forms and permission before external actions.
+- Runtime/browser integration and authenticated cross-device continuity remain unverified.
