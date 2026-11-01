@@ -465,6 +465,18 @@ function init(){
       summary.textContent="Creating private drafts…";
       try{
        const outcome=await window.SHANEConversationStore.executeVisionSequence({steps:proposal.steps,endeavorId});
+       if(!outcome.complete&&outcome.completed.length){
+        const resume=document.createElement("button");resume.type="button";resume.textContent="Continue remaining creations";
+        resume.onclick=async()=>{
+         resume.disabled=true;
+         const next=await window.SHANEConversationStore.resumeVisionSequence({steps:proposal.steps,completed:outcome.completed,endeavorId});
+         summary.textContent=next.complete?"All private drafts created.":"Stopped at step "+next.failedStep+": "+next.error;
+         for(const item of next.completed.slice(outcome.completed.length)){
+          const link=document.createElement("a");link.href=item.url;link.textContent="Open "+item.type;aiNext.append(link);
+         }
+        };
+        aiNext.append(resume);
+       }
        summary.textContent=outcome.complete?"Created "+outcome.completed.length+" private drafts.":"Created "+outcome.completed.length+" private drafts; step "+outcome.failedStep+" stopped: "+outcome.error;
        for(const item of outcome.completed){
         const link=document.createElement("a");link.href=item.url;link.textContent="Open "+item.type;
