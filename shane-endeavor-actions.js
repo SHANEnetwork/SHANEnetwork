@@ -473,7 +473,7 @@ function init(){
      };
      aiNext.append(execute);
      aiNext.hidden=false;
-    }else summary.textContent+=" "+(proposal.reason||"More details are needed before creation.");
+    }else{summary.textContent+=" "+(proposal.reason||"More details are needed before creation.");aiNext.hidden=false;}
    }
    // Preserve the actual exchange in the same owner-scoped endeavor history
    // already used by every SHANE workspace. Never mistake an AI suggestion
