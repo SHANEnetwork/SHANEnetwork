@@ -112,3 +112,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Connected the existing community configuration version history and rollback page to SHANE's shared endeavor action menu and explicit rollback/version-history intent routing.
 - Updated the rollback page's introduction to describe deliberate version restoration in the context of an ongoing community endeavor. Existing version comparison, confirmation, owner authentication, and database RPC restoration logic remain unchanged.
 - This is capability discovery and experience integration, not AI-driven rollback or an automated repair service. Browser verification pending.
+
+## Centralized appearance discovery
+- Added the existing appearance.html page to shared endeavor actions and recognized explicit theme, palette, and font-setting requests.
+- Clarified that SHANE interface preferences are device/browser-scoped and separate from the design of an individual published website.
+- Existing centralized theme controls remain in place, with no new duplicate controls and no change to SHONnetwork. Browser verification pending.
