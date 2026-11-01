@@ -57,10 +57,10 @@ function fillEmpty(ids,value){
  return false;
 }
 function extractTitle(vision){
- const first=vision.split(/[.!?\\n]/)[0].trim()
-  .replace(/^(?:i(?:'d| would)? like to|i want to|we(?:'d| would)? like to|we want to|please|help me|let's)\\s+/i,"")
-  .replace(/^(?:create|build|make|start|organize|launch|set up|plan)\\s+/i,"");
- return first.replace(/\\s+/g," ").slice(0,120);
+ const first=vision.split(/[.!?\n]/)[0].trim()
+  .replace(/^(?:i(?:'d| would)? like to|i want to|we(?:'d| would)? like to|we want to|please|help me|let's)\s+/i,"")
+  .replace(/^(?:create|build|make|start|organize|launch|set up|plan)\s+/i,"");
+ return first.replace(/\s+/g," ").slice(0,120);
 }
 function useVisionContext(event){
  const context=event.detail||{},page=location.pathname.split("/").pop();
