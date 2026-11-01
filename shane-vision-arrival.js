@@ -78,8 +78,9 @@ function prepareEditableDraft(page){
 }
 function announceVision(page,target,field,source,endeavorId,context=null){
  document.dispatchEvent(new CustomEvent("shane:endeavor-arrived",{detail:{page,endeavorId,field:target.field,source,vision:field.value.trim(),context}}));
+ const argumentsContext=context;
  Promise.resolve(window.SHANEConversation?.visionContext?.()).then(context=>{
-  if(context)document.dispatchEvent(new CustomEvent("shane:vision-context-ready",{detail:{...context,vision:field.value.trim(),page}}));
+  if(context)document.dispatchEvent(new CustomEvent("shane:vision-context-ready",{detail:{...context,vision:field.value.trim(),page,arrivalContext:argumentsContext}}));
  }).catch(()=>{});
 }
 function enableInPlaceConversation(page,target,field){
