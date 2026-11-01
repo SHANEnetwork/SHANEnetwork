@@ -602,6 +602,7 @@ function init(){
         create.disabled=true;
         summary.textContent="Creating private drafts…";
         try{
+         if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)throw Error("The active endeavor changed. Return to the original endeavor before creating.");
          await window.SHANEConversationStore.saveCreationPlan({steps:updated.steps,endeavorId});
          const outcome=await window.SHANEConversationStore.continueSavedEndeavor({steps:updated.steps,endeavorId});
          summary.textContent=outcome.complete?"Created "+outcome.completed.length+" private drafts.":"Created "+outcome.completed.length+" drafts; step "+outcome.failedStep+" stopped: "+outcome.error;
@@ -658,6 +659,7 @@ function init(){
       execute.disabled=true;
       summary.textContent="Creating private drafts…";
       try{
+       if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)throw Error("The active endeavor changed. Review the proposal in its original endeavor.");
        await window.SHANEConversationStore.saveCreationPlan({steps:proposal.steps,endeavorId});
        const outcome=await window.SHANEConversationStore.continueSavedEndeavor({steps:proposal.steps,endeavorId});
        if(!outcome.complete&&outcome.completed.length){
