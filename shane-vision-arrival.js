@@ -16,7 +16,9 @@ const destinations={
  "payments.html":{field:"paymentVision",status:"paymentResponse"},
  "community-feed.html":{field:"communityUpdateIdea",status:"communityUpdateDraftStatus"},
  "community-conversations.html":{field:"shaneCommunityIdea",status:"shaneCommunityReply"},
- "community-opportunities.html":{field:"opportunityIdea",status:"opportunityReply"}
+ "community-opportunities.html":{field:"opportunityIdea",status:"opportunityReply"},
+ "contact.html":{field:"shaneSupportIdea",status:"shaneSupportResponse"},
+ "system-health.html":{field:"shaneSupportIdea",status:"shaneSupportResponse"}
 };
 async function offerAccountResume(page,target,field){
  if(field.value.trim())return;
