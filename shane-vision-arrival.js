@@ -70,8 +70,8 @@ function enableInPlaceConversation(page,target,field){
    "campaigns.html":"campaignDraft",
    "communities.html":"communityDraft",
    "growth.html":"shaneGrowthPrepare",
-   "community-feed.html":"communityUpdateDraft",
-   "community-opportunities.html":"opportunityDraft"
+   "community-feed.html":"communityUpdatePrepare",
+   "community-opportunities.html":"opportunityPrepare"
   };
   const prepare=document.getElementById(prepareIds[page]);
   if(prepare&&!prepare.disabled){
