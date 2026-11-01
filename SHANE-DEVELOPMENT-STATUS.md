@@ -361,3 +361,10 @@ No action requested as of this update.
 ## 2026-10-31: selected endeavor resume relevance
 - Shared navigation prefers substantive saved conversation entries over repeated cross-page transition records when recovering an idea for the selected endeavor.
 - No new UI panel, no SHONnetwork modifications. Full browser verification pending.
+
+## 2026-11-01: guarded saved-creation conversational revision interface
+- Reviewed current main branch and latest creation-persistence commits (88cd6fd, dceaf6d, acaa257).
+- Added `reviseSavedCreation` to the existing shared account conversation store (commit 94bad08). Requires signed-in member, endeavor and saved creation identifiers, and a nonempty natural-language revision request.
+- Calls existing `shane-converse` endpoint with revision purpose; only acknowledges success when durable saved creation and revision identifiers are returned. Server-side support for this purpose and version history are **not verified or implemented by this change**.
+- No SHONnetwork modifications. No public publishing. Browser and authenticated database tests pending.
+- Next priority: implement and verify owner-scoped server revision operation, immutable version snapshot and rollback, then wire conversational refinement to the creator's live preview. Continue transforming remaining pages without replacing working services.
