@@ -462,7 +462,7 @@ function init(){
     const plan=await window.SHANEEndeavorPlan.create({vision:text,endeavorId});
     if(plan?.vision){
      const combined=(plan.vision+(plan.latestRequest&&plan.latestRequest!==plan.vision?"\n\nCurrent refinement: "+plan.latestRequest:"")).slice(0,4000);
-     const payload={destination,text:combined,endeavorId,created:Date.now()};
+     const payload={destination,text:combined,endeavorId,created:Date.now(),context:{purpose:plan.vision,latestRequest:plan.latestRequest||plan.vision,revision:plan.revision,steps:plan.steps.map(step=>({capabilityId:step.capabilityId,status:step.status}))}};
      sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify(payload));
      if(destination==="builder.html")sessionStorage.setItem("shane-creative-handoff-v1",JSON.stringify({text:combined,created:payload.created}));
     }
