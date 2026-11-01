@@ -122,11 +122,11 @@
    continuity.hidden=false;
  };
  continuity.append(identity,thought,resume);
- nav.insertAdjacentElement("afterend",continuity);
+
  document.addEventListener("shane:conversation-context-changed",()=>void refreshIdentity());
  document.addEventListener("shane:endeavor-context-ready",()=>void refreshIdentity());
  void refreshIdentity();
- if(header){header.append(nav)}else{const landmark=document.createElement("div");landmark.className="shane-unified-topbar";landmark.append(nav);document.body.insertBefore(landmark,document.body.firstChild)}
+ if(header){header.append(nav,continuity)}else{const landmark=document.createElement("div");landmark.className="shane-unified-topbar";landmark.append(nav,continuity);document.body.insertBefore(landmark,document.body.firstChild)}
  const accountResume=document.createElement("script");accountResume.src="shane-account-resume-nav.js";accountResume.defer=true;document.head.append(accountResume);
  const endeavorActions=document.createElement("script");endeavorActions.src="shane-endeavor-actions.js";endeavorActions.defer=true;document.head.append(endeavorActions);
 }
