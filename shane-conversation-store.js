@@ -129,7 +129,12 @@ async function converse({endeavorId,request,purpose}){
  const account=await user();
  if(!account)throw Error("Sign in to continue your endeavor with SHANE AI.");
  if(!endeavorId)throw Error("Select a saved endeavor first.");
- const {data,error}=await db.functions.invoke("shane-converse",{body:{endeavorId,request,purpose}});
+ let groundedPurpose=String(purpose||request||"");
+ try{
+  const artifacts=await creationContext({limit:8});
+  if(artifacts.length)groundedPurpose+="\nExisting member creations: "+artifacts.map(x=>x.type+" "+x.title+" ["+x.id+"]").join("; ");
+ }catch{}
+ const {data,error}=await db.functions.invoke("shane-converse",{body:{endeavorId,request,purpose:groundedPurpose}});
  if(error||data?.error)throw Error(data?.error||error?.message||"SHANE AI is unavailable.");
  if(typeof data?.response!=="string"||!data.response.trim())throw Error("SHANE returned no response.");
  return data;
