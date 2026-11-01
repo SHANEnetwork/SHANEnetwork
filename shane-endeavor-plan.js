@@ -37,7 +37,9 @@
  }
  async function create({vision,endeavorId}={}){
   const previous=await latest(endeavorId);
-  return save(draft(vision,endeavorId,previous));
+  const proposed=draft(vision,endeavorId,previous);
+  if(previous&&previous.vision===proposed.vision&&JSON.stringify(previous.steps)===JSON.stringify(proposed.steps))return previous;
+  return save(proposed);
  }
  async function setStep({endeavorId,capabilityId,status,note=""}={}){
   if(!["proposed","prepared","completed","deferred"].includes(status))throw Error("Invalid status.");
