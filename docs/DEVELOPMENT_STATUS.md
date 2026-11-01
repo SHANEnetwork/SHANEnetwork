@@ -181,3 +181,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - The shared SHANE navigation now offers an expandable Earlier versions control for a selected signed-in endeavor, with available plan revisions and explicit confirmation before restoring an earlier revision.
 - Restore creates a new revision, leaving later versions in account history. Controls refresh after plan saves. No new standalone setup page was introduced.
 - The feature has been committed but not yet browser or database tested; the actual AI model execution layer remains a separate unfinished milestone.
+
+## Conversation-first entry for multi-goal and unfamiliar endeavors
+- Shared Continue now follows the capability interpretation contract, choosing a practical initial destination for multi-goal visions while retaining optional manual selection.
+- When no known capability keyword matches, the creator is used as a starting point instead of refusing an unfamiliar idea; the original vision is preserved.
+- This is deterministic routing, not LLM reasoning. The actual AI backend and full network integration are still pending, and these changes have not been browser verified.
