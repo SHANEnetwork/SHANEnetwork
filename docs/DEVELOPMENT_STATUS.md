@@ -284,3 +284,7 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - The shared saved-plan continuation link prioritizes prepared work before newly proposed work, matching the existing nextAction API.
 - When no prepared or proposed steps remain, the shared continuation area indicates that the saved plan has no unfinished steps rather than showing an empty call to action.
 - These changes are committed, with browser verification pending.
+
+## Conversational capability discovery expansion
+- Extended the shared deterministic intent rules for community discussions and updates, volunteer coordination, audience growth, team work and payment-related planning.
+- The rules reuse existing SHANE pages and their permission/confirmation boundaries. They do not execute transactions or supply a generative AI backend. Browser verification remains pending.
