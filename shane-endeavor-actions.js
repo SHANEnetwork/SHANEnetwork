@@ -436,7 +436,7 @@ function init(){
  conversationReply.setAttribute("role","status");conversationReply.setAttribute("aria-live","polite");
  const askAI=document.createElement("button");askAI.type="button";askAI.textContent="Talk with SHANE AI";
  const aiReply=document.createElement("p");aiReply.className="shane-ai-conversation-response";
- const aiNext=document.createElement("a");aiNext.hidden=true;aiNext.textContent="Continue building this endeavor";aiReply.setAttribute("aria-live","polite");aiReply.style.whiteSpace="pre-wrap";
+ const aiNext=document.createElement("div");aiNext.className="shane-conversation-reply-actions";aiNext.hidden=true;aiReply.setAttribute("aria-live","polite");aiReply.style.whiteSpace="pre-wrap";
  entry.addEventListener("keydown",event=>{if(event.key==="Enter"&&(event.ctrlKey||event.metaKey)&&!event.isComposing){event.preventDefault();if(!askAI.disabled)askAI.click()}});
  askAI.addEventListener("click",async()=>{
   const request=sharedComposerText(),endeavorId=window.SHANECurrentEndeavor?.read?.();
@@ -444,7 +444,7 @@ function init(){
   if(!endeavorId){aiReply.textContent="Select a saved endeavor to explore it with AI.";return}
   const converse=window.SHANEConversationStore?.converse;
   if(!converse){aiReply.textContent="SHANE's conversation connection is still loading.";return}
-  askAI.disabled=true;aiReply.textContent="Exploring your vision…";aiNext.hidden=true;
+  askAI.disabled=true;aiReply.textContent="Exploring your vision…";aiNext.hidden=true;aiNext.replaceChildren();
   let exchangeSaved=false;
   try{
    const plan=await window.SHANEEndeavorPlan?.latest?.(endeavorId);
@@ -482,21 +482,27 @@ function init(){
    }
    // The AI dialogue should lead directly into the existing working capability,
    // not ask members to copy its output into another form.
-   if(exchangeSaved&&window.SHANECurrentEndeavor?.read?.()===endeavorId&&window.SHANEEndeavorPlan?.nextAction){
+   // Offer actual active workspaces from the saved plan, not hypothetical
+   // AI-generated URLs. The member chooses which capability to prepare.
+   if(exchangeSaved&&window.SHANECurrentEndeavor?.read?.()===endeavorId&&window.SHANEEndeavorPlan?.journey){
     try{
-     const next=await window.SHANEEndeavorPlan.nextAction(endeavorId);
-     if(window.SHANECurrentEndeavor?.read?.()===endeavorId&&next?.step?.path){
-      aiNext.textContent="Continue in "+(next.step.label||"your workspace");
-      aiNext.href=next.step.path;
-      aiNext.hidden=false;
-      aiNext.onclick=async event=>{
-       event.preventDefault();
-       if(window.SHANECurrentEndeavor?.read?.()!==endeavorId){composerStatus.textContent="Select the current endeavor before continuing.";return}
-       try{
-        const result=await window.SHANEEndeavorPlan.handoff({endeavorId,capabilityId:next.step.capabilityId});
-        if(result?.path)location.assign(result.path);
-       }catch(error){composerStatus.textContent=String(error?.message||error)}
-      };
+     const journey=await window.SHANEEndeavorPlan.journey(endeavorId);
+     if(window.SHANECurrentEndeavor?.read?.()===endeavorId){
+      const steps=(journey?.steps||[]).filter(step=>step.path&&["proposed","prepared"].includes(step.status)).slice(0,5);
+      for(const step of steps){
+       const link=document.createElement("a");
+       link.href=step.path;link.textContent="Continue: "+step.label;
+       link.addEventListener("click",async event=>{
+        event.preventDefault();
+        if(window.SHANECurrentEndeavor?.read?.()!==endeavorId){composerStatus.textContent="Choose the current endeavor before continuing.";return}
+        try{
+         const result=await window.SHANEEndeavorPlan.handoff({endeavorId,capabilityId:step.capabilityId});
+         if(result?.path)location.assign(result.path);
+        }catch(error){composerStatus.textContent=String(error?.message||error)}
+       });
+       aiNext.append(link);
+      }
+      aiNext.hidden=!steps.length;
      }
     }catch{}
    }
