@@ -79,11 +79,12 @@ function prepareEditableDraft(page){
 function announceVision(page,target,field,source,endeavorId,context=null){
  document.dispatchEvent(new CustomEvent("shane:endeavor-arrived",{detail:{page,endeavorId,field:target.field,source,vision:field.value.trim(),context}}));
  const argumentsContext=context;
+ const originalVision=field.value.trim();
  Promise.resolve(window.SHANEConversation?.visionContext?.()).then(context=>{
   const resolved=context||{};
-  document.dispatchEvent(new CustomEvent("shane:vision-context-ready",{detail:{...resolved,endeavorId:endeavorId||resolved.endeavorId||null,vision:field.value.trim(),page,arrivalContext:argumentsContext}}));
+  document.dispatchEvent(new CustomEvent("shane:vision-context-ready",{detail:{...resolved,endeavorId:endeavorId||resolved.endeavorId||null,vision:originalVision,page,arrivalContext:argumentsContext}}));
  }).catch(()=>{
-  document.dispatchEvent(new CustomEvent("shane:vision-context-ready",{detail:{page,endeavorId,vision:field.value.trim(),arrivalContext:argumentsContext}}));
+  document.dispatchEvent(new CustomEvent("shane:vision-context-ready",{detail:{page,endeavorId,vision:originalVision,arrivalContext:argumentsContext}}));
  });
 }
 function enableInPlaceConversation(page,target,field){
