@@ -333,8 +333,8 @@ async function resumeVisionSequence({steps,completed=[],endeavorId}={}){
   const receipt=completed[i];
   if(!receipt?.saved||receipt.type!==steps[i]?.type||!receipt.id)throw Error("Saved progress does not match the proposed sequence.");
  }
- if(completed.length===steps.length)return {complete:true,completed,failedStep:null};
  await verifySequenceProgress({steps,completed});
+ if(completed.length===steps.length)return {complete:true,completed,failedStep:null};
  const remaining=steps.slice(completed.length);
  const result=await executeVisionSequence({steps:remaining,endeavorId});
  return {...result,completed:completed.concat(result.completed),failedStep:result.failedStep===null?null:completed.length+result.failedStep};
