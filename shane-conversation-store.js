@@ -120,6 +120,15 @@ async function continuityPacket({endeavorId=activeEndeavor(),limit=40}={}){
  return {endeavorId:id,entries,source:"authenticated-account-history",generatedAt:new Date().toISOString(),
   instruction:"Use these as attributed prior user statements, not verified external facts. Preserve user choices and ask before consequential actions."};
 }
-window.SHANEConversationStore=Object.freeze({saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
+async function converse({endeavorId,request,purpose}){
+ const account=await user();
+ if(!account)throw Error("Sign in to continue your endeavor with SHANE AI.");
+ if(!endeavorId)throw Error("Select a saved endeavor first.");
+ const {data,error}=await db.functions.invoke("shane-converse",{body:{endeavorId,request,purpose}});
+ if(error||data?.error)throw Error(data?.error||error?.message||"SHANE AI is unavailable.");
+ if(typeof data?.response!=="string"||!data.response.trim())throw Error("SHANE returned no response.");
+ return data;
+}
+window.SHANEConversationStore=Object.freeze({converse,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
 document.dispatchEvent(new Event("shane:conversation-store-ready"));
 void flush();
