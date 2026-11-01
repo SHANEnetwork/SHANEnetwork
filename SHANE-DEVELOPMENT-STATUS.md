@@ -416,3 +416,8 @@ No action requested as of this update.
 - Added an unpublished campaign creation action to the shared Network conversation (08916f1), invoking the existing AI interpretation and authenticated campaign persistence operations. It asks only for the database-required interest deadline and leaves publication to the member.
 - If an endeavor is selected, the creation is also recorded in conversation history when that write succeeds. Existing campaign pages and SHONnetwork were not modified.
 - Authenticated browser end-to-end verification remains outstanding. This is a cross-page integration, not full completion of every SHANE program.
+
+## 2026-11-01: private Network listings from shared conversation
+- Added createPrivateListing to the shared account-backed store (4d04e9a), saving a draft in existing shane_listings and optionally linking an owner-verified endeavor.
+- Wired the shared Network conversation to the operation (8650002), returning a review link and attempting a creation-history record when an endeavor is selected.
+- Confirmed existing RLS owner INSERT and public-or-owner SELECT policies. Browser end-to-end execution is unverified. The current shared listing action is always displayed and should be consolidated into intent-sensitive conversation actions during further transformation. SHONnetwork untouched.
