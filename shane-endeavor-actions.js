@@ -187,6 +187,33 @@ function init(){
   finally{saveIdea.disabled=false}
  });
  composerActions.append(saveIdea,composerStatus);conversation.append(composerActions);
+ const continueConversation=document.createElement("div");continueConversation.className="shane-conversation-thread";
+ const threadHeading=document.createElement("strong");threadHeading.textContent="Your endeavor conversation";
+ const threadEntries=document.createElement("div");threadEntries.className="shane-conversation-thread-entries";
+ const threadStatus=document.createElement("span");threadStatus.setAttribute("role","status");
+ const loadThread=async()=>{
+  const selected=window.SHANECurrentEndeavor?.read?.()||null;
+  threadEntries.replaceChildren();threadStatus.textContent="";
+  if(!selected||!window.SHANEConversationStore?.list){continueConversation.hidden=true;return}
+  continueConversation.hidden=false;
+  try{
+   const rows=await window.SHANEConversationStore.list({endeavorId:selected,limit:40});
+   if(window.SHANECurrentEndeavor?.read?.()!==selected)return;
+   const ideas=rows.filter(row=>!["endeavor-plan","endeavor-transition"].includes(row.entry_kind)&&typeof row.body==="string"&&row.body.trim()).slice(0,5).reverse();
+   if(!ideas.length){threadStatus.textContent="Your saved ideas will appear here as we develop this endeavor.";return}
+   for(const idea of ideas){
+    const message=document.createElement("p");message.className="shane-conversation-thread-message";
+    const where=document.createElement("small");where.textContent=String(idea.source_page||"SHANE").replace(".html","");
+    const content=document.createElement("span");content.textContent=idea.body.slice(0,1200);
+    message.append(where,content);threadEntries.append(message);
+   }
+  }catch{threadStatus.textContent="Saved conversation is not available right now."}
+ };
+ continueConversation.append(threadHeading,threadEntries,threadStatus);
+ document.addEventListener("shane:endeavor-context-ready",()=>void loadThread());
+ document.addEventListener("shane:conversation-context-changed",()=>void loadThread());
+ document.addEventListener("shane:endeavor-plan-ready",()=>void loadThread());
+ void loadThread();
  const conversationReply=document.createElement("div");conversationReply.className="shane-conversation-reply";
  conversationReply.setAttribute("role","status");conversationReply.setAttribute("aria-live","polite");
  const replyHeading=document.createElement("strong");replyHeading.textContent="SHANE's next step";
@@ -341,7 +368,7 @@ function init(){
   if(sharedComposerText()===text){try{sessionStorage.removeItem(conversationKey)}catch{}}
   location.assign(destination);
  });
- group.append(conversation,conversationReply,select,button,suggestion,workflow,planResume,revisionControl,status);nav.append(group);update();explainVision();
+ group.append(conversation,continueConversation,conversationReply,select,button,suggestion,workflow,planResume,revisionControl,status);nav.append(group);update();explainVision();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
