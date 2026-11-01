@@ -142,6 +142,7 @@
   .shane-workspace-eyebrow{display:block;color:#855a72;font-size:.77rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
   .shane-workspace-heading h2{font-size:clamp(1.55rem,3.6vw,2.8rem);line-height:1.14;letter-spacing:-.035em;color:#30283b;margin:12px 0}
   .shane-workspace-heading p{line-height:1.6;color:#665a65;margin:0}
+  .shane-workspace-heading .shane-workspace-active-context{display:inline-block;margin:16px 0 0;padding:8px 13px;border-radius:12px;background:#ffffffb9;border:1px solid #dfcfd8;color:#65465e;font-weight:700}
   .shane-conversation-workspace .shane-endeavor-actions{display:block!important;width:100%;max-width:none;min-width:0;color:#302a35}
   .shane-conversation-workspace .shane-shared-vision-composer{display:block;width:100%;max-width:none}
   .shane-conversation-workspace textarea#shane-shared-vision-input{box-sizing:border-box;width:100%;min-height:118px;resize:vertical;border:1px solid #d6c3cc;border-radius:16px;padding:17px 19px;background:#fffefd;color:#302a35;font:inherit;line-height:1.55;box-shadow:0 3px 15px #31223a0a}
