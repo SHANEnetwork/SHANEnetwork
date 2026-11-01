@@ -103,6 +103,21 @@ async function searchHistory(term,{limit=100,offset=0,endeavorId=null,includeArc
  if(!includeArchived)query=query.is("archived_at",null);
  const {data,error}=await query;if(error)throw error;return data||[];
 }
+async function beginEndeavor({vision}={}){
+ const account=await user();if(!account)throw Error("Sign in to begin creating with SHANE.");
+ const idea=String(vision||"").trim();
+ if(idea.length<8)throw Error("Describe your vision to begin.");
+ const title=idea.split(/[.!?\n]/)[0].trim().slice(0,110)||"My new endeavor";
+ const {data,error}=await db.from("shane_endeavors").insert({owner_id:account.id,title}).select("id,title").single();
+ if(error||!data?.id)throw Error(error?.message||"Could not save your endeavor.");
+ try{
+  sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:data.id,title:data.title}));
+  document.dispatchEvent(new CustomEvent("shane:conversation-context-changed",{detail:{endeavorId:data.id}}));
+  document.dispatchEvent(new CustomEvent("shane:endeavor-context-ready",{detail:{endeavorId:data.id,entries:[]}}));
+ }catch{}
+ try{await saveTurn(idea,{page:location.pathname.split("/").pop()||"index.html",kind:"idea",endeavorId:data.id})}catch{}
+ return {id:data.id,title:data.title,saved:true};
+}
 async function endeavors(){
  const account=await user();if(!account)throw Error("Sign in to view your endeavors.");
  const {data,error}=await db.from("shane_endeavors").select("id,title,updated_at").eq("owner_id",account.id).order("updated_at",{ascending:false}).limit(200);
@@ -611,6 +626,6 @@ async function restoreSiteVersion({siteId,versionId,confirmed=false}={}){
  if(error)throw error;if(!updated)throw Error("Site changed since restoration began. Reload before trying again.");
  return {restored:true,siteId,versionId};
 }
-window.SHANEConversationStore=Object.freeze({converse,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,computerCapabilities,inspectOperation,previewVisionSequence,proposeCreationSequence,prepareCreationSequence,executeVision,executeVisionSequence,verifySequenceProgress,saveCreationPlan,loadCreationPlan,listSavedCreationPlans,searchSavedCreationPlans,recallEndeavor,describeSavedCreationPlan,recoverCreationProgress,inspectSavedEndeavor,continueSavedEndeavor,resumeVisionSequence,recentCreations,findSavedCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
+window.SHANEConversationStore=Object.freeze({beginEndeavor,converse,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,computerCapabilities,inspectOperation,previewVisionSequence,proposeCreationSequence,prepareCreationSequence,executeVision,executeVisionSequence,verifySequenceProgress,saveCreationPlan,loadCreationPlan,listSavedCreationPlans,searchSavedCreationPlans,recallEndeavor,describeSavedCreationPlan,recoverCreationProgress,inspectSavedEndeavor,continueSavedEndeavor,resumeVisionSequence,recentCreations,findSavedCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
 document.dispatchEvent(new Event("shane:conversation-store-ready"));
 void flush();
