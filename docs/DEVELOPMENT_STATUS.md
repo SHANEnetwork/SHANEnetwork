@@ -308,3 +308,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Versioned endeavor plans now append the preceding `latestRequest` to bounded history when a new request arrives, rather than repeatedly storing the unchanged project purpose.
 - The shared cross-page vision context and reusable next-action result expose the latest request separately from the established endeavor purpose.
 - These are committed context integrations, not yet a generative AI engine or verified end-to-end browser behavior.
+
+## Context-rich endeavor handoff
+- Added `SHANEEndeavorPlan.handoff({endeavorId,capabilityId})`, which prepares an allowlisted destination using the saved endeavor purpose plus latest refinement. Completed and deferred steps are excluded from this operation.
+- The existing shared saved-plan continuation link now carries both purpose and refinement through its cross-page handoff rather than only the original purpose.
+- Preparation is not execution, publishing, payment or outreach. End-to-end browser verification remains pending.
