@@ -251,6 +251,7 @@ function inspectOperation({type,vision,siteId,deadline}={}){
  if(request.length>12000)return {ready:false,reason:"This request is too long for this operation.",type};
  if(type==="website"&&!siteId)return {ready:false,reason:"Select the website to revise.",type};
  if(type==="campaign"&&!deadline)return {ready:false,reason:"The campaign needs an interest deadline.",type};
+ if(type==="campaign"&&(!Number.isFinite(Date.parse(deadline))||Date.parse(deadline)<=Date.now()))return {ready:false,reason:"Choose a future campaign interest deadline.",type};
  return {ready:true,type,operation:capability.operation,privateByDefault:true};
 }
 async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
