@@ -21,7 +21,7 @@ function prepare(event){
  // Discovery forms search public information; they do not publish, invite, or contact members.
  // For these pages run their existing search handler, while creation pages only prepare drafts.
  if(button.tagName==="FORM")return; // Never submit an existing form on arrival without an explicit member action.
- else if(!button.disabled)queueMicrotask(()=>button.click());
+ else if(!button.disabled&&button.dataset.shaneSafeDraft==="true")queueMicrotask(()=>button.click());
 }
 // Carry the person's intent into existing creation forms, without replacing edits
 // or automatically publishing, messaging, inviting, or changing permissions.
