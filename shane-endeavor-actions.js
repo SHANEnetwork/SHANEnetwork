@@ -481,9 +481,9 @@ function init(){
    // not ask members to copy its output into another form.
    // Offer actual active workspaces from the saved plan, not hypothetical
    // AI-generated URLs. The member chooses which capability to prepare.
-   if(exchangeSaved&&window.SHANECurrentEndeavor?.read?.()===endeavorId&&window.SHANEEndeavorPlan?.journey){
+   if(exchangeSaved&&window.SHANECurrentEndeavor?.read?.()===endeavorId){
     try{
-     const journey=await window.SHANEEndeavorPlan.journey(endeavorId);
+     const journey=window.SHANEEndeavorPlan?.journey?await window.SHANEEndeavorPlan.journey(endeavorId):null;
      if(window.SHANECurrentEndeavor?.read?.()===endeavorId){
       const steps=(journey?.steps||[]).filter(step=>step.path&&["proposed","prepared"].includes(step.status)).slice(0,5);
       for(const step of steps){
