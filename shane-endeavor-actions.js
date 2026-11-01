@@ -121,15 +121,7 @@ function init(){
  for(const [path,label] of targets){const option=document.createElement("option");option.value=path;option.textContent=label;select.append(option)}
  const button=document.createElement("button");button.type="button";button.textContent="Continue";
  const workflow=document.createElement("span");workflow.className="shane-action-workflow";workflow.setAttribute("aria-live","polite");
- const stages=[
-  ["builder.html","Create the website"],
-  ["communities.html","Organize the community"],
-  ["my-network.html","Find collaborators"],
-  ["campaigns.html","Plan an event or campaign"],
-  ["payments.html","Prepare payment setup"],
-  ["growth.html","Plan outreach"]
- ];
- const stageMatch=(text)=>stages.filter(([path])=>intentRules.some(([target,pattern])=>target===path&&pattern.test(text))).map(([path,label])=>({path,label}));
+ const stageMatch=(text)=>interpretVision(text).capabilities.filter(item=>!["dashboard.html","conversation-history.html","community-history.html","appearance.html"].includes(item.path));
  const renderWorkflow=()=>{
   workflow.replaceChildren();
   const text=idea(),matches=stageMatch(text);if(matches.length<2)return;
