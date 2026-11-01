@@ -41,3 +41,10 @@ Describe a festival on homepage; continue in creator; refine actual working draf
 - Applicable to pages already loading both shared assets. Other pages require inventory and adoption; not a claim of full-site completion.
 - Bakery example reinforces one living endeavor record, real network matches, optional forms and permission before external actions.
 - Runtime/browser integration and authenticated cross-device continuity remain unverified.
+
+## Phase 1 continuation — community and appearance views
+- Added the existing shared navigation/conversation script to community-feed.html, community-conversations.html, and appearance.html; all three already loaded the shared visual stylesheet.
+- These pages now participate in the same contextual endeavor identity and navigation as the other integrated pages, without replacing community publishing, conversations, or theme controls.
+- Checked community-opportunities.html, community-history.html, workspace.html, growth.html, my-network.html, campaigns.html, members.html, and conversation-history.html: each already references shared navigation and styling.
+- Messenger, chat-room, video-meeting, profile, event, and publish pages were **not** found at the guessed standalone filenames; their actual implementations need discovery before editing. Do not invent replacement applications.
+- This pass is source-level integration only. Runtime behavior, persistence, and cross-page flows are not yet browser-verified. Phase 1 remains in progress.
