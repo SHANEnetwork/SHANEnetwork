@@ -339,6 +339,12 @@ async function resumeVisionSequence({steps,completed=[],endeavorId}={}){
  const result=await executeVisionSequence({steps:remaining,endeavorId});
  return {...result,completed:completed.concat(result.completed),failedStep:result.failedStep===null?null:completed.length+result.failedStep};
 }
+function endeavorStepFingerprint(step,index){
+ const raw=JSON.stringify([index,step.type,step.vision,step.siteId||null,step.deadline||null]);
+ let value=2166136261;
+ for(const char of raw){value=Math.imul(value^char.charCodeAt(0),16777619)}
+ return (value>>>0).toString(16).padStart(8,"0");
+}
 async function recoverCreationProgress({endeavorId,steps}={}){
  if(!endeavorId||!Array.isArray(steps))throw Error("An endeavor and its creation steps are required.");
  const history=[];
