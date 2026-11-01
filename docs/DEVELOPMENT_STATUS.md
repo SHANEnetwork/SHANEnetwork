@@ -160,3 +160,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Loaded across shared SHANE pages, and `SHANEConversation.visionContext()` now includes the latest saved plan. No new public-facing form or replacement of legacy programs.
 - The newly supplied 84-page Recursive Sentient Core Architecture offers conceptual analogies for continuity spine, integrated state, prioritization and coherence, but is not itself a proven AI model implementation.
 - **Important limitations:** plans are deterministically inferred from rules, not LLM-generated; no background autonomy; account sign-in and database availability required; existing module actions still require explicit user approval. No end-to-end browser/database test completed.
+
+## Endeavor plans connected to existing conversational Continue action
+- The shared Continue action now attempts to create or revise the account-backed endeavor plan when a selected endeavor exists. Members do not need to use a separate plan form. Navigation remains possible when plan storage is unavailable.
+- Structured endeavor-plan JSON is excluded from ordinary idea fallback, preventing internal plan records from being treated as the user's creative prose.
+- Not yet model-powered. No complete browser or Supabase integration verification performed.
