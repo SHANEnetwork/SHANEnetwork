@@ -21,13 +21,13 @@ const intentRules=[
  ["my-network.html",/collaborat|find partners|team up|cofound|co-found|connect with people|work together/i],
  ["dashboard.html",/my projects|my endeavors|my dashboard|what have i created/i],
  ["conversation-history.html",/conversation history|past conversations|previous ideas|what did we discuss/i],
- ["workspace.html",/assign a task|create a task|task list|work plan|project milestone|coordinate work|to.do list/i],
+ ["workspace.html",/assign a task|create a task|task list|work plan|project milestone|coordinate work|to.do list|coordinate volunteers|organize responsibilities/i],
  ["network.html",/discover|search for|find people|find organizations|look for|who can help/i],
- ["growth.html",/promot|advertis|outreach|marketing|grow my|attract customers|spread the word/i],
+ ["growth.html",/promot|advertis|outreach|marketing|grow my|attract customers|spread the word|launch campaign awareness|reach more people/i],
  ["members.html",/list my|publish a listing|offer my service|announce my|share a listing/i],
  ["sports-district.html",/sports district|school athletics|sports league|athlete|school teams/i],
  ["request-build.html",/hire someone|request a custom|done for me|build it for me/i],
- ["builder.html",/website|webpage|storefront|online shop|create a site|build a site|portfolio/i]
+ ["builder.html",/website|webpage|storefront|online shop|create a site|build a site|portfolio|landing page|online presence/i]
 ];
 function suggest(text){
  const matches=intentRules.filter(([,pattern])=>pattern.test(text));
