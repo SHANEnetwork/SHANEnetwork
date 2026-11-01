@@ -90,6 +90,20 @@
  // A destination can report that it received a prepared vision. Reflect that
  // handoff in the account-backed endeavor plan, without claiming execution.
  const inFlight=new Set();
+ // Script loading is asynchronous on some pages. Keep a bounded, session-only
+ // arrival receipt until the account-backed plan service is ready to process it.
+ const arrivalKey="shane-pending-plan-arrival-v1";
+ function rememberArrival(detail){
+  if(!valid(detail?.endeavorId)||typeof detail?.vision!=="string")return;
+  try{sessionStorage.setItem(arrivalKey,JSON.stringify({page:detail.page,endeavorId:detail.endeavorId,vision:detail.vision,created:Date.now()}))}catch{}
+ }
+ async function replayArrival(){
+  let pending=null;
+  try{pending=JSON.parse(sessionStorage.getItem(arrivalKey)||"null")}catch{}
+  if(!pending||!Number.isFinite(pending.created)||Date.now()-pending.created>300000)return;
+  if(pending.page!==location.pathname.split("/").pop())return;
+  await acknowledgeArrival(pending);
+ }
  async function acknowledgeArrival(detail){
   const endeavorId=detail?.endeavorId;
   if(!valid(endeavorId)||!store()?.list||!store()?.saveTurn)return;
@@ -110,7 +124,13 @@
    document.dispatchEvent(new CustomEvent("shane:endeavor-plan-sync-error",{detail:{page:detail.page,message:String(error?.message||error)}}));
   }finally{inFlight.delete(key)}
  }
- document.addEventListener("shane:endeavor-arrived",event=>{void acknowledgeArrival(event.detail)});
+ document.addEventListener("shane:endeavor-arrived",event=>{
+  rememberArrival(event.detail);
+  void acknowledgeArrival(event.detail);
+ });
+ document.addEventListener("shane:conversation-store-ready",()=>{void replayArrival()});
+ document.addEventListener("shane:endeavor-plan-ready",()=>{void replayArrival()});
+ void replayArrival();
  window.SHANEEndeavorPlan=Object.freeze({latest,history,restore,draft,create,setStep,prepareStep});
  document.dispatchEvent(new Event("shane:endeavor-plan-ready"));
 })();
