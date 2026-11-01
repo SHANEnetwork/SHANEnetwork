@@ -8,7 +8,7 @@
  for(const [label,url] of items){const a=document.createElement("a");a.href=url;a.textContent=label;if(url.split("#")[0]===page)a.setAttribute("aria-current","page");nav.append(a)}
  const JOURNAL="shane-shared-conversation-v1";
  const journalRead=()=>{try{const x=JSON.parse(sessionStorage.getItem(JOURNAL)||"null");return x&&Array.isArray(x.turns)?x:{turns:[],updated:0}}catch{return {turns:[],updated:0}}};
- const journalAdd=(value,kind="idea")=>{const text=String(value||"").trim().slice(0,4000);if(!text)return;try{const j=journalRead(),endeavorId=window.SHANECurrentEndeavor?.read?.()||null,last=j.turns[j.turns.length-1];if(last&&last.text===text&&last.page===page&&last.endeavorId===endeavorId)return;j.turns.push({text,page,kind,endeavorId,at:Date.now()});j.turns=j.turns.slice(-30);j.updated=Date.now();sessionStorage.setItem(JOURNAL,JSON.stringify(j));document.dispatchEvent(new CustomEvent("shane:conversation-updated",{detail:{page,kind,text,endeavorId}}))}catch{}};
+ const journalAdd=(value,kind="idea")=>{const text=String(value||"").trim();if(!text)return;try{const j=journalRead(),endeavorId=window.SHANECurrentEndeavor?.read?.()||null,last=j.turns[j.turns.length-1];if(last&&last.text===text&&last.page===page&&last.endeavorId===endeavorId)return;j.turns.push({text,page,kind,endeavorId,at:Date.now()});j.turns=j.turns.slice(-30);j.updated=Date.now();sessionStorage.setItem(JOURNAL,JSON.stringify(j));document.dispatchEvent(new CustomEvent("shane:conversation-updated",{detail:{page,kind,text,endeavorId}}))}catch{}};
  const journalContext=()=>{const j=journalRead(),id=window.SHANECurrentEndeavor?.read?.()||null;return {page,turns:j.turns.filter(turn=>(turn.endeavorId||null)===id).slice(-12),updated:j.updated}};
  const journalForEndeavor=id=>journalRead().turns.filter(turn=>(turn.endeavorId||null)===(id||null)).slice(-30);
  const journalTimeline=()=>journalContext().turns.filter(turn=>turn.kind!=="endeavor-transition").map(turn=>({role:"user",content:turn.text,page:turn.page,at:turn.at}));
@@ -55,7 +55,7 @@
  if(page==="system-health.html"){const index=conversationSelectors.indexOf("#shaneSupportIdea");if(index!==-1)conversationSelectors.splice(index,1)}
  const getCurrent=()=>conversationSelectors.map(selector=>document.querySelector(selector)).find(element=>element&&typeof element.value==="string"&&element.value.trim());
  const active=()=>{try{const item=JSON.parse(sessionStorage.getItem(continuityKey)||"null");return item&&typeof item.text==="string"&&Date.now()-item.updated<86400000?item:null}catch{return null}};
- const preserve=()=>{const field=getCurrent();if(!field)return;journalAdd(field.value,"idea");try{sessionStorage.setItem(continuityKey,JSON.stringify({text:field.value.trim().slice(0,4000),source:page,updated:Date.now()}))}catch{}};
+ const preserve=()=>{const field=getCurrent();if(!field)return;journalAdd(field.value,"idea");try{sessionStorage.setItem(continuityKey,JSON.stringify({text:field.value.trim(),source:page,updated:Date.now()}))}catch{}};
  // A single handoff writer lives in shane-endeavor-actions.js. The navigation
  // layer records the idea without overwriting the selected endeavor or routing
  // a conversation into an unrelated form.
