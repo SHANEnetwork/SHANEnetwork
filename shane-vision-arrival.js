@@ -111,7 +111,7 @@ function init(){
   // Treat that as an arrival, not a conflicting edit.
   prepareEditableDraft(page);
   try{sessionStorage.removeItem("shane-intent-handoff-v1")}catch{}
-  document.dispatchEvent(new CustomEvent("shane:endeavor-arrived",{detail:{page,endeavorId:item.endeavorId||null,field:target.field,source:"existing-draft"}}));
+  announceVision(page,target,field,"existing-draft",item.endeavorId||null);
   return;
  }
  if(field.value.trim()){
