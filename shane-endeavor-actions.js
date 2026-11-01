@@ -1172,12 +1172,53 @@ function init(){
  document.addEventListener("shane:artifact-created",()=>void loadCreations());
  document.addEventListener("shane:conversation-store-ready",()=>void loadCreations());
  void loadCreations();
+ const endeavorsSection=document.createElement("section");
+ endeavorsSection.className="shane-workspace-endeavors";
+ const endeavorsHeading=document.createElement("div");
+ endeavorsHeading.className="shane-timeline-heading";
+ const endeavorsTitle=document.createElement("strong");
+ endeavorsTitle.textContent="My endeavors";
+ const endeavorsReload=document.createElement("button");
+ endeavorsReload.type="button";
+ endeavorsReload.textContent="Refresh endeavors";
+ const endeavorsList=document.createElement("div");
+ endeavorsList.className="shane-workspace-endeavor-grid";
+ endeavorsHeading.append(endeavorsTitle,endeavorsReload);
+ endeavorsSection.append(endeavorsHeading,endeavorsList);
+ let endeavorsRequest=0;
+ const loadEndeavors=async()=>{
+  const requestId=++endeavorsRequest;
+  const store=window.SHANEConversationStore;
+  if(!store?.endeavors){endeavorsList.textContent="Connecting to saved endeavors…";return}
+  try{
+   const records=await store.endeavors();
+   if(requestId!==endeavorsRequest)return;
+   endeavorsList.replaceChildren();
+   const active=window.SHANECurrentEndeavor?.read?.();
+   if(!records.length){endeavorsList.textContent="Your saved endeavors will appear here.";return}
+   for(const record of records.slice(0,30)){
+    if(typeof record.id!=="string"||!record.id)continue;
+    const link=document.createElement("a");
+    link.className="shane-workspace-endeavor-choice";
+    link.href="dashboard.html?endeavor="+encodeURIComponent(record.id);
+    link.textContent=String(record.title||"Untitled endeavor").slice(0,120);
+    if(record.id===active)link.setAttribute("aria-current","true");
+    endeavorsList.append(link);
+   }
+  }catch(error){
+   if(requestId===endeavorsRequest)endeavorsList.textContent="Unable to load endeavors: "+String(error?.message||error);
+  }
+ };
+ endeavorsReload.onclick=()=>void loadEndeavors();
+ document.addEventListener("shane:conversation-store-ready",()=>void loadEndeavors());
+ document.addEventListener("shane:endeavor-context-ready",()=>void loadEndeavors());
+ void loadEndeavors();
  const specialist=document.createElement("details");
  specialist.className="shane-specialist-capabilities";
  const specialistTitle=document.createElement("summary");
  specialistTitle.textContent="Explore SHANE's programs and manual controls";
  specialist.append(specialistTitle,select,button,suggestion,workflow,planResume,revisionControl,status);
- group.append(timeline,conversation,aiReply,aiNext,continueConversation,planProgress,conversationReply,creations,specialist);
+ group.append(endeavorsSection,timeline,conversation,aiReply,aiNext,continueConversation,planProgress,conversationReply,creations,specialist);
  // One conversation workspace across the entire Network. The existing page
  // capabilities remain below it, available whenever a member wants manual control.
  const page=location.pathname.split("/").pop()||"index.html";
