@@ -354,7 +354,7 @@ function init(){
     const item=capabilityCatalog.find(x=>x.id===step.capabilityId);if(!item)continue;
     const link=document.createElement("a");link.href=item.path;link.className="shane-action-workflow-link";
     link.textContent=step.label;
-    link.addEventListener("click",()=>{prepareCapability({capabilityId:item.id,vision:[plan.vision,plan.latestRequest&&plan.latestRequest!==plan.vision?"Current refinement: "+plan.latestRequest:null].filter(Boolean).join("\n\n"),endeavorId:selected})});
+    link.addEventListener("click",event=>{event.preventDefault();void window.SHANEEndeavorPlan.handoff({endeavorId:selected,capabilityId:item.id}).then(()=>location.assign(item.path)).catch(error=>{planResume.textContent=String(error?.message||error)})});
     planResume.append(link);
    }
   }catch{planResume.replaceChildren()}
