@@ -165,3 +165,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - The shared Continue action now attempts to create or revise the account-backed endeavor plan when a selected endeavor exists. Members do not need to use a separate plan form. Navigation remains possible when plan storage is unavailable.
 - Structured endeavor-plan JSON is excluded from ordinary idea fallback, preventing internal plan records from being treated as the user's creative prose.
 - Not yet model-powered. No complete browser or Supabase integration verification performed.
+
+## Endeavor resume in shared navigation
+- Added saved-plan next-step links directly in the existing shared navigation, across the pages where that navigation loads. Links use the existing safe preparation handoff and leave publication and other consequential operations to their destination modules.
+- Avoids unnecessary duplicate plan revisions when a member continues an unchanged vision; excludes structured plan records from conversation fallback entirely.
+- This is a cross-page user-experience improvement, not proof of completed AI orchestration or full website transformation. Account-backed plan retrieval requires sign-in; browser and database end-to-end verification remain outstanding.
