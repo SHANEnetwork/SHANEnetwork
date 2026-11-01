@@ -361,6 +361,18 @@ async function loadCreationPlan({endeavorId}={}){
  if(plan.version!==1||!Array.isArray(plan.steps))throw Error("Unsupported saved creation plan.");
  return {steps:plan.steps,endeavorId};
 }
+async function describeSavedCreationPlan({endeavorId}={}){
+ const saved=await loadCreationPlan({endeavorId});
+ if(!saved)return {found:false,message:"No saved creation plan is available for this endeavor."};
+ const progress=await inspectSavedEndeavor(saved);
+ const steps=saved.steps.map((step,index)=>({
+  number:index+1,type:step.type,
+  status:index<progress.completed.length?"saved":index===progress.completed.length?"next":"pending",
+  url:progress.completed[index]?.url||null
+ }));
+ return {found:true,complete:progress.complete,remaining:progress.remaining,steps,
+  message:progress.complete?"All planned creations are saved.":progress.completed.length+" creations saved; "+progress.remaining+" remaining."};
+}
 async function recoverCreationProgress({endeavorId,steps}={}){
  if(!endeavorId||!Array.isArray(steps))throw Error("An endeavor and its creation steps are required.");
  const history=[];
@@ -482,6 +494,6 @@ async function restoreSiteVersion({siteId,versionId,confirmed=false}={}){
  if(error)throw error;if(!updated)throw Error("Site changed since restoration began. Reload before trying again.");
  return {restored:true,siteId,versionId};
 }
-window.SHANEConversationStore=Object.freeze({converse,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,computerCapabilities,inspectOperation,previewVisionSequence,proposeCreationSequence,prepareCreationSequence,executeVision,executeVisionSequence,verifySequenceProgress,saveCreationPlan,loadCreationPlan,recoverCreationProgress,inspectSavedEndeavor,continueSavedEndeavor,resumeVisionSequence,recentCreations,findSavedCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
+window.SHANEConversationStore=Object.freeze({converse,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,computerCapabilities,inspectOperation,previewVisionSequence,proposeCreationSequence,prepareCreationSequence,executeVision,executeVisionSequence,verifySequenceProgress,saveCreationPlan,loadCreationPlan,describeSavedCreationPlan,recoverCreationProgress,inspectSavedEndeavor,continueSavedEndeavor,resumeVisionSequence,recentCreations,findSavedCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
 document.dispatchEvent(new Event("shane:conversation-store-ready"));
 void flush();
