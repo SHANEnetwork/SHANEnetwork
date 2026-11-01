@@ -449,8 +449,9 @@ function init(){
    if(window.SHANEConversationStore?.saveTurn){
     try{
      const page=location.pathname.split("/").pop()||"index.html";
-     await window.SHANEConversationStore.saveTurn(request,{page,kind:"ai-request",endeavorId});
-     await window.SHANEConversationStore.saveTurn(data.response,{page,kind:"ai-response",endeavorId});
+     const questionSaved=await window.SHANEConversationStore.saveTurn(request,{page,kind:"ai-request",endeavorId});
+     const answerSaved=await window.SHANEConversationStore.saveTurn(data.response,{page,kind:"ai-response",endeavorId});
+     if(!questionSaved?.saved||!answerSaved?.saved)throw Error("Account history was not saved.");
     }catch(error){
      aiReply.textContent=data.response+"\\n\\nThis response is visible here, but saving it to account history could not be confirmed.";
     }
