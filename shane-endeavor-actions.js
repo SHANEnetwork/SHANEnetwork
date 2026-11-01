@@ -552,6 +552,13 @@ function init(){
            sessionStorage.setItem(key,JSON.stringify(pending));
           }
          }catch{}
+         // A direct click to create a website authorizes a private AI draft,
+         // never publishing or replacing an account-saved site.
+         if(capability.path==="builder.html"){
+          try{sessionStorage.setItem("shane-ai-build-request-v1",JSON.stringify({
+           endeavorId,vision:fullVision,created:Date.now(),destination:"builder.html"
+          }))}catch{}
+         }
          location.assign(prepared.destination);
         }else composerStatus.textContent="This workspace could not be prepared yet. Your conversation remains saved.";
        });
