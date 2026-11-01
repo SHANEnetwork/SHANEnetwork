@@ -341,8 +341,13 @@ async function resumeVisionSequence({steps,completed=[],endeavorId}={}){
 }
 async function recoverCreationProgress({endeavorId,steps}={}){
  if(!endeavorId||!Array.isArray(steps))throw Error("An endeavor and its creation steps are required.");
- const history=await list({endeavorId,kinds:["creation"],limit:500});
- if(history.length===500)throw Error("Endeavor history is too large for safe automatic recovery; narrow the endeavor first.");
+ const history=[];
+ for(let offset=0;offset<10000;offset+=500){
+  const page=await list({endeavorId,kinds:["creation"],limit:500,offset});
+  history.push(...page);
+  if(page.length<500)break;
+  if(offset===9500)throw Error("Creation history exceeds the supported recovery range.");
+ }
  const receipts=history.map(row=>{
   const match=/^Created (new-website|website|community|campaign|listing) ([0-9a-f-]{36})$/i.exec(String(row.body||""));
   return match?{type:match[1],id:match[2],saved:true}:null;
