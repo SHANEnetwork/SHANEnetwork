@@ -402,3 +402,7 @@ No action requested as of this update.
 - Shared store now exposes `createPrivateCampaign` (5c0f40d), saving a member-owned `shane_campaigns` record in `draft` status, requiring a future deadline and supporter target, and never publishing automatically.
 - Campaign vision page offers direct 'Save my campaign privately' operation (8223346) using AI interpretation and existing member-provided fields. Existing publication workflow is preserved.
 - Confirmed database campaign owner INSERT policy permits drafts and public SELECT policy limits visibility to open campaigns. Authenticated browser end-to-end verification remains outstanding. No changes to SHONnetwork.
+
+## 2026-11-01: conversation-to-collaborative-task submission
+- Added an explicit 'Create shared task' action to the existing workspace vision script (cc7c946). It interprets a member's task description and submits the resulting fields through the existing collaboration task form handler, preserving accepted-collaboration checks and existing task policies.
+- No new task tables or duplicate collaboration interface. Signed-in end-to-end verification remains outstanding. No SHONnetwork changes.
