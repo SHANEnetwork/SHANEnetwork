@@ -123,7 +123,7 @@ function init(){
   // Treat that as an arrival, not a conflicting edit.
   prepareEditableDraft(page);
   try{sessionStorage.removeItem("shane-intent-handoff-v1")}catch{}
-  announceVision(page,target,field,"existing-draft",item.endeavorId||null);
+  announceVision(page,target,field,"existing-draft",item.endeavorId||null,item.context||null);
   return;
  }
  if(field.value.trim()){
