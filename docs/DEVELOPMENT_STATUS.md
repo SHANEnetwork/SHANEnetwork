@@ -147,3 +147,9 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Exposed `capabilityPlan` through the shared `SHANEConversation.visionContext()` so an eventual AI orchestrator can receive conversation, milestones, grounded memory, and registered capability descriptions together.
 - This is **not** a model integration or autonomous tool execution. Each underlying program retains its existing permissions, and no publishing, payments, invitations, or public actions occur automatically.
 - Reviewed the user-supplied Sentient Reality Codex and Dreams and Religious Symbolism materials as creative philosophy and consent/autonomy design inspiration, not verified scientific or engineering specifications. No document text was copied into public pages.
+
+## Shared capability preparation boundary
+- The visible multi-capability journey now derives from `SHANECapabilities.interpret()` rather than a separate six-entry list.
+- Added `SHANECapabilities.prepare({capabilityId,vision,endeavorId})` as an allowlisted, endeavor-scoped handoff bridge; rejects unknown actions, empty ideas, mismatched endeavor IDs, and private incident-page use.
+- Multi-capability links use the shared bridge. This is preparation only, **not** live AI execution, public publishing, payment, invitations, or automated changes to the underlying programs.
+- Remaining priority: server-side authenticated AI interpretation, durable plan/state persistence, safe tool invocation into existing modules, and full-page rendered experience.
