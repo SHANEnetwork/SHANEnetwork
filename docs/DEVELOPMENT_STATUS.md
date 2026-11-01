@@ -237,3 +237,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - The explicit in-place conversation handoff now also invokes available existing editable-draft preparation buttons on selected campaign, community, growth, community-update, and opportunity pages.
 - The handoff does not submit forms, publish, send, charge, or create invitations. The destination program remains responsible for draft behavior, validation and permissions.
 - Account-backed resume excludes structured endeavor plans. Browser verification of all individual destination handlers is still pending.
+
+## Extended conversation-to-program draft connections
+- Connected the existing conversation handoff to real draft-preparation controls for community updates, opportunities, community conversations, member listings and custom build requests.
+- Only non-submit buttons are invoked. Existing form submission, publication, messaging and payment controls remain separate and subject to their own review and permissions.
+- This is a client-side connection to existing deterministic draft preparation, not AI-model orchestration; browser verification is still pending.
