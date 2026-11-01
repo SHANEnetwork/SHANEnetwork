@@ -247,7 +247,16 @@ if(anchor&&store){
  const refresh=document.createElement("button");refresh.type="button";refresh.textContent="Show earlier versions";
  const restore=document.createElement("button");restore.type="button";restore.textContent="Restore selected version";
  const note=document.createElement("p");note.setAttribute("role","status");
- wrapper.append(heading,versions,refresh,restore,note);anchor.insertAdjacentElement("afterend",wrapper);
+ const instruction=document.createElement("textarea");instruction.placeholder="Tell SHANE what to improve in this saved website. Your existing pages and Network connections should remain unless you request changes.";instruction.setAttribute("aria-label","Describe a website revision");
+const revise=document.createElement("button");revise.type="button";revise.textContent="Ask SHANE to revise saved website";
+wrapper.append(heading,instruction,revise,versions,refresh,restore,note);
+revise.onclick=async()=>{
+ const siteId=selected(),request=instruction.value.trim();
+ if(!siteId||request.length<3){note.textContent="Choose a saved website and describe your change.";return}
+ revise.disabled=true;note.textContent="SHANE is revising and saving your website privately.";
+ try{const result=await store.reviseSite({siteId,request});note.textContent=result.response||"Revision saved. Open the saved project to review it.";await refresh.onclick();note.textContent="Revision saved privately. Open the saved project to review it; earlier versions remain available."}
+ catch(e){note.textContent="Revision was not confirmed: "+e.message}finally{revise.disabled=false}
+};anchor.insertAdjacentElement("afterend",wrapper);
  const selected=()=>anchor.value;
  refresh.onclick=async()=>{
   versions.replaceChildren();const siteId=selected();
