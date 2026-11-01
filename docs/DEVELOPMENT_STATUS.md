@@ -217,3 +217,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - The shared SHANE navigation now exposes an expandable progress view for the selected endeavor's saved plan, including its existing steps and statuses.
 - Members can mark a step completed or reopen it. Changes call the versioned endeavor-plan API and are saved as new account-backed revisions, without executing the step's underlying program.
 - Existing page editors and tools are retained. Browser testing and actual AI-model orchestration remain outstanding.
+
+## Visible page-wide endeavor narrative alignment
+- Updated visible headings and introductions on index.html, dashboard.html, network.html, growth.html, campaigns.html, workspace.html, and my-network.html to present creation, discovery, collaboration, events, and outreach as one continuous endeavor journey.
+- Existing forms, routes, authorization, and feature implementations were preserved. This pass changes copy and experience framing, not the underlying orchestration or model backend.
+- Browser verification remains pending; SHONnetwork is outside this repository and unchanged.
