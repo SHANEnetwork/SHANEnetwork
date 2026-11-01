@@ -150,6 +150,22 @@ async function reviseSavedCreation({endeavorId,creationId,request}={}){
  return data;
 }
 
+async function createPrivateListing({vision,title,description,category="project",endeavorId=null}={}){
+ const account=await user();if(!account)throw Error("Sign in to save a Network listing.");
+ const name=String(title||"").trim().slice(0,150),details=String(description||vision||"").trim().slice(0,4000);
+ if(name.length<3||details.length<8)throw Error("A listing needs a title and description.");
+ const categories=["event","service","organization","opportunity","business","person","project"];
+ const payload={owner_id:account.id,title:name,description:details,category:categories.includes(category)?category:"project",status:"draft",attribution_confirmed:false};
+ if(endeavorId){
+  if(!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(String(endeavorId)))throw Error("Invalid endeavor reference.");
+  const {data:owned,error:ownerError}=await db.from("shane_endeavors").select("id").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
+  if(ownerError||!owned)throw Error("The selected endeavor does not belong to your account.");
+  payload.endeavor_id=endeavorId;
+ }
+ const {data,error}=await db.from("shane_listings").insert(payload).select("id").single();
+ if(error)throw error;if(!data?.id)throw Error("The listing draft was not confirmed as saved.");
+ return {saved:true,listingId:data.id,published:false,endeavorId:payload.endeavor_id||null};
+}
 async function createPrivateCampaign({vision,title,description,category="gathering",location="",deadline,minimumSupporters=10,eventDate=null}={}){
  const account=await user();if(!account)throw Error("Sign in to save a campaign.");
  const name=String(title||"").trim().slice(0,160);
@@ -206,6 +222,6 @@ async function restoreSiteVersion({siteId,versionId,confirmed=false}={}){
  if(error)throw error;if(!updated)throw Error("Site changed since restoration began. Reload before trying again.");
  return {restored:true,siteId,versionId};
 }
-window.SHANEConversationStore=Object.freeze({converse,reviseSavedCreation,createPrivateCampaign,createPrivateCommunity,interpretVision,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
+window.SHANEConversationStore=Object.freeze({converse,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
 document.dispatchEvent(new Event("shane:conversation-store-ready"));
 void flush();
