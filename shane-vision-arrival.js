@@ -36,8 +36,8 @@ async function offerAccountResume(page,target,field){
    const store=window.SHANEConversationStore;if(!store)throw Error("Conversation history is not available on this page.");
    // Prefer the active endeavor's coherent, versioned vision over an arbitrary
    // older turn. Fall back to conversation history for endeavors without plans.
-   let savedVision="";
-   try{savedVision=String((await window.SHANEEndeavorPlan?.latest?.(active.id))?.vision||"").trim()}catch{}
+   let savedVision="",savedContext=null;
+   try{const plan=await window.SHANEEndeavorPlan?.latest?.(active.id);if(plan?.vision){savedVision=String(plan.vision+(plan.latestRequest&&plan.latestRequest!==plan.vision?"\n\nCurrent refinement: "+plan.latestRequest:"")).trim();savedContext={purpose:plan.vision,latestRequest:plan.latestRequest||plan.vision,revision:plan.revision}}}catch{}
    if(!savedVision){
     const rows=await store.list({endeavorId:active.id,limit:100});
     const chosen=rows.find(row=>typeof row.body==="string"&&row.body.trim()&&(row.entry_kind==="idea"||row.entry_kind==="vision"||String(row.entry_kind||"").endsWith("-vision")))||rows.find(row=>typeof row.body==="string"&&row.body.trim()&&!["endeavor-transition","endeavor-plan"].includes(row.entry_kind));
@@ -53,7 +53,7 @@ async function offerAccountResume(page,target,field){
    note.textContent="Your saved idea is ready. Review and refine it before creating anything.";
    try{sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:active.id,updated:Date.now()}))}catch{}
    prepareEditableDraft(page);
-   announceVision(page,target,field,"account",active.id);
+   announceVision(page,target,field,"account",active.id,savedContext);
    button.remove();
   }catch(error){note.textContent=String(error?.message||error);button.disabled=false}
  });
