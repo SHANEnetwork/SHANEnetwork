@@ -406,3 +406,8 @@ No action requested as of this update.
 ## 2026-11-01: conversation-to-collaborative-task submission
 - Added an explicit 'Create shared task' action to the existing workspace vision script (cc7c946). It interprets a member's task description and submits the resulting fields through the existing collaboration task form handler, preserving accepted-collaboration checks and existing task policies.
 - No new task tables or duplicate collaboration interface. Signed-in end-to-end verification remains outstanding. No SHONnetwork changes.
+
+## 2026-11-01: shared conversation executes private community creation
+- Updated shared endeavor actions (5584cba) to expose private community creation from the existing shared vision composer when the member describes a community. It invokes the existing authenticated AI interpreter and owner-scoped community insertion, then links to the saved community. When an endeavor is selected, it attempts to record the creation in conversation history.
+- Verified the existing unified navigation loads the shared endeavor actions and conversation store, so the integration uses the common Network interface rather than a new panel.
+- Authenticated browser execution remains unverified. This is one cross-page executable capability, not completion of the entire Network transformation. SHONnetwork unchanged.
