@@ -16,7 +16,7 @@
  Object.defineProperty(window,"SHANEConversation",{configurable:false,value:Object.freeze({read:journalContext,remember:journalAdd,fullContext,snapshot:conversationSnapshot,endeavorSnapshot,last:recentSubstantive})});
  import("./shane-conversation-store.js").catch(error=>document.dispatchEvent(new CustomEvent("shane:conversation-save-error",{detail:{message:String(error?.message||error)}})));
  const continuityKey="shane-conversation-continuity-v1";
- const conversationSelectors=["#visionPrompt","#shane-natural-prompt","#shaneDiscoveryWish","#shaneGrowthGoal","#shaneBuildRequestGoal","#shaneWorkspaceIdea","#shaneCommunityVision","#shaneMemberWelcome","#visionInput","#shaneIdeaReply","#communityIdea","#campaignIdea","#listingIdea","#shaneSportsGoal"];
+ const conversationSelectors=["#welcomeIdea","#visionPrompt","#shane-natural-prompt","#shaneDiscoveryWish","#shaneGrowthGoal","#shaneBuildRequestGoal","#shaneWorkspaceIdea","#shaneCommunityVision","#shaneMemberWelcome","#visionInput","#shaneIdeaReply","#communityIdea","#campaignIdea","#listingIdea","#shaneSportsGoal","#taskIdea","#goalInput"];
  const getCurrent=()=>conversationSelectors.map(selector=>document.querySelector(selector)).find(element=>element&&typeof element.value==="string"&&element.value.trim());
  const active=()=>{try{const item=JSON.parse(sessionStorage.getItem(continuityKey)||"null");return item&&typeof item.text==="string"&&Date.now()-item.updated<86400000?item:null}catch{return null}};
  const preserve=()=>{const field=getCurrent();if(!field)return;journalAdd(field.value,"idea");try{sessionStorage.setItem(continuityKey,JSON.stringify({text:field.value.trim().slice(0,4000),source:page,updated:Date.now()}))}catch{}};
