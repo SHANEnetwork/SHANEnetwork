@@ -426,10 +426,31 @@ function init(){
  void refreshProgress();
  const conversationReply=document.createElement("div");conversationReply.className="shane-conversation-reply";
  conversationReply.setAttribute("role","status");conversationReply.setAttribute("aria-live","polite");
+ const askAI=document.createElement("button");askAI.type="button";askAI.textContent="Explore this idea with SHANE AI";
+ const aiReply=document.createElement("p");aiReply.className="shane-ai-conversation-response";aiReply.setAttribute("aria-live","polite");aiReply.style.whiteSpace="pre-wrap";
+ askAI.addEventListener("click",async()=>{
+  const request=sharedComposerText(),endeavorId=window.SHANECurrentEndeavor?.read?.();
+  if(!request){aiReply.textContent="Describe what you want to create first.";return}
+  if(!endeavorId){aiReply.textContent="Select a saved endeavor to explore it with AI.";return}
+  const sb=window.shaneAccountDb;
+  if(!sb?.functions?.invoke){aiReply.textContent="SHANE's account connection is not ready.";return}
+  askAI.disabled=true;aiReply.textContent="Exploring your vision…";
+  try{
+   const plan=await window.SHANEEndeavorPlan?.latest?.(endeavorId);
+   if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)return;
+   const {data,error}=await sb.functions.invoke("shane-converse",{body:{endeavorId,request,purpose:plan?.vision||request}});
+   if(error||data?.error)throw Error(data?.error||error?.message||"AI is unavailable.");
+   if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)return;
+   if(typeof data?.response!=="string"||!data.response.trim())throw Error("SHANE returned no response.");
+   aiReply.textContent=data.response;
+   document.dispatchEvent(new CustomEvent("shane:ai-conversation-response",{detail:{endeavorId,request,response:data.response,executed:false}}));
+  }catch(error){aiReply.textContent=String(error?.message||error)}
+  finally{askAI.disabled=false}
+ });
  const replyHeading=document.createElement("strong");replyHeading.textContent="SHANE's next step";
  const replyText=document.createElement("p");
  const replyActions=document.createElement("div");replyActions.className="shane-conversation-reply-actions";
- conversationReply.append(replyHeading,replyText,replyActions);
+ conversationReply.append(replyHeading,replyText,replyActions,askAI,aiReply);
  const explainVision=()=>{
   const text=sharedComposerText();
   conversationReply.hidden=!text;
