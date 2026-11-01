@@ -408,6 +408,31 @@ function synthesizeEndeavor({vision,endeavorId,existing=[]}={}){
  }).sort((a,b)=>b.score-a.score||a.steps.length-b.steps.length);
  return {goal,paths,recommended:paths[0]||null,signals:matches,privateByDefault:true,requiresReview:true,executed:false};
 }
+// Recovered design principles translated into inspectable, deterministic
+// engineering checks. These do not claim the historical engines were running.
+function compassReview({vision,paths=[]}={}){
+ const goal=String(vision||"");
+ const checks=[
+  {name:"Spiral Compass: truths, lies, secrets",question:"Which requested outcomes are explicit, inferred or still unknown?",findings:[]},
+  {name:"Spiral Compass: hidden factors and traps",question:"What dependencies or missing details could prevent execution?",findings:[]},
+  {name:"Spiral Compass: contradictions",question:"Which proposed actions conflict with the stated intention?",findings:[]},
+  {name:"Spiral Compass: desires, delays and false paths",question:"Which steps create immediate value and which should wait?",findings:[]},
+  {name:"Fractal Compass",question:"Does the proposed approach remain coherent from individual step to complete endeavor?",findings:[]},
+  {name:"Mirror Cat",question:"Which assumptions deserve challenge before committing resources?",findings:[]},
+  {name:"Spiral Tuning Fork",question:"Do the programs interpret the endeavor consistently?",findings:[]}
+ ];
+ const unknown=checks[0],hidden=checks[1],contradiction=checks[2],delay=checks[3],fractal=checks[4],mirror=checks[5],tuning=checks[6];
+ if(!goal.trim())unknown.findings.push("The original intention is missing.");
+ const types=new Set(paths.flatMap(p=>(p.steps||[]).map(x=>x.type)));
+ if(types.has("campaign"))hidden.findings.push("Campaigns require a future interest deadline before saving.");
+ if(types.has("website"))hidden.findings.push("Website revisions require a verified member-owned site.");
+ if(types.has("campaign")&&/publish|launch|send|invite/i.test(goal))contradiction.findings.push("Creating a private campaign does not publish or contact anyone.");
+ if(paths.some(p=>p.evaluation?.alternatives?.length))delay.findings.push("Preserve incomplete steps as proposals while executing only an explicitly approved, valid sequence.");
+ if(paths.some(p=>p.steps?.length>1))fractal.findings.push("Verify each saved artifact and its relation to the same endeavor, not only the final response.");
+ if(paths.some(p=>p.steps?.length>1))tuning.findings.push("Confirm all capability steps refer to the same member-owned endeavor.");
+ mirror.findings.push("A keyword match is not evidence that the member wants every matched program created.");
+ return {checks,method:"Ponderer explores; Harmonizer reconciles; Maximizer compares; Compass reviews challenge assumptions; Genies execute only supported approved operations.",executionAuthorized:false};
+}
 function prepareCreationSequence({proposal,updates={}}={}){
  if(!proposal||!Array.isArray(proposal.steps))throw Error("A creation proposal is required.");
  const allowed=["deadline","siteId"];
@@ -674,6 +699,6 @@ async function restoreSiteVersion({siteId,versionId,confirmed=false}={}){
  if(error)throw error;if(!updated)throw Error("Site changed since restoration began. Reload before trying again.");
  return {restored:true,siteId,versionId};
 }
-window.SHANEConversationStore=Object.freeze({beginEndeavor,converse,evaluateCreationPlan,synthesizeEndeavor,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,computerCapabilities,inspectOperation,previewVisionSequence,proposeCreationSequence,prepareCreationSequence,executeVision,executeVisionSequence,verifySequenceProgress,saveCreationPlan,loadCreationPlan,listSavedCreationPlans,searchSavedCreationPlans,recallEndeavor,describeSavedCreationPlan,recoverCreationProgress,inspectSavedEndeavor,continueSavedEndeavor,resumeVisionSequence,recentCreations,findSavedCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
+window.SHANEConversationStore=Object.freeze({beginEndeavor,converse,evaluateCreationPlan,synthesizeEndeavor,compassReview,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,computerCapabilities,inspectOperation,previewVisionSequence,proposeCreationSequence,prepareCreationSequence,executeVision,executeVisionSequence,verifySequenceProgress,saveCreationPlan,loadCreationPlan,listSavedCreationPlans,searchSavedCreationPlans,recallEndeavor,describeSavedCreationPlan,recoverCreationProgress,inspectSavedEndeavor,continueSavedEndeavor,resumeVisionSequence,recentCreations,findSavedCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
 document.dispatchEvent(new Event("shane:conversation-store-ready"));
 void flush();
