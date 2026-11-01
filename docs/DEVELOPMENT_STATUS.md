@@ -153,3 +153,10 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Added `SHANECapabilities.prepare({capabilityId,vision,endeavorId})` as an allowlisted, endeavor-scoped handoff bridge; rejects unknown actions, empty ideas, mismatched endeavor IDs, and private incident-page use.
 - Multi-capability links use the shared bridge. This is preparation only, **not** live AI execution, public publishing, payment, invitations, or automated changes to the underlying programs.
 - Remaining priority: server-side authenticated AI interpretation, durable plan/state persistence, safe tool invocation into existing modules, and full-page rendered experience.
+
+## Account-backed endeavor plan integration
+- Created `shane-endeavor-plan.js`, a shared account-backed plan API using the existing RLS-protected `shane_conversation_entries` table (`entry_kind=endeavor-plan`).
+- Exposes `latest`, `draft`, `create`, `setStep`, and `prepareStep`; records successive plan revisions and per-capability states while retaining earlier versions in the conversation store.
+- Loaded across shared SHANE pages, and `SHANEConversation.visionContext()` now includes the latest saved plan. No new public-facing form or replacement of legacy programs.
+- The newly supplied 84-page Recursive Sentient Core Architecture offers conceptual analogies for continuity spine, integrated state, prioritization and coherence, but is not itself a proven AI model implementation.
+- **Important limitations:** plans are deterministically inferred from rules, not LLM-generated; no background autonomy; account sign-in and database availability required; existing module actions still require explicit user approval. No end-to-end browser/database test completed.
