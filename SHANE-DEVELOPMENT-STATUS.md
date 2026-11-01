@@ -426,3 +426,8 @@ No action requested as of this update.
 - Replaced three separate shared-composer creation buttons with one context-sensitive action (baff227). It routes recognized community, campaign and Network-listing intentions to existing private, owner-scoped creation operations.
 - Campaign creation retains a required interest deadline; no creation automatically publishes. Successful actions show links and optionally record endeavor history.
 - Existing dedicated creation pages remain available. Intent matching is currently heuristic, not yet an AI-powered general capability router; authenticated end-to-end browser testing is outstanding. SHONnetwork unchanged.
+
+## 2026-11-01: conversational revisions of saved websites
+- Added owner-scoped saved-site lookup to shared conversation store (3b6bc92).
+- Extended the existing unified conversation action to recognize website revision requests and invoke the server-backed shane-revise-site operation (81767be). The existing builder and saved-version mechanism remain available.
+- Explicitly require a saved website selection before changing it (ca28ae4); no arbitrary first-site revision. The shared action remains heuristic intent routing, not an AI classifier. Authenticated browser end-to-end verification remains outstanding. SHONnetwork unchanged.
