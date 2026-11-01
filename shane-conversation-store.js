@@ -236,6 +236,37 @@ async function creationContext({limit=8}={}){
  const items=await recentCreations({limit});
  return items.map(item=>({type:item.type,title:item.title,id:item.id,url:item.url,updatedAt:item.at}));
 }
+async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
+ const request=String(vision||"").trim();
+ if(request.length<8||request.length>12000)throw Error("Describe your intended creation in 8 to 12000 characters.");
+ const allowed=["new-website","website","community","campaign","listing"];
+ if(!allowed.includes(type))throw Error("This action is not supported yet.");
+ const account=await user();if(!account)throw Error("Sign in to create with SHANE.");
+ let result;
+ if(type==="new-website")result=await createPrivateWebsite({vision:request});
+ else if(type==="website"){
+  if(!siteId)throw Error("Choose the saved website to revise.");
+  result=await reviseSite({siteId,request});
+ }else if(type==="community"){
+  const draft=await interpretVision({capability:"community",vision:request});
+  result=await createPrivateCommunity({vision:request,name:draft.name,description:draft.description||request,category:draft.category});
+ }else if(type==="campaign"){
+  if(!deadline)throw Error("Choose the interest deadline before creating a campaign.");
+  const draft=await interpretVision({capability:"campaign",vision:request});
+  result=await createPrivateCampaign({vision:request,title:draft.title,description:draft.description||request,category:draft.category,location:draft.location,deadline});
+ }else{
+  const title=request.split(/[.!?]/)[0].trim().slice(0,150);
+  result=await createPrivateListing({vision:request,title,description:request,endeavorId});
+ }
+ if(!result?.saved||result.published===true)throw Error("The private creation was not confirmed.");
+ const id=type==="community"?result.organizationId:type==="campaign"?result.campaignId:type==="listing"?result.listingId:result.siteId;
+ if(!id)throw Error("The saved creation did not return its identifier.");
+ const destinations={
+  "new-website":"builder.html?site=","website":"builder.html?site=",
+  "community":"communities.html?organization=","campaign":"campaigns.html?campaign=","listing":"members.html?listing="
+ };
+ return {saved:true,published:false,type,id,url:destinations[type]+encodeURIComponent(id),result};
+}
 async function ownedSites(){
  const account=await user();if(!account)throw Error("Sign in to access your websites.");
  const {data,error}=await db.from("shane_sites").select("id,name,status,updated_at").eq("owner_id",account.id).order("updated_at",{ascending:false}).limit(100);
@@ -267,6 +298,6 @@ async function restoreSiteVersion({siteId,versionId,confirmed=false}={}){
  if(error)throw error;if(!updated)throw Error("Site changed since restoration began. Reload before trying again.");
  return {restored:true,siteId,versionId};
 }
-window.SHANEConversationStore=Object.freeze({converse,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,recentCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
+window.SHANEConversationStore=Object.freeze({converse,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,executeVision,recentCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
 document.dispatchEvent(new Event("shane:conversation-store-ready"));
 void flush();
