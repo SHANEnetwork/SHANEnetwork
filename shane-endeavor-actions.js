@@ -550,7 +550,7 @@ function init(){
      }catch(error){summary.textContent="SHANE can prepare these drafts. Saved progress could not be inspected: "+error.message;}
      const execute=document.createElement("button");
      execute.type="button";
-     execute.textContent="Create these private drafts";
+     execute.textContent=proposal.steps.length===1?"Create my private draft":"Create these private drafts";
      execute.onclick=async()=>{
       execute.disabled=true;
       summary.textContent="Creating private drafts…";
