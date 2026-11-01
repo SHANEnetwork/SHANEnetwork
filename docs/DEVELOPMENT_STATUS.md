@@ -207,3 +207,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Shared navigation's endeavor history is collapsible, keeping earlier conversation accessible without permanently expanding the header.
 - Members can bring their latest saved non-plan idea from a selected endeavor back into the shared composer for conversational refinement and cross-program continuation.
 - Existing pages, their editors, and SHONnetwork are unchanged. This pass has not been browser tested and does not constitute an AI model integration.
+
+## Endeavor-scoped conversation drafts
+- Shared composer session drafts now use a selected-endeavor-specific key, with a separate personal draft and restoration on endeavor context change.
+- A small context label identifies whether the draft belongs to the selected endeavor or personal workspace. Existing pages and manual tools remain untouched.
+- This is client-side draft isolation, not server-side authorization. Full browser verification and model-powered orchestration remain pending.
