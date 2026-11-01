@@ -151,3 +151,6 @@ main :where([role=status],[aria-live=polite]){overflow-wrap:anywhere}
 .shane-conversation-thread-message small{color:#755d6d;text-transform:capitalize;font-size:.73rem;font-weight:750}
 .shane-conversation-thread [role=status]{font-size:.88rem}
 .shane-conversation-thread[hidden]{display:none!important}
+
+.shane-conversation-thread>summary{cursor:pointer;font:750 .95rem system-ui,sans-serif;color:#ffe6c1}
+.shane-conversation-thread[open]>summary{margin-bottom:10px}
