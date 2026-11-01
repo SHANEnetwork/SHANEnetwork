@@ -76,8 +76,8 @@ function prepareEditableDraft(page){
  button.click();
  return true;
 }
-function announceVision(page,target,field,source,endeavorId){
- document.dispatchEvent(new CustomEvent("shane:endeavor-arrived",{detail:{page,endeavorId,field:target.field,source,vision:field.value.trim()}}));
+function announceVision(page,target,field,source,endeavorId,context=null){
+ document.dispatchEvent(new CustomEvent("shane:endeavor-arrived",{detail:{page,endeavorId,field:target.field,source,vision:field.value.trim(),context}}));
  Promise.resolve(window.SHANEConversation?.visionContext?.()).then(context=>{
   if(context)document.dispatchEvent(new CustomEvent("shane:vision-context-ready",{detail:{...context,vision:field.value.trim(),page}}));
  }).catch(()=>{});
@@ -146,7 +146,7 @@ function init(){
  const draftPrepared=prepareEditableDraft(page);
  if(status&&draftPrepared&&page!=="my-network.html")status.textContent="Your idea has arrived and its editable draft is prepared. Review before continuing.";
  try{sessionStorage.removeItem("shane-intent-handoff-v1")}catch{}
- announceVision(page,target,field,"handoff",item.endeavorId||null);
+ announceVision(page,target,field,"handoff",item.endeavorId||null,item.context||null);
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
