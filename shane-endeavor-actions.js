@@ -43,6 +43,20 @@ const intentRules=[
  ["contact.html",/contact shane|send a message to shane|contact support|ask shane team/i],
  ["builder.html",/website|webpage|storefront|online shop|create a site|build a site|portfolio|landing page|online presence/i]
 ];
+// A machine-readable capability contract for future model-driven orchestration.
+// Only registered local destinations are allowed. Sensitive actions stay gated
+// by the existing module's own authorization and explicit user confirmation.
+const capabilityCatalog=Object.freeze(targets.filter(([path])=>path!=="system-health.html"&&path!=="contact.html").map(([path,label])=>Object.freeze({
+ id:path.replace(/\.html$/,""),path,label,
+ action:"prepare",execution:"requires-module",requiresConfirmation:true
+})));
+function interpretVision(text){
+ const vision=String(text||"").trim().slice(0,4000);
+ if(!vision)return {version:1,vision:"",capabilities:[],status:"needs-vision"};
+ const capabilities=capabilityCatalog.filter(item=>intentRules.some(([path,pattern])=>path===item.path&&pattern.test(vision)));
+ return {version:1,vision,capabilities,preferredDestination:suggest(vision),status:"proposed",execution:"not-started"};
+}
+window.SHANECapabilities=Object.freeze({catalog:()=>capabilityCatalog.slice(),interpret:interpretVision});
 function suggest(text){
  // Interpret several goals together instead of failing whenever a vision mentions
  // both a website and the people, event, or community it is meant to serve.
