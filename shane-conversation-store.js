@@ -478,6 +478,13 @@ async function executeVisionSequence({steps,endeavorId,startIndex=0}={}){
  if(!preview.ready)throw Error("Cannot start endeavor: "+(preview.reason||"Invalid steps."));
  const completed=[];
  const account=await user();if(!account)throw Error("Sign in before executing an endeavor.");
+ // A saved endeavor is the boundary for every step in this sequence.
+ // Never let an AI-generated step redirect a creation receipt to another endeavor.
+ if(endeavorId){
+  const {data:owned,error:ownerError}=await db.from("shane_endeavors").select("id").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
+  if(ownerError||!owned)throw Error("This endeavor does not belong to your account.");
+ }
+ if(steps.some(step=>step.endeavorId&&step.endeavorId!==endeavorId))throw Error("Creation steps must belong to the selected endeavor.");
  for(let index=0;index<steps.length;index++){
   const step=steps[index];
   if(!step||typeof step!=="object"||Array.isArray(step))throw Error("Invalid creation step "+(index+1));
