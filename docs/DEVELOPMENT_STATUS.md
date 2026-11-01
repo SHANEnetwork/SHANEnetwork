@@ -288,3 +288,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 ## Conversational capability discovery expansion
 - Extended the shared deterministic intent rules for community discussions and updates, volunteer coordination, audience growth, team work and payment-related planning.
 - The rules reuse existing SHANE pages and their permission/confirmation boundaries. They do not execute transactions or supply a generative AI backend. Browser verification remains pending.
+
+## Account-backed vision resumption across creation pages
+- The existing 'Continue my saved endeavor here' action now prefers the latest versioned endeavor plan vision, falling back to recent conversation entries when no plan is available.
+- Resuming an endeavor uses the same shared arrival/context events and allowlisted editable-draft preparation as normal cross-page handoff. It never auto-submits or publishes.
+- Resumption also checks that the target field still exists before applying asynchronous results. Browser verification remains pending.
