@@ -437,6 +437,7 @@ function init(){
  const askAI=document.createElement("button");askAI.type="button";askAI.textContent="Talk with SHANE AI";
  const aiReply=document.createElement("p");aiReply.className="shane-ai-conversation-response";
  const aiNext=document.createElement("a");aiNext.hidden=true;aiNext.textContent="Continue building this endeavor";aiReply.setAttribute("aria-live","polite");aiReply.style.whiteSpace="pre-wrap";
+ entry.addEventListener("keydown",event=>{if(event.key==="Enter"&&(event.ctrlKey||event.metaKey)&&!event.isComposing){event.preventDefault();if(!askAI.disabled)askAI.click()}});
  askAI.addEventListener("click",async()=>{
   const request=sharedComposerText(),endeavorId=window.SHANECurrentEndeavor?.read?.();
   if(!request){aiReply.textContent="Describe what you want to create first.";return}
