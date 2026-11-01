@@ -293,3 +293,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - The existing 'Continue my saved endeavor here' action now prefers the latest versioned endeavor plan vision, falling back to recent conversation entries when no plan is available.
 - Resuming an endeavor uses the same shared arrival/context events and allowlisted editable-draft preparation as normal cross-page handoff. It never auto-submits or publishes.
 - Resumption also checks that the target field still exists before applying asynchronous results. Browser verification remains pending.
+
+## Vision continuity across refinements and restores
+- New versioned endeavor plans preserve a bounded history of prior vision texts while retaining previously planned capabilities and their states.
+- Restoring an earlier plan revision also carries forward the recently active vision in bounded history rather than discarding it.
+- These are account-backed continuity improvements, not a generative AI model or autonomous orchestration. Browser verification pending.
