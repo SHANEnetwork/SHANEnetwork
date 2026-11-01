@@ -96,3 +96,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Added safe endeavor handoffs to contact.html and system-health.html, using the existing support idea field rather than submitting forms or modifying incident records.
 - Expanded shared endeavor action routing to contact and technical problem reports; the existing contact mailto and system report submission implementations remain unchanged.
 - Added support idea to per-endeavor draft restoration and cross-page continuity. Source commits completed; browser verification pending.
+
+## Routing quality and incident confidentiality
+- Improved multi-goal intent prioritization: explicit checkout/payment requests and volunteer recruitment now resolve to the appropriate existing capability even when an idea also mentions events or communities.
+- Restricted incident-report text from the shared creative-endeavor journal, cross-page idea capture, and per-endeavor draft snapshots. Operational incident reporting continues through the existing incident form and its own permissions.
+- Contact messages continue to participate in creative continuity when explicitly prepared. These are source changes only; full browser verification remains pending.
