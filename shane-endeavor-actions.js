@@ -247,7 +247,7 @@ function init(){
   }
   if(!text){status.textContent="Describe your idea here or choose a saved endeavor to continue.";return}
   const destination=select.value||suggest(text);
-  if(!destination){status.textContent="Your idea spans several possibilities. Choose where to begin.";select.focus();return}
+  if(!destination){status.textContent="Tell SHANE what you want to create, or choose a destination.";select.focus();return}
   button.disabled=true;status.textContent="Carrying your endeavor forward…";
   let endeavorId=null;
   try{const value=window.SHANECurrentEndeavor?.read?.();if(typeof value==="string")endeavorId=value}catch{}
