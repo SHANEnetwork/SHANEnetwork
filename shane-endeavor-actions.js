@@ -214,6 +214,21 @@ function init(){
  document.addEventListener("shane:conversation-context-changed",()=>void loadThread());
  document.addEventListener("shane:endeavor-plan-ready",()=>void loadThread());
  void loadThread();
+ const usePrevious=document.createElement("button");usePrevious.type="button";usePrevious.textContent="Continue from saved idea";
+ usePrevious.addEventListener("click",async()=>{
+  const selected=window.SHANECurrentEndeavor?.read?.()||null;
+  if(!selected){composerStatus.textContent="Select an endeavor first.";return}
+  try{
+   const rows=await window.SHANEConversationStore?.list?.({endeavorId:selected,limit:100});
+   const last=rows?.find(row=>!["endeavor-plan","endeavor-transition"].includes(row.entry_kind)&&typeof row.body==="string"&&row.body.trim());
+   if(!last){composerStatus.textContent="No saved idea was found for this endeavor.";return}
+   entry.value=last.body.slice(0,4000);
+   try{sessionStorage.setItem(conversationKey,entry.value)}catch{}
+   update();explainVision();entry.focus();
+   composerStatus.textContent="Saved idea restored to the conversation. Refine it or continue.";
+  }catch{composerStatus.textContent="Saved ideas are unavailable right now."}
+ });
+ composerActions.insertBefore(usePrevious,composerStatus);
  const conversationReply=document.createElement("div");conversationReply.className="shane-conversation-reply";
  conversationReply.setAttribute("role","status");conversationReply.setAttribute("aria-live","polite");
  const replyHeading=document.createElement("strong");replyHeading.textContent="SHANE's next step";
