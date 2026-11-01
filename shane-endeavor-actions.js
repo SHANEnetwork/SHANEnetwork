@@ -1198,12 +1198,21 @@ function init(){
    if(!records.length){endeavorsList.textContent="Your saved endeavors will appear here.";return}
    for(const record of records.slice(0,30)){
     if(typeof record.id!=="string"||!record.id)continue;
-    const link=document.createElement("a");
-    link.className="shane-workspace-endeavor-choice";
-    link.href="dashboard.html?endeavor="+encodeURIComponent(record.id);
-    link.textContent=String(record.title||"Untitled endeavor").slice(0,120);
-    if(record.id===active)link.setAttribute("aria-current","true");
-    endeavorsList.append(link);
+    const choice=document.createElement("button");
+    choice.type="button";
+    choice.className="shane-workspace-endeavor-choice";
+    choice.textContent=String(record.title||"Untitled endeavor").slice(0,120);
+    choice.setAttribute("aria-pressed",String(record.id===active));
+    choice.addEventListener("click",()=>{
+     if(record.id===window.SHANECurrentEndeavor?.read?.())return;
+     try{
+      sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:record.id,updated:Date.now()}));
+      document.dispatchEvent(new Event("shane:conversation-context-changed"));
+      document.dispatchEvent(new Event("shane:endeavor-context-ready"));
+      void loadEndeavors();
+     }catch(error){endeavorsList.setAttribute("aria-label","Unable to switch endeavor: "+String(error?.message||error))}
+    });
+    endeavorsList.append(choice);
    }
   }catch(error){
    if(requestId===endeavorsRequest)endeavorsList.textContent="Unable to load endeavors: "+String(error?.message||error);
