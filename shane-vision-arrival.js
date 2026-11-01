@@ -116,11 +116,10 @@ function enableInPlaceConversation(page,target,field){
   const vision=source?.value?.trim()||window.SHANEConversation?.currentVision?.()||"";
   if(!vision){note.textContent="Describe your idea in the shared SHANE conversation first.";source?.focus();return}
   if(field.value.trim()&&field.value.trim()!==vision&&!confirm("Replace this field with your current SHANE conversation?"))return;
-  field.value=vision.slice(0,field.maxLength>0?field.maxLength:vision.length);
-  field.dispatchEvent(new Event("input",{bubbles:true}));
-  note.textContent="Your conversation is ready in this workspace. Review and refine it before proceeding.";
+  const limited=deliverVision(field,vision);
+  note.textContent=limited?"Your full conversation is preserved. This workspace has a shorter field limit; review the editable copy before continuing.":"Your conversation is ready in this workspace. Review and refine it before proceeding.";
   if(prepareEditableDraft(page)){
-   note.textContent="SHANE passed your conversation into this workspace's editable draft. Review it before continuing.";
+   if(!limited)note.textContent="SHANE passed your conversation into this workspace's editable draft. Review it before continuing.";
   }
   announceVision(page,target,field,"conversation",window.SHANECurrentEndeavor?.read?.()||null);
  });
