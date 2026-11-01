@@ -181,6 +181,16 @@ async function converse({endeavorId,request,purpose}){
       " recent="+item.messages.map(message=>(message.fromSelf?"member":"collaborator")+": "+message.body).join(" | ")).join("; ");
    }
   }catch(error){console.warn("Collaboration context not available",error)}
+  // Give SHANE a grounded cross-program view before it proposes new work.
+  // This is contextual information, never authority to edit or publish.
+  try{
+   const snapshot=await endeavorSnapshot({endeavorId});
+   const saved=snapshot.creations.slice(0,12).map(item=>String(item.type)+" "+String(item.title||"Untitled").slice(0,90)+" ["+item.id+"]");
+   if(saved.length)groundedPurpose+="\\nConfirmed saved creations linked to this endeavor: "+saved.join("; ");
+   const others=snapshot.accountCreations.filter(item=>!item.linkedToEndeavor).slice(0,8);
+   if(others.length)groundedPurpose+="\\nOther account-owned creations that might be reusable, but are NOT linked to this endeavor: "+others.map(item=>String(item.type)+" "+String(item.title||"Untitled").slice(0,90)).join("; ");
+   if(!snapshot.availability.creations||!snapshot.availability.history)groundedPurpose+="\\nSome saved creation context is unavailable. Do not assume missing records mean nothing exists.";
+  }catch(error){console.warn("Unified endeavor context unavailable",error)}
   // Keep conversational continuity and concrete creation receipts together.
   // Query by kind so unrelated navigation records cannot crowd out the memory.
   const rows=await list({endeavorId,limit:48,kinds:["ai-request","ai-response","idea","creation","creation-summary"]});
