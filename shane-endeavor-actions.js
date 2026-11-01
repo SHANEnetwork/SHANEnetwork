@@ -519,7 +519,12 @@ function init(){
       // involve a shop, a community and an event even when this turn mentions
       // only one of those activities.
       const original=purpose===request?[]:(window.SHANECapabilities?.interpret?.(purpose)?.capabilities||[]);
-      const availableDestinations=[...suggested,...original].filter((capability,index,all)=>
+      const priorRequests=Array.isArray(plan?.visionHistory)?plan.visionHistory:[];
+      const priorCapabilities=priorRequests.flatMap(item=>{
+       const text=typeof item==="string"?item:typeof item?.request==="string"?item.request:"";
+       return text?window.SHANECapabilities?.interpret?.(text)?.capabilities||[]:[];
+      });
+      const availableDestinations=[...suggested,...original,...priorCapabilities].filter((capability,index,all)=>
        capability.path&&!listed.has(capability.id)&&all.findIndex(item=>item.id===capability.id)===index);
       for(const capability of availableDestinations){
        if(listed.has(capability.id)||!capability.path)continue;
