@@ -51,6 +51,23 @@ async function offerAccountResume(page,target,field){
  });
  container.append(button,note);
 }
+// Only these known, non-submitting controls prepare editable local drafts.
+const draftButtons=Object.freeze({
+ "campaigns.html":"campaignDraft",
+ "communities.html":"communityDraft",
+ "growth.html":"shaneGrowthPrepare",
+ "community-feed.html":"communityUpdatePrepare",
+ "community-opportunities.html":"opportunityPrepare",
+ "community-conversations.html":"shaneCommunityPrepare",
+ "members.html":"listingDraft",
+ "request-build.html":"shaneBuildRequestPrepare"
+});
+function prepareEditableDraft(page){
+ const button=document.getElementById(draftButtons[page]);
+ if(!button||button.disabled||button.type!=="button")return false;
+ button.click();
+ return true;
+}
 function enableInPlaceConversation(page,target,field){
  const container=field.closest(".shane-conversation-intake")||field.parentElement;
  if(!container||container.querySelector(".shane-use-conversation-here"))return;
@@ -66,22 +83,8 @@ function enableInPlaceConversation(page,target,field){
   field.value=vision.slice(0,field.maxLength>0?field.maxLength:4000);
   field.dispatchEvent(new Event("input",{bubbles:true}));
   note.textContent="Your conversation is ready in this workspace. Review and refine it before proceeding.";
-  const prepareIds={
-   "campaigns.html":"campaignDraft",
-   "communities.html":"communityDraft",
-   "growth.html":"shaneGrowthPrepare",
-   "community-feed.html":"communityUpdatePrepare",
-   "community-opportunities.html":"opportunityPrepare",
-   "community-conversations.html":"shaneCommunityPrepare",
-   "members.html":"listingDraft",
-   "request-build.html":"shaneBuildRequestPrepare"
-  };
-  const prepare=document.getElementById(prepareIds[page]);
-  if(prepare&&prepare.type!=="submit"&&!prepare.disabled){
-   // Existing preparation handlers create editable drafts only. Never submit forms,
-   // publish, invite, send messages, or authorize a payment through this bridge.
-   prepare.click();
-   note.textContent="SHANE has passed your conversation to this workspace's draft preparation. Review the result before taking any action.";
+  if(prepareEditableDraft(page)){
+   note.textContent="SHANE passed your conversation into this workspace's editable draft. Review it before continuing.";
   }
   document.dispatchEvent(new CustomEvent("shane:endeavor-arrived",{detail:{page,endeavorId:window.SHANECurrentEndeavor?.read?.()||null,field:target.field,source:"conversation"}}));
  });
@@ -112,6 +115,10 @@ function init(){
  }
  const status=document.getElementById(target.status);
  if(status&&page!=="my-network.html")status.textContent="Your idea has arrived from the SHANE Network. Review or refine it when ready.";
+ // The explicit Continue action already chose this destination. Prepare its
+ // editable draft automatically, but never submit or publish the result.
+ const draftPrepared=prepareEditableDraft(page);
+ if(status&&draftPrepared&&page!=="my-network.html")status.textContent="Your idea has arrived and its editable draft is prepared. Review before continuing.";
  try{sessionStorage.removeItem("shane-intent-handoff-v1")}catch{}
  document.dispatchEvent(new CustomEvent("shane:endeavor-arrived",{detail:{page,endeavorId:item.endeavorId||null,field:target.field}}));
  Promise.resolve(window.SHANEConversation?.visionContext?.()).then(context=>{if(context)document.dispatchEvent(new CustomEvent("shane:vision-context-ready",{detail:{...context,vision:field.value.trim(),page}}))}).catch(()=>{});
