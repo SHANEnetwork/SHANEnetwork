@@ -348,6 +348,7 @@ async function recoverCreationProgress({endeavorId,steps}={}){
   return match?{type:match[1],id:match[2],saved:true}:null;
  }).filter(Boolean).reverse();
  const completed=[];
+ if(steps.some(step=>!step||!step.type))throw Error("Invalid endeavor steps.");
  for(const step of steps){
   const match=receipts.findIndex(row=>row.type===step.type);
   if(match<0)break;
