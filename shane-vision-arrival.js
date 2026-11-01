@@ -34,14 +34,21 @@ async function offerAccountResume(page,target,field){
   try{
    for(let n=0;n<25&&!window.SHANEConversationStore;n++)await new Promise(resolve=>setTimeout(resolve,120));
    const store=window.SHANEConversationStore;if(!store)throw Error("Conversation history is not available on this page.");
-   const rows=await store.list({endeavorId:active.id,limit:100});
-   const chosen=rows.find(row=>typeof row.body==="string"&&row.body.trim()&&(row.entry_kind==="idea"||row.entry_kind==="vision"||String(row.entry_kind||"").endsWith("-vision")))||rows.find(row=>typeof row.body==="string"&&row.body.trim()&&!["endeavor-transition","endeavor-plan"].includes(row.entry_kind));
-   if(!chosen)throw Error("No saved conversation was found for this endeavor.");
+   // Prefer the active endeavor's coherent, versioned vision over an arbitrary
+   // older turn. Fall back to conversation history for endeavors without plans.
+   let savedVision="";
+   try{savedVision=String((await window.SHANEEndeavorPlan?.latest?.(active.id))?.vision||"").trim()}catch{}
+   if(!savedVision){
+    const rows=await store.list({endeavorId:active.id,limit:100});
+    const chosen=rows.find(row=>typeof row.body==="string"&&row.body.trim()&&(row.entry_kind==="idea"||row.entry_kind==="vision"||String(row.entry_kind||"").endsWith("-vision")))||rows.find(row=>typeof row.body==="string"&&row.body.trim()&&!["endeavor-transition","endeavor-plan"].includes(row.entry_kind));
+    savedVision=chosen?.body?.trim()||"";
+   }
+   if(!savedVision)throw Error("No saved conversation was found for this endeavor.");
    // Account selection may have changed while history was loading.
    const selected=window.SHANECurrentEndeavor?.read?.()||null;
    if(selected&&selected!==active.id)throw Error("The selected endeavor changed. Choose the project again before resuming.");
    if(field.value.trim())throw Error("This field changed while loading. Your new writing has been preserved.");
-   field.value=chosen.body.slice(0,field.maxLength>0?field.maxLength:4000);field.dispatchEvent(new Event("input",{bubbles:true}));
+   field.value=savedVision.slice(0,field.maxLength>0?field.maxLength:4000);field.dispatchEvent(new Event("input",{bubbles:true}));
    note.textContent="Your saved idea is ready. Review and refine it before creating anything.";
    try{sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:active.id,updated:Date.now()}))}catch{}
    document.dispatchEvent(new CustomEvent("shane:endeavor-arrived",{detail:{page,endeavorId:active.id,field:target.field,source:"account"}}));
