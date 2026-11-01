@@ -278,6 +278,15 @@ function init(){
    const next=await window.SHANEEndeavorPlan?.nextAction?.(selected);
    if(window.SHANECurrentEndeavor?.read?.()!==selected)return;
    const chosen=suggested?{capabilityId:suggested.id,path:suggested.path,label:suggested.label}:next?.step;
+   // Publish a structured, non-executing interpretation for existing pages
+   // and integrations to consume without copying conversation into forms.
+   document.dispatchEvent(new CustomEvent("shane:conversation-journey-updated",{
+    detail:{endeavorId:selected,revision:plan?.revision||null,
+     purpose:plan?.vision||text,latestRequest:text,
+     steps:(plan?.steps||[]).map(step=>({capabilityId:step.capabilityId,status:step.status})),
+     suggestedCapabilityId:chosen?.capabilityId||null,
+     suggestedPath:chosen?.path||null,execution:"not-started"}
+   }));
    if(chosen?.path&&chosen.path!==page){
     composerStatus.replaceChildren();
     composerStatus.append(document.createTextNode("Saved. Continue in "));
