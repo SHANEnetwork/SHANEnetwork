@@ -236,11 +236,28 @@ async function creationContext({limit=8}={}){
  const items=await recentCreations({limit});
  return items.map(item=>({type:item.type,title:item.title,id:item.id,url:item.url,updatedAt:item.at}));
 }
+const computerCapabilities=Object.freeze([
+ {id:"new-website",operation:"create",resource:"shane_sites",privateByDefault:true},
+ {id:"website",operation:"revise",resource:"shane_sites",requires:["siteId"],privateByDefault:true},
+ {id:"community",operation:"create",resource:"shane_organizations",privateByDefault:true},
+ {id:"campaign",operation:"create",resource:"shane_campaigns",requires:["deadline"],privateByDefault:true},
+ {id:"listing",operation:"create",resource:"shane_listings",privateByDefault:true}
+]);
+function inspectOperation({type,vision,siteId,deadline}={}){
+ const capability=computerCapabilities.find(item=>item.id===type);
+ const request=String(vision||"").trim();
+ if(!capability)return {ready:false,reason:"This operation is not connected yet.",type};
+ if(request.length<8)return {ready:false,reason:"Describe what you want SHANE to do.",type};
+ if(request.length>12000)return {ready:false,reason:"This request is too long for this operation.",type};
+ if(type==="website"&&!siteId)return {ready:false,reason:"Select the website to revise.",type};
+ if(type==="campaign"&&!deadline)return {ready:false,reason:"The campaign needs an interest deadline.",type};
+ return {ready:true,type,operation:capability.operation,privateByDefault:true};
+}
 async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
  const request=String(vision||"").trim();
  if(request.length<8||request.length>12000)throw Error("Describe your intended creation in 8 to 12000 characters.");
- const allowed=["new-website","website","community","campaign","listing"];
- if(!allowed.includes(type))throw Error("This action is not supported yet.");
+ const inspection=inspectOperation({type,vision:request,siteId,deadline});
+ if(!inspection.ready)throw Error(inspection.reason);
  const account=await user();if(!account)throw Error("Sign in to create with SHANE.");
  let result;
  if(type==="new-website")result=await createPrivateWebsite({vision:request});
@@ -298,6 +315,6 @@ async function restoreSiteVersion({siteId,versionId,confirmed=false}={}){
  if(error)throw error;if(!updated)throw Error("Site changed since restoration began. Reload before trying again.");
  return {restored:true,siteId,versionId};
 }
-window.SHANEConversationStore=Object.freeze({converse,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,executeVision,recentCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
+window.SHANEConversationStore=Object.freeze({converse,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,computerCapabilities,inspectOperation,executeVision,recentCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
 document.dispatchEvent(new Event("shane:conversation-store-ready"));
 void flush();
