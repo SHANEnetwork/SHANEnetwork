@@ -34,7 +34,7 @@ async function flush(){
 document.addEventListener("shane:conversation-updated",event=>{
  const d=event.detail||{};
  if(typeof d.text!=="string"||!d.text.trim())return;
- pending.push({text:d.text.slice(0,20000),page:String(d.page||"unknown").slice(0,120),kind:String(d.kind||"idea").slice(0,40),endeavorId:activeEndeavor()});
+ pending.push({text:d.text.slice(0,20000),page:String(d.page||"unknown").slice(0,120),kind:String(d.kind||"idea").slice(0,40),endeavorId:typeof d.endeavorId==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(d.endeavorId)?d.endeavorId:activeEndeavor()});
  void flush();
 });
 db.auth.onAuthStateChange(()=>{queueMicrotask(()=>void flush())});
