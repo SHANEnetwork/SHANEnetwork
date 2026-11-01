@@ -37,13 +37,13 @@ function suggest(text){
  if(matches.length===1)return matches[0][0];
  if(!matches.length)return null;
  const priorities=[
-  ["request-build.html",/\\b(hire|done for me|build it for me|custom build)\\b/i],
-  ["workspace.html",/\\b(assign|task|responsibilit|milestone|coordinate volunteers)\\b/i],
-  ["campaigns.html",/\\b(organize|host|plan|launch|schedule)\\b.{0,55}\\b(event|festival|concert|fair|campaign)\\b/i],
-  ["communities.html",/\\b(start|create|form|organize)\\b.{0,45}\\b(community|club|group|association)\\b/i],
-  ["my-network.html",/\\b(find|meet|invite|connect|collaborate)\\b.{0,55}\\b(partners|collaborators|people|team)\\b/i],
-  ["growth.html",/\\b(promote|market|advertise|grow|reach)\\b/i],
-  ["builder.html",/\\b(build|create|design|make|revise)\\b.{0,45}\\b(website|site|page|storefront|portfolio)\\b/i]
+  ["request-build.html",/\b(hire|done for me|build it for me|custom build)\b/i],
+  ["workspace.html",/\b(assign|task|responsibilit|milestone|coordinate volunteers)\b/i],
+  ["campaigns.html",/\b(organize|host|plan|launch|schedule)\b.{0,55}\b(event|festival|concert|fair|campaign)\b/i],
+  ["communities.html",/\b(start|create|form|organize)\b.{0,45}\b(community|club|group|association)\b/i],
+  ["my-network.html",/\b(find|meet|invite|connect|collaborate)\b.{0,55}\b(partners|collaborators|people|team)\b/i],
+  ["growth.html",/\b(promote|market|advertise|grow|reach)\b/i],
+  ["builder.html",/\b(build|create|design|make|revise)\b.{0,45}\b(website|site|page|storefront|portfolio)\b/i]
  ];
  for(const [destination,pattern] of priorities)if(matches.some(([path])=>path===destination)&&pattern.test(value))return destination;
  return null; // Preserve choice for genuinely ambiguous visions.
