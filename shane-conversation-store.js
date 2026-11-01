@@ -303,7 +303,7 @@ function proposeCreationSequence({vision,endeavorId}={}){
  ];
  for(const item of patterns)if(item.match.test(request))steps.push({type:item.type,vision:request,endeavorId});
  const preview=previewVisionSequence({steps});
- return {steps,ready:preview.ready,reason:preview.reason||null,requiresReview:true};
+ return {steps,ready:preview.ready,reason:preview.reason||null,requiresReview:true,executable:false};
 }
 async function executeVisionSequence({steps,endeavorId}={}){
  const preview=previewVisionSequence({steps});
