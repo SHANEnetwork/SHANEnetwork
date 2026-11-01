@@ -270,3 +270,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 ## Endeavor handoff receipt lifecycle
 - Expired arrival receipts are discarded. Duplicate arrivals for steps already prepared do not generate new revisions. Completed or deferred steps are preserved and their pending receipts cleared.
 - These are continuity safeguards for the existing account-backed plan and conversational navigation, not model-driven execution. Browser verification remains pending.
+
+## Additive endeavor refinement and next-action continuity
+- New conversational plan revisions preserve existing registered capabilities and their progress, rather than dropping earlier work when the new vision focuses on a narrower part of the endeavor.
+- A reusable account-backed `SHANEEndeavorPlan.nextAction(endeavorId)` returns the next prepared or proposed capability, or indicates no remaining steps.
+- Shared `SHANEConversation.visionContext()` now includes that next action for consumers across SHANE pages. This is a deterministic planning integration, not an AI inference engine; browser verification remains pending.
