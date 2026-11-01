@@ -15,13 +15,15 @@ const drafts={
 function prepare(event){
  const page=location.pathname.split("/").pop();
  if(event?.detail?.page!==page)return;
- const button=document.getElementById(drafts[page]);if(!button)return;
  const field=document.getElementById(event.detail.field);
  if(!field||!field.value.trim())return;
- // Discovery forms search public information; they do not publish, invite, or contact members.
- // For these pages run their existing search handler, while creation pages only prepare drafts.
- if(button.tagName==="FORM")return; // Never submit an existing form on arrival without an explicit member action.
- else if(!button.disabled&&button.dataset.shaneSafeDraft==="true")queueMicrotask(()=>button.click());
+ // The existing creation action remains user-controlled. Preparing an arrival
+ // never triggers a submit, invitation, publication, or external search.
+ const button=document.getElementById(drafts[page]);
+ if(!button||button.disabled)return;
+ document.dispatchEvent(new CustomEvent("shane:vision-arrival-ready",{
+  detail:{page,field:event.detail.field,endeavorId:event.detail.endeavorId||null}
+ }));
 }
 // Interpret an arriving vision into the existing forms, never into a new setup panel.
 // Draft only: no publishing, messages, invitations, or automatic form submission.
