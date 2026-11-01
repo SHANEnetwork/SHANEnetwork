@@ -88,4 +88,5 @@
   return result;
  }
  window.SHANEEndeavorPlan=Object.freeze({latest,history,restore,draft,create,setStep,prepareStep});
+ document.dispatchEvent(new Event("shane:endeavor-plan-ready"));
 })();
