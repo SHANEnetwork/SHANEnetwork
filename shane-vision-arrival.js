@@ -66,6 +66,20 @@ function enableInPlaceConversation(page,target,field){
   field.value=vision.slice(0,field.maxLength>0?field.maxLength:4000);
   field.dispatchEvent(new Event("input",{bubbles:true}));
   note.textContent="Your conversation is ready in this workspace. Review and refine it before proceeding.";
+  const prepareIds={
+   "campaigns.html":"campaignDraft",
+   "communities.html":"communityDraft",
+   "growth.html":"shaneGrowthPrepare",
+   "community-feed.html":"communityUpdateDraft",
+   "community-opportunities.html":"opportunityDraft"
+  };
+  const prepare=document.getElementById(prepareIds[page]);
+  if(prepare&&!prepare.disabled){
+   // Existing preparation handlers create editable drafts only. Never submit forms,
+   // publish, invite, send messages, or authorize a payment through this bridge.
+   prepare.click();
+   note.textContent="SHANE has passed your conversation to this workspace's draft preparation. Review the result before taking any action.";
+  }
   document.dispatchEvent(new CustomEvent("shane:endeavor-arrived",{detail:{page,endeavorId:window.SHANECurrentEndeavor?.read?.()||null,field:target.field,source:"conversation"}}));
  });
  container.append(button,note);
