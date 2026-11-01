@@ -103,6 +103,7 @@ function init(){
  if(field.value.trim()&&field.value.trim()===item.text.trim()){
   // The receiving page may already have restored the same idea as a draft.
   // Treat that as an arrival, not a conflicting edit.
+  prepareEditableDraft(page);
   try{sessionStorage.removeItem("shane-intent-handoff-v1")}catch{}
   document.dispatchEvent(new CustomEvent("shane:endeavor-arrived",{detail:{page,endeavorId:item.endeavorId||null,field:target.field,source:"existing-draft"}}));
   return;
