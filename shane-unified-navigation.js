@@ -149,6 +149,15 @@
   .shane-conversation-workspace button:focus-visible,.shane-conversation-workspace textarea:focus-visible,.shane-conversation-workspace a:focus-visible{outline:3px solid #bd7e9d;outline-offset:3px}
   .shane-conversation-workspace .shane-ai-conversation-response{white-space:pre-wrap;line-height:1.65}
   .shane-conversation-workspace .shane-conversation-reply-actions{margin-top:14px}
+  .shane-endeavor-timeline{margin:16px 0 24px;padding:18px;border:1px solid #e5d9dc;border-radius:18px;background:#fffdfb}
+  .shane-timeline-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px;color:#4d3548}
+  .shane-timeline-heading button{border:1px solid #d9c9d1;border-radius:9px;padding:7px 12px;background:white;color:#593e51}
+  .shane-timeline-body{display:flex;flex-direction:column;gap:12px;max-height:420px;overflow:auto}
+  .shane-timeline-turn{max-width:90%;padding:12px 16px;border-radius:14px;background:#f4edf2;overflow-wrap:anywhere}
+  .shane-timeline-person{align-self:flex-end;background:#efe4da}
+  .shane-timeline-ai{align-self:flex-start;background:#f1eaf2}
+  .shane-timeline-turn strong{font-size:.85rem;color:#725369}
+  .shane-timeline-turn p{margin:5px 0 0;white-space:pre-wrap;line-height:1.55}
   .shane-conversation-workspace .shane-specialist-capabilities{margin-top:24px;padding:14px 18px;border:1px solid #e3d5d9;border-radius:14px;background:#ffffffb8}
   .shane-conversation-workspace .shane-specialist-capabilities>summary{cursor:pointer;color:#6c4865;font-weight:700}
   .shane-conversation-workspace .shane-specialist-capabilities[open]>summary{margin-bottom:16px}
