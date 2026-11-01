@@ -137,6 +137,19 @@ function useVisionContext(event){
   detail:{page,endeavorId:context.endeavorId||null,purpose:context.arrivalContext?.purpose||null,latestRequest:context.arrivalContext?.latestRequest||vision,revision:context.arrivalContext?.revision||null}
  }));
 }
+// Reuse the same existing draft preparation when the shared conversation
+// changes on this page. No new controls, and never overwrite member edits.
+document.addEventListener("shane:conversation-journey-updated",event=>{
+ const detail=event.detail||{};
+ const page=location.pathname.split("/").pop();
+ if(!pageFields[page]||!detail.latestRequest)return;
+ if(detail.endeavorId&&detail.endeavorId!==window.SHANECurrentEndeavor?.read?.())return;
+ useVisionContext({detail:{
+  page,endeavorId:detail.endeavorId,vision:detail.latestRequest,
+  latestRequest:detail.latestRequest,
+  arrivalContext:{purpose:detail.purpose,latestRequest:detail.latestRequest,revision:detail.revision}
+ }});
+});
 document.addEventListener("shane:vision-context-ready",useVisionContext);
 document.addEventListener("shane:endeavor-arrived",prepare);
 })();
