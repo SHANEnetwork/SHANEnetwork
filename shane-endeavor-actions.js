@@ -441,7 +441,8 @@ function init(){
    const saved=await window.SHANEConversationStore.loadCreationPlan({endeavorId});
    if(!saved){aiReply.textContent="No saved creation plan for this endeavor.";return}
    const progress=await window.SHANEConversationStore.inspectSavedEndeavor(saved);
-   aiReply.textContent=progress.completed.length+" saved creations; "+progress.remaining+" remaining.";
+   const overview=await window.SHANEConversationStore.describeSavedCreationPlan({endeavorId});
+   aiReply.textContent=overview.message+" "+overview.steps.map(step=>step.number+". "+step.type+": "+step.status).join("; ");
    aiNext.replaceChildren();
    for(const item of progress.completed){
     const link=document.createElement("a");link.href=item.url;link.textContent="Open "+item.type;
