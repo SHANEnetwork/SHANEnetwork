@@ -135,3 +135,9 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Shared navigation loads it on existing SHANE pages, except published customer sites.
 - Principles derived from user-supplied Story System and RPG documents: user-directed continuation, stable identity/world rules, explicit state transitions, and repair from last correct checkpoint. No document text is embedded or redistributed.
 - Current implementation is **sessionStorage only**, intentionally not cross-device or durable account storage. It does not generate stories, images, or run AI. Account-backed persistence and real module integrations remain outstanding.
+
+## First milestone adoption in existing composer flows
+- Shared milestone listener records explicit prepared-idea events for known community, campaign and contact composer kinds when a valid endeavor is selected; ignores ordinary keystrokes and avoids repeating identical adjacent milestones.
+- `SHANEConversation.visionContext()` now includes the structured milestone timeline alongside sourced conversation context for future AI-driven execution.
+- This is deterministic context integration, not AI reasoning or an autonomous operation. Existing publication and submission actions still require their own user authorization.
+- Current milestone storage remains session-scoped; full browser and database verification pending.
