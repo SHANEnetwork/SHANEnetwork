@@ -803,12 +803,12 @@ function init(){
    let result,linkTarget,linkLabel,record;
    if(type==="new-website"){
     result=await store.createPrivateWebsite({vision});
-    linkTarget="builder.html";linkLabel="Open builder";record=result.siteId;
+    linkTarget="builder.html?site="+encodeURIComponent(result.siteId);linkLabel="Open created website";record=result.siteId;
    }else if(type==="website"){
     await loadSites();
     if(!siteChoice.value){siteChoice.hidden=false;throw Error("Choose the saved website to revise, then select Revise again.");}
     result=await store.reviseSite({siteId:siteChoice.value,request:vision});
-    linkTarget="builder.html";linkLabel="Review website";record=result.siteId;
+    linkTarget="builder.html?site="+encodeURIComponent(result.siteId);linkLabel="Review revised website";record=result.siteId;
    }else if(type==="community"){
     const draft=await store.interpretVision({capability:"community",vision});
     result=await store.createPrivateCommunity({vision,name:draft.name,description:draft.description||vision,category:draft.category});
