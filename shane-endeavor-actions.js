@@ -114,6 +114,8 @@ function init(){
   if(!targets.some(([path])=>path===destination))return;
   if(destination===(location.pathname.split("/").pop()||"index.html"))return;
   const text=idea();if(!text)return;
+  // Never carry sensitive incident narratives into ordinary creator destinations.
+  if((location.pathname.split("/").pop())==="system-health.html")return;
   let endeavorId=null;
   try{const saved=JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id;if(typeof saved==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(saved))endeavorId=saved}catch{}
   try{sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination,text:text.slice(0,4000),endeavorId,created:Date.now()}));if(destination==="builder.html")sessionStorage.setItem("shane-creative-handoff-v1",JSON.stringify({text:text.slice(0,4000),created:Date.now()}))}catch{}
@@ -121,7 +123,7 @@ function init(){
  select.addEventListener("change",update);
  document.addEventListener("input",event=>{if(event.target?.id&&((fields[location.pathname.split("/").pop()||"index.html"]||[]).includes(event.target.id)||window.SHANEConversation?.draftSnapshot?.().some(item=>item.field===event.target.id)))update()});
  button.addEventListener("click",async()=>{
-  let text=idea();
+  let text=(location.pathname.split("/").pop())==="system-health.html"?"":idea();
   if(!text&&window.SHANEConversationStore?.list){
    try{
     const active=JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id;
