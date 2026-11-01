@@ -1319,11 +1319,12 @@ function init(){
     next.textContent="Review next creation";
     next.style.cssText="margin-left:12px;border:1px solid #ad7b94;border-radius:16px;padding:4px 10px;background:transparent;color:#784b6c;cursor:pointer";
     next.onclick=()=>{
-     const existing=group.querySelector(".shane-specialist-capabilities");
-     if(existing)existing.open=true;
-     const target=group.querySelector("button");
-     const resume=[...group.querySelectorAll("button")].find(button=>/continue|resume|saved plan/i.test(button.textContent||""));
-     (resume||target)?.scrollIntoView({behavior:"smooth",block:"center"});
+     // Return to conversation instead of sending the member through menus.
+     // Reviewing the next step never authorizes its execution.
+     entry.value="Review the remaining steps of my saved endeavor plan and help me decide what to create next.";
+     entry.dispatchEvent(new Event("input",{bubbles:true}));
+     entry.scrollIntoView({behavior:"smooth",block:"center"});
+     entry.focus();
     };
     endeavorContinuity.append(next);
    }
