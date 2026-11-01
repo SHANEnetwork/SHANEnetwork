@@ -12,7 +12,10 @@ const destinations={
  "growth.html":{field:"shaneGrowthGoal",status:"shaneGrowthReply"},
  "request-build.html":{field:"shaneBuildRequestGoal",status:"shaneBuildRequestReply"},
  "sports-district.html":{field:"shaneSportsGoal",status:"shaneSportsResponse"},
- "dashboard.html":{field:"goalInput",status:"goalHint"}
+ "dashboard.html":{field:"goalInput",status:"goalHint"},
+ "payments.html":{field:"paymentVision",status:"paymentResponse"},
+ "community-feed.html":{field:"communityUpdateIdea",status:"communityUpdateDraftStatus"},
+ "community-conversations.html":{field:"shaneCommunityIdea",status:"shaneCommunityReply"}
 };
 async function offerAccountResume(page,target,field){
  if(field.value.trim())return;
