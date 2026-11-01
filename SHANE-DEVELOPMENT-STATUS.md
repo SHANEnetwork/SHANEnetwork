@@ -431,3 +431,8 @@ No action requested as of this update.
 - Added owner-scoped saved-site lookup to shared conversation store (3b6bc92).
 - Extended the existing unified conversation action to recognize website revision requests and invoke the server-backed shane-revise-site operation (81767be). The existing builder and saved-version mechanism remain available.
 - Explicitly require a saved website selection before changing it (ca28ae4); no arbitrary first-site revision. The shared action remains heuristic intent routing, not an AI classifier. Authenticated browser end-to-end verification remains outstanding. SHONnetwork unchanged.
+
+## 2026-11-01: AI website creation directly from shared conversation
+- Added createPrivateWebsite to account-backed conversation store (e2e6340): invokes existing shane-generate-site, checks required structured output, and inserts an unpublished owner-scoped shane_sites draft.
+- Connected new-website requests in the shared conversation to this creation operation (675aa0a), alongside the existing website-revision, community, campaign and listing paths. No public publishing is performed.
+- Existing builder and SHONnetwork untouched. End-to-end authenticated browser verification and builder deep-link selection remain outstanding; the new website link currently opens the builder without automatically selecting the created site.
