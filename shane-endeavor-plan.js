@@ -23,8 +23,11 @@
   if(!valid(endeavorId))throw Error("Choose an endeavor.");
   const interpretation=capabilities()?.interpret?.(vision);
   if(!interpretation?.vision)throw Error("Describe what you want to create.");
+  const original=previous?.vision&&previous.vision!==vision?capabilities()?.interpret?.(previous.vision):null;
+  const merged=new Map(interpretation.capabilities.map(item=>[item.id,item]));
+  for(const item of original?.capabilities||[])if(!merged.has(item.id))merged.set(item.id,item);
   const old=new Map((previous?.steps||[]).map(step=>[step.capabilityId,step]));
-  const steps=interpretation.capabilities.map(item=>{
+  const steps=[...merged.values()].map(item=>{
    const existing=old.get(item.id);
    return {capabilityId:item.id,label:item.label,status:existing?.status||"proposed",
     note:existing?.note||"",requiresConfirmation:true};
