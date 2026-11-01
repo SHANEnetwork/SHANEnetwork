@@ -103,3 +103,13 @@ main :where([role=status],[aria-live=polite]){overflow-wrap:anywhere}
  .shane-unified-nav{flex-wrap:wrap;overflow:visible}
  .shane-unified-nav a{white-space:normal}
 }
+
+/* Shared endeavor identity: an integral part of navigation, never a floating panel. */
+.shane-journey-identity{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0 0;padding:12px 0 0;border-top:1px solid #ffffff38;color:#fff;font:500 .9rem/1.5 system-ui,sans-serif}
+.shane-journey-label{font-weight:750;color:#ffe0a5;white-space:nowrap}
+.shane-journey-thought{flex:1 1 260px;min-width:0;overflow-wrap:anywhere;opacity:.95}
+.shane-journey-identity a{color:#fff!important;text-underline-offset:4px;white-space:nowrap}
+.shane-unified-topbar .shane-journey-identity{color:#463549;border-color:#d6bbc5}
+.shane-unified-topbar .shane-journey-label{color:#704760}
+.shane-unified-topbar .shane-journey-identity a{color:#704760!important}
+@media(max-width:640px){.shane-journey-identity{align-items:flex-start;gap:5px 12px}.shane-journey-thought{flex-basis:100%}}
