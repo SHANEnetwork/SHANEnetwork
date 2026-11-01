@@ -154,3 +154,5 @@ main :where([role=status],[aria-live=polite]){overflow-wrap:anywhere}
 
 .shane-conversation-thread>summary{cursor:pointer;font:750 .95rem system-ui,sans-serif;color:#ffe6c1}
 .shane-conversation-thread[open]>summary{margin-bottom:10px}
+
+.shane-draft-context{display:block;margin-top:7px;color:#fce3c5;font:600 .78rem/1.35 system-ui,sans-serif}
