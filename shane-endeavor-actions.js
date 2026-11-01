@@ -262,6 +262,8 @@ function init(){
     saved=last?.body||"";
    }
    if(!saved){composerStatus.textContent="No saved idea was found for this endeavor.";return}
+   if(entry.value.trim()&&entry.value.trim()!==saved.trim()&&!window.confirm("Replace your current conversation draft with the saved endeavor request?"))return;
+   if(window.SHANECurrentEndeavor?.read?.()!==selected){composerStatus.textContent="The selected endeavor changed. Choose it again to resume.";return}
    entry.value=saved.slice(0,4000);
    try{writeDraft(entry.value)}catch{}
    update();explainVision();entry.focus();
