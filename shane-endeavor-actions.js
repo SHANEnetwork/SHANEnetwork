@@ -435,6 +435,7 @@ function init(){
   const converse=window.SHANEConversationStore?.converse;
   if(!converse){aiReply.textContent="SHANE's conversation connection is still loading.";return}
   askAI.disabled=true;aiReply.textContent="Exploring your vision…";
+  let exchangeSaved=false;
   try{
    const plan=await window.SHANEEndeavorPlan?.latest?.(endeavorId);
    if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)return;
@@ -451,16 +452,17 @@ function init(){
      const questionSaved=await window.SHANEConversationStore.saveTurn(request,{page,kind:"ai-request",endeavorId});
      const answerSaved=await window.SHANEConversationStore.saveTurn(data.response,{page,kind:"ai-response",endeavorId});
      if(!questionSaved?.saved||!answerSaved?.saved)throw Error("Account history was not saved.");
+     exchangeSaved=true;
     }catch(error){
      aiReply.textContent=data.response+"\\n\\nThis response is visible here, but saving it to account history could not be confirmed.";
     }
    }
    document.dispatchEvent(new CustomEvent("shane:ai-conversation-response",{detail:{endeavorId,request,response:data.response,executed:false}}));
-   void loadThread();
+   if(exchangeSaved)void loadThread();
    // The member's next message should be a fresh conversational turn.
    // Keep the saved endeavor and its underlying editable project unchanged.
    const composer=document.getElementById("shane-shared-vision-input");
-   if(composer&&composer.value.trim()===request){
+   if(exchangeSaved&&composer&&composer.value.trim()===request){
     composer.value="";
     composer.dispatchEvent(new Event("input",{bubbles:true}));
     composer.focus();
