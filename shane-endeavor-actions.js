@@ -483,7 +483,11 @@ function init(){
    // AI-generated URLs. The member chooses which capability to prepare.
    if(exchangeSaved&&window.SHANECurrentEndeavor?.read?.()===endeavorId){
     try{
-     const journey=window.SHANEEndeavorPlan?.journey?await window.SHANEEndeavorPlan.journey(endeavorId):null;
+     let journey=null;
+     try{journey=window.SHANEEndeavorPlan?.journey?await window.SHANEEndeavorPlan.journey(endeavorId):null}catch(error){
+      // An unavailable plan must not block working Network destinations.
+      composerStatus.textContent="Your conversation is saved. You can continue in the Network while the plan is unavailable.";
+     }
      if(window.SHANECurrentEndeavor?.read?.()===endeavorId){
       const steps=(journey?.steps||[]).filter(step=>step.path&&["proposed","prepared"].includes(step.status)).slice(0,5);
       for(const step of steps){
