@@ -123,3 +123,9 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Each step can carry the same endeavor text and selected endeavor identity into the existing corresponding capability. This is rule-based routing and continuity, not a live generative AI orchestration engine.
 - The previous optional manual destination selector and existing page functions remain intact. Browser rendering and end-to-end behavior have not yet been verified.
 - Architectural gap: a persistent model-driven interpreter with permissioned tools, durable structured endeavor memory, and automatic working artifact creation is still required for the intended product.
+
+## Continuity architecture informed by Root Zero companion materials
+- Reviewed the supplied companion documents for reusable principles: stable identity anchors, reconstruction from available context, consistent tone, and recovery from interrupted threads.
+- Implemented `SHANEConversationStore.continuityPacket({endeavorId,limit})`: authenticated, selected-endeavor-scoped, bounded, chronological, source-attributed conversation entries, excluding navigation transitions. It does not fabricate memory or treat user statements as independently verified facts.
+- Integrated the packet into the existing `SHANEConversation.visionContext()` response for downstream capability modules. Existing page forms and programs remain unchanged.
+- This is a concrete context API, not a live model invocation, automated planning, or autonomous execution. Browser and Supabase end-to-end verification pending.
