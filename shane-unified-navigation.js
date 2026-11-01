@@ -131,6 +131,29 @@
  document.addEventListener("shane:endeavor-context-ready",()=>void refreshIdentity());
  void refreshIdentity();
  if(header){header.append(nav,continuity)}else{const landmark=document.createElement("div");landmark.className="shane-unified-topbar";landmark.append(nav,continuity);document.body.insertBefore(landmark,document.body.firstChild)}
+ // Shared presentation for the conversation-first environment on every Network page.
+ // Scoped styles leave the existing page programs, forms and saved work intact.
+ if(!document.getElementById("shane-conversation-workspace-style")){
+  const style=document.createElement("style");
+  style.id="shane-conversation-workspace-style";
+  style.textContent=`
+  .shane-conversation-workspace{box-sizing:border-box;position:relative;margin:clamp(16px,3vw,38px) auto 34px;padding:clamp(20px,4vw,42px);width:min(100%,1160px);border:1px solid #e6d9d4;border-radius:26px;background:radial-gradient(ellipse at 85% 0%,#f5dcd9 0%,transparent 43%),linear-gradient(125deg,#fffaf3,#f7f0ed 65%,#f2eaf4);box-shadow:0 16px 48px #392b3a16;color:#302a35}
+  .shane-workspace-heading{max-width:790px;margin:0 0 22px}
+  .shane-workspace-eyebrow{display:block;color:#855a72;font-size:.77rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+  .shane-workspace-heading h2{font-size:clamp(1.55rem,3.6vw,2.8rem);line-height:1.14;letter-spacing:-.035em;color:#30283b;margin:12px 0}
+  .shane-workspace-heading p{line-height:1.6;color:#665a65;margin:0}
+  .shane-conversation-workspace .shane-endeavor-actions{display:block!important;width:100%;max-width:none;min-width:0;color:#302a35}
+  .shane-conversation-workspace .shane-shared-vision-composer{display:block;width:100%;max-width:none}
+  .shane-conversation-workspace textarea#shane-shared-vision-input{box-sizing:border-box;width:100%;min-height:118px;resize:vertical;border:1px solid #d6c3cc;border-radius:16px;padding:17px 19px;background:#fffefd;color:#302a35;font:inherit;line-height:1.55;box-shadow:0 3px 15px #31223a0a}
+  .shane-conversation-workspace button{cursor:pointer}
+  .shane-conversation-workspace button:focus-visible,.shane-conversation-workspace textarea:focus-visible,.shane-conversation-workspace a:focus-visible{outline:3px solid #bd7e9d;outline-offset:3px}
+  .shane-conversation-workspace .shane-ai-conversation-response{white-space:pre-wrap;line-height:1.65}
+  .shane-conversation-workspace .shane-conversation-reply-actions{margin-top:14px}
+  .shane-conversation-workspace [hidden]{display:none!important}
+  @media(max-width:640px){.shane-conversation-workspace{border-radius:18px;padding:18px;margin:12px auto 24px}}
+  `;
+  document.head.append(style);
+ }
  const accountResume=document.createElement("script");accountResume.src="shane-account-resume-nav.js";accountResume.defer=true;document.head.append(accountResume);
  const milestoneScript=document.createElement("script");milestoneScript.src="shane-endeavor-continuity.js";milestoneScript.defer=true;document.head.append(milestoneScript);
  const endeavorActions=document.createElement("script");endeavorActions.src="shane-endeavor-actions.js";endeavorActions.defer=true;document.head.append(endeavorActions);
