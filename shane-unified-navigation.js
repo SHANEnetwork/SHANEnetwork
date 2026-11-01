@@ -134,6 +134,7 @@
  const accountResume=document.createElement("script");accountResume.src="shane-account-resume-nav.js";accountResume.defer=true;document.head.append(accountResume);
  const milestoneScript=document.createElement("script");milestoneScript.src="shane-endeavor-continuity.js";milestoneScript.defer=true;document.head.append(milestoneScript);
  const endeavorActions=document.createElement("script");endeavorActions.src="shane-endeavor-actions.js";endeavorActions.defer=true;document.head.append(endeavorActions);
+ const planScript=document.createElement("script");planScript.src="shane-endeavor-plan.js";planScript.defer=true;document.head.append(planScript);
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
