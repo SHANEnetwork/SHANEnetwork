@@ -129,7 +129,7 @@ function useVisionContext(event){
  if(page==="members.html")fillEmpty(["listingDescription","description"],vision);
  if(page==="sports-district.html")fillEmpty(["organizationDescription","description"],vision);
  if(spec.next){
-  const next=String(context.arrivalContext?.latestRequest||"").trim();
+  const next=String(context.arrivalContext?.latestRequest||context.latestRequest||"").trim();
   if(next)fillEmpty(spec.next,next);
  }
  // Keep the draft editable; downstream features can react to the prepared event.
