@@ -421,3 +421,8 @@ No action requested as of this update.
 - Added createPrivateListing to the shared account-backed store (4d04e9a), saving a draft in existing shane_listings and optionally linking an owner-verified endeavor.
 - Wired the shared Network conversation to the operation (8650002), returning a review link and attempting a creation-history record when an endeavor is selected.
 - Confirmed existing RLS owner INSERT and public-or-owner SELECT policies. Browser end-to-end execution is unverified. The current shared listing action is always displayed and should be consolidated into intent-sensitive conversation actions during further transformation. SHONnetwork untouched.
+
+## 2026-11-01: unified intent-aware creation in shared conversation
+- Replaced three separate shared-composer creation buttons with one context-sensitive action (baff227). It routes recognized community, campaign and Network-listing intentions to existing private, owner-scoped creation operations.
+- Campaign creation retains a required interest deadline; no creation automatically publishes. Successful actions show links and optionally record endeavor history.
+- Existing dedicated creation pages remain available. Intent matching is currently heuristic, not yet an AI-powered general capability router; authenticated end-to-end browser testing is outstanding. SHONnetwork unchanged.
