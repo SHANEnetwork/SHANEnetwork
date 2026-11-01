@@ -138,7 +138,7 @@
  const arrivalKey="shane-pending-plan-arrival-v1";
  function rememberArrival(detail){
   if(!valid(detail?.endeavorId)||typeof detail?.vision!=="string")return;
-  try{sessionStorage.setItem(arrivalKey,JSON.stringify({page:detail.page,endeavorId:detail.endeavorId,vision:detail.vision,created:Date.now()}))}catch{}
+  try{sessionStorage.setItem(arrivalKey,JSON.stringify({page:detail.page,endeavorId:detail.endeavorId,vision:detail.vision,context:detail.context||null,created:Date.now()}))}catch{}
  }
  async function replayArrival(){
   let pending=null;
