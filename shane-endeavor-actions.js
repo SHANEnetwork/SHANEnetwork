@@ -834,14 +834,15 @@ function init(){
  };
  document.addEventListener("shane:artifact-created",showRecentCreation);
  const historyButton=document.createElement("button");historyButton.type="button";historyButton.textContent="Continue a saved creation";
+ const historySearch=document.createElement("input");historySearch.type="search";historySearch.placeholder="Find a saved creation";historySearch.setAttribute("aria-label","Search saved creations");historySearch.hidden=true;
  const historyList=document.createElement("div");historyList.hidden=true;historyList.setAttribute("aria-live","polite");
  historyButton.onclick=async()=>{
-  if(!historyList.hidden){historyList.hidden=true;return}
-  historyButton.disabled=true;historyList.hidden=false;historyList.textContent="Finding your saved creations…";
+  if(!historyList.hidden){historyList.hidden=true;historySearch.hidden=true;return}
+  historyButton.disabled=true;historyList.hidden=false;historySearch.hidden=false;historyList.textContent="Finding your saved creations…";
   try{
    const store=window.SHANEConversationStore;
    if(!store?.recentCreations)throw Error("The saved creation connection is still loading.");
-   const items=await store.recentCreations({limit:12});
+   const items=await store.findSavedCreations({query:historySearch.value,limit:20});
    historyList.replaceChildren();
    if(!items.length){historyList.textContent="No saved creations found in this account yet.";return}
    for(const item of items){
@@ -853,8 +854,9 @@ function init(){
   }catch(error){historyList.textContent="Could not load saved creations: "+error.message}
   finally{historyButton.disabled=false}
  };
- document.addEventListener("shane:artifact-created",()=>{if(!historyList.hidden){historyList.hidden=true;historyList.replaceChildren()}});
- conversation.append(createAction,deadline,siteChoice,createStatus,recentCreation,historyButton,historyList);syncAction();showRecentCreation();
+ historySearch.addEventListener("input",()=>{if(!historyList.hidden)void historyButton.onclick().then(()=>historyButton.onclick())});
+ document.addEventListener("shane:artifact-created",()=>{if(!historyList.hidden){historyList.hidden=true;historySearch.hidden=true;historyList.replaceChildren()}});
+ conversation.append(createAction,deadline,siteChoice,createStatus,recentCreation,historyButton,historySearch,historyList);syncAction();showRecentCreation();
  group.append(conversation,aiReply,aiNext,continueConversation,planProgress,conversationReply,select,button,suggestion,workflow,planResume,revisionControl,status);nav.append(group);update();explainVision();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
