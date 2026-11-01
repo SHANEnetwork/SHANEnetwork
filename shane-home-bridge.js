@@ -1,6 +1,33 @@
 /* Progressive homepage bridge. Existing welcome submission and builder intake remain authoritative. */
 (()=>{"use strict";
 function init(){
+ // Use the same AI workspace as every other SHANE page. The legacy
+ // homepage form remains a fallback if the shared workspace is unavailable.
+ const heroForm=document.getElementById("shane-home-vision-form");
+ const heroIdea=document.getElementById("shane-home-vision");
+ const heroStatus=document.getElementById("shane-home-vision-status");
+ if(heroForm&&heroIdea){
+  heroForm.addEventListener("submit",event=>{
+   const workspace=document.getElementById("shane-conversation-workspace");
+   const composer=workspace?.querySelector("#shane-shared-vision-input");
+   if(!composer)return;
+   event.preventDefault();event.stopImmediatePropagation();
+   const idea=heroIdea.value.trim();
+   if(!idea){if(heroStatus)heroStatus.textContent="Describe your idea to begin.";return}
+   composer.value=idea;
+   composer.dispatchEvent(new Event("input",{bubbles:true}));
+   workspace.scrollIntoView({behavior:"smooth",block:"start"});
+   const active=window.SHANECurrentEndeavor?.read?.();
+   const talk=Array.from(workspace.querySelectorAll("button")).find(button=>button.textContent==="Talk with SHANE AI");
+   if(active&&talk&&!talk.disabled){
+    talk.click();
+    if(heroStatus)heroStatus.textContent="Your idea is continuing in SHANE's shared conversation.";
+   }else{
+    composer.focus({preventScroll:true});
+    if(heroStatus)heroStatus.textContent="Your idea is in SHANE's shared workspace. Select or save an endeavor there to continue with AI.";
+   }
+  },true);
+ }
  const welcome=document.getElementById("shane-home-create");
  if(!welcome)return;
  const links=document.createElement("nav");links.setAttribute("aria-label","Continue your SHANE journey");links.className="shane-journey-links";
