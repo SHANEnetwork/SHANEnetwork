@@ -74,10 +74,15 @@ async function saveTurn(text,{page="unknown",kind="idea",endeavorId=activeEndeav
  document.dispatchEvent(new CustomEvent("shane:conversation-saved",{detail:{endeavorId,page}}));
  return {saved:true};
 }
-async function list({endeavorId=null,limit=100,offset=0,includeArchived=false}={}){
+async function list({endeavorId=null,limit=100,offset=0,includeArchived=false,kinds=null}={}){
  const account=await user();if(!account)throw Error("Sign in to view your conversation history.");
  let query=db.from(table).select("id,endeavor_id,body,source_page,entry_kind,created_at,archived_at").eq("owner_id",account.id).order("created_at",{ascending:false}).range(Math.max(0,offset),Math.max(0,offset)+Math.min(500,Math.max(1,limit))-1);
  if(endeavorId)query=query.eq("endeavor_id",endeavorId);
+ if(Array.isArray(kinds)&&kinds.length){
+  const allowed=kinds.filter(kind=>typeof kind==="string"&&/^[a-z0-9-]{1,40}$/.test(kind));
+  if(!allowed.length)throw Error("No valid conversation entry kinds.");
+  query=query.in("entry_kind",allowed);
+ }
  if(!includeArchived)query=query.is("archived_at",null);
  const {data,error}=await query;if(error)throw error;return data||[];
 }
