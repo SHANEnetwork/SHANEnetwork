@@ -72,6 +72,7 @@ function useVisionContext(event){
  fillEmpty(spec.body,vision);
  const title=extractTitle(vision);
  if(title.length>=3)fillEmpty(spec.title,title);
+ if(page==="campaigns.html")fillEmpty(["location"],(vision.match(/\b(?:in|at|near)\s+([A-Z][\w .-]{2,45})(?=[,.;!]|\s+(?:on|for|with)\b|$)/)||[])[1]||"");
  if(spec.next)fillEmpty(spec.next,"Identify the first shared action and agree who will take it.");
  // Keep the draft editable; downstream features can react to the prepared event.
  document.dispatchEvent(new CustomEvent("shane:vision-draft-prepared",{
