@@ -169,6 +169,7 @@ function init(){
   }catch{planResume.replaceChildren()}
  };
  document.addEventListener("shane:endeavor-plan-saved",()=>void showSavedPlan());
+ document.addEventListener("shane:endeavor-plan-ready",()=>void showSavedPlan());
  document.addEventListener("shane:endeavor-context-ready",()=>void showSavedPlan());
  document.addEventListener("shane:conversation-context-changed",()=>void showSavedPlan());
  void showSavedPlan();
