@@ -77,7 +77,7 @@ function enableInPlaceConversation(page,target,field){
    "request-build.html":"shaneBuildRequestPrepare"
   };
   const prepare=document.getElementById(prepareIds[page]);
-  if(prepare&&!prepare.disabled){
+  if(prepare&&prepare.type!=="submit"&&!prepare.disabled){
    // Existing preparation handlers create editable drafts only. Never submit forms,
    // publish, invite, send messages, or authorize a payment through this bridge.
    prepare.click();
