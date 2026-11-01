@@ -23,30 +23,58 @@ function prepare(event){
  if(button.tagName==="FORM")return; // Never submit an existing form on arrival without an explicit member action.
  else if(!button.disabled&&button.dataset.shaneSafeDraft==="true")queueMicrotask(()=>button.click());
 }
-// Carry the person's intent into existing creation forms, without replacing edits
-// or automatically publishing, messaging, inviting, or changing permissions.
-const supportingFields={
- "communities.html":["description"],
- "campaigns.html":["description"],
- "workspace.html":["taskDetails","sharedPurpose"],
- "sports-district.html":["organizationDescription","description"],
- "members.html":["listingDescription","description"],
- "growth.html":["purpose"],
- "request-build.html":["details"],
- "my-network.html":["visionInput"]
+// Interpret an arriving vision into the existing forms, never into a new setup panel.
+// Draft only: no publishing, messages, invitations, or automatic form submission.
+const pageFields={
+ "communities.html":{body:["description"],title:["name"]},
+ "campaigns.html":{body:["description"],title:["title"]},
+ "workspace.html":{body:["taskDetails","sharedPurpose"],title:["taskTitle"]},
+ "members.html":{body:["listingDescription","description"],title:["listingTitle"]},
+ "growth.html":{body:["purpose"],title:["project"]},
+ "request-build.html":{body:["details"],title:["project"]},
+ "sports-district.html":{body:["organizationDescription","description"],title:["organizationName"]},
+ "my-network.html":{body:["visionInput"]}
 };
-function useVisionContext(event){
- const context=event.detail||{},page=location.pathname.split("/").pop();
- if(context.page!==page||typeof context.vision!=="string"||!context.vision.trim())return;
- const sourceField={ "communities.html":"communityIdea","campaigns.html":"campaignIdea","workspace.html":"taskIdea","members.html":"listingIdea","growth.html":"shaneGrowthGoal","request-build.html":"shaneBuildRequestGoal","my-network.html":"visionInput","sports-district.html":"shaneSportsGoal" }[page];
- const vision=(document.getElementById(sourceField)?.value?.trim()||context.vision.trim()).slice(0,4000);
- for(const id of supportingFields[page]||[]){
+const sourceFields={
+ "communities.html":"communityIdea","campaigns.html":"campaignIdea",
+ "workspace.html":"taskIdea","members.html":"listingIdea",
+ "growth.html":"shaneGrowthGoal","request-build.html":"shaneBuildRequestGoal",
+ "my-network.html":"visionInput","sports-district.html":"shaneSportsGoal"
+};
+function fillEmpty(ids,value){
+ if(!value)return false;
+ for(const id of ids||[]){
   const field=document.getElementById(id);
   if(!field||typeof field.value!=="string"||field.value.trim()||field.disabled||field.readOnly)continue;
-  field.value=vision.slice(0,field.maxLength>0?field.maxLength:4000);
+  if(field.tagName!=="INPUT"&&field.tagName!=="TEXTAREA")continue;
+  const text=value.slice(0,field.maxLength>0?field.maxLength:4000);
+  if(field.minLength>0&&text.length<field.minLength)continue;
+  field.value=text;
   field.dispatchEvent(new Event("input",{bubbles:true}));
-  break;
+  field.dispatchEvent(new Event("change",{bubbles:true}));
+  return true;
  }
+ return false;
+}
+function extractTitle(vision){
+ const first=vision.split(/[.!?\\n]/)[0].trim()
+  .replace(/^(?:i(?:'d| would)? like to|i want to|we(?:'d| would)? like to|we want to|please|help me|let's)\\s+/i,"")
+  .replace(/^(?:create|build|make|start|organize|launch|set up|plan)\\s+/i,"");
+ return first.replace(/\\s+/g," ").slice(0,120);
+}
+function useVisionContext(event){
+ const context=event.detail||{},page=location.pathname.split("/").pop();
+ const spec=pageFields[page];
+ if(!spec||context.page!==page)return;
+ const incoming=document.getElementById(sourceFields[page])?.value?.trim();
+ const vision=String(incoming||context.vision||"").trim().slice(0,4000);
+ if(!vision)return;
+ fillEmpty(spec.body,vision);
+ const title=extractTitle(vision);
+ if(title.length>=3)fillEmpty(spec.title,title);
+ document.dispatchEvent(new CustomEvent("shane:vision-draft-prepared",{
+  detail:{page,endeavorId:context.endeavorId||null}
+ }));
 }
 document.addEventListener("shane:vision-context-ready",useVisionContext);
 document.addEventListener("shane:endeavor-arrived",prepare);
