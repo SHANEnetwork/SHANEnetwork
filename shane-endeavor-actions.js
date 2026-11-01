@@ -145,11 +145,7 @@ function init(){
   const label=document.createElement("span");label.textContent="Your idea involves several steps: ";workflow.append(label);
   for(const item of matches){
    const link=document.createElement("a");link.href=item.path;link.textContent=item.label;link.className="shane-action-workflow-link";
-   link.addEventListener("click",()=>{
-    if((location.pathname.split("/").pop())==="system-health.html")return;
-    let endeavorId=null;try{endeavorId=JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id||null}catch{}
-    try{sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination:item.path,text:text.slice(0,4000),endeavorId,created:Date.now()}))}catch{}
-   });workflow.append(link);
+   link.addEventListener("click",()=>{prepareCapability({capabilityId:item.id,vision:text})});workflow.append(link);
   }
  };
 
