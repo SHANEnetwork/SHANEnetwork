@@ -253,7 +253,20 @@ function init(){
    if(!saved?.saved)throw Error("Account history is unavailable.");
    if(window.SHANEEndeavorPlan?.refineJourney)await window.SHANEEndeavorPlan.refineJourney({request:text,endeavorId:selected});
    else if(window.SHANEEndeavorPlan?.create)await window.SHANEEndeavorPlan.create({vision:text,endeavorId:selected});
-   composerStatus.textContent="Saved to this endeavor. You can continue refining it.";
+   // Feed the saved refinement into the current page's existing editable draft.
+   // The draft adapter only fills empty fields; it never publishes or sends.
+   const page=location.pathname.split("/").pop()||"index.html";
+   const currentCapability=capabilityCatalog.find(item=>item.path===page);
+   if(currentCapability){
+    const plan=await window.SHANEEndeavorPlan?.latest?.(selected);
+    if(window.SHANECurrentEndeavor?.read?.()===selected){
+     document.dispatchEvent(new CustomEvent("shane:vision-context-ready",{
+      detail:{page,endeavorId:selected,vision:text,latestRequest:text,
+       arrivalContext:{purpose:plan?.vision||text,latestRequest:text,revision:plan?.revision||null}}
+     }));
+    }
+   }
+   composerStatus.textContent="Saved to this endeavor. Your editable draft is ready where supported.";
    document.dispatchEvent(new Event("shane:conversation-context-changed"));
   }catch(error){composerStatus.textContent="The idea could not be fully saved to your account. "+String(error?.message||error)}
   finally{saveIdea.disabled=false}
