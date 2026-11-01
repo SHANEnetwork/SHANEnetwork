@@ -101,7 +101,8 @@
   inFlight.add(key);
   try{
    const plan=await latest(endeavorId);
-   const step=plan?.steps?.find(item=>item.capabilityId===capability.id);
+   if(!plan||typeof detail?.vision!=="string"||detail.vision.trim()!==plan.vision.trim())return;
+   const step=plan.steps.find(item=>item.capabilityId===capability.id);
    if(!step||step.status!=="proposed")return;
    // Merely opening a destination means prepared, never completed.
    await setStep({endeavorId,capabilityId:capability.id,status:"prepared",note:"Vision delivered to "+detail.page});
