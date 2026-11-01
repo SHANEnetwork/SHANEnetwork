@@ -190,6 +190,10 @@ async function converse({endeavorId,request,purpose}){
    const others=snapshot.accountCreations.filter(item=>!item.linkedToEndeavor).slice(0,8);
    if(others.length)groundedPurpose+="\\nOther account-owned creations that might be reusable, but are NOT linked to this endeavor: "+others.map(item=>String(item.type)+" "+String(item.title||"Untitled").slice(0,90)).join("; ");
    if(!snapshot.availability.creations||!snapshot.availability.history)groundedPurpose+="\\nSome saved creation context is unavailable. Do not assume missing records mean nothing exists.";
+   if(snapshot.creationPlan){
+    const plan=snapshot.creationPlan;
+    groundedPurpose+="\\nSaved endeavor plan: "+plan.steps+" steps; "+plan.remaining+" remaining; next capability "+String(plan.nextStep||"none")+". Previously completed: "+plan.completed.map(item=>item.type).join(", ")+". Avoid recreating confirmed work.";
+   }
   }catch(error){console.warn("Unified endeavor context unavailable",error)}
   // Keep conversational continuity and concrete creation receipts together.
   // Query by kind so unrelated navigation records cannot crowd out the memory.
