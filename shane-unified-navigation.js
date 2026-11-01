@@ -32,7 +32,7 @@
    const store=window.SHANEConversationStore;
    if(!store)return;
    const entries=await store.recent(1);
-   const latest=entries[0];
+   const latest=entries.find(entry=>entry&&entry.text&&entry.kind!=="endeavor-transition")||entries[0];
    if(!latest||active())return;
    sessionStorage.setItem(continuityKey,JSON.stringify({text:latest.text,source:latest.page,updated:Date.now()}));
   }catch{}
