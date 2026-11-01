@@ -836,7 +836,17 @@ function init(){
   finally{createAction.disabled=false}
  };
  createAction.addEventListener("pointerenter",()=>{if(capability()==="website")void loadSites().catch(()=>{})});
- conversation.append(createAction,deadline,siteChoice,createStatus);syncAction();
+ const recentCreation=document.createElement("span");recentCreation.setAttribute("role","status");
+ const showRecentCreation=()=>{
+  let item;try{item=JSON.parse(sessionStorage.getItem("shane-last-created-artifact-v1")||"null")}catch{}
+  recentCreation.replaceChildren();
+  if(!item||typeof item.url!=="string"||!item.url.match(/^(builder|campaigns|communities|members)\\.html[?]/)||!item.id||Date.now()-item.created>7*86400000)return;
+  recentCreation.append(document.createTextNode("Continue your last creation: "));
+  const link=document.createElement("a");link.href=item.url;link.textContent=item.type==="new-website"?"Website":item.type==="website"?"Revised website":item.type==="campaign"?"Campaign":item.type==="community"?"Community":"Network listing";
+  recentCreation.append(link);
+ };
+ document.addEventListener("shane:artifact-created",showRecentCreation);
+ conversation.append(createAction,deadline,siteChoice,createStatus,recentCreation);syncAction();showRecentCreation();
  group.append(conversation,aiReply,aiNext,continueConversation,planProgress,conversationReply,select,button,suggestion,workflow,planResume,revisionControl,status);nav.append(group);update();explainVision();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
