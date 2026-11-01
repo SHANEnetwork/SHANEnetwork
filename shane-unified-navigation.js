@@ -41,6 +41,7 @@
    const store=window.SHANEConversationStore;
    if(!store)return;
    const selected=window.SHANECurrentEndeavor?.read?.()||null;
+   if(!selected)return;
    const entries=await store.recent(30,selected);
    const latest=entries.find(entry=>entry&&entry.text&&entry.kind!=="endeavor-transition")||entries[0];
    if(!latest||active())return;
