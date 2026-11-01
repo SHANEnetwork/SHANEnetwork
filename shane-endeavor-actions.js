@@ -520,8 +520,8 @@ function init(){
  const replyText=document.createElement("p");
  const replyActions=document.createElement("div");replyActions.className="shane-conversation-reply-actions";
  conversationReply.append(replyHeading,replyText,replyActions,askAI);
- conversationReply.after(aiReply,aiNext);
- // Keep AI conversation available as the primary action even after sending.
+ // The AI reply and actionable destinations are mounted with the shared composer below.
+ // Keep the conversation button in the composer even when suggested next steps are hidden.
  conversation.append(askAI);
  const explainVision=()=>{
   const text=sharedComposerText();
@@ -687,7 +687,7 @@ function init(){
   if(sharedComposerText()===text){try{sessionStorage.removeItem(activeDraftKey())}catch{}}
   location.assign(destination);
  });
- group.append(conversation,continueConversation,planProgress,conversationReply,select,button,suggestion,workflow,planResume,revisionControl,status);nav.append(group);update();explainVision();
+ group.append(conversation,aiReply,aiNext,continueConversation,planProgress,conversationReply,select,button,suggestion,workflow,planResume,revisionControl,status);nav.append(group);update();explainVision();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
