@@ -52,7 +52,7 @@
   if(field)journalAdd(field.value,"submitted-idea");
  },true);
  window.SHANECurrentEndeavor=Object.freeze({
-  read:()=>{try{return JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id||null}catch{return null}},
+  read:()=>{try{const id=JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id;return typeof id==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(id)?id:null}catch{return null}},
   context:async()=>{const id=window.SHANECurrentEndeavor.read();if(!id||!window.SHANEConversationStore)return [];return window.SHANEConversationStore.endeavorContext(id)},
   continueIn:(destination,text)=>{const id=window.SHANECurrentEndeavor.read();const idea=String(text||recentSubstantive()?.text||"").trim();if(!idea)return false;sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination,text:idea,endeavorId:id,created:Date.now()}));return true}
  });
