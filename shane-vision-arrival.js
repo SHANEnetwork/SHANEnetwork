@@ -35,7 +35,7 @@ async function offerAccountResume(page,target,field){
    for(let n=0;n<25&&!window.SHANEConversationStore;n++)await new Promise(resolve=>setTimeout(resolve,120));
    const store=window.SHANEConversationStore;if(!store)throw Error("Conversation history is not available on this page.");
    const rows=await store.list({endeavorId:active.id,limit:100});
-   const chosen=rows.find(row=>typeof row.body==="string"&&row.body.trim()&&(row.entry_kind==="idea"||row.entry_kind==="vision"||String(row.entry_kind||"").endsWith("-vision")))||rows.find(row=>typeof row.body==="string"&&row.body.trim()&&row.entry_kind!=="endeavor-transition");
+   const chosen=rows.find(row=>typeof row.body==="string"&&row.body.trim()&&(row.entry_kind==="idea"||row.entry_kind==="vision"||String(row.entry_kind||"").endsWith("-vision")))||rows.find(row=>typeof row.body==="string"&&row.body.trim()&&!["endeavor-transition","endeavor-plan"].includes(row.entry_kind));
    if(!chosen)throw Error("No saved conversation was found for this endeavor.");
    // Account selection may have changed while history was loading.
    const selected=window.SHANECurrentEndeavor?.read?.()||null;
