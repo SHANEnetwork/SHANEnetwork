@@ -430,6 +430,9 @@ function init(){
  document.addEventListener("input",event=>{if(event.target?.id&&((fields[location.pathname.split("/").pop()||"index.html"]||[]).includes(event.target.id)||window.SHANEConversation?.draftSnapshot?.().some(item=>item.field===event.target.id)))update()});
  button.addEventListener("click",async()=>{
   let text=(location.pathname.split("/").pop())==="system-health.html"?"":idea();
+  if(!text&&window.SHANEEndeavorPlan?.latest){
+   try{const selected=window.SHANECurrentEndeavor?.read?.();if(selected){const plan=await window.SHANEEndeavorPlan.latest(selected);text=plan?.latestRequest||plan?.vision||""}}catch{}
+  }
   if(!text&&window.SHANEConversationStore?.list){
    try{
     const active=JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id;
