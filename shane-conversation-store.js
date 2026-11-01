@@ -45,6 +45,9 @@ document.addEventListener("shane:conversation-updated",event=>{
   try{
    const account=await user();
    if(!account)return; // Signed-out drafts remain local, not in another person's account.
+   // An auth transition while getUser was pending must not reassign a turn.
+   const verified=await user();
+   if(!verified||verified.id!==account.id)return;
    pending.push({
     ownerId:account.id,text:d.text.slice(0,20000),
     page:String(d.page||"unknown").slice(0,120),
