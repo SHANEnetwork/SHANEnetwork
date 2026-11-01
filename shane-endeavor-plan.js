@@ -87,6 +87,29 @@
   await setStep({endeavorId,capabilityId,status:"prepared"});
   return result;
  }
+ // A destination can report that it received a prepared vision. Reflect that
+ // handoff in the account-backed endeavor plan, without claiming execution.
+ const inFlight=new Set();
+ async function acknowledgeArrival(detail){
+  const endeavorId=detail?.endeavorId;
+  if(!valid(endeavorId)||!store()?.list||!store()?.saveTurn)return;
+  if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)return;
+  const capability=capabilities()?.catalog?.().find(item=>item.path===detail.page);
+  if(!capability)return;
+  const key=endeavorId+":"+capability.id;
+  if(inFlight.has(key))return;
+  inFlight.add(key);
+  try{
+   const plan=await latest(endeavorId);
+   const step=plan?.steps?.find(item=>item.capabilityId===capability.id);
+   if(!step||step.status!=="proposed")return;
+   // Merely opening a destination means prepared, never completed.
+   await setStep({endeavorId,capabilityId:capability.id,status:"prepared",note:"Vision delivered to "+detail.page});
+  }catch(error){
+   document.dispatchEvent(new CustomEvent("shane:endeavor-plan-sync-error",{detail:{page:detail.page,message:String(error?.message||error)}}));
+  }finally{inFlight.delete(key)}
+ }
+ document.addEventListener("shane:endeavor-arrived",event=>{void acknowledgeArrival(event.detail)});
  window.SHANEEndeavorPlan=Object.freeze({latest,history,restore,draft,create,setStep,prepareStep});
  document.dispatchEvent(new Event("shane:endeavor-plan-ready"));
 })();
