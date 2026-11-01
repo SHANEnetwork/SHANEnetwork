@@ -49,7 +49,7 @@ async function offerAccountResume(page,target,field){
    if(selected&&selected!==active.id)throw Error("The selected endeavor changed. Choose the project again before resuming.");
    if(field.value.trim())throw Error("This field changed while loading. Your new writing has been preserved.");
    if(!document.contains(field))throw Error("The workspace changed while loading. Open it again to continue.");
-   field.value=savedVision.slice(0,field.maxLength>0?field.maxLength:4000);field.dispatchEvent(new Event("input",{bubbles:true}));
+   field.value=savedVision.slice(0,field.maxLength>0?field.maxLength:savedVision.length);field.dispatchEvent(new Event("input",{bubbles:true}));
    note.textContent="Your saved idea is ready. Review and refine it before creating anything.";
    try{sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:active.id,updated:Date.now()}))}catch{}
    prepareEditableDraft(page);
@@ -99,7 +99,7 @@ function enableInPlaceConversation(page,target,field){
   const vision=source?.value?.trim()||window.SHANEConversation?.currentVision?.()||"";
   if(!vision){note.textContent="Describe your idea in the shared SHANE conversation first.";source?.focus();return}
   if(field.value.trim()&&field.value.trim()!==vision&&!confirm("Replace this field with your current SHANE conversation?"))return;
-  field.value=vision.slice(0,field.maxLength>0?field.maxLength:4000);
+  field.value=vision.slice(0,field.maxLength>0?field.maxLength:vision.length);
   field.dispatchEvent(new Event("input",{bubbles:true}));
   note.textContent="Your conversation is ready in this workspace. Review and refine it before proceeding.";
   if(prepareEditableDraft(page)){
@@ -139,7 +139,7 @@ function init(){
   });container.append(restore)}
   return;
  }
- field.value=item.text.slice(0,field.maxLength>0?field.maxLength:4000);
+ field.value=item.text.slice(0,field.maxLength>0?field.maxLength:item.text.length);
  field.dispatchEvent(new Event("input",{bubbles:true}));
  if(item.endeavorId&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(item.endeavorId)){
   try{sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:item.endeavorId,updated:Date.now()}))}catch{}
