@@ -241,10 +241,25 @@ async function recentCreations({limit=12}={}){
  return successes.flatMap(item=>item.value).sort((a,b)=>new Date(b.at)-new Date(a.at)).slice(0,count);
 }
 async function findSavedCreations({query="",limit=20}={}){
- const term=String(query||"").trim().toLocaleLowerCase();
- const items=await recentCreations({limit:40});
- const matches=term?items.filter(item=>(item.title+" "+item.type).toLocaleLowerCase().includes(term)):items;
- return matches.slice(0,Math.max(1,Math.min(40,Number(limit)||20)));
+ const term=String(query||"").trim();
+ const account=await user();if(!account)return [];
+ const count=Math.max(1,Math.min(40,Number(limit)||20));
+ if(!term)return recentCreations({limit:count});
+ const safe=term.replace(/[,%()]/g," ").trim().slice(0,100);
+ if(!safe)return [];
+ const sources=[
+  {table:"shane_sites",type:"website",title:"name",date:"updated_at",page:"builder.html",param:"site"},
+  {table:"shane_organizations",type:"community",title:"name",date:"created_at",page:"communities.html",param:"organization"},
+  {table:"shane_campaigns",type:"campaign",title:"title",date:"created_at",page:"campaigns.html",param:"campaign"},
+  {table:"shane_listings",type:"listing",title:"title",date:"created_at",page:"members.html",param:"listing"}
+ ];
+ const results=await Promise.allSettled(sources.map(async source=>{
+  const {data,error}=await db.from(source.table).select("id,"+source.title+","+source.date).eq("owner_id",account.id).ilike(source.title,"%"+safe+"%").order(source.date,{ascending:false}).limit(count);
+  if(error)throw error;
+  return (data||[]).map(row=>({id:row.id,type:source.type,title:String(row[source.title]||"Untitled"),at:row[source.date],url:source.page+"?"+source.param+"="+encodeURIComponent(row.id)}));
+ }));
+ if(results.every(x=>x.status==="rejected"))throw Error("Saved creation search is unavailable.");
+ return results.filter(x=>x.status==="fulfilled").flatMap(x=>x.value).sort((a,b)=>new Date(b.at)-new Date(a.at)).slice(0,count);
 }
 async function creationContext({limit=8}={}){
  const items=await recentCreations({limit});
