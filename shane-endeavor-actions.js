@@ -533,7 +533,7 @@ function init(){
    aiReply.textContent=data.response;
    const initialProposal=window.SHANEConversationStore?.proposeCreationSequence?.({vision:request,endeavorId});
    const proposal=initialProposal&&window.SHANEConversationStore?.prepareCreationSequence?.({proposal:initialProposal,updates:{deadline:deadline.value,siteId:siteChoice.value}})||initialProposal;
-   if(proposal?.steps?.length>1){
+   if(proposal?.steps?.length>=1){
     const summary=document.createElement("p");
     summary.textContent="SHANE can prepare "+proposal.steps.map(step=>step.type.replace("new-","")).join(", ")+".";
     aiNext.append(summary);
