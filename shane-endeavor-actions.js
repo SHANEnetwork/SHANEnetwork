@@ -342,7 +342,7 @@ function init(){
    planResume.replaceChildren();
    if(!plan?.steps?.length)return;
    const intro=document.createElement("span");intro.textContent="Continue your endeavor: ";planResume.append(intro);
-   for(const step of plan.steps.filter(x=>x.status!=="completed"&&x.status!=="deferred").slice(0,5)){
+   for(const step of plan.steps.filter(x=>x.status!=="completed"&&x.status!=="deferred").slice(0,1)){
     const item=capabilityCatalog.find(x=>x.id===step.capabilityId);if(!item)continue;
     const link=document.createElement("a");link.href=item.path;link.className="shane-action-workflow-link";
     link.textContent=step.label;
