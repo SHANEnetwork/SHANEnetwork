@@ -17,7 +17,9 @@ const targets=[
  ["payments.html","Plan how customers pay"],
  ["community-feed.html","Prepare a community update"],
  ["community-conversations.html","Discuss with my community"],
- ["community-opportunities.html","Coordinate volunteers and opportunities"]
+ ["community-opportunities.html","Coordinate volunteers and opportunities"],
+ ["contact.html","Contact SHANE"],
+ ["system-health.html","Report a technical problem"]
 ];
 const intentRules=[
  ["campaigns.html",/concert|festival|fundrais|campaign|event|market day|craft fair|gathering|ticket|organize a fair/i],
@@ -33,6 +35,8 @@ const intentRules=[
  ["request-build.html",/hire someone|request a custom|done for me|build it for me/i],
  ["payments.html",/accept payments|checkout|payment provider|take payments|pay online|sell tickets/i],
  ["community-opportunities.html",/volunteer opportunity|recruit volunteers|community opportunity|find volunteers|organize volunteers/i],
+ ["system-health.html",/report a bug|report an error|technical incident|system problem|site crashed/i],
+ ["contact.html",/contact shane|send a message to shane|contact support|ask shane team/i],
  ["builder.html",/website|webpage|storefront|online shop|create a site|build a site|portfolio|landing page|online presence/i]
 ];
 function suggest(text){
@@ -70,7 +74,9 @@ const fields={
  "payments.html":["paymentVision"],
  "community-feed.html":["communityUpdateIdea"],
  "community-conversations.html":["shaneCommunityIdea"],
- "community-opportunities.html":["opportunityIdea"]
+ "community-opportunities.html":["opportunityIdea"],
+ "contact.html":["shaneSupportIdea"],
+ "system-health.html":["shaneSupportIdea"]
 };
 function idea(){
  const page=location.pathname.split("/").pop()||"index.html";
