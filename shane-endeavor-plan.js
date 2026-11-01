@@ -43,7 +43,7 @@
   // Track refinement as a new instruction without erasing the established
   // endeavor purpose. The latest request remains separately available.
   const request=interpretation.vision;
-  if(previous?.vision&&previous.vision!==interpretation.vision)visionHistory.push(previous.vision);
+  if(previous?.latestRequest&&previous.latestRequest!==request)visionHistory.push(previous.latestRequest);
   return {version:1,endeavorId,vision:previous?.vision||request,latestRequest:request,visionHistory:visionHistory.slice(-20),revision:(previous?.revision||0)+1,
    createdAt:new Date().toISOString(),steps};
  }
