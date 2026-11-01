@@ -592,7 +592,26 @@ function init(){
           link.textContent="Open "+item.type;
           aiNext.append(link,document.createTextNode(" "));
          }
-         if(!outcome.complete)create.disabled=false;
+         if(!outcome.complete){
+          const resume=document.createElement("button");
+          resume.type="button";
+          resume.textContent="Continue remaining creations";
+          resume.onclick=async()=>{
+           resume.disabled=true;
+           try{
+            const next=await window.SHANEConversationStore.continueSavedEndeavor({steps:updated.steps,endeavorId});
+            summary.textContent=next.complete?"All private drafts created.":"Stopped at step "+next.failedStep+": "+next.error;
+            for(const item of next.completed){
+             if(outcome.completed.some(saved=>saved.id===item.id))continue;
+             const link=document.createElement("a");
+             link.href=item.url;link.textContent="Open "+item.type;
+             aiNext.append(link,document.createTextNode(" "));
+            }
+            if(!next.complete)resume.disabled=false;
+           }catch(error){summary.textContent=error.message;resume.disabled=false}
+          };
+          aiNext.append(resume);
+         }
         }catch(error){summary.textContent=error.message;create.disabled=false}
        };
        aiNext.append(create);
