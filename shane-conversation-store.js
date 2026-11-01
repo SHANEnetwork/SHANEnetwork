@@ -386,16 +386,18 @@ async function searchSavedCreationPlans({query="",limit=20}={}){
  const term=String(query||"").trim().toLowerCase();
  const plans=await listSavedCreationPlans({limit:100});
  if(!term)return plans.slice(0,limit);
+ const stop=new Set(["the","and","for","with","from","that","this","please","find","show","about","again","saved","project","my","me","our","we","was","were","something","created","made","build","built"]);
+ const words=[...new Set((term.match(/[a-z0-9]+/g)||[]).filter(word=>word.length>2&&!stop.has(word)))];
+ if(!words.length)return plans.slice(0,limit);
  const matches=[];
  for(const plan of plans){
   const saved=await loadCreationPlan({endeavorId:plan.endeavorId});
   if(!saved)continue;
   const haystack=saved.steps.map(step=>[step.type,step.vision].join(" ")).join(" ").toLowerCase();
-  const words=term.split(/\s+/).filter(word=>word.length>2&&!["the","and","for","with","from","that","this","please","find","show","about","again","saved","project"].includes(word));
-  if(haystack.includes(term)||(words.length&&words.every(word=>haystack.includes(word))))matches.push(plan);
-  if(matches.length>=limit)break;
+  const matched=words.filter(word=>haystack.includes(word)).length;
+  if(matched)matches.push({...plan,relevance:matched/words.length});
  }
- return matches;
+ return matches.sort((a,b)=>b.relevance-a.relevance).slice(0,Math.min(100,Math.max(1,limit)));
 }
 async function describeSavedCreationPlan({endeavorId}={}){
  const saved=await loadCreationPlan({endeavorId});
