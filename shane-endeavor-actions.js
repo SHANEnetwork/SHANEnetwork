@@ -765,7 +765,7 @@ function init(){
  let sitesLoaded=false;
  const capability=()=>{
   const vision=sharedComposerText().trim();
-  if(/(?:revise|edit|change|update|improve|redesign|rewrite|modify)\\b.{0,90}\\b(?:website|site|homepage|web page)|(?:website|site|homepage)\\b.{0,90}\\b(?:revise|edit|change|update|improve|redesign|rewrite|modify)/i.test(vision))return "website";
+  if(/(?:revise|edit|change|update|improve|redesign|rewrite|modify)\b.{0,90}\b(?:website|site|homepage|web page)|(?:website|site|homepage)\b.{0,90}\b(?:revise|edit|change|update|improve|redesign|rewrite|modify)/i.test(vision))return "website";
   if(/concert|festival|fundrais|campaign|event|craft fair|gathering|ticket/i.test(vision))return "campaign";
   if(/community|club|association|group|chat room/i.test(vision))return "community";
   if(/listing|list my|offer my|share my service|looking for partners|find collaborators|opportunity|volunteer|advertise|promote my business/i.test(vision))return "listing";
