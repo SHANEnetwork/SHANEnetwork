@@ -26,4 +26,4 @@ const lower=goal.toLowerCase();
 const inferred=/\b(find|meet|discover|search|connect|collaborat|partner|people|opportunit|network)\b/.test(lower)?"people":/\b(event|festival|concert|fundrais|campaign|gathering|tournament|meetup)\b/.test(lower)?"event":/\b(volunteer|offer my|contribute|share my skills|help others)\b/.test(lower)?"contribute":"idea";
 const path=manual?(goalForm.querySelector('input[name="goalPath"]:checked')?.value||"idea"):inferred;if(path==="idea"){try{if(goal)sessionStorage.setItem("shane_welcome_draft",goal)}catch{}location.href="builder.html#endeavor-assessment"}else if(path==="people"){location.href="network.html"+(goal?"?q="+encodeURIComponent(goal):"")}else if(path==="event"){try{if(goal)sessionStorage.setItem("shane_dashboard_goal",goal)}catch{}location.href="campaigns.html#create"}else{location.href="members.html#interestsSection"}});
 $("refresh").onclick=load;await load();
-</script><script src="shane-journey-resume.js" defer></script></body></html>
+</script><script src="shane-journey-resume.js" defer></script><script src="shane-vision-arrival.js" defer></script><script src="shane-arrival-draft.js" defer></script></body></html>
