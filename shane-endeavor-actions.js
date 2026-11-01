@@ -458,7 +458,15 @@ function init(){
   // The ordinary Continue action now creates or revises the durable plan,
   // without asking members to copy their vision into a second form.
   if(endeavorId&&window.SHANEEndeavorPlan?.create){
-   try{await window.SHANEEndeavorPlan.create({vision:text,endeavorId})}
+   try{
+    const plan=await window.SHANEEndeavorPlan.create({vision:text,endeavorId});
+    if(plan?.vision){
+     const combined=(plan.vision+(plan.latestRequest&&plan.latestRequest!==plan.vision?"\n\nCurrent refinement: "+plan.latestRequest:"")).slice(0,4000);
+     const payload={destination,text:combined,endeavorId,created:Date.now()};
+     sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify(payload));
+     if(destination==="builder.html")sessionStorage.setItem("shane-creative-handoff-v1",JSON.stringify({text:combined,created:payload.created}));
+    }
+   }
    catch(error){status.textContent="Your idea continues, but the saved plan could not be confirmed."}
   }
   if(window.SHANEConversationStore?.saveTurn){
