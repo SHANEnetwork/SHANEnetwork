@@ -152,7 +152,7 @@
   .shane-workspace-endeavors{margin:20px 0;padding:16px 18px;border:1px solid #e4d8de;border-radius:18px;background:#fffcf9}
   .shane-workspace-endeavor-grid{display:flex;gap:9px;flex-wrap:wrap}
   .shane-workspace-endeavor-choice{display:inline-block;padding:9px 14px;border-radius:999px;border:1px solid #d9c5d2;background:#fff;color:#67465f;text-decoration:none;font-weight:650;max-width:100%;overflow-wrap:anywhere}
-  .shane-workspace-endeavor-choice[aria-current=true]{background:#63465c;color:#fff;border-color:#63465c}
+  .shane-workspace-endeavor-choice[aria-pressed=true]{background:#63465c;color:#fff;border-color:#63465c}
   .shane-workspace-creations{margin:22px 0;padding:18px;border:1px solid #e5d9dc;border-radius:18px;background:#fffdfb}
   .shane-workspace-creation-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:12px}
   .shane-workspace-creation{display:flex;flex-direction:column;gap:9px;padding:16px;border:1px solid #e8dbe0;border-radius:13px;background:linear-gradient(145deg,#fff9f3,#f8f1f7)}
