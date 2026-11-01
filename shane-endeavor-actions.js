@@ -107,6 +107,11 @@ function suggest(text){
  const preferred=["builder.html","communities.html","campaigns.html","workspace.html","my-network.html","network.html","growth.html","members.html"];
  return preferred.find(path=>matches.some(([matched])=>matched===path))||matches[0][0];
 }
+const conversationKey="shane-shared-idea-draft-v1";
+function sharedComposerText(){
+ const node=document.getElementById("shane-shared-vision-input");
+ return node&&typeof node.value==="string"?node.value.trim():"";
+}
 const fields={
  "index.html":["welcomeIdea"],
  "builder.html":["visionPrompt","shaneIdeaReply"],
@@ -129,6 +134,7 @@ const fields={
 };
 function idea(){
  const page=location.pathname.split("/").pop()||"index.html";
+ if(page!=="system-health.html"&&page!=="contact.html"&&sharedComposerText())return sharedComposerText();
  for(const id of fields[page]||[]){
   const node=document.getElementById(id);
   if(node&&typeof node.value==="string"&&node.value.trim())return node.value.trim();
@@ -142,7 +148,21 @@ function idea(){
 }
 function init(){
  const nav=document.querySelector(".shane-unified-nav");if(!nav)return;
- const group=document.createElement("span");group.className="shane-endeavor-actions";
+ const group=document.createElement("div");group.className="shane-endeavor-actions";
+ const conversation=document.createElement("div");conversation.className="shane-shared-vision-composer";
+ const prompt=document.createElement("label");prompt.htmlFor="shane-shared-vision-input";prompt.textContent="What would you like us to create or work on?";
+ const entry=document.createElement("textarea");entry.id="shane-shared-vision-input";entry.rows=2;
+ entry.placeholder="Describe your endeavor naturally. Continue it across SHANE.";
+ if((location.pathname.split("/").pop()||"index.html")!=="system-health.html"){
+  try{entry.value=String(sessionStorage.getItem(conversationKey)||"").slice(0,4000)}catch{}
+ }
+ entry.addEventListener("input",()=>{
+  try{sessionStorage.setItem(conversationKey,entry.value.slice(0,4000))}catch{}
+  update();
+ });
+ conversation.append(prompt,entry);
+ if((location.pathname.split("/").pop()||"index.html")==="system-health.html")conversation.hidden=true;
+
  const select=document.createElement("select");select.setAttribute("aria-label","Choose what SHANE should do with this idea");
  const placeholder=document.createElement("option");placeholder.value="";placeholder.textContent="Let SHANE choose the next step";select.append(placeholder);
  for(const [path,label] of targets){const option=document.createElement("option");option.value=path;option.textContent=label;select.append(option)}
@@ -276,7 +296,7 @@ function init(){
   }
   location.assign(destination);
  });
- group.append(select,button,suggestion,workflow,planResume,revisionControl,status);nav.append(group);update();
+ group.append(conversation,select,button,suggestion,workflow,planResume,revisionControl,status);nav.append(group);update();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
