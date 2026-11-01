@@ -432,6 +432,37 @@ function init(){
  const conversationReply=document.createElement("div");conversationReply.className="shane-conversation-reply";
  conversationReply.setAttribute("role","status");conversationReply.setAttribute("aria-live","polite");
  const askAI=document.createElement("button");askAI.type="button";askAI.textContent="Talk with SHANE AI";
+ const restorePlan=document.createElement("button");restorePlan.type="button";restorePlan.textContent="Continue saved creation plan";
+ restorePlan.onclick=async()=>{
+  const endeavorId=window.SHANECurrentEndeavor?.read?.();
+  if(!endeavorId){aiReply.textContent="Select an endeavor first.";return}
+  restorePlan.disabled=true;
+  try{
+   const saved=await window.SHANEConversationStore.loadCreationPlan({endeavorId});
+   if(!saved){aiReply.textContent="No saved creation plan for this endeavor.";return}
+   const progress=await window.SHANEConversationStore.inspectSavedEndeavor(saved);
+   aiReply.textContent=progress.completed.length+" saved creations; "+progress.remaining+" remaining.";
+   aiNext.replaceChildren();
+   for(const item of progress.completed){
+    const link=document.createElement("a");link.href=item.url;link.textContent="Open "+item.type;
+    aiNext.append(link,document.createTextNode(" "));
+   }
+   if(!progress.complete){
+    const resume=document.createElement("button");resume.type="button";resume.textContent="Continue remaining creations";
+    resume.onclick=async()=>{
+     resume.disabled=true;
+     try{
+      const outcome=await window.SHANEConversationStore.continueSavedEndeavor(saved);
+      aiReply.textContent=outcome.complete?"All private creations saved.":"Stopped at step "+outcome.failedStep+": "+outcome.error;
+     }catch(error){aiReply.textContent=error.message}
+     finally{resume.disabled=false}
+    };
+    aiNext.append(resume);
+   }
+   aiNext.hidden=false;
+  }catch(error){aiReply.textContent=error.message}
+  finally{restorePlan.disabled=false}
+ };
  const aiReply=document.createElement("p");aiReply.className="shane-ai-conversation-response";aiReply.setAttribute("role","status");
  const aiNext=document.createElement("div");aiNext.className="shane-conversation-reply-actions";aiNext.hidden=true;aiReply.setAttribute("aria-live","polite");aiReply.style.whiteSpace="pre-wrap";
  entry.addEventListener("keydown",event=>{if(event.key==="Enter"&&(event.ctrlKey||event.metaKey)&&!event.isComposing){event.preventDefault();if(!askAI.disabled)askAI.click()}});
@@ -636,7 +667,7 @@ function init(){
  conversationReply.append(replyHeading,replyText,replyActions,askAI);
  // The AI reply and actionable destinations are mounted with the shared composer below.
  // Keep the conversation button in the composer even when suggested next steps are hidden.
- conversation.append(askAI);
+ conversation.append(askAI,restorePlan);
  const explainVision=()=>{
   const text=sharedComposerText();
   conversationReply.hidden=!text;
