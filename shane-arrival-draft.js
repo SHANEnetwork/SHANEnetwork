@@ -62,6 +62,21 @@ function extractTitle(vision){
   .replace(/^(?:create|build|make|start|organize|launch|set up|plan)\s+/i,"");
  return first.replace(/\s+/g," ").slice(0,120);
 }
+// Extract only details that were actually expressed; never invent dates or contacts.
+function inferDetails(vision,page){
+ const result={};
+ const place=vision.match(/\b(?:in|at|near)\s+([A-Z][\w .-]{2,45})(?=[,.;!]|\s+(?:on|for|with)\b|$)/);
+ if(page==="campaigns.html"&&place)result.location=place[1].trim();
+ if(page==="growth.html"){
+  const ask=vision.match(/\b(?:looking for|seeking|need|want to find)\s+([^.!?\n]{5,180})/i);
+  if(ask)result.ask=ask[1].trim();
+ }
+ if(page==="workspace.html"){
+  const task=vision.match(/\b(?:first|next|start by|need to)\s+([^.!?\n]{5,180})/i);
+  if(task)result.sharedNext=task[1].trim();
+ }
+ return result;
+}
 function useVisionContext(event){
  const context=event.detail||{},page=location.pathname.split("/").pop();
  const spec=pageFields[page];
@@ -72,7 +87,8 @@ function useVisionContext(event){
  fillEmpty(spec.body,vision);
  const title=extractTitle(vision);
  if(title.length>=3)fillEmpty(spec.title,title);
- if(page==="campaigns.html")fillEmpty(["location"],(vision.match(/\b(?:in|at|near)\s+([A-Z][\w .-]{2,45})(?=[,.;!]|\s+(?:on|for|with)\b|$)/)||[])[1]||"");
+ const details=inferDetails(vision,page);
+ for(const [id,value] of Object.entries(details))fillEmpty([id],value);
  if(page==="workspace.html")fillEmpty(["sharedPurpose"],vision);
  if(spec.next)fillEmpty(spec.next,"Identify the first shared action and agree who will take it.");
  // Keep the draft editable; downstream features can react to the prepared event.
