@@ -18,7 +18,7 @@ const destinations={
  "community-conversations.html":{field:"shaneCommunityIdea",status:"shaneCommunityReply"},
  "community-opportunities.html":{field:"opportunityIdea",status:"opportunityReply"},
  "contact.html":{field:"shaneSupportIdea",status:"shaneSupportResponse"},
- "system-health.html":{field:"shaneSupportIdea",status:"shaneSupportResponse"}
+ "system-health.html":{field:"shaneSupportIdea",status:"shaneSupportResponse",private:true}
 };
 async function offerAccountResume(page,target,field){
  if(field.value.trim())return;
@@ -54,6 +54,7 @@ async function offerAccountResume(page,target,field){
 function init(){
  const page=location.pathname.split("/").pop(),target=destinations[page];if(!target)return;
  const field=document.getElementById(target.field);if(!field)return;
+ if(target.private){try{sessionStorage.removeItem("shane-intent-handoff-v1")}catch{}return} // Do not import general creative visions into confidential incident reports.
  // Apply the arriving endeavor identity before resolving per-endeavor drafts.
  try{const handoff=JSON.parse(sessionStorage.getItem("shane-intent-handoff-v1")||"null");if(handoff?.destination===page&&Number.isFinite(handoff.created)&&Date.now()-handoff.created>=0&&Date.now()-handoff.created<86400000&&typeof handoff.endeavorId==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(handoff.endeavorId))sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:handoff.endeavorId,updated:Date.now()}))}catch{}
  let item;
