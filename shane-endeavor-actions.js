@@ -453,7 +453,7 @@ function init(){
     resume.onclick=async()=>{
      resume.disabled=true;
      try{
-      const outcome=await window.SHANEConversationStore.continueSavedEndeavor(saved);
+      const outcome=await window.SHANEConversationStore.executeApprovedSequence({...saved,approved:true});
       aiReply.textContent=outcome.complete?"All private creations saved.":"Stopped at step "+outcome.failedStep+": "+outcome.error;
       aiNext.replaceChildren();
       const latest=await window.SHANEConversationStore.inspectSavedEndeavor(saved);
@@ -497,7 +497,7 @@ function init(){
         continueButton.disabled=true;
         try{
          const saved=await window.SHANEConversationStore.loadCreationPlan({endeavorId:plan.endeavorId});
-         const outcome=await window.SHANEConversationStore.continueSavedEndeavor(saved);
+         const outcome=await window.SHANEConversationStore.executeApprovedSequence({...saved,approved:true});
          aiReply.textContent=outcome.complete?"All private creations saved.":"Stopped at step "+outcome.failedStep+": "+outcome.error;
         }catch(error){aiReply.textContent=error.message}
         finally{continueButton.disabled=false}
