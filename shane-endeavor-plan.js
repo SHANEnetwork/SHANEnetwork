@@ -57,6 +57,18 @@
   if(previous&&previous.vision===proposed.vision&&JSON.stringify(previous.steps)===JSON.stringify(proposed.steps))return previous;
   return save(proposed);
  }
+ // A single next-action recommendation, derived from the member's saved plan,
+ // is reusable by any page without creating another dashboard or form.
+ async function nextAction(endeavorId){
+  const plan=await latest(endeavorId);
+  if(!plan)return null;
+  const step=plan.steps.find(item=>item.status==="prepared")||
+   plan.steps.find(item=>item.status==="proposed")||null;
+  if(!step)return {endeavorId,revision:plan.revision,done:true,step:null};
+  const capability=capabilities()?.catalog?.().find(item=>item.id===step.capabilityId);
+  return {endeavorId,revision:plan.revision,done:false,
+   step:{...step,path:capability?.path||null},vision:plan.vision};
+ }
  async function setStep({endeavorId,capabilityId,status,note=""}={}){
   if(!["proposed","prepared","completed","deferred"].includes(status))throw Error("Invalid status.");
   const previous=await latest(endeavorId);if(!previous)throw Error("Create a plan first.");
@@ -146,6 +158,6 @@
  document.addEventListener("shane:conversation-store-ready",()=>{void replayArrival()});
  document.addEventListener("shane:endeavor-plan-ready",()=>{void replayArrival()});
  void replayArrival();
- window.SHANEEndeavorPlan=Object.freeze({latest,history,restore,draft,create,setStep,prepareStep});
+ window.SHANEEndeavorPlan=Object.freeze({latest,history,restore,draft,create,setStep,prepareStep,nextAction});
  document.dispatchEvent(new Event("shane:endeavor-plan-ready"));
 })();
