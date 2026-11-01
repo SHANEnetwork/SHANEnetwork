@@ -450,6 +450,30 @@ function init(){
    if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)return;
    if(typeof data?.response!=="string"||!data.response.trim())throw Error("SHANE returned no response.");
    aiReply.textContent=data.response;
+   const proposal=window.SHANEConversationStore?.proposeCreationSequence?.({vision:request,endeavorId});
+   if(proposal?.steps?.length>1){
+    const summary=document.createElement("p");
+    summary.textContent="SHANE can prepare "+proposal.steps.map(step=>step.type.replace("new-","")).join(", ")+".";
+    aiNext.append(summary);
+    if(proposal.ready){
+     const execute=document.createElement("button");
+     execute.type="button";
+     execute.textContent="Create these private drafts";
+     execute.onclick=async()=>{
+      execute.disabled=true;
+      summary.textContent="Creating private drafts…";
+      try{
+       const outcome=await window.SHANEConversationStore.executeVisionSequence({steps:proposal.steps,endeavorId});
+       summary.textContent=outcome.complete?"Created "+outcome.completed.length+" private drafts.":"Created "+outcome.completed.length+" private drafts; step "+outcome.failedStep+" stopped: "+outcome.error;
+       for(const item of outcome.completed){
+        const link=document.createElement("a");link.href=item.url;link.textContent="Open "+item.type;
+        aiNext.append(link,document.createTextNode(" "));
+       }
+      }catch(error){summary.textContent=error.message}
+     };
+     aiNext.append(execute);
+    }else summary.textContent+=" "+(proposal.reason||"More details are needed before creation.");
+   }
    // Preserve the actual exchange in the same owner-scoped endeavor history
    // already used by every SHANE workspace. Never mistake an AI suggestion
    // for a completed action or publish it as public content.
