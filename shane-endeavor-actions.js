@@ -1303,6 +1303,30 @@ function init(){
    }
    if(!snapshot.availability.creations||!snapshot.availability.collaborations)bits.push("some records unavailable");
    endeavorContinuity.append(document.createTextNode(bits.join(" · ")));
+   // The endeavor's actual creations are the shortest route back to work.
+   // Never invent a destination or silently open a different member's artifact.
+   for(const item of snapshot.creations.slice(0,5)){
+    if(!item.url)continue;
+    const link=document.createElement("a");
+    link.href=item.url;
+    link.textContent=item.title||item.type||"Saved creation";
+    link.style.cssText="display:inline-block;margin-left:12px;color:#784b6c;text-decoration:underline";
+    endeavorContinuity.append(link);
+   }
+   if(snapshot.creationPlan?.remaining>0){
+    const next=document.createElement("button");
+    next.type="button";
+    next.textContent="Review next creation";
+    next.style.cssText="margin-left:12px;border:1px solid #ad7b94;border-radius:16px;padding:4px 10px;background:transparent;color:#784b6c;cursor:pointer";
+    next.onclick=()=>{
+     const existing=group.querySelector(".shane-specialist-capabilities");
+     if(existing)existing.open=true;
+     const target=group.querySelector("button");
+     const resume=[...group.querySelectorAll("button")].find(button=>/continue|resume|saved plan/i.test(button.textContent||""));
+     (resume||target)?.scrollIntoView({behavior:"smooth",block:"center"});
+    };
+    endeavorContinuity.append(next);
+   }
    for(const item of snapshot.collaborations.slice(0,3)){
     const link=document.createElement("a");link.href=item.url;link.textContent=item.listingTitle;
     link.style.cssText="margin-left:12px;color:#784b6c;text-decoration:underline";
