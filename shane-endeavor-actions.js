@@ -1143,15 +1143,17 @@ function init(){
  const creationsTitle=document.createElement("strong");creationsTitle.textContent="Things we've brought to life";
  const creationsRefresh=document.createElement("button");creationsRefresh.type="button";creationsRefresh.textContent="Refresh creations";
  creationsHeading.append(creationsTitle,creationsRefresh);
+ const creationsSearch=document.createElement("input");creationsSearch.type="search";creationsSearch.placeholder="Find a website, community, campaign, or listing";creationsSearch.setAttribute("aria-label","Find my saved creations");
  const creationsBody=document.createElement("div");creationsBody.className="shane-workspace-creation-grid";
- creations.append(creationsHeading,creationsBody);
+ creations.append(creationsHeading,creationsSearch,creationsBody);
  let creationsSerial=0;
  const loadCreations=async()=>{
   const serial=++creationsSerial;
   const store=window.SHANEConversationStore;
   if(!store?.recentCreations){creationsBody.textContent="Connecting to your saved creations…";return}
   try{
-   const items=await store.recentCreations({limit:12});
+   const term=creationsSearch.value.trim();
+   const items=term?await store.findSavedCreations({query:term,limit:24}):await store.recentCreations({limit:12});
    if(serial!==creationsSerial)return;
    creationsBody.replaceChildren();
    if(!items.length){creationsBody.textContent="Your saved websites, communities, campaigns, and listings will appear here.";return}
@@ -1166,6 +1168,7 @@ function init(){
   }catch(error){if(serial===creationsSerial)creationsBody.textContent="Saved creations are unavailable: "+String(error?.message||error)}
  };
  creationsRefresh.onclick=()=>void loadCreations();
+ creationsSearch.addEventListener("change",()=>void loadCreations());
  document.addEventListener("shane:artifact-created",()=>void loadCreations());
  document.addEventListener("shane:conversation-store-ready",()=>void loadCreations());
  void loadCreations();
