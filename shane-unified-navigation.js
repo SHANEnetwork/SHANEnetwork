@@ -149,6 +149,12 @@
   .shane-conversation-workspace button:focus-visible,.shane-conversation-workspace textarea:focus-visible,.shane-conversation-workspace a:focus-visible{outline:3px solid #bd7e9d;outline-offset:3px}
   .shane-conversation-workspace .shane-ai-conversation-response{white-space:pre-wrap;line-height:1.65}
   .shane-conversation-workspace .shane-conversation-reply-actions{margin-top:14px}
+  .shane-workspace-creations{margin:22px 0;padding:18px;border:1px solid #e5d9dc;border-radius:18px;background:#fffdfb}
+  .shane-workspace-creation-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:12px}
+  .shane-workspace-creation{display:flex;flex-direction:column;gap:9px;padding:16px;border:1px solid #e8dbe0;border-radius:13px;background:linear-gradient(145deg,#fff9f3,#f8f1f7)}
+  .shane-workspace-creation small{text-transform:uppercase;letter-spacing:.1em;color:#805c73;font-weight:700}
+  .shane-workspace-creation strong{color:#3c3041;overflow-wrap:anywhere}
+  .shane-workspace-creation a{color:#714568;font-weight:700}
   .shane-endeavor-timeline{margin:16px 0 24px;padding:18px;border:1px solid #e5d9dc;border-radius:18px;background:#fffdfb}
   .shane-timeline-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px;color:#4d3548}
   .shane-timeline-heading button{border:1px solid #d9c9d1;border-radius:9px;padding:7px 12px;background:white;color:#593e51}
