@@ -16,11 +16,12 @@
  const recentSubstantive=()=>journalRead().turns.slice().reverse().find(turn=>turn&&typeof turn.text==="string"&&turn.text.trim()&&turn.kind!=="endeavor-transition")||null;
  const draftSnapshot=()=>draftFields.map(id=>{const field=document.getElementById(id);return field&&typeof field.value==="string"&&field.value.trim()?{field:id,text:field.value.trim().slice(0,10000)}:null}).filter(Boolean);
  const currentVision=()=>draftSnapshot()[0]?.text||recentSubstantive()?.text||"";
+ const clearDraft=(fieldId)=>{if(!draftFields.includes(fieldId))return false;try{sessionStorage.removeItem(draftKey(fieldId));return true}catch{return false}};
  const currentEndeavorId=()=>window.SHANECurrentEndeavor?.read?.()||null;
  const fullContext=async()=>{const id=currentEndeavorId();return {session:journalContext(),saved:id&&window.SHANEConversationStore?await window.SHANEConversationStore.context({endeavorId:id,limit:40}):[],endeavor:id}};
  const conversationSnapshot=async()=>{const context=await fullContext();const saved=context.saved.map(entry=>({text:entry.body,page:entry.source_page,kind:entry.entry_kind,at:entry.created_at}));const session=context.session.turns.filter(turn=>!saved.some(entry=>entry.text===turn.text&&entry.page===turn.page));return {endeavorId:context.endeavor,turns:[...saved,...session]}};
  const endeavorSnapshot=async()=>{const context=await conversationSnapshot();return {...context,active:context.endeavorId?await window.SHANECurrentEndeavor.context():[]}};
- Object.defineProperty(window,"SHANEConversation",{configurable:false,value:Object.freeze({read:journalContext,remember:journalAdd,fullContext,snapshot:conversationSnapshot,endeavorSnapshot,draftSnapshot,currentVision,last:recentSubstantive})});
+ Object.defineProperty(window,"SHANEConversation",{configurable:false,value:Object.freeze({read:journalContext,remember:journalAdd,fullContext,snapshot:conversationSnapshot,endeavorSnapshot,draftSnapshot,currentVision,clearDraft,last:recentSubstantive})});
  import("./shane-conversation-store.js").catch(error=>document.dispatchEvent(new CustomEvent("shane:conversation-save-error",{detail:{message:String(error?.message||error)}})));
  const continuityKey="shane-conversation-continuity-v1";
  const conversationSelectors=["#welcomeIdea","#visionPrompt","#shane-natural-prompt","#shaneDiscoveryWish","#shaneGrowthGoal","#shaneBuildRequestGoal","#shaneWorkspaceIdea","#shaneCommunityVision","#shaneMemberWelcome","#visionInput","#shaneIdeaReply","#communityIdea","#campaignIdea","#listingIdea","#shaneSportsGoal","#taskIdea","#goalInput"];
