@@ -130,3 +130,11 @@ main :where([role=status],[aria-live=polite]){overflow-wrap:anywhere}
 .shane-unified-nav .shane-plan-revisions button{padding:7px 12px;border-radius:12px;background:#fff9f1;color:#4c3650}
 .shane-unified-nav .shane-action-status,.shane-unified-nav .shane-action-suggestion{font-size:.9rem;line-height:1.5}
 @media(max-width:700px){.shane-shared-vision-composer{flex-basis:100%}.shane-unified-nav .shane-endeavor-actions>select{flex:1 1 200px}}
+
+/* Conversational guidance is embedded in the shared experience, not a popup. */
+.shane-conversation-reply{flex:1 1 100%;padding:14px 17px;border:1px solid #efd3b4;border-radius:18px;background:linear-gradient(105deg,#fffaf3,#f8e9e7);color:#4a3546;box-shadow:0 5px 18px #422e4314}
+.shane-conversation-reply strong{display:block;font:750 1rem/1.35 system-ui,sans-serif;color:#623c54}
+.shane-conversation-reply p{margin:6px 0 9px;font:500 .95rem/1.55 system-ui,sans-serif}
+.shane-conversation-reply-actions{display:flex;flex-wrap:wrap;gap:7px}
+.shane-unified-nav .shane-conversation-reply-actions a{display:inline-block;padding:8px 12px;background:#704760!important;color:#fff!important;border:0;border-radius:12px;font-size:.86rem}
+.shane-conversation-reply[hidden]{display:none!important}
