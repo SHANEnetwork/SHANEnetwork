@@ -92,16 +92,18 @@ function prepareCapability({capabilityId,vision,endeavorId=null}={}){
 function journeyFor({vision,latestRequest="",endeavorId=null}={}){
  const purpose=String(vision||"").trim();
  const request=String(latestRequest||"").trim();
- const combined=[purpose,request].filter(Boolean).join("\\n");
- const interpretation=interpretVision(combined);
- const capabilities=interpretation.capabilities;
+ const primary=interpretVision(request||purpose);
+ const original=purpose&&request&&request!==purpose?interpretVision(purpose):null;
+ const ordered=new Map();
+ for(const item of primary.capabilities)ordered.set(item.id,item);
+ for(const item of original?.capabilities||[])if(!ordered.has(item.id))ordered.set(item.id,item);
  return {
   version:1,endeavorId,purpose,latestRequest:request||purpose,
-  steps:capabilities.map((item,index)=>({
+  steps:[...ordered.values()].map((item,index)=>({
    capabilityId:item.id,path:item.path,label:item.label,order:index+1,
    status:"proposed",requiresConfirmation:true
   })),
-  preferredDestination:interpretation.preferredDestination,
+  preferredDestination:primary.preferredDestination,
   execution:"not-started"
  };
 }
@@ -111,11 +113,22 @@ function prepareJourneyStep({journey,capabilityId}={}){
  if(!step||step.status!=="proposed")return {ok:false,reason:"unavailable-step"};
  if(!capabilityCatalog.some(item=>item.id===step.capabilityId&&item.path===step.path))
   return {ok:false,reason:"unknown-capability"};
- return prepareCapability({
-  capabilityId:step.capabilityId,
-  vision:journey.latestRequest||journey.purpose,
-  endeavorId:journey.endeavorId||null
- });
+ const selected=window.SHANECurrentEndeavor?.read?.()||null;
+ if(journey.endeavorId&&journey.endeavorId!==selected)return {ok:false,reason:"endeavor-mismatch"};
+ const vision=[journey.purpose,journey.latestRequest&&journey.latestRequest!==journey.purpose
+  ?"Current refinement: "+journey.latestRequest:""].filter(Boolean).join("\n\n");
+ const result=prepareCapability({capabilityId:step.capabilityId,vision,endeavorId:journey.endeavorId||null});
+ if(result.ok){
+  try{
+   const payload=JSON.parse(sessionStorage.getItem("shane-intent-handoff-v1")||"null");
+   if(payload?.destination===step.path){
+    payload.context={purpose:journey.purpose,latestRequest:journey.latestRequest,
+     steps:journey.steps.map(item=>({capabilityId:item.capabilityId,status:item.status}))};
+    sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify(payload));
+   }
+  }catch{}
+ }
+ return result;
 }
 window.SHANECapabilities=Object.freeze({
  catalog:()=>capabilityCatalog.slice(),interpret:interpretVision,
