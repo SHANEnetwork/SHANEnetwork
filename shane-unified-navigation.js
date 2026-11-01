@@ -32,7 +32,8 @@
   try{
    const store=window.SHANEConversationStore;
    if(!store)return;
-   const entries=await store.recent(1);
+   const selected=window.SHANECurrentEndeavor?.read?.()||null;
+   const entries=await store.recent(30,selected);
    const latest=entries.find(entry=>entry&&entry.text&&entry.kind!=="endeavor-transition")||entries[0];
    if(!latest||active())return;
    sessionStorage.setItem(continuityKey,JSON.stringify({text:latest.text,source:latest.page,updated:Date.now()}));
