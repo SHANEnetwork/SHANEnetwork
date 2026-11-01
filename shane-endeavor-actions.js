@@ -574,9 +574,30 @@ function init(){
      refresh.onclick=()=>{
       const updated=window.SHANEConversationStore?.prepareCreationSequence?.({proposal:initialProposal,updates:{deadline:deadline.value,siteId:siteChoice.value}});
       if(updated?.ready){
-       aiReply.textContent="Your creation details are ready. Ask SHANE to create these private drafts using the updated details.";
+       refresh.remove();
+       summary.textContent="Your private drafts are ready to create.";
+       const create=document.createElement("button");
+       create.type="button";
+       create.textContent=updated.steps.length===1?"Create my private draft":"Create these private drafts";
+       create.onclick=async()=>{
+        create.disabled=true;
+        summary.textContent="Creating private drafts…";
+        try{
+         await window.SHANEConversationStore.saveCreationPlan({steps:updated.steps,endeavorId});
+         const outcome=await window.SHANEConversationStore.continueSavedEndeavor({steps:updated.steps,endeavorId});
+         summary.textContent=outcome.complete?"Created "+outcome.completed.length+" private drafts.":"Created "+outcome.completed.length+" drafts; step "+outcome.failedStep+" stopped: "+outcome.error;
+         for(const item of outcome.completed){
+          const link=document.createElement("a");
+          link.href=item.url;
+          link.textContent="Open "+item.type;
+          aiNext.append(link,document.createTextNode(" "));
+         }
+         if(!outcome.complete)create.disabled=false;
+        }catch(error){summary.textContent=error.message;create.disabled=false}
+       };
+       aiNext.append(create);
       }else{
-       aiReply.textContent=updated?.reason||"More information is needed to prepare your private drafts.";
+       summary.textContent=updated?.reason||"More information is needed to prepare your private drafts.";
       }
      };
      aiNext.append(refresh);
