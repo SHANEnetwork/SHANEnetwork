@@ -152,7 +152,7 @@ async function converse({endeavorId,request,purpose}){
  try{
   const recall=/\b(?:remember|earlier|previous|old|find|locate|resume|continue)\b/i.test(String(request||""));
   if(recall){
-   const matches=await searchSavedCreationPlans({query:request,limit:5});
+   const matches=await recallEndeavor({request,limit:5});
    if(matches.length)groundedPurpose+="\nPossible earlier endeavors (suggest, do not assume identity): "+matches.map(item=>item.endeavorId+" ["+item.types.join(", ")+"] relevance "+item.relevance.toFixed(2)).join("; ");
   }
  }catch{}
