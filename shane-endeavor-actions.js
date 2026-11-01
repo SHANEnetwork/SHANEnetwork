@@ -1046,9 +1046,6 @@ function init(){
    const linkTarget=operation.url,record=operation.id;
    const linkLabel=type==="website"?"Review revised website":type==="new-website"?"Open created website":type==="campaign"?"Review campaign":type==="community"?"Open community":"Review listing";
    // Keep the concrete creation available to the next page and to the next conversation.
-   const creation={type,id:record,url:linkTarget,vision,endeavorId:endeavorId||null,created:Date.now()};
-   try{sessionStorage.setItem("shane-last-created-artifact-v1",JSON.stringify(creation))}catch{}
-   document.dispatchEvent(new CustomEvent("shane:artifact-created",{detail:creation}));
    createStatus.replaceChildren(document.createTextNode(type==="website"?"Website revision saved privately. ":"Saved privately. "));
    const link=document.createElement("a");link.href=linkTarget;link.textContent=linkLabel;createStatus.append(link);
    if(endeavorId){
