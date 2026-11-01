@@ -548,7 +548,7 @@ function init(){
    const validAIPlan=aiPlan!==null&&aiPlan.length<=8&&aiPlan.every(step=>
     supported.has(step?.type)&&typeof step?.vision==="string"&&step.vision.trim().length>=8&&step.vision.length<=10000);
    const interpreted=validAIPlan
-    ?{steps:aiPlan.map(step=>({type:step.type,vision:step.vision.trim(),endeavorId,...(step.type==="website"&&siteChoice.value?{siteId:siteChoice.value}:{})})),requiresReview:true,executable:false}:null;
+    ?{steps:aiPlan.map(step=>({type:step.type,vision:step.vision.trim(),endeavorId,...(step.type==="website"&&siteChoice.value?{siteId:siteChoice.value}:{}),...(step.type==="campaign"&&deadline.value?{deadline:deadline.value}:{})})),requiresReview:true,executable:false}:null;
    // Do not turn a provider failure into an accidental build suggestion.
    // Keyword fallback is reserved for an older conversation service without a planner field.
    const plannerProvided=Object.prototype.hasOwnProperty.call(data||{},"creationPlan");
@@ -1041,6 +1041,7 @@ function init(){
     await loadSites();
     if(!siteChoice.value)throw Error("Choose the saved website to revise.");
    }
+   if(endeavorId!==window.SHANECurrentEndeavor?.read?.())throw Error("The active endeavor changed. Review your request before creating.");
    const operation=await store.executeVision({type,vision,siteId:siteChoice.value,deadline:deadline.value,endeavorId});
    const linkTarget=operation.url,record=operation.id;
    const linkLabel=type==="website"?"Review revised website":type==="new-website"?"Open created website":type==="campaign"?"Review campaign":type==="community"?"Open community":"Review listing";
