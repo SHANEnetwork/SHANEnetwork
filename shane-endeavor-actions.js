@@ -251,7 +251,8 @@ function init(){
   try{
    const saved=await window.SHANEConversationStore?.saveTurn?.(text,{page:location.pathname.split("/").pop()||"index.html",kind:"idea",endeavorId:selected});
    if(!saved?.saved)throw Error("Account history is unavailable.");
-   if(window.SHANEEndeavorPlan?.create)await window.SHANEEndeavorPlan.create({vision:text,endeavorId:selected});
+   if(window.SHANEEndeavorPlan?.refineJourney)await window.SHANEEndeavorPlan.refineJourney({request:text,endeavorId:selected});
+   else if(window.SHANEEndeavorPlan?.create)await window.SHANEEndeavorPlan.create({vision:text,endeavorId:selected});
    composerStatus.textContent="Saved to this endeavor. You can continue refining it.";
    document.dispatchEvent(new Event("shane:conversation-context-changed"));
   }catch(error){composerStatus.textContent="The idea could not be fully saved to your account. "+String(error?.message||error)}
