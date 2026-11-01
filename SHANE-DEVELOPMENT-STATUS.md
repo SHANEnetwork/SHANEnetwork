@@ -411,3 +411,8 @@ No action requested as of this update.
 - Updated shared endeavor actions (5584cba) to expose private community creation from the existing shared vision composer when the member describes a community. It invokes the existing authenticated AI interpreter and owner-scoped community insertion, then links to the saved community. When an endeavor is selected, it attempts to record the creation in conversation history.
 - Verified the existing unified navigation loads the shared endeavor actions and conversation store, so the integration uses the common Network interface rather than a new panel.
 - Authenticated browser execution remains unverified. This is one cross-page executable capability, not completion of the entire Network transformation. SHONnetwork unchanged.
+
+## 2026-11-01: cross-page conversational campaign execution
+- Added an unpublished campaign creation action to the shared Network conversation (08916f1), invoking the existing AI interpretation and authenticated campaign persistence operations. It asks only for the database-required interest deadline and leaves publication to the member.
+- If an endeavor is selected, the creation is also recorded in conversation history when that write succeeds. Existing campaign pages and SHONnetwork were not modified.
+- Authenticated browser end-to-end verification remains outstanding. This is a cross-page integration, not full completion of every SHANE program.
