@@ -452,17 +452,19 @@ function harmonizeEndeavorPlan({vision,endeavorId,aiSteps,existing=[]}={}){
  const known=new Set(computerCapabilities.map(item=>item.id));
  const supplied=Array.isArray(aiSteps)?aiSteps:[];
  const accepted=supplied.filter(step=>step&&known.has(step.type)&&typeof step.vision==="string"&&step.vision.trim().length>=8);
+ // Preserve distinct creations of the same type. Only exact duplicates
+ // are collapsed, so an endeavor may contain multiple sites or listings.
  const seen=new Set();
- const steps=accepted.slice(0,8).filter(step=>{
-  const identity=step.type+":"+String(step.siteId||"");
+ const steps=accepted.filter(step=>{
+  const identity=JSON.stringify([step.type,step.vision.trim(),step.siteId||null,step.deadline||null]);
   if(seen.has(identity))return false;
   seen.add(identity);return true;
- }).map(step=>({...step,vision:step.vision.trim(),endeavorId}));
+ }).slice(0,8).map(step=>({...step,vision:step.vision.trim(),endeavorId}));
  const evaluation=evaluateCreationPlan({steps});
  const review=compassReview({vision,paths:whole.paths});
  const warnings=[];
  if(supplied.length>accepted.length)warnings.push("Some proposed operations are not supported or need clearer descriptions.");
- if(accepted.length>steps.length)warnings.push("Repeated operations were consolidated for review; add separate steps explicitly if needed.");
+ if(accepted.length>steps.length)warnings.push("Identical duplicate operations were consolidated; distinct creations remain separate.");
  if(whole.recommended&&steps.length){
   const expected=new Set(whole.recommended.steps.map(step=>step.type));
   const actual=new Set(steps.map(step=>step.type));
