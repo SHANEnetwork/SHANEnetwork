@@ -202,3 +202,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - The shared conversation composer now provides a Remember this idea action for a selected account-backed endeavor. It saves the user's text as an idea record and attempts to revise the endeavor plan, preserving the existing capability handoff and manual controls.
 - Shared composer draft is cleared only after Continue has prepared the destination handoff, reducing stale draft reuse. Responsive styling for the save control is included.
 - This is not an LLM-driven response or full autonomous orchestration. End-to-end browser verification remains outstanding.
+
+## Resume a saved idea in the shared conversation
+- Shared navigation's endeavor history is collapsible, keeping earlier conversation accessible without permanently expanding the header.
+- Members can bring their latest saved non-plan idea from a selected endeavor back into the shared composer for conversational refinement and cross-program continuation.
+- Existing pages, their editors, and SHONnetwork are unchanged. This pass has not been browser tested and does not constitute an AI model integration.
