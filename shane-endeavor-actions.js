@@ -755,95 +755,60 @@ function init(){
 
  // Execute a supported creation from the same conversation used on every page.
  // No second composer, wizard, or automatic public action.
- const createCommunity=document.createElement("button");createCommunity.type="button";
- createCommunity.textContent="Create my private community";
- createCommunity.hidden=true;
- const createFeedback=document.createElement("span");createFeedback.setAttribute("role","status");
- const syncCreation=()=>{
-  const vision=sharedComposerText();
-  createCommunity.hidden=!(/community|club|association|group|network of friends|chat room/i.test(vision)&&vision.trim().length>=8);
- };
- entry.addEventListener("input",syncCreation);
- document.addEventListener("shane:conversation-context-changed",syncCreation);
- document.addEventListener("shane:endeavor-context-ready",syncCreation);
- createCommunity.addEventListener("click",async()=>{
-  const vision=sharedComposerText().trim(),endeavorId=window.SHANECurrentEndeavor?.read?.()||null;
-  if(vision.length<8){createFeedback.textContent="Describe your community first.";return}
-  createCommunity.disabled=true;createFeedback.textContent="SHANE is creating your private community.";
-  try{
-   if(!window.SHANEConversationStore?.interpretVision||!window.SHANEConversationStore?.createPrivateCommunity)throw Error("The creation connection is still loading.");
-   const store=window.SHANEConversationStore;
-   const draft=await store.interpretVision({capability:"community",vision});
-   const result=await store.createPrivateCommunity({vision,name:draft.name,description:draft.description||vision,category:draft.category||"community"});
-   createFeedback.replaceChildren(document.createTextNode("Community saved privately. "));
-   const link=document.createElement("a");link.href="communities.html?organization="+encodeURIComponent(result.organizationId);link.textContent="Open your community";
-   createFeedback.append(link);
-   if(endeavorId){
-    try{await store.saveTurn("Created private community "+result.organizationId+" from vision: "+vision,{page:location.pathname.split("/").pop()||"index.html",kind:"creation",endeavorId})}
-    catch{createFeedback.append(document.createTextNode(" Conversation history could not be confirmed."))}
-   }
-  }catch(error){createFeedback.textContent="Community not created: "+error.message}
-  finally{createCommunity.disabled=false}
- });
- conversation.append(createCommunity,createFeedback);syncCreation();
 
- // A campaign stays a private draft. The member supplies the required deadline
- // in the conversation, so SHANE need not send them into a configuration form.
- const createCampaign=document.createElement("button");createCampaign.type="button";
- createCampaign.textContent="Create private campaign draft";createCampaign.hidden=true;
- const campaignFeedback=document.createElement("span");campaignFeedback.setAttribute("role","status");
- const campaignDeadline=document.createElement("input");campaignDeadline.type="datetime-local";
- campaignDeadline.setAttribute("aria-label","Campaign interest deadline");campaignDeadline.hidden=true;
- const campaignControls=document.createElement("span");campaignControls.append(createCampaign,campaignDeadline,campaignFeedback);
- const syncCampaign=()=>{
+ // One executable action for the existing shared conversation, not separate setup buttons.
+ const createAction=document.createElement("button");createAction.type="button";createAction.textContent="Create from this vision";
+ const createStatus=document.createElement("span");createStatus.setAttribute("role","status");
+ const deadline=document.createElement("input");deadline.type="datetime-local";deadline.hidden=true;
+ deadline.setAttribute("aria-label","Interest deadline for campaign");
+ const capability=()=>{
   const vision=sharedComposerText().trim();
-  const relevant=/concert|festival|fundrais|campaign|event|market day|craft fair|gathering|ticket|organize a fair/i.test(vision)&&vision.length>=8;
-  createCampaign.hidden=!relevant;campaignDeadline.hidden=!relevant;
+  if(/concert|festival|fundrais|campaign|event|craft fair|gathering|ticket/i.test(vision))return "campaign";
+  if(/community|club|association|group|chat room/i.test(vision))return "community";
+  if(/listing|list my|offer my|share my service|looking for partners|find collaborators|opportunity|volunteer|advertise|promote my business/i.test(vision))return "listing";
+  return null;
  };
- entry.addEventListener("input",syncCampaign);
- document.addEventListener("shane:conversation-context-changed",syncCampaign);
- document.addEventListener("shane:endeavor-context-ready",syncCampaign);
- createCampaign.addEventListener("click",async()=>{
-  const vision=sharedComposerText().trim(),endeavorId=window.SHANECurrentEndeavor?.read?.()||null;
-  if(!campaignDeadline.value){campaignFeedback.textContent="Choose an interest deadline first.";return}
-  createCampaign.disabled=true;campaignFeedback.textContent="SHANE is creating an unpublished campaign.";
+ const syncAction=()=>{
+  const type=capability();
+  createAction.hidden=!type||sharedComposerText().trim().length<8;
+  deadline.hidden=type!=="campaign";
+  createAction.textContent=type==="campaign"?"Create private campaign draft":type==="community"?"Create private community":"Save private Network listing";
+ };
+ entry.addEventListener("input",syncAction);
+ document.addEventListener("shane:conversation-context-changed",syncAction);
+ document.addEventListener("shane:endeavor-context-ready",syncAction);
+ createAction.onclick=async()=>{
+  const vision=sharedComposerText().trim(),type=capability(),endeavorId=window.SHANECurrentEndeavor?.read?.()||null;
+  if(!type||vision.length<8){createStatus.textContent="Describe what you want SHANE to create.";return}
+  if(type==="campaign"&&!deadline.value){createStatus.textContent="Choose the campaign interest deadline.";return}
+  createAction.disabled=true;createStatus.textContent="SHANE is creating your private "+type+".";
   try{
    const store=window.SHANEConversationStore;
-   if(!store?.interpretVision||!store?.createPrivateCampaign)throw Error("The creation connection is still loading.");
-   const draft=await store.interpretVision({capability:"campaign",vision});
-   const result=await store.createPrivateCampaign({vision,title:draft.title,description:draft.description||vision,category:draft.category,location:draft.location,deadline:campaignDeadline.value});
-   campaignFeedback.replaceChildren(document.createTextNode("Private campaign draft saved. "));
-   const link=document.createElement("a");link.href="campaigns.html";link.textContent="Open campaigns";campaignFeedback.append(link);
-   if(endeavorId){
-    try{await store.saveTurn("Created unpublished campaign "+result.campaignId+" from vision: "+vision,{page:location.pathname.split("/").pop()||"index.html",kind:"creation",endeavorId})}
-    catch{campaignFeedback.append(document.createTextNode(" History save unconfirmed."))}
+   if(!store)throw Error("Creation connection is loading.");
+   let result,linkTarget,linkLabel,record;
+   if(type==="community"){
+    const draft=await store.interpretVision({capability:"community",vision});
+    result=await store.createPrivateCommunity({vision,name:draft.name,description:draft.description||vision,category:draft.category});
+    linkTarget="communities.html?organization="+encodeURIComponent(result.organizationId);linkLabel="Open community";record=result.organizationId;
+   }else if(type==="campaign"){
+    const draft=await store.interpretVision({capability:"campaign",vision});
+    result=await store.createPrivateCampaign({vision,title:draft.title,description:draft.description||vision,category:draft.category,location:draft.location,deadline:deadline.value});
+    linkTarget="campaigns.html";linkLabel="Open campaigns";record=result.campaignId;
+   }else{
+    const title=vision.split(/[.!?]/)[0].trim().slice(0,150);
+    result=await store.createPrivateListing({vision,title,description:vision,endeavorId});
+    linkTarget="members.html?listing="+encodeURIComponent(result.listingId);linkLabel="Review listing";record=result.listingId;
    }
-  }catch(error){campaignFeedback.textContent="Campaign not saved: "+error.message}
-  finally{createCampaign.disabled=false}
- });
- conversation.append(campaignControls);syncCampaign();
-
- const listingAction=document.createElement("button");listingAction.type="button";listingAction.textContent="Save private Network listing";
- const listingStatus=document.createElement("span");listingStatus.setAttribute("role","status");
- listingAction.onclick=async()=>{
-  const vision=sharedComposerText().trim();
-  if(vision.length<8){listingStatus.textContent="Describe your listing first.";return}
-  listingAction.disabled=true;
-  try{
-   const store=window.SHANEConversationStore;
-   if(!store?.createPrivateListing)throw Error("Network creation is still loading.");
-   const endeavorId=window.SHANECurrentEndeavor?.read?.()||null;
-   const title=vision.split(/[.!?]/)[0].trim().slice(0,150);
-   const result=await store.createPrivateListing({vision,title,description:vision,endeavorId});
-   listingStatus.replaceChildren(document.createTextNode("Private listing saved. "));
-   const link=document.createElement("a");link.href="members.html?listing="+encodeURIComponent(result.listingId);link.textContent="Review listing";listingStatus.append(link);
-   if(endeavorId)await store.saveTurn("Created private listing "+result.listingId,{page:"network",kind:"creation",endeavorId}).catch(()=>{});
-  }catch(error){listingStatus.textContent="Listing not saved: "+error.message}
-  finally{listingAction.disabled=false}
+   createStatus.replaceChildren(document.createTextNode("Saved privately. "));
+   const link=document.createElement("a");link.href=linkTarget;link.textContent=linkLabel;createStatus.append(link);
+   if(endeavorId){
+    try{await store.saveTurn("Created private "+type+" "+record,{page:location.pathname.split("/").pop()||"index.html",kind:"creation",endeavorId})}
+    catch{createStatus.append(document.createTextNode(" History save unconfirmed."))}
+   }
+  }catch(error){createStatus.textContent="Creation not confirmed: "+error.message}
+  finally{createAction.disabled=false}
  };
- conversation.append(listingAction,listingStatus);
-
-
+ conversation.append(createAction,deadline,createStatus);syncAction();
  group.append(conversation,aiReply,aiNext,continueConversation,planProgress,conversationReply,select,button,suggestion,workflow,planResume,revisionControl,status);nav.append(group);update();explainVision();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
