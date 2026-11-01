@@ -266,22 +266,30 @@ function init(){
      }));
     }
    }
-   // Surface the next existing workspace as a conversational continuation,
-   // without introducing a new setup panel or automatically navigating away.
+   // Prefer a workspace mentioned by the latest instruction over an older
+   // prepared step. Keep all actions as explicit, user-selected continuations.
+   const plan=await window.SHANEEndeavorPlan?.latest?.(selected);
+   if(window.SHANECurrentEndeavor?.read?.()!==selected)return;
+   const interpreted=window.SHANECapabilities?.interpret?.(text);
+   const available=new Map((plan?.steps||[])
+    .filter(step=>step.status==="proposed"||step.status==="prepared")
+    .map(step=>[step.capabilityId,step]));
+   const suggested=interpreted?.capabilities?.find(item=>item.path!==page&&available.has(item.id));
    const next=await window.SHANEEndeavorPlan?.nextAction?.(selected);
    if(window.SHANECurrentEndeavor?.read?.()!==selected)return;
-   const nextPath=next?.step?.path;
-   if(nextPath&&nextPath!==page){
+   const chosen=suggested?{capabilityId:suggested.id,path:suggested.path,label:suggested.label}:next?.step;
+   if(chosen?.path&&chosen.path!==page){
     composerStatus.replaceChildren();
     composerStatus.append(document.createTextNode("Saved. Continue in "));
     const link=document.createElement("a");
-    link.href=nextPath;
-    link.textContent=next.step.label||"the next workspace";
+    link.href=chosen.path;
+    link.textContent=chosen.label||"the next workspace";
     link.addEventListener("click",event=>{
      event.preventDefault();
+     if(link.getAttribute("aria-disabled")==="true")return;
      link.setAttribute("aria-disabled","true");
-     void window.SHANEEndeavorPlan.handoff({endeavorId:selected,capabilityId:next.step.capabilityId})
-      .then(()=>location.assign(nextPath))
+     void window.SHANEEndeavorPlan.handoff({endeavorId:selected,capabilityId:chosen.capabilityId})
+      .then(()=>location.assign(chosen.path))
       .catch(error=>{link.removeAttribute("aria-disabled");composerStatus.textContent=String(error?.message||error)});
     });
     composerStatus.append(link,document.createTextNode("."));
