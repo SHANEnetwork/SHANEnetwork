@@ -101,3 +101,9 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Improved multi-goal intent prioritization: explicit checkout/payment requests and volunteer recruitment now resolve to the appropriate existing capability even when an idea also mentions events or communities.
 - Restricted incident-report text from the shared creative-endeavor journal, cross-page idea capture, and per-endeavor draft snapshots. Operational incident reporting continues through the existing incident form and its own permissions.
 - Contact messages continue to participate in creative continuity when explicitly prepared. These are source changes only; full browser verification remains pending.
+
+## Operational isolation in shared routing
+- Prevented shared navigation link handoffs from copying incident-report text into unrelated creator pages.
+- Restricted incident-report entry in the vision arrival receiver: general endeavor content is no longer imported into confidential incident reports.
+- The shared action button can still resume an existing saved endeavor from account history, but does not use the current incident narrative as the creative vision.
+- This closes an additional cross-page privacy pathway without modifying the underlying incident reporting workflow. Browser verification pending.
