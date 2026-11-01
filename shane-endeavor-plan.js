@@ -120,6 +120,7 @@
    if(!step||step.status!=="proposed")return;
    // Merely opening a destination means prepared, never completed.
    await setStep({endeavorId,capabilityId:capability.id,status:"prepared",note:"Vision delivered to "+detail.page});
+   try{sessionStorage.removeItem(arrivalKey)}catch{}
   }catch(error){
    document.dispatchEvent(new CustomEvent("shane:endeavor-plan-sync-error",{detail:{page:detail.page,message:String(error?.message||error)}}));
   }finally{inFlight.delete(key)}
