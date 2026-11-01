@@ -38,7 +38,12 @@ const pageFields={
  "my-network.html":{body:["visionInput"]},
  "network.html":{body:["shaneDiscoveryWish"]},
  "builder.html":{body:["visionPrompt"]},
- "dashboard.html":{body:["goalInput"]}
+ "dashboard.html":{body:["goalInput"]},
+ "conversation-history.html":{body:[]},
+ "community-conversations.html":{body:[]},
+ "community-feed.html":{body:[]},
+ "community-opportunities.html":{body:[]},
+ "contact.html":{body:[]}
 };
 const sourceFields={
  "communities.html":"communityIdea","campaigns.html":"campaignIdea",
