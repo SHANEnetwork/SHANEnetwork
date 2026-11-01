@@ -117,3 +117,9 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Added the existing appearance.html page to shared endeavor actions and recognized explicit theme, palette, and font-setting requests.
 - Clarified that SHANE interface preferences are device/browser-scoped and separate from the design of an individual published website.
 - Existing centralized theme controls remain in place, with no new duplicate controls and no change to SHONnetwork. Browser verification pending.
+
+## Multi-capability endeavor interpretation
+- The shared action layer now derives a compact set of applicable capability steps from a single idea (website, community, collaborators, campaigns, payments, growth), rather than presenting only one inferred destination.
+- Each step can carry the same endeavor text and selected endeavor identity into the existing corresponding capability. This is rule-based routing and continuity, not a live generative AI orchestration engine.
+- The previous optional manual destination selector and existing page functions remain intact. Browser rendering and end-to-end behavior have not yet been verified.
+- Architectural gap: a persistent model-driven interpreter with permissioned tools, durable structured endeavor memory, and automatic working artifact creation is still required for the intended product.
