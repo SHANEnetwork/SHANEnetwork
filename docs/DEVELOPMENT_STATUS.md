@@ -90,3 +90,9 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - Protected unpublished opportunity drafts with explicit replacement confirmation; creation remains an explicit action through the existing form.
 - Connected opportunity visions to shared per-endeavor draft continuity, safe incoming endeavor handoffs, and the existing capability action router, including volunteer-oriented intent matching.
 - No new database tables, no automatic public posting, and no changes to SHONnetwork. Source committed; live browser verification pending.
+
+## Contact and incident-report conversation continuity
+- The existing conversational support composer now protects unpublished contact/incident drafts with confirmation before replacement and records explicitly prepared messages in the shared conversation journal.
+- Added safe endeavor handoffs to contact.html and system-health.html, using the existing support idea field rather than submitting forms or modifying incident records.
+- Expanded shared endeavor action routing to contact and technical problem reports; the existing contact mailto and system report submission implementations remain unchanged.
+- Added support idea to per-endeavor draft restoration and cross-page continuity. Source commits completed; browser verification pending.
