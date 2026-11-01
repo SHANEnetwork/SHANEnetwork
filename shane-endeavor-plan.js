@@ -24,10 +24,16 @@
   const interpretation=capabilities()?.interpret?.(vision);
   if(!interpretation?.vision)throw Error("Describe what you want to create.");
   const original=previous?.vision&&previous.vision!==vision?capabilities()?.interpret?.(previous.vision):null;
+  // The new request changes priority, not the established purpose or earlier work.
+  // Preserve every prior capability while moving currently relevant work forward.
+  const previousOrder=new Map((previous?.steps||[]).map((step,index)=>[step.capabilityId,index]));
   const merged=new Map(interpretation.capabilities.map(item=>[item.id,item]));
   for(const item of original?.capabilities||[])if(!merged.has(item.id))merged.set(item.id,item);
   const old=new Map((previous?.steps||[]).map(step=>[step.capabilityId,step]));
-  const steps=[...merged.values()].map(item=>{
+  const steps=[...merged.values()].sort((a,b)=>{
+   const aPrior=previousOrder.has(a.id),bPrior=previousOrder.has(b.id);
+   return aPrior===bPrior?0:aPrior?1:-1;
+  }).map(item=>{
    const existing=old.get(item.id);
    return {capabilityId:item.id,label:item.label,status:existing?.status||"proposed",
     note:existing?.note||"",requiresConfirmation:true};
