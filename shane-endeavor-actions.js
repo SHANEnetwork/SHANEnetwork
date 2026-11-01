@@ -349,12 +349,12 @@ function init(){
   try{
    const rows=await window.SHANEConversationStore.list({endeavorId:selected,limit:40});
    if(window.SHANECurrentEndeavor?.read?.()!==selected)return;
-   const ideas=rows.filter(row=>!["endeavor-plan","endeavor-transition"].includes(row.entry_kind)&&typeof row.body==="string"&&row.body.trim()).slice(0,5).reverse();
+   const ideas=rows.filter(row=>!["endeavor-plan","endeavor-transition"].includes(row.entry_kind)&&typeof row.body==="string"&&row.body.trim()).slice(0,12).reverse();
    if(!ideas.length){threadStatus.textContent="Your saved ideas will appear here as we develop this endeavor.";return}
    for(const idea of ideas){
     const message=document.createElement("p");message.className="shane-conversation-thread-message";
-    const where=document.createElement("small");where.textContent=String(idea.source_page||"SHANE").replace(".html","");
-    const content=document.createElement("span");content.textContent=idea.body.slice(0,1200);
+    const where=document.createElement("small");where.textContent=idea.entry_kind==="ai-response"?"SHANE AI":idea.entry_kind==="ai-request"?"You":String(idea.source_page||"SHANE").replace(".html","");
+    const content=document.createElement("span");content.textContent=idea.body;
     message.append(where,content);threadEntries.append(message);
    }
   }catch{threadStatus.textContent="Saved conversation is not available right now."}
@@ -456,6 +456,7 @@ function init(){
     }
    }
    document.dispatchEvent(new CustomEvent("shane:ai-conversation-response",{detail:{endeavorId,request,response:data.response,executed:false}}));
+   void loadThread();
   }catch(error){aiReply.textContent=String(error?.message||error)}
   finally{askAI.disabled=false}
  });
