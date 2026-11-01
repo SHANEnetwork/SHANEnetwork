@@ -20,7 +20,7 @@ function prepare(event){
  if(!field||!field.value.trim())return;
  // Discovery forms search public information; they do not publish, invite, or contact members.
  // For these pages run their existing search handler, while creation pages only prepare drafts.
- if(button.tagName==="FORM")queueMicrotask(()=>{if(button.isConnected&&typeof button.requestSubmit==="function")button.requestSubmit()});
+ if(button.tagName==="FORM")return; // Never submit an existing form on arrival without an explicit member action.
  else if(!button.disabled)queueMicrotask(()=>button.click());
 }
 // Carry the person's intent into existing creation forms, without replacing edits
