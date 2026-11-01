@@ -524,6 +524,11 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
  const inspection=inspectOperation({type,vision:request,siteId,deadline});
  if(!inspection.ready)throw Error(inspection.reason);
  const account=await user();if(!account)throw Error("Sign in to create with SHANE.");
+ if(endeavorId){
+  if(!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(String(endeavorId)))throw Error("Invalid endeavor identifier.");
+  const {data:owned,error:ownerError}=await db.from("shane_endeavors").select("id").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
+  if(ownerError||!owned)throw Error("The selected endeavor does not belong to your account.");
+ }
  let result;
  if(type==="new-website")result=await createPrivateWebsite({vision:request});
  else if(type==="website"){
