@@ -153,7 +153,7 @@ async function converse({endeavorId,request,purpose}){
   const recall=/\b(?:remember|earlier|previous|old|find|locate|resume|continue)\b/i.test(String(request||""));
   if(recall){
    const matches=await recallEndeavor({request,limit:5});
-   if(matches.length)groundedPurpose+="\nPossible earlier endeavors (suggest, do not assume identity): "+matches.map(item=>item.endeavorId+" ["+item.types.join(", ")+"] relevance "+item.relevance.toFixed(2)).join("; ");
+   if(matches.length)groundedPurpose+="\nPossible earlier endeavors (suggest, do not assume identity): "+matches.map(item=>item.endeavorId+" ["+item.steps.map(step=>step.type+":"+step.status).join(", ")+"] "+item.description).join("; ");
   }
  }catch{}
  const {data,error}=await db.functions.invoke("shane-converse",{body:{endeavorId,request,purpose:groundedPurpose}});
