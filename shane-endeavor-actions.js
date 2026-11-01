@@ -541,6 +541,17 @@ function init(){
     ?{steps:aiPlan.map(step=>({type:step.type,vision:step.vision.trim(),endeavorId})),requiresReview:true,executable:false}:null;
    const initialProposal=interpreted||(aiPlan===null?window.SHANEConversationStore?.proposeCreationSequence?.({vision:request,endeavorId}):null);
    const proposal=initialProposal&&window.SHANEConversationStore?.prepareCreationSequence?.({proposal:initialProposal,updates:{deadline:deadline.value,siteId:siteChoice.value}})||initialProposal;
+   // A private creation may span multiple capabilities, but only the member's
+   // confirmed plan can enter the persistence and execution path.
+   if(proposal?.steps?.length){
+    const summaryParts=proposal.steps.map((step,index)=>(index+1)+". "+step.type.replace("new-","")+" : "+step.vision);
+    const detail=document.createElement("details");
+    const heading=document.createElement("summary");heading.textContent="Review SHANE's proposed creations";
+    const outline=document.createElement("p");outline.style.whiteSpace="pre-wrap";
+    outline.textContent=summaryParts.join("\n\n");
+    detail.append(heading,outline);
+    aiNext.append(detail);
+   }
    // Campaign deadlines remain the member's decision; a proposal never supplies one silently.
    if(validAIPlan&&aiPlan.length===0){
     aiNext.replaceChildren();
