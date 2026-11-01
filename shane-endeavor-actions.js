@@ -469,6 +469,50 @@ function init(){
   }catch(error){aiReply.textContent=error.message}
   finally{restorePlan.disabled=false}
  };
+ const findPlans=document.createElement("button");findPlans.type="button";findPlans.textContent="Find my saved creation plans";
+ findPlans.onclick=async()=>{
+  findPlans.disabled=true;
+  try{
+   const plans=await window.SHANEConversationStore.listSavedCreationPlans({limit:20});
+   aiNext.replaceChildren();
+   if(!plans.length){aiReply.textContent="No saved creation plans found.";return}
+   aiReply.textContent="Found "+plans.length+" saved endeavors. Select a plan to inspect its creations.";
+   for(const plan of plans){
+    const choice=document.createElement("button");choice.type="button";
+    choice.textContent=plan.types.join(", ")+" · "+new Date(plan.at).toLocaleDateString();
+    choice.onclick=async()=>{
+     choice.disabled=true;
+     try{
+      const overview=await window.SHANEConversationStore.describeSavedCreationPlan({endeavorId:plan.endeavorId});
+      aiReply.textContent=overview.message+" "+overview.steps.map(step=>step.number+". "+step.type+": "+step.status).join("; ");
+      aiNext.replaceChildren();
+      for(const step of overview.steps){
+       if(!step.url)continue;
+       const link=document.createElement("a");link.href=step.url;link.textContent="Open "+step.type;
+       aiNext.append(link,document.createTextNode(" "));
+      }
+      if(!overview.complete){
+       const continueButton=document.createElement("button");continueButton.type="button";continueButton.textContent="Continue this endeavor";
+       continueButton.onclick=async()=>{
+        continueButton.disabled=true;
+        try{
+         const saved=await window.SHANEConversationStore.loadCreationPlan({endeavorId:plan.endeavorId});
+         const outcome=await window.SHANEConversationStore.continueSavedEndeavor(saved);
+         aiReply.textContent=outcome.complete?"All private creations saved.":"Stopped at step "+outcome.failedStep+": "+outcome.error;
+        }catch(error){aiReply.textContent=error.message}
+        finally{continueButton.disabled=false}
+       };
+       aiNext.append(continueButton);
+      }
+     }catch(error){aiReply.textContent=error.message}
+     finally{choice.disabled=false}
+    };
+    aiNext.append(choice);
+   }
+   aiNext.hidden=false;
+  }catch(error){aiReply.textContent=error.message}
+  finally{findPlans.disabled=false}
+ };
  const aiReply=document.createElement("p");aiReply.className="shane-ai-conversation-response";aiReply.setAttribute("role","status");
  const aiNext=document.createElement("div");aiNext.className="shane-conversation-reply-actions";aiNext.hidden=true;aiReply.setAttribute("aria-live","polite");aiReply.style.whiteSpace="pre-wrap";
  entry.addEventListener("keydown",event=>{if(event.key==="Enter"&&(event.ctrlKey||event.metaKey)&&!event.isComposing){event.preventDefault();if(!askAI.disabled)askAI.click()}});
@@ -673,7 +717,7 @@ function init(){
  conversationReply.append(replyHeading,replyText,replyActions,askAI);
  // The AI reply and actionable destinations are mounted with the shared composer below.
  // Keep the conversation button in the composer even when suggested next steps are hidden.
- conversation.append(askAI,restorePlan);
+ conversation.append(askAI,restorePlan,findPlans);
  const explainVision=()=>{
   const text=sharedComposerText();
   conversationReply.hidden=!text;
