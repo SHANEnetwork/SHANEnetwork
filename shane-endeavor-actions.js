@@ -507,7 +507,8 @@ function init(){
       // plan. Offer the existing working module without inventing a route or
       // claiming that the AI has already performed the action.
       const listed=new Set(steps.map(step=>step.capabilityId));
-      const suggested=window.SHANECapabilities?.interpret?.(request)?.capabilities||[];
+      const interpreted=window.SHANECapabilities?.interpret?.(request);
+      const suggested=interpreted?.capabilities||[];
       for(const capability of suggested.slice(0,4)){
        if(listed.has(capability.id)||!capability.path)continue;
        const link=document.createElement("a");
