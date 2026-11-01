@@ -278,7 +278,7 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
  }
  if(!result?.saved||result.published===true)throw Error("The private creation was not confirmed.");
  const id=type==="community"?result.organizationId:type==="campaign"?result.campaignId:type==="listing"?result.listingId:result.siteId;
- if(!id)throw Error("The saved creation did not return its identifier.");
+ if(!id||!/^[0-9a-f-]{36}$/i.test(String(id)))throw Error("The saved creation did not return a valid identifier.");
  const destinations={
   "new-website":"builder.html?site=","website":"builder.html?site=",
   "community":"communities.html?organization=","campaign":"campaigns.html?campaign=","listing":"members.html?listing="
