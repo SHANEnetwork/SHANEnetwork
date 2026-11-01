@@ -568,6 +568,28 @@ function init(){
    const proposal=coordinated&&window.SHANEConversationStore?.prepareCreationSequence?.({proposal:coordinated,updates:{deadline:deadline.value,siteId:siteChoice.value}})||coordinated;
    // A private creation may span multiple capabilities, but only the member's
    // confirmed plan can enter the persistence and execution path.
+   // Compare the complete endeavor against already saved, owner-scoped
+   // Network creations. Never change or reuse an artifact without approval.
+   let coordinatedExisting=null;
+   if(proposal?.steps?.length&&store.coordinateEndeavor){
+    try{coordinatedExisting=await store.coordinateEndeavor({vision:request,endeavorId,aiSteps:proposal.steps})}
+    catch(error){console.warn("Existing endeavor coordination unavailable",error)}
+   }
+   if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)return;
+   if(coordinatedExisting?.reuseSuggestions?.length){
+    const reuse=document.createElement("details");
+    const heading=document.createElement("summary");
+    heading.textContent="Related creations you may already have";
+    reuse.append(heading);
+    for(const item of coordinatedExisting.reuseSuggestions){
+     const line=document.createElement("p");
+     const link=document.createElement("a");link.href=item.url;link.textContent=item.title+" ("+item.type+")";
+     line.append(link,document.createTextNode(" · Review before creating another."));
+     reuse.append(line);
+    }
+    aiNext.append(reuse);
+    aiNext.hidden=false;
+   }
    if(proposal?.steps?.length){
     const summaryParts=proposal.steps.map((step,index)=>(index+1)+". "+step.type.replace("new-","")+" : "+step.vision);
     const detail=document.createElement("details");
