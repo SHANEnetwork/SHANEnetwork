@@ -464,6 +464,7 @@ function init(){
     aiNext.append(resume);
    }
    aiNext.hidden=false;
+   document.dispatchEvent(new CustomEvent("shane:endeavor-progress-restored",{detail:{endeavorId,completed:progress.completed.length,remaining:progress.remaining}}));
   }catch(error){aiReply.textContent=error.message}
   finally{restorePlan.disabled=false}
  };
