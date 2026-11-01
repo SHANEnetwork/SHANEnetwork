@@ -101,7 +101,7 @@ function init(){
   try{sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination,text:text.slice(0,4000),endeavorId,created:Date.now()}));if(destination==="builder.html")sessionStorage.setItem("shane-creative-handoff-v1",JSON.stringify({text:text.slice(0,4000),created:Date.now()}))}catch{}
  });
  select.addEventListener("change",update);
- document.addEventListener("input",event=>{if(event.target?.id&&(fields[location.pathname.split("/").pop()||"index.html"]||[]).includes(event.target.id))update()});
+ document.addEventListener("input",event=>{if(event.target?.id&&((fields[location.pathname.split("/").pop()||"index.html"]||[]).includes(event.target.id)||window.SHANEConversation?.draftSnapshot?.().some(item=>item.field===event.target.id)))update()});
  button.addEventListener("click",async()=>{
   let text=idea();
   if(!text&&window.SHANEConversationStore?.list){
