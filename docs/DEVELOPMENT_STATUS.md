@@ -73,3 +73,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - This is deterministic planning, not AI service execution or live payment processing; the page clearly says so.
 - Shared navigation now explicitly avoids site.html, because published customer websites must not inherit the creator's private conversation or SHANE editor navigation. Published site rendering logic is unchanged.
 - Both changes are committed; browser-level verification remains pending.
+
+## Shared conversation continuity expansion
+- Repaired a malformed literal newline in the shared navigation source introduced by the published-site guard. The guard now has an actual line break and the subsequent navigation initialization is reachable.
+- Added payment and community conversational idea fields to the existing per-endeavor draft restoration and cross-page continuity selectors. These are draft ideas, not private administrative notes or published content.
+- The published-site privacy exclusion remains intact. Browser verification still pending.
