@@ -108,7 +108,7 @@ function useVisionContext(event){
  if(!spec||context.page!==page)return;
  const incoming=document.getElementById(sourceFields[page])?.value?.trim();
  const latest=context.arrivalContext?.latestRequest||context.latestRequest;
- const vision=String(latest||incoming||context.vision||"").trim().slice(0,4000);
+ const vision=String(latest||incoming||context.vision||"").trim();
  if(!vision)return;
  if(!spec.body?.length&&!spec.title?.length)return; // Context-only pages never write into private forms.
  // Do not replay a stale event from another selected endeavor.
