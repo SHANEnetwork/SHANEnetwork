@@ -118,8 +118,8 @@ function enableInPlaceConversation(page,target,field){
   if(field.value.trim()&&field.value.trim()!==vision&&!confirm("Replace this field with your current SHANE conversation?"))return;
   const limited=deliverVision(field,vision);
   note.textContent=limited?"Your full conversation is preserved. This workspace has a shorter field limit; review the editable copy before continuing.":"Your conversation is ready in this workspace. Review and refine it before proceeding.";
-  if(prepareEditableDraft(page)){
-   if(!limited)note.textContent="SHANE passed your conversation into this workspace's editable draft. Review it before continuing.";
+  if(!limited&&prepareEditableDraft(page)){
+   note.textContent="SHANE passed your conversation into this workspace's editable draft. Review it before continuing.";
   }
   announceVision(page,target,field,"conversation",window.SHANECurrentEndeavor?.read?.()||null);
  });
@@ -163,7 +163,7 @@ function init(){
  if(status&&page!=="my-network.html")status.textContent=limited?"Your full idea is preserved in the shared SHANE conversation draft. This workspace field has a shorter limit, so review its shortened copy before proceeding.":"Your idea has arrived from the SHANE Network. Review or refine it when ready.";
  // The explicit Continue action already chose this destination. Prepare its
  // editable draft automatically, but never submit or publish the result.
- const draftPrepared=prepareEditableDraft(page);
+ const draftPrepared=!limited&&prepareEditableDraft(page);
  if(status&&draftPrepared&&page!=="my-network.html")status.textContent="Your idea has arrived and its editable draft is prepared. Review before continuing.";
  try{sessionStorage.removeItem("shane-intent-handoff-v1")}catch{}
  announceVision(page,target,field,"handoff",item.endeavorId||null,item.context||null);
