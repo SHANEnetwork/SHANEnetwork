@@ -48,3 +48,33 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   finally{trigger.disabled=false}
  },{capture:true});
 })().catch(()=>{});
+
+
+/* One explicit action saves the interpreted community privately, without a setup wizard. */
+(()=>{
+ const start=()=>{
+ const original=document.getElementById("communityDraft"),status=document.getElementById("communityDraftStatus"),idea=document.getElementById("communityIdea");
+ if(!original||!status||!idea)return;
+ const create=document.createElement("button");create.type="button";create.textContent="Create my private community";
+ original.insertAdjacentElement("afterend",create);
+ create.addEventListener("click",async()=>{
+  const vision=idea.value.trim();if(vision.length<8){status.textContent="Describe the community you envision first.";return}
+  create.disabled=true;status.textContent="SHANE is preparing your private community.";
+  try{
+   await import("./shane-conversation-store.js");
+   const store=window.SHANEConversationStore;
+   const draft=await store.interpretVision({capability:"community",vision});
+   const name=(document.getElementById("name")?.value||draft.name||"").trim();
+   const description=(document.getElementById("description")?.value||draft.description||vision).trim();
+   const category=(document.getElementById("category")?.value||draft.category||"community");
+   if(!name||!description)throw Error("SHANE needs a community name and description.");
+   const result=await store.createPrivateCommunity({vision,name,description,category});
+   status.replaceChildren(document.createTextNode("Your private community is saved. "));
+   const link=document.createElement("a");link.href="communities.html?organization="+encodeURIComponent(result.organizationId);link.textContent="Open your community";
+   status.append(link);
+  }catch(error){status.textContent="Community not saved: "+error.message}
+  finally{create.disabled=false}
+ });
+ };
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});else start();
+})();
