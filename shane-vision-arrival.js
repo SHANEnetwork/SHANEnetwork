@@ -69,7 +69,7 @@ function prepareEditableDraft(page){
  return true;
 }
 function announceVision(page,target,field,source,endeavorId){
- document.dispatchEvent(new CustomEvent("shane:endeavor-arrived",{detail:{page,endeavorId,field:target.field,source}}));
+ document.dispatchEvent(new CustomEvent("shane:endeavor-arrived",{detail:{page,endeavorId,field:target.field,source,vision:field.value.trim()}}));
  Promise.resolve(window.SHANEConversation?.visionContext?.()).then(context=>{
   if(context)document.dispatchEvent(new CustomEvent("shane:vision-context-ready",{detail:{...context,vision:field.value.trim(),page}}));
  }).catch(()=>{});
