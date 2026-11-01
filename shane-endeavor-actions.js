@@ -256,6 +256,44 @@ function init(){
   }catch{composerStatus.textContent="Saved ideas are unavailable right now."}
  });
  composerActions.insertBefore(usePrevious,composerStatus);
+ const planProgress=document.createElement("details");planProgress.className="shane-plan-progress";
+ const planHeading=document.createElement("summary");planHeading.textContent="Our endeavor's next steps";
+ const planSteps=document.createElement("div");planSteps.className="shane-plan-progress-steps";
+ const planMessage=document.createElement("span");planMessage.setAttribute("role","status");
+ let planLoadSequence=0;
+ const refreshProgress=async()=>{
+  const selected=window.SHANECurrentEndeavor?.read?.()||null,sequence=++planLoadSequence;
+  planSteps.replaceChildren();planMessage.textContent="";
+  if(!selected||!window.SHANEEndeavorPlan?.latest){planProgress.hidden=true;return}
+  try{
+   const plan=await window.SHANEEndeavorPlan.latest(selected);
+   if(sequence!==planLoadSequence||window.SHANECurrentEndeavor?.read?.()!==selected)return;
+   planProgress.hidden=!plan?.steps?.length;
+   if(!plan?.steps?.length)return;
+   for(const step of plan.steps){
+    const item=document.createElement("div");item.className="shane-plan-progress-step";
+    const label=document.createElement("span");label.textContent=step.label;
+    const state=document.createElement("span");state.textContent=step.status;
+    const advance=document.createElement("button");advance.type="button";
+    advance.textContent=step.status==="completed"?"Reopen":"Mark complete";
+    advance.addEventListener("click",async()=>{
+     advance.disabled=true;planMessage.textContent="Updating the endeavor…";
+     try{
+      await window.SHANEEndeavorPlan.setStep({endeavorId:selected,capabilityId:step.capabilityId,status:step.status==="completed"?"proposed":"completed"});
+      planMessage.textContent="Your endeavor's progress is saved.";
+      await refreshProgress();
+     }catch{planMessage.textContent="Progress could not be saved to your account.";advance.disabled=false}
+    });
+    item.append(label,state,advance);planSteps.append(item);
+   }
+  }catch{planProgress.hidden=true}
+ };
+ planProgress.append(planHeading,planSteps,planMessage);
+ document.addEventListener("shane:endeavor-plan-saved",()=>void refreshProgress());
+ document.addEventListener("shane:endeavor-context-ready",()=>void refreshProgress());
+ document.addEventListener("shane:conversation-context-changed",()=>void refreshProgress());
+ document.addEventListener("shane:endeavor-plan-ready",()=>void refreshProgress());
+ void refreshProgress();
  const conversationReply=document.createElement("div");conversationReply.className="shane-conversation-reply";
  conversationReply.setAttribute("role","status");conversationReply.setAttribute("aria-live","polite");
  const replyHeading=document.createElement("strong");replyHeading.textContent="SHANE's next step";
@@ -410,7 +448,7 @@ function init(){
   if(sharedComposerText()===text){try{sessionStorage.removeItem(activeDraftKey())}catch{}}
   location.assign(destination);
  });
- group.append(conversation,continueConversation,conversationReply,select,button,suggestion,workflow,planResume,revisionControl,status);nav.append(group);update();explainVision();
+ group.append(conversation,continueConversation,planProgress,conversationReply,select,button,suggestion,workflow,planResume,revisionControl,status);nav.append(group);update();explainVision();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
