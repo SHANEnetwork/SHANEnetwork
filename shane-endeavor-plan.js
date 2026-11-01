@@ -72,7 +72,7 @@
   if(!step)return {endeavorId,revision:plan.revision,done:true,step:null};
   const capability=capabilities()?.catalog?.().find(item=>item.id===step.capabilityId);
   return {endeavorId,revision:plan.revision,done:false,
-   step:{...step,path:capability?.path||null},vision:plan.vision};
+   step:{...step,path:capability?.path||null},vision:plan.vision,latestRequest:plan.latestRequest||plan.vision};
  }
  async function setStep({endeavorId,capabilityId,status,note=""}={}){
   if(!["proposed","prepared","completed","deferred"].includes(status))throw Error("Invalid status.");
