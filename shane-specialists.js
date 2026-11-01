@@ -59,6 +59,14 @@ export function planCapabilitySuggestions(request,vision=""){
   capabilityId:id,path,action:"prepare_editable_draft",requiresConfirmation:true
  }));
 }
+export async function prepareProposal({proposal,capabilityId,prepare}={}){
+ if(proposal?.status!=="proposal_ready"||typeof prepare!=="function")throw Error("Proposal and adapter required");
+ const item=proposal.proposedCapabilities?.find(x=>x.capabilityId===capabilityId);
+ if(!item||!ENDEAVOR_CAPABILITIES.some(x=>x.id===item.capabilityId&&x.path===item.path))throw Error("Unknown capability");
+ const result=await prepare({capabilityId:item.capabilityId,vision:proposal.request,endeavorId:proposal.endeavorId});
+ if(!result?.ok||result.destination!==item.path)throw Error("Draft preparation failed");
+ return {ok:true,destination:item.path,executed:false,requiresConfirmation:true};
+}
 // One orchestration entry point for a conversational SHANE endeavor.
 // Trusted server adapters provide actual AI output; browser modules may only
 // prepare editable drafts and never silently publish or contact other people.
