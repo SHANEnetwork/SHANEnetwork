@@ -128,7 +128,10 @@ function useVisionContext(event){
  if(page==="builder.html")fillEmpty(["visionPrompt"],vision);
  if(page==="members.html")fillEmpty(["listingDescription","description"],vision);
  if(page==="sports-district.html")fillEmpty(["organizationDescription","description"],vision);
- if(spec.next)fillEmpty(spec.next,"Identify the first shared action and agree who will take it.");
+ if(spec.next){
+  const next=String(context.arrivalContext?.latestRequest||"").trim();
+  if(next)fillEmpty(spec.next,next);
+ }
  // Keep the draft editable; downstream features can react to the prepared event.
  document.dispatchEvent(new CustomEvent("shane:vision-draft-prepared",{
   detail:{page,endeavorId:context.endeavorId||null,purpose:context.arrivalContext?.purpose||null,latestRequest:context.arrivalContext?.latestRequest||vision,revision:context.arrivalContext?.revision||null}
