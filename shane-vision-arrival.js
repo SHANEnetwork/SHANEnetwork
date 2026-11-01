@@ -15,7 +15,8 @@ const destinations={
  "dashboard.html":{field:"goalInput",status:"goalHint"},
  "payments.html":{field:"paymentVision",status:"paymentResponse"},
  "community-feed.html":{field:"communityUpdateIdea",status:"communityUpdateDraftStatus"},
- "community-conversations.html":{field:"shaneCommunityIdea",status:"shaneCommunityReply"}
+ "community-conversations.html":{field:"shaneCommunityIdea",status:"shaneCommunityReply"},
+ "community-opportunities.html":{field:"opportunityIdea",status:"opportunityReply"}
 };
 async function offerAccountResume(page,target,field){
  if(field.value.trim())return;
