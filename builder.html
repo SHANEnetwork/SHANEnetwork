@@ -228,7 +228,7 @@ if(generate.disabled){message.textContent="SHANE is still generating the current
   started=true;
   input.value=job.vision;
   input.dispatchEvent(new Event("input",{bubbles:true}));
-  try{sessionStorage.removeItem(key)}catch{}
+  try{sessionStorage.setItem("shane-ai-build-persist-v1",JSON.stringify(job));sessionStorage.removeItem(key)}catch{}
   document.getElementById("visionStatus").textContent="SHANE is creating your private website draft from the conversation.";
   button.click();
  }
