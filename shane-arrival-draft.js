@@ -29,7 +29,7 @@ const supportingFields={
  "communities.html":["description"],
  "campaigns.html":["description"],
  "workspace.html":["taskDetails","sharedPurpose"],
- "members.html":["listingDescription"],
+ "members.html":["listingDescription","description"],
  "growth.html":["purpose"],
  "request-build.html":["details"],
  "my-network.html":["visionInput"]
