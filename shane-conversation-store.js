@@ -196,6 +196,19 @@ async function interpretVision({capability,vision}={}){
  if(data?.capability!==capability||!data?.draft||data?.published!==false)throw Error("SHANE did not return a reviewable private draft.");
  return data.draft;
 }
+async function createPrivateWebsite({vision}={}){
+ const account=await user();if(!account)throw Error("Sign in to create a website.");
+ const request=String(vision||"").trim();if(request.length<10||request.length>12000)throw Error("Describe the website in 10 to 12000 characters.");
+ const direction="You are SHANE, an AI website creator. Turn the person's vision into a cohesive, welcoming website. Choose appropriate pages and writing without inventing prices, dates, people or functional features. Return the generator's supported structured website schema. ";
+ const {data:generated,error:generateError}=await db.functions.invoke("shane-generate-site",{body:{prompt:direction+request}});
+ if(generateError||generated?.error)throw Error(generated?.error||generateError.message);
+ const site=generated?.site;
+ if(!site||typeof site.name!=="string"||typeof site.about!=="string"||!Array.isArray(site.services)||!Array.isArray(site.pages)||site.pages.some(p=>!p||typeof p.title!=="string"||typeof p.body!=="string"))throw Error("Website generation did not return a complete site.");
+ const content={...site};
+ const {data,error}=await db.from("shane_sites").insert({owner_id:account.id,name:site.name.slice(0,150),content,status:"draft"}).select("id").single();
+ if(error)throw error;if(!data?.id)throw Error("The website was not confirmed as saved.");
+ return {saved:true,siteId:data.id,published:false};
+}
 async function ownedSites(){
  const account=await user();if(!account)throw Error("Sign in to access your websites.");
  const {data,error}=await db.from("shane_sites").select("id,name,status,updated_at").eq("owner_id",account.id).order("updated_at",{ascending:false}).limit(100);
@@ -227,6 +240,6 @@ async function restoreSiteVersion({siteId,versionId,confirmed=false}={}){
  if(error)throw error;if(!updated)throw Error("Site changed since restoration began. Reload before trying again.");
  return {restored:true,siteId,versionId};
 }
-window.SHANEConversationStore=Object.freeze({converse,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
+window.SHANEConversationStore=Object.freeze({converse,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
 document.dispatchEvent(new Event("shane:conversation-store-ready"));
 void flush();
