@@ -252,7 +252,7 @@ function init(){
    }catch{}
   }
   if(!text){status.textContent="Describe your idea here or choose a saved endeavor to continue.";return}
-  const destination=select.value||suggest(text);
+  const destination=select.value||interpretVision(text).preferredDestination;
   if(!destination){status.textContent="Tell SHANE what you want to create, or choose a destination.";select.focus();return}
   button.disabled=true;status.textContent="Carrying your endeavor forward…";
   let endeavorId=null;
