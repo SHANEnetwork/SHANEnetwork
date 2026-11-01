@@ -235,4 +235,35 @@ if(generate.disabled){message.textContent="SHANE is still generating the current
  document.addEventListener("shane:endeavor-arrived",()=>queueMicrotask(()=>void begin()));
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>void begin(),{once:true});
  else queueMicrotask(()=>void begin());
-})();</script><script src="shane-arrival-draft.js" defer></script></body></html>
+})();</script><script type="module" id="shane-site-version-controls">
+import "./shane-conversation-store.js";
+const store=window.SHANEConversationStore;
+const anchor=document.getElementById("savedSites");
+if(anchor&&store){
+ const wrapper=document.createElement("div");
+ wrapper.style.cssText="margin:12px 0;padding:14px;border:1px solid #d6dce7;border-radius:12px";
+ const heading=document.createElement("strong");heading.textContent="Earlier versions of this website";
+ const versions=document.createElement("select");versions.setAttribute("aria-label","Saved website versions");
+ const refresh=document.createElement("button");refresh.type="button";refresh.textContent="Show earlier versions";
+ const restore=document.createElement("button");restore.type="button";restore.textContent="Restore selected version";
+ const note=document.createElement("p");note.setAttribute("role","status");
+ wrapper.append(heading,versions,refresh,restore,note);anchor.insertAdjacentElement("afterend",wrapper);
+ const selected=()=>anchor.value;
+ refresh.onclick=async()=>{
+  versions.replaceChildren();const siteId=selected();
+  if(!siteId){note.textContent="Select a saved website first.";return}
+  try{const rows=await store.siteVersions(siteId);
+   for(const row of rows){const option=document.createElement("option");option.value=row.id;option.textContent="Version "+row.version_number+" · "+new Date(row.recorded_at).toLocaleString();versions.append(option)}
+   note.textContent=rows.length?rows.length+" earlier versions available.":"No earlier versions recorded yet.";
+  }catch(e){note.textContent=e.message}
+ };
+ restore.onclick=async()=>{
+  if(!selected()||!versions.value){note.textContent="Select a website and an earlier version.";return}
+  if(!confirm("Restore this earlier version? The current saved website will be preserved as another version. Unsaved editor changes are not replaced."))return;
+  restore.disabled=true;
+  try{await store.restoreSiteVersion({siteId:selected(),versionId:versions.value,confirmed:true});
+   note.textContent="Earlier version restored to your account. Open the saved project to review it.";await refresh.onclick();
+  }catch(e){note.textContent=e.message}finally{restore.disabled=false}
+ };
+}
+</script><script src="shane-arrival-draft.js" defer></script></body></html>
