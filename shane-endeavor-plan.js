@@ -120,7 +120,7 @@
    const step=plan.steps.find(item=>item.capabilityId===capability.id);
    if(!step)return;
    if(step.status==="prepared"){try{sessionStorage.removeItem(arrivalKey)}catch{}return}
-   if(step.status!=="proposed")return;
+   if(step.status!=="proposed"){try{sessionStorage.removeItem(arrivalKey)}catch{}return}
    // Merely opening a destination means prepared, never completed.
    await setStep({endeavorId,capabilityId:capability.id,status:"prepared",note:"Vision delivered to "+detail.page});
    try{sessionStorage.removeItem(arrivalKey)}catch{}
