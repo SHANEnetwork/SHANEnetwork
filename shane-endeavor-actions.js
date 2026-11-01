@@ -34,6 +34,8 @@ const intentRules=[
  ["community-members.html",/community members|manage members|member roles|community permissions|moderate members/i],
  ["community-conversations.html",/community chat|community conversation|discussion room|chat room with members/i],
  ["community-feed.html",/community announcement|post an update|share community news|community feed/i],
+ ["community-opportunities.html",/need volunteers|volunteer signup|community service opportunity|help wanted in my community/i],
+ ["growth.html",/find customers|build an audience|increase visibility|promote our project|reach supporters/i],
  ["appearance.html",/appearance settings|change theme|change colors|custom theme|my colors|font settings/i],
  ["workspace.html",/assign a task|create a task|task list|work plan|project milestone|coordinate work|to.do list|coordinate volunteers|organize responsibilities/i],
  ["network.html",/discover|search for|find people|find organizations|look for|who can help/i],
