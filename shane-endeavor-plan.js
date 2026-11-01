@@ -24,12 +24,23 @@
   const interpretation=capabilities()?.interpret?.(vision);
   if(!interpretation?.vision)throw Error("Describe what you want to create.");
   const old=new Map((previous?.steps||[]).map(step=>[step.capabilityId,step]));
+  const steps=interpretation.capabilities.map(item=>{
+   const existing=old.get(item.id);
+   return {capabilityId:item.id,label:item.label,status:existing?.status||"proposed",
+    note:existing?.note||"",requiresConfirmation:true};
+  });
+  // A conversational refinement may mention only the new part of an endeavor.
+  // Keep previously agreed work, including completed and deferred steps, instead
+  // of silently deleting it from the active plan.
+  const included=new Set(steps.map(item=>item.capabilityId));
+  for(const prior of previous?.steps||[]){
+   if(!included.has(prior.capabilityId)&&capabilities()?.catalog?.().some(item=>item.id===prior.capabilityId)){
+    steps.push({...prior});
+    included.add(prior.capabilityId);
+   }
+  }
   return {version:1,endeavorId,vision:interpretation.vision,revision:(previous?.revision||0)+1,
-   createdAt:new Date().toISOString(),steps:interpretation.capabilities.map(item=>{
-    const existing=old.get(item.id);
-    return {capabilityId:item.id,label:item.label,status:existing?.status||"proposed",
-     note:existing?.note||"",requiresConfirmation:true};
-   })};
+   createdAt:new Date().toISOString(),steps};
  }
  async function save(plan){
   if(!valid(plan?.endeavorId)||plan?.version!==1||!Array.isArray(plan.steps))throw Error("Invalid endeavor plan.");
