@@ -77,7 +77,7 @@
     const item=catalog.get(step.capabilityId);
     return {...step,order:index+1,path:item?.path||null};
    }),
-   next:plan.steps.find(step=>step.status==="prepared"||step.status==="proposed")?.capabilityId||null,
+   next:(plan.steps.find(step=>step.status==="prepared")||plan.steps.find(step=>step.status==="proposed"))?.capabilityId||null,
    source:"account-plan"
   };
  }
@@ -88,6 +88,7 @@
   if(!step||!["proposed","prepared"].includes(step.status))
    throw Error("That step is not ready to continue.");
   const result=await handoff({endeavorId,capabilityId});
+  document.dispatchEvent(new CustomEvent("shane:conversation-journey-updated",{detail:{endeavorId,revision:current.revision,purpose:current.purpose,latestRequest:current.latestRequest,steps:current.steps,suggestedCapabilityId:capabilityId,path:result.path,execution:"not-started"}}));
   return {...result,journeyRevision:current.revision};
  }
  // A conversation can revise the existing plan without requiring a separate
