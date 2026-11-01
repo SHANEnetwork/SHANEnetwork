@@ -1093,7 +1093,14 @@ function init(){
  });
  document.addEventListener("shane:artifact-created",()=>{if(!historyList.hidden){historyList.hidden=true;historySearch.hidden=true;historyList.replaceChildren()}});
  conversation.append(createAction,deadline,siteChoice,createStatus,recentCreation,historyButton,historySearch,historyList);syncAction();showRecentCreation();
- group.append(conversation,aiReply,aiNext,continueConversation,planProgress,conversationReply,select,button,suggestion,workflow,planResume,revisionControl,status);
+ // Present conversation and its persistent creations first. Keep specialist
+ // controls in the same workspace as an optional, collapsible capability shelf.
+ const specialist=document.createElement("details");
+ specialist.className="shane-specialist-capabilities";
+ const specialistTitle=document.createElement("summary");
+ specialistTitle.textContent="Explore SHANE's programs and manual controls";
+ specialist.append(specialistTitle,select,button,suggestion,workflow,planResume,revisionControl,status);
+ group.append(conversation,aiReply,aiNext,continueConversation,planProgress,conversationReply,specialist);
  // One conversation workspace across the entire Network. The existing page
  // capabilities remain below it, available whenever a member wants manual control.
  const page=location.pathname.split("/").pop()||"index.html";
