@@ -149,6 +149,29 @@ function init(){
   }
  };
 
+ const planResume=document.createElement("span");planResume.className="shane-action-workflow";planResume.setAttribute("aria-live","polite");
+ const showSavedPlan=async()=>{
+  const selected=window.SHANECurrentEndeavor?.read?.();
+  if(!selected||!window.SHANEEndeavorPlan?.latest){planResume.replaceChildren();return}
+  try{
+   const plan=await window.SHANEEndeavorPlan.latest(selected);
+   if(window.SHANECurrentEndeavor?.read?.()!==selected)return;
+   planResume.replaceChildren();
+   if(!plan?.steps?.length)return;
+   const intro=document.createElement("span");intro.textContent="Continue your endeavor: ";planResume.append(intro);
+   for(const step of plan.steps.filter(x=>x.status!=="completed"&&x.status!=="deferred").slice(0,5)){
+    const item=capabilityCatalog.find(x=>x.id===step.capabilityId);if(!item)continue;
+    const link=document.createElement("a");link.href=item.path;link.className="shane-action-workflow-link";
+    link.textContent=step.label;
+    link.addEventListener("click",()=>{prepareCapability({capabilityId:item.id,vision:plan.vision,endeavorId:selected})});
+    planResume.append(link);
+   }
+  }catch{planResume.replaceChildren()}
+ };
+ document.addEventListener("shane:endeavor-plan-saved",()=>void showSavedPlan());
+ document.addEventListener("shane:endeavor-context-ready",()=>void showSavedPlan());
+ document.addEventListener("shane:conversation-context-changed",()=>void showSavedPlan());
+ void showSavedPlan();
  const status=document.createElement("span");status.setAttribute("role","status");status.className="shane-action-status";
  const suggestion=document.createElement("span");suggestion.className="shane-action-suggestion";suggestion.setAttribute("aria-live","polite");
  const update=()=>{const text=idea(),destination=suggest(text),label=targets.find(([path])=>path===destination)?.[1];suggestion.textContent=select.value?"You chose "+targets.find(([path])=>path===select.value)?.[1]:label?"SHANE suggests: "+label:"Describe your idea and SHANE will suggest a next step.";renderWorkflow()};
@@ -179,7 +202,7 @@ function init(){
     if(!active||!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(active))throw Error("No selected endeavor");
     const entries=await window.SHANEConversationStore.list({endeavorId:active,limit:20});
     const preferred=entries.find(entry=>!["endeavor-transition","endeavor-plan"].includes(entry.entry_kind)&&typeof entry.body==="string"&&entry.body.trim());
-    text=(preferred||entries.find(entry=>typeof entry.body==="string"&&entry.body.trim()))?.body?.trim()||"";
+    text=preferred?.body?.trim()||"";
    }catch{}
   }
   if(!text){status.textContent="Describe your idea here or choose a saved endeavor to continue.";return}
@@ -207,7 +230,7 @@ function init(){
   }
   location.assign(destination);
  });
- group.append(select,button,suggestion,workflow,status);nav.append(group);update();
+ group.append(select,button,suggestion,workflow,planResume,status);nav.append(group);update();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
