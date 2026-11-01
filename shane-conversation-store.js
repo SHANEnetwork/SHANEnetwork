@@ -435,6 +435,32 @@ function compassReview({vision,paths=[]}={}){
  mirror.findings.push("A keyword match is not evidence that the member wants every matched program created.");
  return {checks,method:"Ponderer explores; Harmonizer reconciles; Maximizer compares; Compass reviews challenge assumptions; Genies execute only supported approved operations.",executionAuthorized:false};
 }
+// A single whole-endeavor interpretation bridges the AI planner, existing
+// creations and the capability engine. No inferred step is executed automatically.
+function harmonizeEndeavorPlan({vision,endeavorId,aiSteps,existing=[]}={}){
+ const whole=synthesizeEndeavor({vision,endeavorId,existing});
+ const known=new Set(computerCapabilities.map(item=>item.id));
+ const supplied=Array.isArray(aiSteps)?aiSteps:[];
+ const accepted=supplied.filter(step=>step&&known.has(step.type)&&typeof step.vision==="string"&&step.vision.trim().length>=8);
+ const seen=new Set();
+ const steps=accepted.slice(0,8).filter(step=>{
+  const identity=step.type+":"+String(step.siteId||"");
+  if(seen.has(identity))return false;
+  seen.add(identity);return true;
+ }).map(step=>({...step,vision:step.vision.trim(),endeavorId}));
+ const evaluation=evaluateCreationPlan({steps});
+ const review=compassReview({vision,paths:whole.paths});
+ const warnings=[];
+ if(supplied.length>accepted.length)warnings.push("Some proposed operations are not supported or need clearer descriptions.");
+ if(accepted.length>steps.length)warnings.push("Repeated operations were consolidated for review; add separate steps explicitly if needed.");
+ if(whole.recommended&&steps.length){
+  const expected=new Set(whole.recommended.steps.map(step=>step.type));
+  const actual=new Set(steps.map(step=>step.type));
+  const missing=[...expected].filter(type=>!actual.has(type));
+  if(missing.length)warnings.push("A broader approach could also consider "+missing.join(", ")+". These are suggestions, not additional actions.");
+ }
+ return {goal:String(vision||""),steps,evaluation,whole,review,warnings,requiresReview:true,executable:false,executed:false};
+}
 function prepareCreationSequence({proposal,updates={}}={}){
  if(!proposal||!Array.isArray(proposal.steps))throw Error("A creation proposal is required.");
  const allowed=["deadline","siteId"];
@@ -701,6 +727,6 @@ async function restoreSiteVersion({siteId,versionId,confirmed=false}={}){
  if(error)throw error;if(!updated)throw Error("Site changed since restoration began. Reload before trying again.");
  return {restored:true,siteId,versionId};
 }
-window.SHANEConversationStore=Object.freeze({beginEndeavor,converse,evaluateCreationPlan,synthesizeEndeavor,compassReview,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,computerCapabilities,inspectOperation,previewVisionSequence,proposeCreationSequence,prepareCreationSequence,executeVision,executeVisionSequence,verifySequenceProgress,saveCreationPlan,loadCreationPlan,listSavedCreationPlans,searchSavedCreationPlans,recallEndeavor,describeSavedCreationPlan,recoverCreationProgress,inspectSavedEndeavor,continueSavedEndeavor,resumeVisionSequence,recentCreations,findSavedCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
+window.SHANEConversationStore=Object.freeze({beginEndeavor,converse,evaluateCreationPlan,synthesizeEndeavor,compassReview,harmonizeEndeavorPlan,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,computerCapabilities,inspectOperation,previewVisionSequence,proposeCreationSequence,prepareCreationSequence,executeVision,executeVisionSequence,verifySequenceProgress,saveCreationPlan,loadCreationPlan,listSavedCreationPlans,searchSavedCreationPlans,recallEndeavor,describeSavedCreationPlan,recoverCreationProgress,inspectSavedEndeavor,continueSavedEndeavor,resumeVisionSequence,recentCreations,findSavedCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
 document.dispatchEvent(new Event("shane:conversation-store-ready"));
 void flush();
