@@ -457,6 +457,14 @@ function init(){
    }
    document.dispatchEvent(new CustomEvent("shane:ai-conversation-response",{detail:{endeavorId,request,response:data.response,executed:false}}));
    void loadThread();
+   // The member's next message should be a fresh conversational turn.
+   // Keep the saved endeavor and its underlying editable project unchanged.
+   const composer=document.getElementById("shane-shared-vision-input");
+   if(composer&&composer.value.trim()===request){
+    composer.value="";
+    composer.dispatchEvent(new Event("input",{bubbles:true}));
+    composer.focus();
+   }
   }catch(error){aiReply.textContent=String(error?.message||error)}
   finally{askAI.disabled=false}
  });
