@@ -68,6 +68,8 @@ function idea(){
   const node=document.getElementById(id);
   if(node&&typeof node.value==="string"&&node.value.trim())return node.value.trim();
  }
+ const shared=window.SHANEConversation?.currentVision?.();
+ if(typeof shared==="string"&&shared.trim())return shared.trim();
  const turns=window.SHANEConversation?.read?.()?.turns||[];
  const previous=turns.slice().reverse().find(turn=>turn&&typeof turn.text==="string"&&turn.text.trim()&&turn.kind!=="endeavor-transition");
  return previous?.text?.trim()||"";
