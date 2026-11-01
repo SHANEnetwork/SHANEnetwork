@@ -509,7 +509,10 @@ function init(){
       const listed=new Set(steps.map(step=>step.capabilityId));
       const interpreted=window.SHANECapabilities?.interpret?.(request);
       const suggested=interpreted?.capabilities||[];
-      for(const capability of suggested.slice(0,4)){
+      // The user may name several goals in one conversation. Keep every
+      // supported destination discoverable rather than hiding all but four.
+      const availableDestinations=suggested.filter(capability=>!listed.has(capability.id)&&capability.path);
+      for(const capability of availableDestinations){
        if(listed.has(capability.id)||!capability.path)continue;
        const link=document.createElement("a");
        link.href=capability.path;link.textContent="Explore: "+capability.label;
