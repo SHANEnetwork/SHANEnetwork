@@ -100,6 +100,32 @@
  const link=document.createElement("a");link.href="builder.html#shane-idea-conversation";link.textContent="Continue our earlier idea in the creator";
  link.addEventListener("click",()=>{try{sessionStorage.setItem("shane-creative-handoff-v1",JSON.stringify({text:remembered.text,created:Date.now()}))}catch{}});
  hint.append("Your conversation can continue across SHANE. ",link);nav.append(hint)}
+ // A shared, unobtrusive conversation identity follows the member across views.
+ // This is a contextual display, not a second chatbot or an automatic publishing action.
+ const continuity=document.createElement("div");
+ continuity.className="shane-journey-identity";
+ continuity.setAttribute("aria-label","Current SHANE conversation");
+ const identity=document.createElement("span");
+ identity.className="shane-journey-label";
+ identity.textContent="Our ongoing endeavor";
+ const thought=document.createElement("span");
+ thought.className="shane-journey-thought";
+ const resume=document.createElement("a");
+ resume.href="conversation-history.html";
+ resume.textContent="Our conversation";
+ const refreshIdentity=async()=>{
+   const current=recentSubstantive();
+   let brief=null;
+   try{brief=await conversationBrief()}catch{}
+   const vision=String(brief?.vision||current?.text||"").trim();
+   thought.textContent=vision?vision.slice(0,150)+(vision.length>150?"…":""):"Begin with an idea. Continue it anywhere in SHANE.";
+   continuity.hidden=false;
+ };
+ continuity.append(identity,thought,resume);
+ nav.insertAdjacentElement("afterend",continuity);
+ document.addEventListener("shane:conversation-context-changed",()=>void refreshIdentity());
+ document.addEventListener("shane:endeavor-context-ready",()=>void refreshIdentity());
+ void refreshIdentity();
  if(header){header.append(nav)}else{const landmark=document.createElement("div");landmark.className="shane-unified-topbar";landmark.append(nav);document.body.insertBefore(landmark,document.body.firstChild)}
  const accountResume=document.createElement("script");accountResume.src="shane-account-resume-nav.js";accountResume.defer=true;document.head.append(accountResume);
  const endeavorActions=document.createElement("script");endeavorActions.src="shane-endeavor-actions.js";endeavorActions.defer=true;document.head.append(endeavorActions);
