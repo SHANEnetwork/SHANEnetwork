@@ -209,6 +209,24 @@ async function createPrivateWebsite({vision}={}){
  if(error)throw error;if(!data?.id)throw Error("The website was not confirmed as saved.");
  return {saved:true,siteId:data.id,published:false};
 }
+async function recentCreations({limit=12}={}){
+ const account=await user();if(!account)return [];
+ const count=Math.max(1,Math.min(40,Number(limit)||12));
+ const sources=[
+  {table:"shane_sites",type:"website",title:"name",date:"updated_at",page:"builder.html",param:"site"},
+  {table:"shane_organizations",type:"community",title:"name",date:"created_at",page:"communities.html",param:"organization"},
+  {table:"shane_campaigns",type:"campaign",title:"title",date:"created_at",page:"campaigns.html",param:"campaign"},
+  {table:"shane_listings",type:"listing",title:"title",date:"created_at",page:"members.html",param:"listing"}
+ ];
+ const responses=await Promise.allSettled(sources.map(async source=>{
+  const {data,error}=await db.from(source.table).select("id,"+source.title+","+source.date).eq("owner_id",account.id).order(source.date,{ascending:false}).limit(count);
+  if(error)throw error;
+  return (data||[]).map(row=>({id:row.id,type:source.type,title:String(row[source.title]||"Untitled"),at:row[source.date],url:source.page+"?"+source.param+"="+encodeURIComponent(row.id)}));
+ }));
+ const successes=responses.filter(item=>item.status==="fulfilled");
+ if(!successes.length)throw new Error("Your saved creations could not be loaded.");
+ return successes.flatMap(item=>item.value).sort((a,b)=>new Date(b.at)-new Date(a.at)).slice(0,count);
+}
 async function ownedSites(){
  const account=await user();if(!account)throw Error("Sign in to access your websites.");
  const {data,error}=await db.from("shane_sites").select("id,name,status,updated_at").eq("owner_id",account.id).order("updated_at",{ascending:false}).limit(100);
@@ -240,6 +258,6 @@ async function restoreSiteVersion({siteId,versionId,confirmed=false}={}){
  if(error)throw error;if(!updated)throw Error("Site changed since restoration began. Reload before trying again.");
  return {restored:true,siteId,versionId};
 }
-window.SHANEConversationStore=Object.freeze({converse,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
+window.SHANEConversationStore=Object.freeze({converse,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,recentCreations,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
 document.dispatchEvent(new Event("shane:conversation-store-ready"));
 void flush();
