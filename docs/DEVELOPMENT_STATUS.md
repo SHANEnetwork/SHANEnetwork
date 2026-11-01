@@ -266,3 +266,7 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - The endeavor plan module now stores a short-lived session receipt of a conversation-driven page arrival and can replay it when the account conversation store becomes ready, reducing missed prepared-step updates caused by asynchronous script loading.
 - A receipt is cleared after a successful account-backed preparation revision. Matching endeavor, exact vision and registered capability remain required; no execution or completion is inferred.
 - Runtime verification remains pending.
+
+## Endeavor handoff receipt lifecycle
+- Expired arrival receipts are discarded. Duplicate arrivals for steps already prepared do not generate new revisions. Completed or deferred steps are preserved and their pending receipts cleared.
+- These are continuity safeguards for the existing account-backed plan and conversational navigation, not model-driven execution. Browser verification remains pending.
