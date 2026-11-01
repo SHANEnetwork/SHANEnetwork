@@ -375,3 +375,9 @@ No action requested as of this update.
 - Shared conversation store now exposes `siteVersions` and `restoreSiteVersion` (commit bcff39f), using signed-in ownership checks, explicit confirmation, and updated-at conflict detection. Restore updates the existing site and triggers a snapshot of the previous state.
 - Caveats: site version snapshot trigger has not been tested under an authenticated session; the site table's existing update policies must allow the operation. Concurrent simultaneous updates and exact snapshot sequencing need verification. `reviseSavedCreation` server purpose remains unsupported; creator UI not yet wired to these methods. No SHONnetwork modifications.
 - Next: implement owner-scoped AI revision endpoint with atomic persisted versions, then wire creator's conversational refinement and version restoration UI; extend reusable execution to community and campaign modules.
+
+## 2026-11-01: creator version restoration interface
+- Added version history selection and confirmed restoration controls inside the existing creator's saved-project area (commit 149a95e), using the shared account store rather than duplicating database logic.
+- Controls are authenticated through the store, and restoration leaves unsaved editor fields alone; members reopen the saved site to review.
+- **Pending**: browser testing, RLS/trigger runtime verification, server-side conversational AI revision execution, and full cross-network capability execution. This is not yet complete phase 1 or phase 2.
+- Continue with server-side saved-creation revision and persistent cross-page orchestration. Preserve SHONnetwork.
