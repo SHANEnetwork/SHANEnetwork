@@ -473,10 +473,12 @@ function init(){
  const replyHeading=document.createElement("strong");replyHeading.textContent="SHANE's next step";
  const replyText=document.createElement("p");
  const replyActions=document.createElement("div");replyActions.className="shane-conversation-reply-actions";
- conversationReply.append(replyHeading,replyText,replyActions,askAI,aiReply);
+ conversationReply.append(replyHeading,replyText,replyActions,askAI);
+ conversationReply.after(aiReply);
  const explainVision=()=>{
   const text=sharedComposerText();
   conversationReply.hidden=!text;
+  // Keep the latest answer visible while the member composes the next turn.
   replyActions.replaceChildren();
   if(!text)return;
   const result=interpretVision(text);
