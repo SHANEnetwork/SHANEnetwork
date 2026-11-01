@@ -516,7 +516,7 @@ function init(){
         const prepared=window.SHANECapabilities?.prepare?.({
          capabilityId:capability.id,vision:request,endeavorId
         });
-        if(prepared?.ok&&prepared?.path)location.assign(prepared.path);
+        if(prepared?.ok&&prepared?.destination)location.assign(prepared.destination);
         else composerStatus.textContent="This workspace could not be prepared yet. Your conversation remains saved.";
        });
        aiNext.append(link);listed.add(capability.id);
