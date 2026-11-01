@@ -150,6 +150,14 @@ async function reviseSavedCreation({endeavorId,creationId,request}={}){
  return data;
 }
 
+async function createPrivateCommunity({vision,name,description,category}={}){
+ const account=await user();if(!account)throw Error("Sign in to save a community.");
+ const title=String(name||"").trim().slice(0,120),details=String(description||vision||"").trim().slice(0,3000);
+ if(title.length<2||!details)throw Error("A community needs a name and a description.");
+ const {data,error}=await db.from("shane_organizations").insert({owner_id:account.id,name:title,description:details,category:String(category||"community").slice(0,100),settings:{membership:"invitation",profileVisibility:"private",reviewMode:"staff",rooms:"off",friends:"off",pager:"off"}}).select("id").single();
+ if(error)throw error;if(!data?.id)throw Error("Community save was not confirmed.");
+ return {saved:true,organizationId:data.id,private:true};
+}
 async function interpretVision({capability,vision}={}){
  const account=await user();if(!account)throw Error("Sign in to create with SHANE.");
  const {data,error}=await db.functions.invoke("shane-interpret-vision",{body:{capability,vision}});
@@ -183,6 +191,6 @@ async function restoreSiteVersion({siteId,versionId,confirmed=false}={}){
  if(error)throw error;if(!updated)throw Error("Site changed since restoration began. Reload before trying again.");
  return {restored:true,siteId,versionId};
 }
-window.SHANEConversationStore=Object.freeze({converse,reviseSavedCreation,interpretVision,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
+window.SHANEConversationStore=Object.freeze({converse,reviseSavedCreation,createPrivateCommunity,interpretVision,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
 document.dispatchEvent(new Event("shane:conversation-store-ready"));
 void flush();
