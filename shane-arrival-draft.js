@@ -131,7 +131,7 @@ function useVisionContext(event){
  if(spec.next)fillEmpty(spec.next,"Identify the first shared action and agree who will take it.");
  // Keep the draft editable; downstream features can react to the prepared event.
  document.dispatchEvent(new CustomEvent("shane:vision-draft-prepared",{
-  detail:{page,endeavorId:context.endeavorId||null}
+  detail:{page,endeavorId:context.endeavorId||null,purpose:context.arrivalContext?.purpose||null,latestRequest:context.arrivalContext?.latestRequest||vision,revision:context.arrivalContext?.revision||null}
  }));
 }
 document.addEventListener("shane:vision-context-ready",useVisionContext);
