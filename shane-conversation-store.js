@@ -370,14 +370,17 @@ async function loadCreationPlan({endeavorId}={}){
 }
 async function listSavedCreationPlans({limit=20}={}){
  const account=await user();if(!account)throw Error("Sign in to see saved plans.");
- const rows=await list({kinds:["creation-plan"],limit:Math.min(100,Math.max(1,limit))});
+ const rows=await list({kinds:["creation-plan"],limit:500});
+ const seen=new Set();
  return rows.map(row=>{
   try{
    const plan=JSON.parse(row.body);
    if(plan.version!==1||!Array.isArray(plan.steps))return null;
+   if(!row.endeavor_id||seen.has(row.endeavor_id))return null;
+   seen.add(row.endeavor_id);
    return {endeavorId:row.endeavor_id,at:row.created_at,steps:plan.steps.length,types:plan.steps.map(step=>step.type)};
   }catch{return null}
- }).filter(Boolean);
+ }).filter(Boolean).slice(0,Math.min(100,Math.max(1,limit)));
 }
 async function describeSavedCreationPlan({endeavorId}={}){
  const saved=await loadCreationPlan({endeavorId});
