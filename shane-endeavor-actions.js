@@ -482,6 +482,7 @@ function init(){
       aiNext.hidden=false;
       aiNext.onclick=async event=>{
        event.preventDefault();
+       if(window.SHANECurrentEndeavor?.read?.()!==endeavorId){composerStatus.textContent="Select the current endeavor before continuing.";return}
        try{
         const result=await window.SHANEEndeavorPlan.handoff({endeavorId,capabilityId:next.step.capabilityId});
         if(result?.path)location.assign(result.path);
