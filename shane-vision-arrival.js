@@ -49,8 +49,8 @@ async function offerAccountResume(page,target,field){
    if(selected&&selected!==active.id)throw Error("The selected endeavor changed. Choose the project again before resuming.");
    if(field.value.trim())throw Error("This field changed while loading. Your new writing has been preserved.");
    if(!document.contains(field))throw Error("The workspace changed while loading. Open it again to continue.");
-   field.value=savedVision.slice(0,field.maxLength>0?field.maxLength:savedVision.length);field.dispatchEvent(new Event("input",{bubbles:true}));
-   note.textContent="Your saved idea is ready. Review and refine it before creating anything.";
+   const limited=deliverVision(field,savedVision,active.id);
+   note.textContent=limited?"Your complete saved idea remains preserved. This workspace has a shorter field limit, so review its editable copy.":"Your saved idea is ready. Review and refine it before creating anything.";
    try{sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:active.id,updated:Date.now()}))}catch{}
    prepareEditableDraft(page);
    announceVision(page,target,field,"account",active.id,savedContext);
@@ -70,7 +70,7 @@ const draftButtons=Object.freeze({
  "members.html":"listingDraft",
  "request-build.html":"shaneBuildRequestPrepare"
 });
-function deliverVision(field,text){
+function deliverVision(field,text,endeavorId=null){
  const full=String(text||"");
  const limited=field.maxLength>0&&full.length>field.maxLength;
  if(limited){
@@ -78,7 +78,7 @@ function deliverVision(field,text){
   // silently discarding material that a particular legacy form cannot hold.
   try{
    const active=window.SHANECurrentEndeavor?.read?.();
-   const id=typeof active==="string"&&/^[0-9a-f-]{36}$/i.test(active)?active:null;
+   const id=typeof endeavorId==="string"&&/^[0-9a-f-]{36}$/i.test(endeavorId)?endeavorId:typeof active==="string"&&/^[0-9a-f-]{36}$/i.test(active)?active:null;
    const key="shane-shared-idea-draft-v2:"+(id||"personal");
    sessionStorage.setItem(key,full);
   }catch{}
@@ -155,7 +155,7 @@ function init(){
   });container.append(restore)}
   return;
  }
- const limited=deliverVision(field,item.text);
+ const limited=deliverVision(field,item.text,item.endeavorId||null);
  if(item.endeavorId&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(item.endeavorId)){
   try{sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:item.endeavorId,updated:Date.now()}))}catch{}
  }
