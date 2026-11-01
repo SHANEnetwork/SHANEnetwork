@@ -68,6 +68,12 @@ function prepareEditableDraft(page){
  button.click();
  return true;
 }
+function announceVision(page,target,field,source,endeavorId){
+ document.dispatchEvent(new CustomEvent("shane:endeavor-arrived",{detail:{page,endeavorId,field:target.field,source}}));
+ Promise.resolve(window.SHANEConversation?.visionContext?.()).then(context=>{
+  if(context)document.dispatchEvent(new CustomEvent("shane:vision-context-ready",{detail:{...context,vision:field.value.trim(),page}}));
+ }).catch(()=>{});
+}
 function enableInPlaceConversation(page,target,field){
  const container=field.closest(".shane-conversation-intake")||field.parentElement;
  if(!container||container.querySelector(".shane-use-conversation-here"))return;
@@ -86,7 +92,7 @@ function enableInPlaceConversation(page,target,field){
   if(prepareEditableDraft(page)){
    note.textContent="SHANE passed your conversation into this workspace's editable draft. Review it before continuing.";
   }
-  document.dispatchEvent(new CustomEvent("shane:endeavor-arrived",{detail:{page,endeavorId:window.SHANECurrentEndeavor?.read?.()||null,field:target.field,source:"conversation"}}));
+  announceVision(page,target,field,"conversation",window.SHANECurrentEndeavor?.read?.()||null);
  });
  container.append(button,note);
 }
