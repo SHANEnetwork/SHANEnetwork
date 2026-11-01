@@ -275,3 +275,7 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - New conversational plan revisions preserve existing registered capabilities and their progress, rather than dropping earlier work when the new vision focuses on a narrower part of the endeavor.
 - A reusable account-backed `SHANEEndeavorPlan.nextAction(endeavorId)` returns the next prepared or proposed capability, or indicates no remaining steps.
 - Shared `SHANEConversation.visionContext()` now includes that next action for consumers across SHANE pages. This is a deterministic planning integration, not an AI inference engine; browser verification remains pending.
+
+## Focused continuation
+- The existing shared endeavor navigation now presents a single next unfinished saved-plan step instead of a row of competing destinations. Other steps remain in the account-backed plan and progress view.
+- This is presentation of existing deterministic planning, not model-driven orchestration. Browser verification remains pending.
