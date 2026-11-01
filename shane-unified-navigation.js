@@ -19,6 +19,7 @@
  restoreDrafts();
  const recentSubstantive=()=>journalContext().turns.slice().reverse().find(turn=>turn&&typeof turn.text==="string"&&turn.text.trim()&&turn.kind!=="endeavor-transition")||null;
  const draftSnapshot=()=>draftFields.map(id=>{const field=document.getElementById(id);return field&&typeof field.value==="string"&&field.value.trim()?{field:id,text:field.value.trim().slice(0,10000)}:null}).filter(Boolean);
+ const saveDrafts=()=>{for(const item of draftSnapshot())try{sessionStorage.setItem(draftKey(item.field),JSON.stringify({text:item.text,at:Date.now()}))}catch{}};
  const currentVision=()=>draftSnapshot()[0]?.text||recentSubstantive()?.text||"";
  const clearDraft=(fieldId)=>{if(!draftFields.includes(fieldId))return false;try{sessionStorage.removeItem(draftKey(fieldId));return true}catch{return false}};
  const currentEndeavorId=()=>window.SHANECurrentEndeavor?.read?.()||null;
@@ -35,6 +36,7 @@
  // A single handoff writer lives in shane-endeavor-actions.js. The navigation
  // layer records the idea without overwriting the selected endeavor or routing
  // a conversation into an unrelated form.
+ window.addEventListener("pagehide",saveDrafts);
  nav.addEventListener("click",event=>{
   const link=event.target.closest("a");
   if(!link||event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
