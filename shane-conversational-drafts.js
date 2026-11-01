@@ -25,6 +25,18 @@ const draftKey="shane-conversation-draft:"+page;
 const prompt=section.querySelector("#shane-natural-prompt");
 try{const stored=JSON.parse(sessionStorage.getItem(draftKey)||"null");if(stored&&typeof stored.text==="string"&&Date.now()-stored.updated<604800000&&!prompt.value.trim()){prompt.value=stored.text.slice(0,4000);section.querySelector("#shane-natural-response").textContent="Your unfinished description has been restored in this browser session."}}catch{}
 prompt.addEventListener("input",()=>{try{if(prompt.value.trim())sessionStorage.setItem(draftKey,JSON.stringify({text:prompt.value.slice(0,4000),updated:Date.now()}));else sessionStorage.removeItem(draftKey)}catch{}});
+// The existing conversational intake participates in the shared endeavor flow.
+// Preserve edits and never invoke the final save or publish control.
+document.addEventListener("shane:vision-context-ready",event=>{
+ const context=event.detail||{};
+ if(context.page!==page||!context.vision)return;
+ const incoming=String(context.arrivalContext?.latestRequest||context.vision).trim().slice(0,4000);
+ if(!incoming||prompt.value.trim())return;
+ prompt.value=incoming;
+ prompt.dispatchEvent(new Event("input",{bubbles:true}));
+ section.querySelector("#shane-natural-response").textContent="Your current endeavor is ready here. Refine it or prepare an editable draft.";
+});
+
 
 
 section.querySelector("button").addEventListener("click",()=>{const raw=section.querySelector("textarea").value.trim();if(!raw){section.querySelector("textarea").focus();return}if(config.kind==="listing"&&host.hidden){section.querySelector("#shane-natural-response").textContent="Sign in and open your listing editor before preparing a listing.";return}
