@@ -501,10 +501,12 @@ async function executeVisionSequence({steps,endeavorId,startIndex=0}={}){
   if(ownerError||!owned)throw Error("This endeavor does not belong to your account.");
  }
  if(steps.some(step=>step.endeavorId&&step.endeavorId!==endeavorId))throw Error("Creation steps must belong to the selected endeavor.");
+ if(endeavorId&&window.SHANECurrentEndeavor?.read?.()!==endeavorId)throw Error("The active endeavor changed. Return to the original endeavor before creating.");
  for(let index=0;index<steps.length;index++){
   const step=steps[index];
   if(!step||typeof step!=="object"||Array.isArray(step))throw Error("Invalid creation step "+(index+1));
   try{
+   if(endeavorId&&window.SHANECurrentEndeavor?.read?.()!==endeavorId)throw Error("The active endeavor changed during creation. Remaining steps were not started.");
    const result=await executeVision({...step,endeavorId:step.endeavorId||endeavorId});
    completed.push(result);
    const historyEndeavor=step.endeavorId||endeavorId;
