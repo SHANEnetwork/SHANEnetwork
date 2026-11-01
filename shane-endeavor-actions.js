@@ -1296,7 +1296,11 @@ function init(){
    const label=document.createElement("strong");
    label.textContent="Together in this endeavor: ";
    endeavorContinuity.append(label);
-   const bits=[snapshot.creations.length+" saved creations",snapshot.collaborations.length+" accepted collaborations"];
+   const bits=[snapshot.creations.length+" linked creations",snapshot.collaborations.length+" accepted collaborations"];
+   if(snapshot.creationPlan){
+    const plan=snapshot.creationPlan;
+    bits.push(plan.complete?"creation plan complete":plan.remaining===null?"creation plan needs review":plan.remaining+" planned steps remaining");
+   }
    if(!snapshot.availability.creations||!snapshot.availability.collaborations)bits.push("some records unavailable");
    endeavorContinuity.append(document.createTextNode(bits.join(" · ")));
    for(const item of snapshot.collaborations.slice(0,3)){
@@ -1313,6 +1317,8 @@ function init(){
  document.addEventListener("shane:conversation-context-changed",()=>void loadContinuity());
  document.addEventListener("shane:artifact-created",()=>void loadContinuity());
  document.addEventListener("shane:conversation-saved",()=>void loadContinuity());
+ document.addEventListener("shane:endeavor-plan-saved",()=>void loadContinuity());
+ document.addEventListener("shane:endeavor-plan-ready",()=>void loadContinuity());
  void loadContinuity();
  const specialist=document.createElement("details");
  specialist.className="shane-specialist-capabilities";
