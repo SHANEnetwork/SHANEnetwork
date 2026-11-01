@@ -56,7 +56,24 @@ function interpretVision(text){
  const capabilities=capabilityCatalog.filter(item=>intentRules.some(([path,pattern])=>path===item.path&&pattern.test(vision)));
  return {version:1,vision,capabilities,preferredDestination:suggest(vision),status:"proposed",execution:"not-started"};
 }
-window.SHANECapabilities=Object.freeze({catalog:()=>capabilityCatalog.slice(),interpret:interpretVision});
+// One controlled bridge for preparing existing module workflows. It never
+// publishes, pays, messages, invites, or modifies third-party data.
+function prepareCapability({capabilityId,vision,endeavorId=null}={}){
+ const capability=capabilityCatalog.find(item=>item.id===capabilityId);
+ if(!capability)return {ok:false,reason:"unknown-capability"};
+ const text=String(vision||"").trim().slice(0,4000);
+ if(!text)return {ok:false,reason:"empty-vision"};
+ const selected=window.SHANECurrentEndeavor?.read?.()||null;
+ if(endeavorId!==null&&endeavorId!==selected)return {ok:false,reason:"endeavor-mismatch"};
+ if((location.pathname.split("/").pop())==="system-health.html")return {ok:false,reason:"private-page"};
+ const payload={destination:capability.path,text,endeavorId:selected,created:Date.now()};
+ try{
+  sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify(payload));
+  if(capability.path==="builder.html")sessionStorage.setItem("shane-creative-handoff-v1",JSON.stringify({text,created:payload.created}));
+  return {ok:true,destination:capability.path,requiresConfirmation:true,executed:false};
+ }catch{return {ok:false,reason:"storage-unavailable"}}
+}
+window.SHANECapabilities=Object.freeze({catalog:()=>capabilityCatalog.slice(),interpret:interpretVision,prepare:prepareCapability});
 function suggest(text){
  // Interpret several goals together instead of failing whenever a vision mentions
  // both a website and the people, event, or community it is meant to serve.
