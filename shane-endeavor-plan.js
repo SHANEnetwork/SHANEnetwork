@@ -59,7 +59,7 @@
  async function create({vision,endeavorId}={}){
   const previous=await latest(endeavorId);
   const proposed=draft(vision,endeavorId,previous);
-  if(previous&&previous.vision===proposed.vision&&JSON.stringify(previous.steps)===JSON.stringify(proposed.steps))return previous;
+  if(previous&&previous.vision===proposed.vision&&previous.latestRequest===proposed.latestRequest&&JSON.stringify(previous.steps)===JSON.stringify(proposed.steps))return previous;
   return save(proposed);
  }
  // A single next-action recommendation, derived from the member's saved plan,
