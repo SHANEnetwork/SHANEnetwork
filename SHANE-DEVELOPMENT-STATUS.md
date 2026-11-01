@@ -392,3 +392,8 @@ No action requested as of this update.
 - Shared conversation store now exposes `interpretVision` (commit 5abcbf8).
 - Connected existing community (86bbd8b), campaign (514331e), and workspace task (e1a8d0a) vision buttons to the AI interpretation endpoint, preserving existing forms and manual fallback. Existing nonempty fields are not overwritten.
 - Deployed and committed; authenticated end-to-end browser tests, AI provider response checks, and full Network execution remain outstanding. No SHONnetwork modifications.
+
+## 2026-11-01: conversation-to-private-community creation
+- Added owner-scoped `createPrivateCommunity` to shared conversation store (ab64fcd), inserting into existing `shane_organizations` with invitation-only membership and private profile visibility.
+- Connected a deliberate 'Create my private community' action on the existing community vision experience (63128d5). The action interprets the member's vision, saves the private community, and returns an organization link without a configuration wizard.
+- Confirmed `shane_organizations` has RLS enabled and owner INSERT/SELECT/UPDATE policies. Browser-authenticated execution still requires verification. No changes to SHONnetwork.
