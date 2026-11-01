@@ -426,7 +426,7 @@ function init(){
  void refreshProgress();
  const conversationReply=document.createElement("div");conversationReply.className="shane-conversation-reply";
  conversationReply.setAttribute("role","status");conversationReply.setAttribute("aria-live","polite");
- const askAI=document.createElement("button");askAI.type="button";askAI.textContent="Explore this idea with SHANE AI";
+ const askAI=document.createElement("button");askAI.type="button";askAI.textContent="Talk with SHANE AI";
  const aiReply=document.createElement("p");aiReply.className="shane-ai-conversation-response";aiReply.setAttribute("aria-live","polite");aiReply.style.whiteSpace="pre-wrap";
  askAI.addEventListener("click",async()=>{
   const request=sharedComposerText(),endeavorId=window.SHANECurrentEndeavor?.read?.();
