@@ -302,6 +302,10 @@ async function executeVisionSequence({steps,endeavorId}={}){
   try{
    const result=await executeVision({...step,endeavorId:step.endeavorId||endeavorId});
    completed.push(result);
+   if(endeavorId){
+    try{await saveTurn("Created "+result.type+" "+result.id,{page:"shane-computer",kind:"creation",endeavorId})}
+    catch{result.historySaved=false}
+   }
   }catch(error){
    return {complete:false,completed,failedStep:index+1,error:String(error?.message||error)};
   }
