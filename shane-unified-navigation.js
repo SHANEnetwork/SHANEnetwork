@@ -32,6 +32,7 @@
  };
  document.addEventListener("shane:endeavor-arrived",restoreSelectedDrafts);
  document.addEventListener("shane:endeavor-selected",restoreSelectedDrafts);
+ document.addEventListener("shane:conversation-store-ready",restoreSelectedDrafts);
  const restoreDrafts=()=>{for(const id of draftFields){const field=document.getElementById(id);if(!field||typeof field.value!=="string")continue;try{const item=JSON.parse(sessionStorage.getItem(draftKey(id))||"null");if(!field.value.trim()&&item&&typeof item.text==="string"&&Date.now()-item.at<604800000){field.value=item.text.slice(0,field.maxLength>0?field.maxLength:10000);field.dispatchEvent(new Event("input",{bubbles:true}))}}catch{}field.addEventListener("input",()=>{try{const value=field.value.trim();if(value)sessionStorage.setItem(draftKey(id),JSON.stringify({text:value.slice(0,10000),at:Date.now()}));else sessionStorage.removeItem(draftKey(id))}catch{}})}};
  restoreDrafts();
  const recentSubstantive=()=>journalContext().turns.slice().reverse().find(turn=>turn&&typeof turn.text==="string"&&turn.text.trim()&&turn.kind!=="endeavor-transition")||null;
