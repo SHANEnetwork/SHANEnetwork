@@ -258,7 +258,7 @@ async function findSavedCreations({query="",limit=20}={}){
   if(error)throw error;
   return (data||[]).map(row=>({id:row.id,type:source.type,title:String(row[source.title]||"Untitled"),at:row[source.date],url:source.page+"?"+source.param+"="+encodeURIComponent(row.id)}));
  }));
- if(results.every(x=>x.status==="rejected"))throw Error("Saved creation search is unavailable.");
+ if(results.some(x=>x.status==="rejected"))throw Error("One or more saved creation collections could not be searched. Please retry.");
  return results.filter(x=>x.status==="fulfilled").flatMap(x=>x.value).sort((a,b)=>new Date(b.at)-new Date(a.at)).slice(0,count);
 }
 async function creationContext({limit=8}={}){
