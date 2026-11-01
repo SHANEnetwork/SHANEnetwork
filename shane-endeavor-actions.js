@@ -187,8 +187,8 @@ function init(){
   finally{saveIdea.disabled=false}
  });
  composerActions.append(saveIdea,composerStatus);conversation.append(composerActions);
- const continueConversation=document.createElement("div");continueConversation.className="shane-conversation-thread";
- const threadHeading=document.createElement("strong");threadHeading.textContent="Your endeavor conversation";
+ const continueConversation=document.createElement("details");continueConversation.className="shane-conversation-thread";
+ const threadHeading=document.createElement("summary");threadHeading.textContent="Your endeavor conversation";
  const threadEntries=document.createElement("div");threadEntries.className="shane-conversation-thread-entries";
  const threadStatus=document.createElement("span");threadStatus.setAttribute("role","status");
  const loadThread=async()=>{
