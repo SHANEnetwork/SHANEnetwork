@@ -461,7 +461,7 @@ function init(){
      if(!questionSaved?.saved||!answerSaved?.saved)throw Error("Account history was not saved.");
      exchangeSaved=true;
     }catch(error){
-     aiReply.textContent=data.response+"\\n\\nThis response is visible here, but saving it to account history could not be confirmed.";
+     aiReply.textContent=data.response+"\n\nThis response is visible here, but saving it to account history could not be confirmed.";
     }
    }
    // A conversation refinement becomes part of the saved endeavor plan,
