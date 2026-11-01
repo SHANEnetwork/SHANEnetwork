@@ -83,8 +83,8 @@
   if(!step||step.status==="deferred"||step.status==="completed")throw Error("This plan step is not active.");
   const capability=capabilities()?.catalog?.().find(item=>item.id===capabilityId);
   if(!capability?.path)throw Error("The requested workspace is unavailable.");
-  const parts=[plan.vision,plan.latestRequest&&plan.latestRequest!==plan.vision?plan.latestRequest:null].filter(Boolean);
-  const text=(plan.vision+(parts.length>1?"\n\nCurrent refinement: "+plan.latestRequest:"")).slice(0,4000);
+  const refinement=plan.latestRequest&&plan.latestRequest!==plan.vision?plan.latestRequest:null;
+  const text=(plan.vision+(refinement?"\n\nCurrent refinement: "+refinement:"")).slice(0,4000);
   const result=capabilities()?.prepare?.({capabilityId,vision:text,endeavorId});
   if(!result?.ok)throw Error(result?.reason||"Could not prepare the workspace.");
   return {...result,path:capability.path,vision:text,revision:plan.revision};
