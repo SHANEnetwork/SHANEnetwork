@@ -77,7 +77,7 @@ function deliverVision(field,text){
   // Preserve the full original in the shared composer session draft rather than
   // silently discarding material that a particular legacy form cannot hold.
   try{
-   const id=window.SHANECurrentEndeavor?.read?.();
+   const id=window.SHANECurrentEndeavor?.read?.()||null;
    const key="shane-shared-idea-draft-v2:"+(id||"personal");
    sessionStorage.setItem(key,full);
   }catch{}
