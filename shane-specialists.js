@@ -26,12 +26,27 @@ export function validateSpecialist(profile){
  if(!name||!purpose)throw Error("Specialist needs a name and purpose");
  return {name,purpose,visibility:"private",price:null,verified:false};
 }
+// One orchestration entry point for a conversational SHANE endeavor.
+// Trusted server adapters provide actual AI output; browser modules may only
+// prepare editable drafts and never silently publish or contact other people.
+export async function respondToEndeavor({endeavor,request,invoke,rounds=1}={}){
+ const result=await collaborate({endeavor,request,invoke,rounds,synthesize:true});
+ return {
+  endeavorId:result.endeavorId,
+  request:String(request).slice(0,12000),
+  response:result.synthesis,
+  specialistContributions:result.history,
+  proposedCapabilities:[],
+  requiresApproval:result.requiresApproval,
+  status:"proposal_ready"
+ };
+}
 export async function collaborate({endeavor,request,invoke,rounds=2,roles,synthesize=false}){
  if(!endeavor||!request||typeof invoke!=="function")throw Error("Endeavor, request and trusted model adapter are required");
  const selected=(roles||routeSpecialists(request)).filter(r=>Object.hasOwn(SPECIALISTS,r));
  if(!selected.length)throw Error("No supported specialists selected");
  const history=[],limit=Math.max(1,Math.min(MAX_ROUNDS,Math.floor(rounds)||1));
- const context={endeavorId:String(endeavor.id||""),vision:String(endeavor.vision||""),request:String(request)};
+ const context={endeavorId:String(endeavor.id||""),vision:String(endeavor.vision||"").slice(0,12000),request:String(request).slice(0,12000)};
  for(let round=0;round<limit;round++){
   for(const role of selected){
    const result=await invoke({role,instructions:SPECIALISTS[role].purpose,context,history:history.map(({role,output})=>({role,output}))});
