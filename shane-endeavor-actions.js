@@ -466,10 +466,12 @@ function init(){
    }
    // A conversation refinement becomes part of the saved endeavor plan,
    // so the builder and other workspaces receive the updated intent.
+   let refinedPlan=null;
    if(exchangeSaved&&window.SHANEEndeavorPlan?.refineJourney){
     try{
      const refined=await window.SHANEEndeavorPlan.refineJourney({endeavorId,request});
      if(refined?.plan){
+      refinedPlan=refined.plan;
       document.dispatchEvent(new CustomEvent("shane:conversation-journey-updated",{detail:{
        endeavorId,revision:refined.plan.revision,purpose:refined.plan.vision,
        latestRequest:request,steps:refined.plan.steps||[],executed:false
@@ -509,7 +511,7 @@ function init(){
       const listed=new Set(steps.map(step=>step.capabilityId));
       // Carry the endeavor's original purpose and latest refinement together.
       // A new instruction should extend the creation, not erase its foundations.
-      const purpose=journey?.purpose||plan?.vision||request;
+      const purpose=refinedPlan?.vision||journey?.purpose||plan?.vision||request;
       const fullVision=purpose===request?request:purpose+"\n\nCurrent refinement: "+request;
       const interpreted=window.SHANECapabilities?.interpret?.(request);
       const suggested=interpreted?.capabilities||[];
@@ -519,7 +521,7 @@ function init(){
       // involve a shop, a community and an event even when this turn mentions
       // only one of those activities.
       const original=purpose===request?[]:(window.SHANECapabilities?.interpret?.(purpose)?.capabilities||[]);
-      const priorRequests=Array.isArray(plan?.visionHistory)?plan.visionHistory:[];
+      const priorRequests=Array.isArray(refinedPlan?.visionHistory)?refinedPlan.visionHistory:Array.isArray(plan?.visionHistory)?plan.visionHistory:[];
       const priorCapabilities=priorRequests.flatMap(item=>{
        const text=typeof item==="string"?item:typeof item?.request==="string"?item.request:"";
        return text?window.SHANECapabilities?.interpret?.(text)?.capabilities||[]:[];
