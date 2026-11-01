@@ -367,6 +367,7 @@ function init(){
  document.addEventListener("shane:endeavor-context-ready",()=>void loadThread());
  document.addEventListener("shane:conversation-context-changed",()=>void loadThread());
  document.addEventListener("shane:endeavor-plan-ready",()=>void loadThread());
+ document.addEventListener("shane:conversation-saved",event=>{if(event.detail?.endeavorId===window.SHANECurrentEndeavor?.read?.())void loadThread()});
  void loadThread();
  const usePrevious=document.createElement("button");usePrevious.type="button";usePrevious.textContent="Continue from saved idea";
  usePrevious.addEventListener("click",async()=>{
