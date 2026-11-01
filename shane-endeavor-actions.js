@@ -822,6 +822,10 @@ function init(){
     result=await store.createPrivateListing({vision,title,description:vision,endeavorId});
     linkTarget="members.html?listing="+encodeURIComponent(result.listingId);linkLabel="Review listing";record=result.listingId;
    }
+   // Keep the concrete creation available to the next page and to the next conversation.
+   const creation={type,id:record,url:linkTarget,vision,endeavorId:endeavorId||null,created:Date.now()};
+   try{sessionStorage.setItem("shane-last-created-artifact-v1",JSON.stringify(creation))}catch{}
+   document.dispatchEvent(new CustomEvent("shane:artifact-created",{detail:creation}));
    createStatus.replaceChildren(document.createTextNode(type==="website"?"Website revision saved privately. ":"Saved privately. "));
    const link=document.createElement("a");link.href=linkTarget;link.textContent=linkLabel;createStatus.append(link);
    if(endeavorId){
