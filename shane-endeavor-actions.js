@@ -159,6 +159,7 @@ function init(){
  entry.addEventListener("input",()=>{
   try{sessionStorage.setItem(conversationKey,entry.value.slice(0,4000))}catch{}
   update();
+  explainVision();
  });
  conversation.append(prompt,entry);
  if((location.pathname.split("/").pop()||"index.html")==="system-health.html")conversation.hidden=true;
@@ -167,6 +168,30 @@ function init(){
  const placeholder=document.createElement("option");placeholder.value="";placeholder.textContent="Let SHANE choose the next step";select.append(placeholder);
  for(const [path,label] of targets){const option=document.createElement("option");option.value=path;option.textContent=label;select.append(option)}
  const button=document.createElement("button");button.type="button";button.textContent="Continue";
+ const conversationReply=document.createElement("div");conversationReply.className="shane-conversation-reply";
+ conversationReply.setAttribute("role","status");conversationReply.setAttribute("aria-live","polite");
+ const replyHeading=document.createElement("strong");replyHeading.textContent="SHANE's next step";
+ const replyText=document.createElement("p");
+ const replyActions=document.createElement("div");replyActions.className="shane-conversation-reply-actions";
+ conversationReply.append(replyHeading,replyText,replyActions);
+ const explainVision=()=>{
+  const text=sharedComposerText();
+  conversationReply.hidden=!text;
+  replyActions.replaceChildren();
+  if(!text)return;
+  const result=interpretVision(text);
+  const options=result.capabilities.filter(item=>!["dashboard","conversation-history","community-history","appearance"].includes(item.id));
+  const destination=capabilityCatalog.find(item=>item.path===result.preferredDestination);
+  replyText.textContent=options.length>1
+   ?"I can begin with "+(destination?.label.toLowerCase()||"your idea")+" and carry the rest of your endeavor forward."
+   :options.length===1?"I can begin with "+options[0].label.toLowerCase()+". We can refine your idea as you go."
+   :"Let's begin shaping your idea together.";
+  for(const item of options.slice(0,4)){
+   const link=document.createElement("a");link.href=item.path;link.textContent=item.label;
+   link.addEventListener("click",()=>prepareCapability({capabilityId:item.id,vision:text}));
+   replyActions.append(link);
+  }
+ };
  const workflow=document.createElement("span");workflow.className="shane-action-workflow";workflow.setAttribute("aria-live","polite");
  const stageMatch=(text)=>interpretVision(text).capabilities.filter(item=>!["dashboard.html","conversation-history.html","community-history.html","appearance.html"].includes(item.path));
  const renderWorkflow=()=>{
@@ -296,7 +321,7 @@ function init(){
   }
   location.assign(destination);
  });
- group.append(conversation,select,button,suggestion,workflow,planResume,revisionControl,status);nav.append(group);update();
+ group.append(conversation,conversationReply,select,button,suggestion,workflow,planResume,revisionControl,status);nav.append(group);update();explainVision();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
