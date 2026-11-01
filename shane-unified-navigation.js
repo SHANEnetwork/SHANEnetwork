@@ -132,6 +132,7 @@
  void refreshIdentity();
  if(header){header.append(nav,continuity)}else{const landmark=document.createElement("div");landmark.className="shane-unified-topbar";landmark.append(nav,continuity);document.body.insertBefore(landmark,document.body.firstChild)}
  const accountResume=document.createElement("script");accountResume.src="shane-account-resume-nav.js";accountResume.defer=true;document.head.append(accountResume);
+ const milestoneScript=document.createElement("script");milestoneScript.src="shane-endeavor-continuity.js";milestoneScript.defer=true;document.head.append(milestoneScript);
  const endeavorActions=document.createElement("script");endeavorActions.src="shane-endeavor-actions.js";endeavorActions.defer=true;document.head.append(endeavorActions);
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
