@@ -531,7 +531,11 @@ function init(){
    if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)return;
    if(typeof data?.response!=="string"||!data.response.trim())throw Error("SHANE returned no response.");
    aiReply.textContent=data.response;
-   const initialProposal=window.SHANEConversationStore?.proposeCreationSequence?.({vision:request,endeavorId});
+   const aiPlan=Array.isArray(data?.creationPlan?.steps)?data.creationPlan.steps:null;
+   const supported=new Set(["new-website","community","campaign","listing"]);
+   const interpreted=aiPlan&&aiPlan.length<=8&&aiPlan.every(step=>supported.has(step?.type)&&typeof step?.vision==="string"&&step.vision.trim())
+    ?{steps:aiPlan.map(step=>({type:step.type,vision:step.vision,endeavorId})),requiresReview:true,executable:false}:null;
+   const initialProposal=interpreted||window.SHANEConversationStore?.proposeCreationSequence?.({vision:request,endeavorId});
    const proposal=initialProposal&&window.SHANEConversationStore?.prepareCreationSequence?.({proposal:initialProposal,updates:{deadline:deadline.value,siteId:siteChoice.value}})||initialProposal;
    if(proposal?.steps?.length>=1){
     const summary=document.createElement("p");
