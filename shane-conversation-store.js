@@ -337,6 +337,7 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
  }
  if(!result?.saved||result.published===true)throw Error("The private creation was not confirmed.");
  if(type==="website"&&result.siteId!==siteId)throw Error("The revision result does not match the selected website.");
+ if(type==="website"&&result.revised!==true)throw Error("The website revision was not confirmed.");
  const id=type==="community"?result.organizationId:type==="campaign"?result.campaignId:type==="listing"?result.listingId:result.siteId;
  if(!id||!/^[0-9a-f-]{36}$/i.test(String(id)))throw Error("The saved creation did not return a valid identifier.");
  const destinations={
