@@ -649,7 +649,7 @@ function init(){
         try{
          if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)throw Error("The active endeavor changed. Return to the original endeavor before creating.");
          await window.SHANEConversationStore.saveCreationPlan({steps:updated.steps,endeavorId});
-         const outcome=await window.SHANEConversationStore.continueSavedEndeavor({steps:updated.steps,endeavorId});
+         const outcome=await window.SHANEConversationStore.executeApprovedSequence({steps:updated.steps,endeavorId,approved:true});
          summary.textContent=outcome.complete?"Created "+outcome.completed.length+" private drafts.":"Created "+outcome.completed.length+" drafts; step "+outcome.failedStep+" stopped: "+outcome.error;
          for(const item of outcome.completed){
           const link=document.createElement("a");
@@ -664,7 +664,7 @@ function init(){
           resume.onclick=async()=>{
            resume.disabled=true;
            try{
-            const next=await window.SHANEConversationStore.continueSavedEndeavor({steps:updated.steps,endeavorId});
+            const next=await window.SHANEConversationStore.executeApprovedSequence({steps:updated.steps,endeavorId,approved:true});
             summary.textContent=next.complete?"All private drafts created.":"Stopped at step "+next.failedStep+": "+next.error;
             for(const item of next.completed){
              if(outcome.completed.some(saved=>saved.id===item.id))continue;
@@ -706,12 +706,12 @@ function init(){
       try{
        if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)throw Error("The active endeavor changed. Review the proposal in its original endeavor.");
        await window.SHANEConversationStore.saveCreationPlan({steps:proposal.steps,endeavorId});
-       const outcome=await window.SHANEConversationStore.continueSavedEndeavor({steps:proposal.steps,endeavorId});
+       const outcome=await window.SHANEConversationStore.executeApprovedSequence({steps:proposal.steps,endeavorId,approved:true});
        if(!outcome.complete&&outcome.completed.length){
         const resume=document.createElement("button");resume.type="button";resume.textContent="Continue remaining creations";
         resume.onclick=async()=>{
          resume.disabled=true;
-         const next=await window.SHANEConversationStore.continueSavedEndeavor({steps:proposal.steps,endeavorId});
+         const next=await window.SHANEConversationStore.executeApprovedSequence({steps:proposal.steps,endeavorId,approved:true});
          summary.textContent=next.complete?"All private drafts created.":"Stopped at step "+next.failedStep+": "+next.error;
          for(const item of next.completed.slice(outcome.completed.length)){
           const link=document.createElement("a");link.href=item.url;link.textContent="Open "+item.type;aiNext.append(link);
