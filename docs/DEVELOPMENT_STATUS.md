@@ -232,3 +232,8 @@ Next: transform page content and workflows, not merely shared links. Make each c
 - The existing vision-arrival bridge now offers an explicit in-place action to carry the current shared conversation into supported creation, discovery, community, collaboration, campaign, growth, payments and other working forms.
 - Existing nonempty text is preserved unless the member confirms replacement. The bridge dispatches the existing endeavor-arrived event and never publishes, messages, or charges automatically.
 - Account-backed resume excludes structured endeavor-plan JSON. Existing page-specific code remains intact. Browser verification is pending.
+
+## Conversation-triggered existing draft preparation
+- The explicit in-place conversation handoff now also invokes available existing editable-draft preparation buttons on selected campaign, community, growth, community-update, and opportunity pages.
+- The handoff does not submit forms, publish, send, charge, or create invitations. The destination program remains responsible for draft behavior, validation and permissions.
+- Account-backed resume excludes structured endeavor plans. Browser verification of all individual destination handlers is still pending.
