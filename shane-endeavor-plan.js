@@ -26,28 +26,21 @@
   const original=previous?.vision&&previous.vision!==vision?capabilities()?.interpret?.(previous.vision):null;
   // The new request changes priority, not the established purpose or earlier work.
   // Preserve every prior capability while moving currently relevant work forward.
-  const previousOrder=new Map((previous?.steps||[]).map((step,index)=>[step.capabilityId,index]));
-  const merged=new Map(interpretation.capabilities.map(item=>[item.id,item]));
-  for(const item of original?.capabilities||[])if(!merged.has(item.id))merged.set(item.id,item);
+  const catalog=new Map((capabilities()?.catalog?.()||[]).map(item=>[item.id,item]));
   const old=new Map((previous?.steps||[]).map(step=>[step.capabilityId,step]));
-  const steps=[...merged.values()].sort((a,b)=>{
-   const aPrior=previousOrder.has(a.id),bPrior=previousOrder.has(b.id);
-   return aPrior===bPrior?0:aPrior?1:-1;
-  }).map(item=>{
+  const ordered=new Map();
+  for(const item of interpretation.capabilities)if(catalog.has(item.id))ordered.set(item.id,item);
+  for(const item of original?.capabilities||[])if(catalog.has(item.id)&&!ordered.has(item.id))ordered.set(item.id,item);
+  for(const step of previous?.steps||[]){
+   const item=catalog.get(step.capabilityId);
+   if(item&&!ordered.has(item.id))ordered.set(item.id,item);
+  }
+  const steps=[...ordered.values()].map(item=>{
    const existing=old.get(item.id);
    return {capabilityId:item.id,label:item.label,status:existing?.status||"proposed",
     note:existing?.note||"",requiresConfirmation:true};
   });
-  // A conversational refinement may mention only the new part of an endeavor.
-  // Keep previously agreed work, including completed and deferred steps, instead
-  // of silently deleting it from the active plan.
-  const included=new Set(steps.map(item=>item.capabilityId));
-  for(const prior of previous?.steps||[]){
-   if(!included.has(prior.capabilityId)&&capabilities()?.catalog?.().some(item=>item.id===prior.capabilityId)){
-    steps.push({...prior});
-    included.add(prior.capabilityId);
-   }
-  }
+  // Current request first; original purpose and earlier work remain available.
   const visionHistory=(previous?.visionHistory||[]).filter(item=>typeof item==="string"&&item.trim()).slice(-19);
   // Track refinement as a new instruction without erasing the established
   // endeavor purpose. The latest request remains separately available.
