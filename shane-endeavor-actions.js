@@ -70,7 +70,8 @@ function idea(){
  }
  const shared=window.SHANEConversation?.currentVision?.();
  if(typeof shared==="string"&&shared.trim())return shared.trim();
- const turns=window.SHANEConversation?.read?.()?.turns||[];
+ const selected=window.SHANECurrentEndeavor?.read?.()||null;
+ const turns=window.SHANEConversation?.forEndeavor?.(selected)||window.SHANEConversation?.read?.()?.turns||[];
  const previous=turns.slice().reverse().find(turn=>turn&&typeof turn.text==="string"&&turn.text.trim()&&turn.kind!=="endeavor-transition");
  return previous?.text?.trim()||"";
 }
