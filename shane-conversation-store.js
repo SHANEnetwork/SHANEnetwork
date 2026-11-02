@@ -453,7 +453,7 @@ async function proposeAICreationSequence({vision,endeavorId}={}){
  if(!Array.isArray(parsed?.steps)||!parsed.steps.length||parsed.steps.length>8||parsed.steps.some(step=>!step||!allowed.has(step.type)||typeof step.vision!=="string"||step.vision.trim().length<8||step.vision.length>12000))return {ready:false,steps:[],reason:"SHANE's proposed plan needs refinement before it can be approved."};
  const steps=parsed.steps.map(step=>({type:step.type,vision:step.vision.trim(),endeavorId}));
  const preview=previewVisionSequence({steps});
- return {ready:preview.ready,steps:preview.ready?steps:[],reason:preview.reason||null,explanation:String(parsed.explanation||"").slice(0,500),requiresReview:true,executable:false,source:"authenticated-ai"};
+ return {ready:preview.ready,steps:preview.ready?steps:[],reason:preview.reason||null,missing:preview.alternatives||[],explanation:String(parsed.explanation||"").slice(0,500),requiresReview:true,executable:false,source:"authenticated-ai"};
 }
 // Whole-to-parts endeavor synthesis: compare complete paths before choosing
 // capabilities. This is a deterministic planning aid, not an AI execution claim.
