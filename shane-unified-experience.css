@@ -192,3 +192,21 @@ main :where([role=status],[aria-live=polite]){overflow-wrap:anywhere}
 @media(max-width:680px){
   :where(.shane-conversation-intake,#shane-idea-conversation,#shane-connected-workspace){border-radius:18px}
 }
+
+/* Accessibility: dark text on the warm, light creation surfaces.
+   Do not inherit the pale-gold text used in the dark navigation header. */
+.shane-conversation-workspace .shane-draft-context,
+.shane-conversation-workspace .shane-composer-actions [role="status"],
+.shane-conversation-intake .shane-draft-context,
+#shane-idea-conversation .shane-draft-context,
+#shane-connected-workspace .shane-draft-context{
+ color:#51354a!important;
+}
+.shane-conversation-workspace :is(label,h2,h3,small),
+.shane-conversation-intake :is(label,h2,h3),
+#shane-idea-conversation :is(label,h2,h3){color:#35283b!important}
+.shane-conversation-workspace .shane-workspace-eyebrow{color:#684058!important}
+.shane-conversation-workspace :is(input,textarea,select),
+.shane-conversation-intake :is(input,textarea,select){color:#30283b;background-color:#fffefa}
+.shane-conversation-workspace :is(input,textarea)::placeholder,
+.shane-conversation-intake :is(input,textarea)::placeholder{color:#695c69;opacity:1}
