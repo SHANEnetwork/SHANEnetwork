@@ -24,7 +24,7 @@ function init(){
    const {data,error}=await sb.from("shane_endeavors").select("id,title,idea,region,audience,updated_at").eq("id",id).eq("owner_id",user.id).maybeSingle();
    if(run!==generation)return;
    if(error){status.textContent="Unable to load endeavor: "+error.message;return}
-   if(!data){status.textContent="This endeavor is not available in your account. Choose a saved endeavor from your dashboard.";return}
+   if(!data){try{sessionStorage.removeItem(KEY)}catch{}document.dispatchEvent(new CustomEvent("shane:endeavor-changed",{detail:{id:null,reason:"unavailable"}}));status.textContent="This endeavor is not available in your account. Choose a saved endeavor from your dashboard.";return}
    record=data;$("shane-live-title").textContent=data.title||"Untitled endeavor";$("shane-live-audience").textContent=data.audience||"Not specified";$("shane-live-region").textContent=data.region||"Not specified";$("shane-live-idea").textContent=data.idea||"No vision recorded yet";details.hidden=false;status.textContent="Private endeavor context loaded from your SHANE account. Nothing has been published.";
   }catch(e){if(run===generation)status.textContent="Could not load endeavor context: "+(e.message||String(e))}
  }
