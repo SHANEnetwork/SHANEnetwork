@@ -710,7 +710,7 @@ async function endeavorSnapshot({endeavorId}={}){
  // The direct relationship survives conversation archival and result limits.
  if(endeavor.linked_site_id&&!allCreations.some(item=>item.id===endeavor.linked_site_id)){
   const {data:site}=await db.from("shane_sites").select("id,name,status").eq("id",endeavor.linked_site_id).eq("owner_id",account.id).maybeSingle();
-  if(site)allCreations.unshift({id:site.id,title:site.name,type:"website",url:"builder.html?site="+encodeURIComponent(site.id),linkedToEndeavor:true,status:site.status});
+  if(site)allCreations.unshift({id:site.id,title:site.name,type:"website",url:"builder.html?site="+encodeURIComponent(site.id)+"&endeavor="+encodeURIComponent(endeavorId),linkedToEndeavor:true,status:site.status});
  }
  const linkedCreations=allCreations.filter(item=>item.linkedToEndeavor);
  // Saved creation plans are shared across pages. Recovery is read-only here:
@@ -819,7 +819,7 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
   "new-website":"builder.html?site=","website":"builder.html?site=",
   "community":"communities.html?organization=","campaign":"campaigns.html?campaign=","listing":"members.html?listing="
  };
- const url=destinations[type]+encodeURIComponent(id);
+ const url=destinations[type]+encodeURIComponent(id)+(endeavorId?"&endeavor="+encodeURIComponent(endeavorId):"");
  // Give the endeavor a durable website relationship, independent of the
  // conversation receipt window. Never replace a previously linked site.
  let endeavorLink={attempted:false,linked:false,reason:null};
