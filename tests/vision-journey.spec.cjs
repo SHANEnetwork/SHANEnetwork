@@ -657,3 +657,28 @@ test('collaboration and private messages remain inside creative workspace', asyn
   await expect(page.locator('#visionPrompt')).toHaveValue('A welcoming neighborhood makers festival');
   await expect(page.locator('#shaneIdeaReply')).toHaveValue('Add a collaborative ceramics gallery');
 });
+
+test('named saved website opens beside the conversation and refreshes after approved revision', async ({ page }) => {
+  const id='11111111-1111-4111-8111-111111111111';
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(siteId => {
+    window.SHANEConversationStore={
+      recentCreations:async()=>{throw Error('Named search must not silently fall back to recent creations')},
+      findSavedCreations:async({query})=>query==='pottery studio'?[{id:siteId,type:'website',title:'Pottery studio',url:'builder.html?site='+siteId}]:[],
+      reviseSite:async({siteId:target,request})=>({saved:target===siteId&&request.includes('Add a gallery')})
+    };
+    window.confirm=()=>true;
+  },id);
+  await page.locator('#visionPrompt').fill('Create a welcoming pottery studio website');
+  await page.locator('#shaneIdeaReply').fill('Find my website called Pottery Studio');
+  await page.locator('#visionGuide').click();
+  const link=page.locator('#shane-connected-creations a').first();
+  await expect(link).toContainText('Pottery studio');
+  await link.click();
+  await expect(page.locator('#shane-connected-frame iframe')).toHaveAttribute('src',new RegExp('site='+id));
+  await page.locator('#shaneIdeaReply').fill('Add a gallery for recent pottery projects');
+  await page.locator('#shane-connected-creations button').filter({hasText:'Revise Pottery studio'}).click();
+  await expect(page.locator('#shane-connected-status')).toContainText('revision was saved');
+  await expect(page.locator('#visionPrompt')).toHaveValue('Create a welcoming pottery studio website');
+  await expect(page.locator('#shaneIdeaReply')).toHaveValue('Add a gallery for recent pottery projects');
+});
