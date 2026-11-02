@@ -1384,8 +1384,16 @@ function init(){
    };
    journeyStep("Create or revise","builder.html",snapshot.creations.some(item=>item.type==="website"));
    journeyStep("Build community","communities.html",snapshot.creations.some(item=>item.type==="community"));
-   journeyStep("Find collaborators","network.html",snapshot.collaborations.length>0);
+   // Finding people is not the same as securing an accepted collaboration.
+   // Never mark discovery complete solely because a collaboration exists.
+   journeyStep("Find collaborators","network.html");
    journeyStep("Work together","workspace.html",snapshot.collaborations.length>0);
+   // Bring the member back to their account-owned endeavor, not a new blank idea.
+   const returnToWork=document.createElement("button");
+   returnToWork.type="button";
+   returnToWork.textContent="Continue saved endeavor";
+   returnToWork.onclick=()=>{if(!resumeJourney.disabled)resumeJourney.click()};
+   journey.append(returnToWork);
    endeavorContinuity.append(journey);
    for(const item of snapshot.collaborations.slice(0,3)){
     const link=document.createElement("a");link.href=item.url;link.textContent=item.listingTitle;
