@@ -80,8 +80,8 @@ function init(){
    invalidatePlan();
    const count=result?.completed?.length||0;
    status.textContent=result?.complete&&result?.verified?"Created and verified "+count+" saved item(s). Open Return to saved creations to continue.":"Saved "+count+" item(s). "+(result?.error||result?.verificationError||"Review your saved work before continuing.");
-   if(count&&result?.complete&&result?.verified&&typeof store?.recentCreations==="function"){
-    recentButton.click();
+   if(count&&result?.complete&&result?.verified){
+    if(typeof store?.recentCreations==="function")recentButton.click();
     // Continue directly into the creation just verified, without making the
     // member find it again or leaving their conversation behind.
     const latest=result.completed[count-1];
