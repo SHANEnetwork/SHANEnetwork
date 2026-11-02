@@ -100,7 +100,9 @@ function init(){
    if(planningVersion!==thisPlanVersion||currentId()!==initialEndeavor||vision.value!==initialVision||reply.value!==initialReply){status.textContent="Your vision or selected endeavor changed while planning. Review a fresh plan for the current conversation.";return}
    if(!proposal||!proposal.ready||!Array.isArray(proposal.steps)||!proposal.steps.length){status.textContent=proposal?.reason||"Describe the website, community, event, or listing you want to create.";return}
    const names={"new-website":"website",community:"community",campaign:"campaign or event",listing:"listing"};
-   const parts=proposal.steps.map(step=>names[step.type]||step.type);
+   const allowedTypes=new Set(Object.keys(names));
+   if(proposal.steps.some(step=>!step||!allowedTypes.has(step.type))){status.textContent="The planner proposed an unsupported creation step. Review a new plan before creating anything.";return}
+   const parts=proposal.steps.map(step=>names[step.type]);
    invalidatePlan();
    const endeavorId=currentId();
    if(endeavorId){reviewedPlan={endeavorId,steps:proposal.steps};createButton.disabled=false}
