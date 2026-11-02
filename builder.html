@@ -311,4 +311,16 @@ revise.onclick=async()=>{
  if(status)status.textContent="Your saved endeavor's website revision request is ready. Review the current website and choose Generate with AI when you want to proceed.";
  try{sessionStorage.removeItem(key)}catch{}
 })();
+</script><script>
+document.addEventListener("shane:saved-website-revised",async event=>{
+ const detail=event.detail||{},store=window.SHANEConversationStore;
+ if(!detail.saved||!detail.endeavorId||!detail.siteId||!store?.saveTurn)return;
+ try{
+  const account=await store.endeavorSnapshot({endeavorId:detail.endeavorId});
+  if(account.endeavor?.linkedSiteId!==detail.siteId)return;
+  await store.saveTurn("Saved revision of website "+detail.siteId+" for endeavor "+detail.endeavorId,{
+   page:"builder",kind:"creation-summary",endeavorId:detail.endeavorId
+  });
+ }catch(error){console.warn("Website saved; endeavor revision history could not be confirmed:",error.message)}
+});
 </script><script src="shane-arrival-draft.js" defer></script></body></html>
