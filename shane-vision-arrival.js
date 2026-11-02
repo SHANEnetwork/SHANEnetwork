@@ -130,8 +130,8 @@ function init(){
  const field=document.getElementById(target.field);if(!field)return;
  if(!target.private)enableInPlaceConversation(page,target,field);
  if(target.private){try{sessionStorage.removeItem("shane-intent-handoff-v1")}catch{}return} // Do not import general creative visions into confidential incident reports.
- // Apply the arriving endeavor identity before resolving per-endeavor drafts.
- try{const handoff=JSON.parse(sessionStorage.getItem("shane-intent-handoff-v1")||"null");if(handoff?.destination===page&&Number.isFinite(handoff.created)&&Date.now()-handoff.created>=0&&Date.now()-handoff.created<86400000&&typeof handoff.endeavorId==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(handoff.endeavorId))sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:handoff.endeavorId,updated:Date.now()}))}catch{}
+ // Endeavor selection is resolved by the account-verified journey receiver.
+ // A handoff is editable text, not proof that the visitor owns its project.
  let item;
  try{item=JSON.parse(sessionStorage.getItem("shane-intent-handoff-v1")||"null")}catch{return}
  if(!item||item.destination!==page||typeof item.text!=="string"||!item.text.trim()||!Number.isFinite(item.created)||Date.now()-item.created<0||Date.now()-item.created>86400000){offerAccountResume(page,target,field);return;}
@@ -156,9 +156,7 @@ function init(){
   return;
  }
  const limited=deliverVision(field,item.text,item.endeavorId||null);
- if(item.endeavorId&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(item.endeavorId)){
-  try{sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:item.endeavorId,updated:Date.now()}))}catch{}
- }
+ // Do not change the selected project from an unverified handoff.
  const status=document.getElementById(target.status);
  if(status&&page!=="my-network.html")status.textContent=limited?"Your full idea is preserved in the shared SHANE conversation draft. This workspace field has a shorter limit, so review its shortened copy before proceeding.":"Your idea has arrived from the SHANE Network. Review or refine it when ready.";
  // The explicit Continue action already chose this destination. Prepare its
