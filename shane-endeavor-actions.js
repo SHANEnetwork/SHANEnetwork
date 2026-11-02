@@ -1,6 +1,36 @@
 /* Shared endeavor actions inside existing navigation, not a new page or panel.
    Members can carry their current idea to any working SHANE capability. */
 (()=>{"use strict";
+// Resolve a journey URL against the signed-in member's own saved endeavors.
+// The URL is a selector, never authorization; RLS remains authoritative.
+const journeyId=new URLSearchParams(location.search).get("endeavor");
+if(journeyId&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(journeyId)){
+ let resolving=false,settled=false;
+ const resolveJourney=async()=>{
+  if(settled||resolving)return;
+  const store=window.SHANEConversationStore;
+  if(!store?.connectedUser||!store?.endeavors)return;
+  resolving=true;
+  try{
+   const member=await store.connectedUser();
+   if(!member)return;
+   const records=await store.endeavors();
+   settled=true;
+   if(!Array.isArray(records)||!records.some(item=>item.id===journeyId)){
+    document.dispatchEvent(new CustomEvent("shane:journey-endeavor-unavailable",{detail:{endeavorId:journeyId}}));
+    return;
+   }
+   sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:journeyId,updated:Date.now()}));
+   document.dispatchEvent(new CustomEvent("shane:active-endeavor-changed",{detail:{id:journeyId}}));
+   document.dispatchEvent(new Event("shane:endeavor-context-ready"));
+  }catch(error){
+   document.dispatchEvent(new CustomEvent("shane:journey-endeavor-error",{detail:{message:String(error?.message||error)}}));
+  }finally{resolving=false}
+ };
+ document.addEventListener("shane:conversation-store-ready",()=>void resolveJourney());
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>void resolveJourney(),{once:true});
+ else void resolveJourney();
+}
 const targets=[
  ["builder.html","Create a website"],
  ["dashboard.html","Review my endeavors"],
