@@ -1325,6 +1325,7 @@ function init(){
      entry.dispatchEvent(new Event("input",{bubbles:true}));
      entry.scrollIntoView({behavior:"smooth",block:"center"});
      entry.focus();
+     if(!askAI.disabled)askAI.click();
     };
     endeavorContinuity.append(next);
    }
