@@ -25,6 +25,15 @@ function init(){
   frame.src=url;direct.href=url;shell.dataset.open="true";active=kind;host.querySelectorAll("button[data-kind]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.kind===kind)));status.textContent="Showing "+kind+" inside your creative workspace. Your draft and conversation are unchanged.";
  }
  host.querySelectorAll("button[data-kind]").forEach(b=>{b.setAttribute("aria-pressed","false");b.addEventListener("click",()=>open(b.dataset.kind,b.dataset.page))});
+ // Conversation-driven workspace navigation reuses the same guarded in-page tools.
+ // It does not send messages, publish listings, or alter a saved website.
+ document.addEventListener("shane:conversation-network-intent",event=>{
+  const kind=event?.detail?.kind;
+  const button=typeof kind==="string"?host.querySelector('button[data-kind="'+kind.replace(/[^a-z-]/g,"")+'"]'):null;
+  if(!button||button.dataset.kind!==kind)return;
+  if(active!==kind)open(kind,button.dataset.page);
+  else status.textContent="Your "+kind+" workspace is already open alongside this conversation.";
+ });
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
