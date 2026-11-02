@@ -17,8 +17,7 @@ jobs:
           node-version: '22'
       - name: Install browser
         run: |
-          npm install --no-save --no-package-lock playwright@1.58.2
-          npx playwright install --with-deps chromium
+          npm install --no-save --no-package-lock @supabase/supabase-js@2.57.0
       - name: Verify dedicated account is configured
         run: |
           test -n "$SHANE_E2E_EMAIL" || { echo 'Dedicated test email secret is missing'; exit 1; }
