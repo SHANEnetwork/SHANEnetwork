@@ -21,7 +21,7 @@ function init(){
   status.textContent="Loading your private endeavor context…";
   try{
    const {data:{user},error:authError}=await sb.auth.getUser();if(run!==generation)return;
-   if(authError||!user){status.textContent="Sign in through Members to access this endeavor's private details.";if(!authError&&!user&&activeId()){try{sessionStorage.removeItem(KEY)}catch{}document.dispatchEvent(new CustomEvent("shane:endeavor-changed",{detail:{id:null,reason:"signed-out"}}))}return}
+   if(authError||!user){status.textContent="Sign in through Members to access this endeavor's private details.";return}
    if(!id){const latest=await latestOwned(sb,user);if(run!==generation||activeId()!==null)return;if(!latest){status.textContent="Describe an idea to begin your first endeavor.";return}resume.hidden=false;resume.textContent="Return to "+(latest.title||"my latest endeavor");resume.onclick=()=>{if(!validId(latest.id))return;sessionStorage.setItem(KEY,JSON.stringify({id:latest.id,updated:new Date().toISOString()}));document.dispatchEvent(new CustomEvent("shane:endeavor-changed",{detail:{id:latest.id}}))};status.textContent="Your saved work is ready. Continue the conversation where you left off.";return}
    const {data,error}=await sb.from("shane_endeavors").select("id,title,idea,region,audience,updated_at").eq("id",id).eq("owner_id",user.id).maybeSingle();
    if(run!==generation||id!==activeId())return;
