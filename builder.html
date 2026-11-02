@@ -275,4 +275,26 @@ revise.onclick=async()=>{
   }catch(e){note.textContent=e.message}finally{restore.disabled=false}
  };
 }
+</script><script>
+(function(){
+ const key="shane-website-revision-handoff-v1";
+ const query=new URLSearchParams(location.search);
+ const siteId=query.get("site"),endeavorId=query.get("endeavor");
+ if(!siteId||!endeavorId)return;
+ let handoff;
+ try{handoff=JSON.parse(sessionStorage.getItem(key)||"null")}catch{return}
+ if(!handoff||handoff.siteId!==siteId||handoff.endeavorId!==endeavorId||Date.now()-handoff.at>3600000)return;
+ const request=String(handoff.request||"").trim();
+ if(request.length<8)return;
+ // Only stage the request. Never generate or overwrite a saved site on arrival.
+ const prompt=document.getElementById("aiPrompt");
+ const mode=document.getElementById("aiMode");
+ const status=document.getElementById("aiStatus");
+ if(!prompt||!mode)return;
+ if(prompt.value.trim()&&prompt.value.trim()!==request)return;
+ prompt.value=request;
+ mode.value="revise";
+ if(status)status.textContent="Your saved endeavor's website revision request is ready. Review the current website and choose Generate with AI when you want to proceed.";
+ try{sessionStorage.removeItem(key)}catch{}
+})();
 </script><script src="shane-arrival-draft.js" defer></script></body></html>
