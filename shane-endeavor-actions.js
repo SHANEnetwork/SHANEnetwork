@@ -1279,6 +1279,34 @@ function init(){
  void loadEndeavors();
  // One compact, live endeavor continuity line across all Network pages.
  // It reuses the existing conversation area rather than adding a control panel.
+ // A complete resume journey, shared by every SHANE page: recover the
+ // selected endeavor, ground the next conversation in saved work, and let
+ // SHANE propose reviewed actions. This never creates or publishes by itself.
+ const resumeJourney=document.createElement("button");
+ resumeJourney.type="button";
+ resumeJourney.textContent="Continue my endeavor with SHANE";
+ resumeJourney.onclick=async()=>{
+  const selected=window.SHANECurrentEndeavor?.read?.();
+  const store=window.SHANEConversationStore;
+  if(!selected){aiReply.textContent="Choose a saved endeavor to continue.";return}
+  if(!store?.endeavorSnapshot){aiReply.textContent="Your endeavor is still loading.";return}
+  resumeJourney.disabled=true;
+  try{
+   const snapshot=await store.endeavorSnapshot({endeavorId:selected});
+   if(window.SHANECurrentEndeavor?.read?.()!==selected)return;
+   const plan=snapshot.creationPlan;
+   const request=plan?.remaining>0
+    ?"Continue this saved endeavor. Review the remaining "+plan.remaining+" planned creation steps, recognize completed work, and propose the best next approved action."
+    :plan?.complete
+     ?"Review this completed endeavor and its existing creations. Help improve and connect what is already built without repeating completed work."
+     :"Review this endeavor as a whole. Use its saved creations and accepted collaborations to propose the next useful, achievable step.";
+   entry.value=request;
+   entry.dispatchEvent(new Event("input",{bubbles:true}));
+   entry.scrollIntoView({behavior:"smooth",block:"center"});
+   if(!askAI.disabled)askAI.click();
+  }catch(error){aiReply.textContent="Unable to resume this endeavor: "+String(error?.message||error)}
+  finally{resumeJourney.disabled=false}
+ };
  const endeavorContinuity=document.createElement("div");
  endeavorContinuity.className="shane-endeavor-continuity-line";
  endeavorContinuity.setAttribute("aria-label","Current endeavor connections");
@@ -1363,7 +1391,7 @@ function init(){
  const specialistTitle=document.createElement("summary");
  specialistTitle.textContent="Explore SHANE's programs and manual controls";
  specialist.append(specialistTitle,select,button,suggestion,workflow,planResume,revisionControl,status);
- group.append(endeavorsSection,endeavorContinuity,timeline,conversation,aiReply,aiNext,continueConversation,planProgress,conversationReply,creations,specialist);
+ group.append(endeavorsSection,resumeJourney,endeavorContinuity,timeline,conversation,aiReply,aiNext,continueConversation,planProgress,conversationReply,creations,specialist);
  // One conversation workspace across the entire Network. The existing page
  // capabilities remain below it, available whenever a member wants manual control.
  const page=location.pathname.split("/").pop()||"index.html";
