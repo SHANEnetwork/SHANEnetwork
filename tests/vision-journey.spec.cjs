@@ -539,6 +539,7 @@ test('connected workspace only displays accepted account collaborations', async 
       ]
     };
   });
+  await expect(page.locator('#shane-connected-collaborations')).toBeVisible();
   await page.locator('#shane-connected-collaborations').click();
   await expect(page.locator('#shane-connected-collaborations-list')).toContainText('Pottery fair');
   await expect(page.locator('#shane-connected-collaborations-list')).not.toContainText('Unaccepted request');
@@ -591,6 +592,7 @@ test('conversation workspace carries a saved website into collaboration without 
   await page.locator('#shaneIdeaReply').fill(revision);
   await page.locator('#shane-connected-recent').click();
   await expect(page.locator('#shane-connected-creations')).toContainText('Pottery studio');
+  await expect(page.locator('#shane-connected-collaborations')).toBeVisible();
   await page.locator('#shane-connected-collaborations').click();
   await expect(page.locator('#shane-connected-collaborations-list')).toContainText('Pottery fair');
   await expect(page.locator('#shane-connected-collaborations-list a')).toHaveAttribute('href',/workspace\.html\?collaboration=/);
@@ -611,6 +613,7 @@ test('connected conversation opens collaboration coordination and preserves draf
   });
   await page.locator('#visionPrompt').fill('Organize a community makers event');
   await page.locator('#shaneIdeaReply').fill('Invite ceramic artists and local musicians');
+  await expect(page.locator('#shane-connected-collaborations')).toBeVisible();
   await page.locator('#shane-connected-collaborations').click();
   await expect(page.locator('#shane-connected-collaborations-list a')).toHaveAttribute('href',/collaboration=11111111/);
   await page.getByRole('button',{name:'Connections & messages'}).click();
@@ -629,6 +632,7 @@ test('accepted collaboration offers its private conversation and rejects pending
       ]
     };
   });
+  await expect(page.locator('#shane-connected-collaborations')).toBeVisible();
   await page.locator('#shane-connected-collaborations').click();
   const list=page.locator('#shane-connected-collaborations-list');
   await expect(list.getByRole('link',{name:'Private messages'})).toHaveAttribute('href','members.html?conversation=11111111-1111-4111-8111-111111111111#collaborationSection');
@@ -643,6 +647,7 @@ test('collaboration and private messages remain inside creative workspace', asyn
   });
   await page.locator('#visionPrompt').fill('A welcoming neighborhood makers festival');
   await page.locator('#shaneIdeaReply').fill('Add a collaborative ceramics gallery');
+  await expect(page.locator('#shane-connected-collaborations')).toBeVisible();
   await page.locator('#shane-connected-collaborations').click();
   const list=page.locator('#shane-connected-collaborations-list');
   await list.getByRole('link',{name:/Community makers event/}).click();
