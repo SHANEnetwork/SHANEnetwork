@@ -290,3 +290,36 @@ test('SHANE revises the linked saved website conversationally and remembers the 
  expect(calls[1].options.endeavorId).toBe(endeavor);
  await expect(page.getByRole('link',{name:'Open revised website'})).toHaveAttribute('href','builder.html?site='+site+'&endeavor='+endeavor);
 });
+
+test('saved website version restoration requires confirmation and preserves endeavor context',async ({page})=>{
+ await page.goto('http://127.0.0.1:8765/builder.html');
+ const endeavor='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+ const site='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+ const version='cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+ await page.evaluate(({endeavor,site,version})=>{
+  window.SHANECurrentEndeavor={read:()=>endeavor};
+  window.__restoreCalls=[];
+  window.SHANEConversationStore={
+   endeavorSnapshot:async()=>({endeavor:{id:endeavor,idea:'Community pottery club',linkedSiteId:site},
+    creations:[],collaborations:[],collaborationListings:[],availability:{creations:true,collaborations:true},creationPlan:null}),
+   joinedCollaborations:async()=>[],
+   endeavors:async()=>[{id:endeavor,title:'Pottery club'}],
+   siteVersions:async()=>[{id:version,version_number:1,name:'Pottery club',site_id:site}],
+   restoreSiteVersion:async input=>{window.__restoreCalls.push(input);return {restored:true,siteId:site,versionId:version}},
+   saveTurn:async()=>({saved:true})
+  };
+  document.dispatchEvent(new Event('shane:conversation-store-ready'));
+  document.dispatchEvent(new Event('shane:endeavor-context-ready'));
+ },{endeavor,site,version});
+ const versions=page.getByText('Previous website versions and restoration');
+ await versions.click();
+ const restore=page.getByRole('button',{name:'Restore version 1 (Pottery club)'});
+ await expect(restore).toBeVisible();
+ page.once('dialog',dialog=>dialog.dismiss());
+ await restore.click();
+ expect(await page.evaluate(()=>window.__restoreCalls)).toHaveLength(0);
+ page.once('dialog',dialog=>dialog.accept());
+ await restore.click();
+ await expect.poll(()=>page.evaluate(()=>window.__restoreCalls.length)).toBe(1);
+ expect((await page.evaluate(()=>window.__restoreCalls))[0]).toEqual({siteId:site,versionId:version,confirmed:true});
+});
