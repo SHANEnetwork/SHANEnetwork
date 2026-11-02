@@ -105,6 +105,28 @@ function init(){
     const li=document.createElement("li");li.append(link);list.append(li);
    }
    recentArea.append(list);
+   // An explicit revision stays in this conversation while the account-backed
+   // service applies the requested change to the selected saved website.
+   for(const item of items.filter(entry=>entry.type==="website"&&entry.id)){
+    const button=document.createElement("button");
+    button.type="button";
+    button.textContent="Revise "+item.title;
+    button.addEventListener("click",async()=>{
+     const instruction=reply.value.trim()||vision.value.trim();
+     if(instruction.length<3){status.textContent="Describe the website revision in the conversation first.";return}
+     if(!window.confirm("Apply this revision to "+item.title+"? SHANE will update the saved website."))return;
+     const service=window.SHANEConversationStore;
+     if(typeof service?.reviseSite!=="function"){status.textContent="The website revision service is not ready.";return}
+     button.disabled=true;
+     status.textContent="Revising your saved website…";
+     try{
+      const result=await service.reviseSite({siteId:item.id,request:instruction});
+      status.textContent=result?.saved?"Your website revision was saved. Reopen the website to review it.":"The revision was not confirmed saved. Review your website before trying again.";
+     }catch(error){status.textContent="Website revision could not be saved: "+(error?.message||"Please try again.");}
+     finally{button.disabled=false}
+    });
+    recentArea.append(button);
+   }
    status.textContent="Your saved creations are ready. Choose one to continue working.";
   }catch(error){status.textContent="Could not retrieve saved creations: "+(error?.message||"Please try again.");}
   finally{recentButton.disabled=false}
