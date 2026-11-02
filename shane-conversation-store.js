@@ -436,6 +436,25 @@ function proposeCreationSequence({vision,endeavorId}={}){
  const preview=previewVisionSequence({steps});
  return {steps,ready:preview.ready,reason:preview.reason||null,requiresReview:true,executable:false};
 }
+// Use the existing authenticated conversational AI to interpret an endeavor into
+// supported, reviewable operations. This only proposes private drafts.
+async function proposeAICreationSequence({vision,endeavorId}={}){
+ const request=String(vision||"").trim();
+ if(request.length<8)return {ready:false,steps:[],reason:"Describe your endeavor first."};
+ if(!endeavorId)return {ready:false,steps:[],reason:"Save and select your endeavor before asking SHANE to plan its creation."};
+ const purpose="Interpret the person's endeavor as a practical creation sequence. Respond with ONLY a JSON object: {\\\"steps\\\":[{\\\"type\\\":\\\"new-website|community|campaign|listing\\\",\\\"vision\\\":\\\"specific creation instructions\\\"}],\\\"explanation\\\":\\\"brief rationale\\\"}. Include only necessary supported capabilities, at most 8 steps. No publishing, invitations, payments, or claims of execution. Never invent details. The person will review and approve before saving drafts.";
+ const result=await converse({endeavorId,request,purpose});
+ let parsed;
+ try{
+  const answer=String(result.response||"").trim().replace(/^\\`\\`\\`(?:json)?\\s*/i,"").replace(/\\s*\\`\\`\\`$/,"");
+  parsed=JSON.parse(answer);
+ }catch{return {ready:false,steps:[],reason:"SHANE provided advice but not a structured creation plan. Ask SHANE to prepare a reviewable creation plan."}}
+ const allowed=new Set(["new-website","community","campaign","listing"]);
+ if(!Array.isArray(parsed?.steps)||!parsed.steps.length||parsed.steps.length>8||parsed.steps.some(step=>!step||!allowed.has(step.type)||typeof step.vision!=="string"||step.vision.trim().length<8||step.vision.length>12000))return {ready:false,steps:[],reason:"SHANE's proposed plan needs refinement before it can be approved."};
+ const steps=parsed.steps.map(step=>({type:step.type,vision:step.vision.trim(),endeavorId}));
+ const preview=previewVisionSequence({steps});
+ return {ready:preview.ready,steps:preview.ready?steps:[],reason:preview.reason||null,explanation:String(parsed.explanation||"").slice(0,500),requiresReview:true,executable:false,source:"authenticated-ai"};
+}
 // Whole-to-parts endeavor synthesis: compare complete paths before choosing
 // capabilities. This is a deterministic planning aid, not an AI execution claim.
 function synthesizeEndeavor({vision,endeavorId,existing=[]}={}){
@@ -930,6 +949,6 @@ async function restoreSiteVersion({siteId,versionId,confirmed=false}={}){
  if(error)throw error;if(!updated)throw Error("Site changed since restoration began. Reload before trying again.");
  return {restored:true,siteId,versionId};
 }
-window.SHANEConversationStore=Object.freeze({beginEndeavor,converse,evaluateCreationPlan,synthesizeEndeavor,compassReview,harmonizeEndeavorPlan,coordinateEndeavor,collaborationContext,joinedCollaborations,endeavorSnapshot,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,computerCapabilities,inspectOperation,previewVisionSequence,proposeCreationSequence,prepareCreationSequence,executeVision,executeVisionSequence,executeApprovedSequence,verifySequenceProgress,saveCreationPlan,loadCreationPlan,listSavedCreationPlans,searchSavedCreationPlans,recallEndeavor,describeSavedCreationPlan,recoverCreationProgress,inspectSavedEndeavor,continueSavedEndeavor,resumeVisionSequence,recentCreations,findSavedCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
+window.SHANEConversationStore=Object.freeze({beginEndeavor,converse,evaluateCreationPlan,synthesizeEndeavor,compassReview,harmonizeEndeavorPlan,coordinateEndeavor,collaborationContext,joinedCollaborations,endeavorSnapshot,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,computerCapabilities,inspectOperation,previewVisionSequence,proposeCreationSequence,proposeAICreationSequence,prepareCreationSequence,executeVision,executeVisionSequence,executeApprovedSequence,verifySequenceProgress,saveCreationPlan,loadCreationPlan,listSavedCreationPlans,searchSavedCreationPlans,recallEndeavor,describeSavedCreationPlan,recoverCreationProgress,inspectSavedEndeavor,continueSavedEndeavor,resumeVisionSequence,recentCreations,findSavedCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
 document.dispatchEvent(new Event("shane:conversation-store-ready"));
 void flush();
