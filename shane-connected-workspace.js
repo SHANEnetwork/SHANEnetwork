@@ -101,7 +101,11 @@ function init(){
    const planner=aiAvailable?store.proposeAICreationSequence:store.proposeCreationSequence;
    const proposal=await planner({vision:idea,endeavorId:initialEndeavor});
    if(planningVersion!==thisPlanVersion||currentId()!==initialEndeavor||vision.value!==initialVision||reply.value!==initialReply){status.textContent="Your vision or selected endeavor changed while planning. Review a fresh plan for the current conversation.";return}
-   if(!proposal||!proposal.ready||!Array.isArray(proposal.steps)||!proposal.steps.length){status.textContent=proposal?.reason||"Describe the website, community, event, or listing you want to create.";return}
+   if(!proposal||!proposal.ready||!Array.isArray(proposal.steps)||!proposal.steps.length){
+    const missing=Array.isArray(proposal?.missing)?proposal.missing.map(item=>item?.issue).filter(Boolean).slice(0,3):[];
+    status.textContent=(proposal?.reason||"Describe the website, community, event, or listing you want to create.")+(missing.length?" What is needed: "+missing.join("; "):"");
+    return;
+   }
    const names={"new-website":"website",community:"community",campaign:"campaign or event",listing:"listing"};
    const allowedTypes=new Set(Object.keys(names));
    if(proposal.steps.some(step=>!step||!allowedTypes.has(step.type))){status.textContent="The planner proposed an unsupported creation step. Review a new plan before creating anything.";return}
