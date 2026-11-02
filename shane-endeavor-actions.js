@@ -1368,8 +1368,27 @@ function init(){
  const loadContinuity=async()=>{
   const run=++continuityRun,id=window.SHANECurrentEndeavor?.read?.();
   endeavorContinuity.replaceChildren();
-  if(!id)return;
   const store=window.SHANEConversationStore;
+  if(!id){
+   if(!store?.joinedCollaborations)return;
+   try{
+    const joined=await store.joinedCollaborations({limit:12});
+    if(run!==continuityRun||window.SHANECurrentEndeavor?.read?.())return;
+    if(joined.length){
+     const label=document.createElement("strong");
+     label.textContent="Your joined Network collaborations: ";
+     endeavorContinuity.append(label);
+     for(const item of joined.slice(0,8)){
+      const link=document.createElement("a");
+      link.href=item.url;
+      link.textContent=item.listingTitle;
+      link.style.cssText="display:inline-block;margin-left:12px;color:#784b6c;text-decoration:underline";
+      endeavorContinuity.append(link);
+     }
+    }
+   }catch(error){console.warn("Joined collaborations unavailable",error)}
+   return;
+  }
   if(!store?.endeavorSnapshot)return;
   try{
    const snapshot=await store.endeavorSnapshot({endeavorId:id});
