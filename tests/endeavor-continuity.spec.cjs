@@ -162,3 +162,26 @@ test('saved endeavor resumes creation, network discovery and a guarded website r
   // Real database persistence, collaboration acceptance, and revision saving
   // still require a signed-in test account on an isolated project.
 });
+
+test('joined Network workspaces remain reachable with or without an owned endeavor selected', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  const id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+  const joinedUrl='workspace.html?collaboration=bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb&endeavor=cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+  await page.evaluate(({id,joinedUrl}) => {
+    let active=null;
+    window.SHANECurrentEndeavor={read:()=>active};
+    window.SHANEConversationStore={
+      joinedCollaborations:async()=>[{id:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',listingTitle:'Festival team',url:joinedUrl}],
+      endeavorSnapshot:async()=>({endeavor:{id,idea:'Neighborhood bakery'},creations:[],collaborations:[],collaborationListings:[],availability:{creations:true,collaborations:true},creationPlan:null}),
+      endeavors:async()=>[{id,title:'Neighborhood bakery'}]
+    };
+    document.dispatchEvent(new Event('shane:conversation-store-ready'));
+    document.dispatchEvent(new Event('shane:endeavor-context-ready'));
+    window.__selectTestEndeavor=()=>{active=id;document.dispatchEvent(new Event('shane:endeavor-context-ready'))};
+  },{id,joinedUrl});
+  const continuity=page.locator('.shane-endeavor-continuity-line');
+  await expect(continuity.getByRole('link',{name:'Festival team'})).toHaveAttribute('href',joinedUrl);
+  await page.evaluate(()=>window.__selectTestEndeavor());
+  await expect(continuity.getByRole('link',{name:'Festival team'})).toHaveAttribute('href',joinedUrl);
+  await expect(continuity).toContainText('Together in this endeavor');
+});
