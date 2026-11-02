@@ -1,5 +1,16 @@
 # SHANE: Non-negotiable product vision
 
+## Foundational identity: central endeavor collaboration network
+
+**SHANEnetwork is an endeavor-centered collaboration network, not primarily an AI website builder.** The **SHANE Network** is the central hub where people and endeavors discover one another, form relationships, coordinate activity, and collaborate. Specialized hubs connect into this central Network; they must not become isolated silos.
+
+- An endeavor exists independently of any website, AI conversation, business registration, or specialized hub.
+- People can join, discover, participate, and collaborate without creating a website or using AI.
+- Endeavor identity, membership, consent, permissions, history, and relationships remain anchored in the central Network across all connected hubs.
+- SHANE intelligence helps interpret ambitions, find opportunities, organize collaboration, and operate supported capabilities. Website creation is one optional capability among many.
+- Every feature and AI operation should strengthen or preserve the central Network's ability to connect people and endeavors. Do not make website-building the default prerequisite.
+- Keep SHANEnetwork and the SHANE Network distinct from the separate SHONnetwork initiative.
+
 ## One-sentence contract
 **The person describes the endeavor they imagine. SHANE designs, writes, builds, configures, and refines the actual website and its supported capabilities; the person guides the vision and approves important decisions.**
 
