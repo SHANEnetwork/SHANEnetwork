@@ -576,3 +576,28 @@ test('conversation revision does not execute without approval', async ({ page })
   await page.getByRole('button',{name:'Revise Pottery studio'}).click();
   await expect.poll(()=>page.evaluate(()=>window.__revisionCalls.length)).toBe(0);
 });
+
+test('conversation workspace carries a saved website into collaboration without losing the revision draft', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(() => {
+    window.SHANEConversationStore={
+      recentCreations:async()=>[{id:'11111111-1111-4111-8111-111111111111',type:'website',title:'Pottery studio',url:'builder.html?site=11111111-1111-4111-8111-111111111111'}],
+      joinedCollaborations:async()=>[{id:'22222222-2222-4222-8222-222222222222',status:'accepted',listingTitle:'Pottery fair',role:'collaborator',url:'workspace.html?collaboration=22222222-2222-4222-8222-222222222222'}]
+    };
+  });
+  const vision='A pottery studio website with an exhibition and a community fair';
+  const revision='Add a gallery for the exhibition and highlight collaborators';
+  await page.locator('#visionPrompt').fill(vision);
+  await page.locator('#shaneIdeaReply').fill(revision);
+  await page.locator('#shane-connected-recent').click();
+  await expect(page.locator('#shane-connected-creations')).toContainText('Pottery studio');
+  await page.locator('#shane-connected-collaborations').click();
+  await expect(page.locator('#shane-connected-collaborations-list')).toContainText('Pottery fair');
+  await expect(page.locator('#shane-connected-collaborations-list a')).toHaveAttribute('href',/workspace\.html\?collaboration=/);
+  await expect(page.locator('#visionPrompt')).toHaveValue(vision);
+  await expect(page.locator('#shaneIdeaReply')).toHaveValue(revision);
+  await page.getByRole('button',{name:'Connections & messages'}).click();
+  await expect(page.locator('#shane-connected-frame iframe')).toHaveAttribute('src',/my-network\.html/);
+  await expect(page.locator('#visionPrompt')).toHaveValue(vision);
+  await expect(page.locator('#shaneIdeaReply')).toHaveValue(revision);
+});
