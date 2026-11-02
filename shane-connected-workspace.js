@@ -25,6 +25,14 @@ function init(){
   frame.src=url;direct.href=url;shell.dataset.open="true";active=kind;host.querySelectorAll("button[data-kind]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.kind===kind)));status.textContent="Showing "+kind+" inside your creative workspace. Your draft and conversation are unchanged.";
  }
  host.querySelectorAll("button[data-kind]").forEach(b=>{b.setAttribute("aria-pressed","false");b.addEventListener("click",()=>open(b.dataset.kind,b.dataset.page))});
+ function openCollaborationLink(event,href,label){
+  if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+  event.preventDefault();
+  frame.src=href;direct.href=href;shell.dataset.open="true";active="collaboration";
+  host.querySelectorAll("button[data-kind]").forEach(b=>b.setAttribute("aria-pressed","false"));
+  status.textContent=label+" is open beside your conversation. Your vision and revision draft remain here.";
+ }
+
  // Persist a new endeavor through the account-backed conversation store.
  // Creation is user-initiated, never inferred from merely typing an idea.
  const saveVision=host.querySelector("#shane-connected-save-vision");
@@ -154,8 +162,9 @@ function init(){
     const link=document.createElement("a");
     link.href=item.url;
     link.textContent=item.listingTitle+" ("+item.role+")";
+    link.addEventListener("click",event=>openCollaborationLink(event,link.href,"Shared collaboration workspace"));
     const li=document.createElement("li");li.append(link);
-    if(item.id&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(item.id)){const conversation=document.createElement("a");conversation.href="members.html?conversation="+encodeURIComponent(item.id)+"#collaborationSection";conversation.textContent="Private messages";li.append(document.createTextNode(" · "),conversation)}
+    if(item.id&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(item.id)){const conversation=document.createElement("a");conversation.href="members.html?conversation="+encodeURIComponent(item.id)+"#collaborationSection";conversation.textContent="Private messages";conversation.addEventListener("click",event=>openCollaborationLink(event,conversation.href,"Private collaboration messages"));li.append(document.createTextNode(" · "),conversation)}
     list.append(li);
    }
    collaborationList.append(list);
