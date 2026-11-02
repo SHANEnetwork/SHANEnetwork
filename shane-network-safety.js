@@ -1,6 +1,7 @@
 /* Safety utilities: browser-only, no automatic upload or reporting. */
 (()=>{'use strict';document.addEventListener('DOMContentLoaded',()=>{
 const $=id=>document.getElementById(id),notes=$('incident-notes'),status=$('incident-status');
+const params=new URLSearchParams(location.search),endeavor=(params.get('endeavor')||'').slice(0,180),category=(params.get('category')||'').slice(0,80),region=(params.get('region')||'').slice(0,120);if(endeavor){const name=$('research-name'),party=$('party');if(name&&!name.value)name.value=endeavor;if(party&&!party.value)party.value=endeavor;const info=document.createElement('p');info.className='notice';info.textContent='Research context: '+endeavor+(category?' · '+category:'')+(region?' · '+region:'')+'. This is not a warning or finding about this endeavor. No search or screening has been performed.';const heading=$('research-heading');heading?.parentElement?.insertBefore(info,heading.nextSibling)}
 $('safety-reset')?.addEventListener('click',()=>{document.querySelectorAll('.safety-check').forEach(c=>c.checked=false)});
 $('incident-clear')?.addEventListener('click',()=>{notes.value='';status.textContent='Notes cleared from this page.'});
 $('incident-export')?.addEventListener('click',()=>{
