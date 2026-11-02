@@ -1515,9 +1515,11 @@ function init(){
  void refreshActiveContext();
  heading.append(eyebrow,title,intro,activeContext);
  host.append(heading,group);
- const main=document.querySelector("main");
- if(main){main.insertBefore(host,main.firstChild)}
- else{const topbar=document.querySelector(".shane-unified-topbar");(topbar||document.body).insertAdjacentElement(topbar?"afterend":"afterbegin",host)}
+ // Keep the conversational workspace outside legacy tabbed/hidden page sections.
+ // It must remain available when a member returns to a saved endeavor.
+ const topbar=document.querySelector(".shane-unified-topbar");
+ if(topbar)topbar.insertAdjacentElement("afterend",host);
+ else{const main=document.querySelector("main");if(main)main.insertAdjacentElement("beforebegin",host);else document.body.insertAdjacentElement("afterbegin",host)}
  if(page==="system-health.html")host.hidden=true;
  update();explainVision();
 }
