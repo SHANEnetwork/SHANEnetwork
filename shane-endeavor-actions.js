@@ -1428,6 +1428,22 @@ function init(){
     const destination=new URL(href,location.href);
     destination.searchParams.set("endeavor",id);
     link.href=destination.href;link.textContent=(done?"✓ ":"") + label;
+    // Move the saved creative brief with the selected endeavor, so a member
+    // can continue working immediately instead of starting with an empty form.
+    link.addEventListener("click",event=>{
+     if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+     if(window.SHANECurrentEndeavor?.read?.()!==id)return;
+     const history=Array.isArray(snapshot.recentHistory)?snapshot.recentHistory:[];
+     const brief=history.find(row=>row.kind==="idea"&&typeof row.text==="string"&&row.text.trim())
+      ||history.find(row=>typeof row.text==="string"&&row.text.trim()&&!["ai-response","creation-summary","creation"].includes(row.kind));
+     const draft=entry.value.trim();
+     const vision=draft||brief?.text?.trim()||"";
+     if(!vision)return; // The destination can still restore its account history.
+     try{sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({
+      destination:destination.pathname.split("/").pop(),text:vision.slice(0,12000),
+      endeavorId:id,created:Date.now()
+     }))}catch{}
+    });
     link.style.cssText="display:inline-block;padding:7px 12px;border:1px solid #b18b9f;border-radius:20px;color:#704560;text-decoration:none;background:"+ (done?"#f3e7eb":"transparent");
     journey.append(link);
    };
