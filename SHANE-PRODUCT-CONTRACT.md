@@ -64,6 +64,12 @@ The reviewer must distinguish verified facts, allegations, unanswered questions,
 
 The capability should be accessible during the conversational creation and collaboration journey, **before** any binding commitment. SHONnetwork can reuse it without altering SHON's independent infrastructure absent authorization.
 
+## Universal, non-discriminatory due diligence
+
+SHANE should offer the same pre-commitment review guidance to **everyone**, regardless of the identity or perceived characteristics of the counterparty. It must not select, label, or single out individuals or organizations for investigation based on unsupported suspicion, protected characteristics, or inferred trustworthiness. It should encourage all participants to read agreements, verify relevant authority and identity, and consider only appropriate, lawful, consent-based background checks where applicable.
+
+SHANE provides informational resources and review tools, not endorsements, trust ratings, character judgments, legal services, or guarantees. Official registries, police records offices, national support resources, and other external links are informational starting points, not assurances of safety or integrity. Screening and records access must respect purpose restrictions, fair housing, employment, privacy, consumer-reporting law, and applicable consent requirements.
+
 ## One-sentence contract
 **The person describes the endeavor they imagine. SHANE designs, writes, builds, configures, and refines the actual website and its supported capabilities; the person guides the vision and approves important decisions.**
 
