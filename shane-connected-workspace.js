@@ -90,7 +90,8 @@ function init(){
   try{
    invalidatePlan();
    const proposal=store.proposeCreationSequence({vision:idea,endeavorId:currentId()});
-   if(!proposal.ready||!proposal.steps?.length){status.textContent=proposal.reason||"Describe the website, community, event, or listing you want to create.";return}
+   if(proposal&&typeof proposal.then==="function"){status.textContent="The creation planner returned an asynchronous result. Please wait for a supported planning flow before approving creation.";return}
+   if(!proposal||!proposal.ready||!Array.isArray(proposal.steps)||!proposal.steps.length){status.textContent=proposal.reason||"Describe the website, community, event, or listing you want to create.";return}
    const names={"new-website":"website",community:"community",campaign:"campaign or event",listing:"listing"};
    const parts=proposal.steps.map(step=>names[step.type]||step.type);
    invalidatePlan();
