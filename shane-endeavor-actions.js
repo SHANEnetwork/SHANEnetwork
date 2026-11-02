@@ -14,13 +14,11 @@ if(journeyId&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(journeyId)){
   try{
    const member=await store.connectedUser();
    if(!member)return;
-   const records=await store.endeavors();
-   if(!Array.isArray(records))throw Error("Could not verify saved endeavors.");
+   const snapshot=typeof store.endeavorSnapshot==="function"?await store.endeavorSnapshot({endeavorId:journeyId}):null;
+   // Verify this exact endeavor, including older work beyond list pagination.
+   // The account-backed snapshot queries the endeavor with owner_id filtering.
+   if(!snapshot){const records=await store.endeavors();if(!Array.isArray(records))throw Error("Could not verify saved endeavors.");if(!records.some(item=>item.id===journeyId))throw Error("The selected endeavor is unavailable to this account.")}
    settled=true;
-   if(!records.some(item=>item.id===journeyId)){
-    document.dispatchEvent(new CustomEvent("shane:journey-endeavor-unavailable",{detail:{endeavorId:journeyId}}));
-    return;
-   }
    sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:journeyId,updated:Date.now()}));
    document.dispatchEvent(new CustomEvent("shane:active-endeavor-changed",{detail:{id:journeyId}}));
    document.dispatchEvent(new Event("shane:endeavor-context-ready"));
