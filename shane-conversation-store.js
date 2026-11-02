@@ -446,7 +446,7 @@ async function proposeAICreationSequence({vision,endeavorId}={}){
  const result=await converse({endeavorId,request,purpose});
  let parsed;
  try{
-  const answer=String(result.response||"").trim().replace(/^\x60\x60\x60(?:json)?\\s*/i,"").replace(/\\s*\x60\x60\x60$/,"");
+  const answer=String(result.response||"").trim().replace(/^\x60\x60\x60(?:json)?\s*/i,"").replace(/\s*\x60\x60\x60$/,"");
   parsed=JSON.parse(answer);
  }catch{return {ready:false,steps:[],reason:"SHANE provided advice but not a structured creation plan. Ask SHANE to prepare a reviewable creation plan."}}
  const allowed=new Set(["new-website","community","campaign","listing"]);
