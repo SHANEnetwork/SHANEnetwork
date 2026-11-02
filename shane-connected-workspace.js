@@ -147,7 +147,7 @@ function init(){
   try{
    const items=await store.joinedCollaborations({limit:30});
    collaborationList.replaceChildren();
-   if(!items.length){status.textContent="No accepted collaborations are available for this account yet.";return}
+   if(!items.length){status.textContent="No accepted collaborations are available for this account yet. Use Discover to find people to work with.";return}
    const list=document.createElement("ul");
    for(const item of items){
     if(item.status!=="accepted"||!item.url?.startsWith("workspace.html?"))continue;
@@ -157,7 +157,7 @@ function init(){
     const li=document.createElement("li");li.append(link);list.append(li);
    }
    collaborationList.append(list);
-   status.textContent="Your accepted collaborations are ready. Choose one to continue coordinating.";
+   status.textContent="Your accepted collaborations are ready. Choose one to continue coordinating, or open Connections & messages alongside this conversation.";
   }catch(error){status.textContent="Could not load collaborations: "+(error?.message||"Please try again.");}
   finally{collaborationButton.disabled=false}
  });
