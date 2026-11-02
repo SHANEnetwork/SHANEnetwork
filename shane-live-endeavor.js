@@ -34,6 +34,8 @@ function init(){
   field.value=record.idea.slice(0,12000);field.dispatchEvent(new Event("input",{bubbles:true}));status.textContent="Saved endeavor vision brought into the conversation. The existing website draft is unchanged.";field.focus();
  };
  document.addEventListener("shane:endeavor-changed",load);
+ document.addEventListener("shane:active-endeavor-changed",load);
+ document.addEventListener("shane:endeavor-context-ready",load);
  document.addEventListener("shane:account-db-ready",load);
  load();
 }
