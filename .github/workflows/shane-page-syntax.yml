@@ -20,6 +20,7 @@ on:
 jobs:
   syntax:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -36,7 +37,7 @@ jobs:
       - name: Run vision journey browser smoke tests
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/shane-http.log 2>&1 &
-          npx playwright test tests/vision-journey.spec.cjs tests/endeavor-continuity.spec.cjs --browser chromium --workers 1 --reporter line --trace retain-on-failure
+          npx playwright test tests/vision-journey.spec.cjs tests/endeavor-continuity.spec.cjs --browser chromium --workers 1 --reporter line --trace retain-on-failure --timeout 30000 --global-timeout 480000 --retries 0
         env:
           PLAYWRIGHT_BASE_URL: http://127.0.0.1:8765
       - name: Upload browser failure evidence
