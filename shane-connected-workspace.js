@@ -19,7 +19,7 @@ function init(){
  const accountSelect=document.getElementById("savedEndeavors");
  if(accountSelect){accountSelect.addEventListener("change",()=>{if(accountSelect.value)status.textContent="Selected an endeavor. Open it to make it the active Network context."})}
  function open(kind,page){
-  if(active===kind){shell.dataset.open="false";active="";host.querySelectorAll("button[data-kind]").forEach(b=>b.setAttribute("aria-pressed","false"));status.textContent="Network workspace minimized. Your creative conversation remains ready.";return}
+  if(active===kind){shell.dataset.open="false";active="";host.querySelectorAll("button[data-kind]").forEach(b=>b.setAttribute("aria-pressed","false"));status.textContent="Network workspace minimized. Your creative conversation remains ready.";revealReturnSite();return}
   let url=page;
   if(kind==="discover"){const words=(vision.value.trim()||reply.value.trim()).replace(/[^\p{L}\p{N}\s-]/gu," ").split(/\s+/).filter(w=>w.length>3&&!/^(with|from|this|that|website|create|build|want|have|would|could|should|about|people)$/i.test(w)).slice(0,4);if(words.length)url+="?q="+encodeURIComponent(words.join(" "))}
   const id=currentId();displayedId=id;if(id)url+=(url.includes("?")?"&":"?")+"endeavor="+encodeURIComponent(id);
@@ -46,7 +46,7 @@ function init(){
   if(!lastSavedCreation)return;
   const destination=new URL(lastSavedCreation,window.location.href);
   if(destination.origin!==window.location.origin||destination.pathname.split("/").pop()!=="builder.html"||!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(destination.searchParams.get("site")||""))return;
-  frame.src=destination.href;direct.href=destination.href;shell.dataset.open="true";active="saved-creation";returnSite.hidden=true;
+  frame.src=destination.href;direct.href=destination.href;shell.dataset.open="true";active="saved-creation";returnSite.hidden=true;host.querySelectorAll("button[data-kind]").forEach(b=>b.setAttribute("aria-pressed","false"));
   status.textContent="Your saved website is back beside the conversation. Continue revising it here.";
  });
  const revealReturnSite=()=>{returnSite.hidden=!(lastSavedCreation&&active!=="saved-creation")};
