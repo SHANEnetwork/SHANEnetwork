@@ -924,3 +924,30 @@ test('verified creation opens saved website beside conversation without a saved-
  await expect(page.locator('#visionPrompt')).toHaveValue('Create an accessible studio website');
  await expect(page.locator('#shaneIdeaReply')).toHaveValue('Include classes and a welcoming home page');
 });
+
+test('created website stays reachable through messaging and return, with drafts preserved', async ({ page }) => {
+ const endeavorId='11111111-1111-4111-8111-111111111111';
+ const siteId='22222222-2222-4222-8222-222222222222';
+ await page.goto('http://127.0.0.1:8765/builder.html');
+ await page.evaluate(({endeavorId,siteId})=>{
+  sessionStorage.setItem('shane-active-endeavor-v1',JSON.stringify({id:endeavorId}));
+  window.confirm=()=>true;
+  window.SHANEConversationStore={
+   proposeAICreationSequence:async()=>({ready:true,steps:[{type:'new-website',vision:'Build a community bakery website',endeavorId}]}),
+   executeApprovedSequence:async()=>({complete:true,verified:true,completed:[{type:'new-website',id:siteId}]})
+  };
+ },{endeavorId,siteId});
+ await page.locator('#visionPrompt').fill('Build a community bakery website');
+ await page.locator('#shaneIdeaReply').fill('Include accessible baking workshops');
+ await page.locator('#shane-connected-plan').click();
+ await page.locator('#shane-connected-create').click();
+ await expect(page.locator('#shane-connected-frame iframe')).toHaveAttribute('src',new RegExp('builder\\.html\\?site='+siteId));
+ await page.locator('button[data-kind="messages"]').click();
+ await expect(page.locator('#shane-connected-frame iframe')).toHaveAttribute('src',/my-network\\.html/);
+ await expect(page.getByRole('button',{name:'Return to my website'})).toBeVisible();
+ await page.getByRole('button',{name:'Return to my website'}).click();
+ await expect(page.locator('#shane-connected-frame iframe')).toHaveAttribute('src',new RegExp('builder\\.html\\?site='+siteId));
+ await expect(page.getByRole('button',{name:'Return to my website'})).toBeHidden();
+ await expect(page.locator('#visionPrompt')).toHaveValue('Build a community bakery website');
+ await expect(page.locator('#shaneIdeaReply')).toHaveValue('Include accessible baking workshops');
+});
