@@ -37,7 +37,7 @@ function init(){
  };
  document.addEventListener("shane:endeavor-changed",event=>{if(event?.detail?.reason==="signed-out")return;load()});
  document.addEventListener("shane:active-endeavor-changed",load);
- document.addEventListener("shane:endeavor-context-ready",load);
+ document.addEventListener("shane:endeavor-context-ready",event=>{const id=event?.detail?.endeavorId;if(id&&id!==activeId())return;load()});
  document.addEventListener("shane:account-db-ready",load);
  document.addEventListener("shane:auth-changed",load);
  load();
