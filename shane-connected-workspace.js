@@ -107,7 +107,9 @@ function init(){
   recentButton.disabled=true;
   status.textContent="Finding your saved creations…";
   try{
-   const items=await store.recentCreations({limit:12});
+   const query=recentButton.dataset.search||"";
+   delete recentButton.dataset.search;
+   const items=query&&typeof store.findSavedCreations==="function"?await store.findSavedCreations({query,limit:20}):await store.recentCreations({limit:12});
    recentArea.replaceChildren();
    if(!items.length){status.textContent="No saved creations were found in this account yet.";return}
    const list=document.createElement("ul");
@@ -181,6 +183,8 @@ function init(){
   const request=vision.value.trim().toLowerCase();
   if(!/^(?:please\s+)?(?:open|show|view|check|find|discover|browse|search\s+for|look\s+for)\b/.test(request))return;
   if(/^(?:please\s+)?(?:open|show|view|find|return\s+to|revisit)\s+(?:my\s+)?(?:saved\s+creations|previous\s+creations|created\s+websites)\b/.test(request)){recentButton.click();return}
+  const named=request.match(/^(?:please\s+)?(?:find|show|open|return\s+to)\s+(?:my\s+)?(?:saved\s+)?(?:website|site|creation|project)\s+(?:named|called)\s+(.{2,100})$/);
+  if(named){recentButton.dataset.search=named[1];recentButton.click();return}
   if(/^(?:please\s+)?(?:open|show|view|find|rejoin)\s+(?:my\s+)?(?:accepted\s+)?collaborations\b/.test(request)){collaborationButton.click();return}
   const routes=[
    {kind:"messages",match:/\b(?:open|show|view|check)\s+(?:my\s+)?(?:messages|inbox|conversations|connections)\b/},
