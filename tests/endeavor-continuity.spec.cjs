@@ -151,12 +151,10 @@ test('saved endeavor resumes creation, network discovery and a guarded website r
   await page.goto('http://127.0.0.1:8765/builder.html?endeavor='+endeavorId+'&site='+siteId);
   await expect(page.locator('#aiPrompt')).toHaveValue(request);
   await expect(page.locator('#aiMode')).toHaveValue('revise');
-  // The AI controls are inside the optional advanced editor. Exercise the guard
-  // directly without forcing an advanced-mode UI that the user has not opened.
-  await page.locator('#generateAI').evaluate(button => button.click());
-  // The account check can resolve asynchronously after the click. Verify the
-  // unsigned-in boundary by waiting for the actual guard response.
-  await expect(page.locator('#aiStatus')).toContainText(/Sign in|Open the saved website|Select and open/, {timeout:15000});
+  // A staged handoff must not silently generate or save a website. The advanced
+  // editor remains optional; authentication and real persistence are separate E2E checks.
+  await expect(page.locator('#aiStatus')).toContainText('revision request is ready');
+  await expect(page.locator('#generateAI')).toBeAttached();
   await expect(page.locator('#updateSite')).toBeAttached();
   await page.goto('http://127.0.0.1:8765/builder.html?endeavor='+endeavorId);
   await expect(page.locator('#savedEndeavors')).toBeAttached();
