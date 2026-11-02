@@ -189,8 +189,11 @@ function init(){
  // workspace alongside the draft; ordinary brainstorming remains untouched.
  const guide=document.getElementById("visionGuide");
  if(guide)guide.addEventListener("click",()=>{
-  const request=vision.value.trim().toLowerCase();
-  if(!/^(?:please\s+)?(?:open|show|view|check|find|discover|browse|search\s+for|look\s+for|return\s+to|revisit|rejoin|revise|edit|update|change|improve)\b/.test(request))return;
+  const command=/^(?:please\s+)?(?:open|show|view|check|find|discover|browse|search\s+for|look\s+for|return\s+to|revisit|rejoin|revise|edit|update|change|improve)\b/;
+  const revisionRequest=reply.value.trim().toLowerCase();
+  const visionRequest=vision.value.trim().toLowerCase();
+  const request=command.test(revisionRequest)?revisionRequest:visionRequest;
+  if(!command.test(request))return;
   if(/^(?:please\s+)?(?:open|show|view|find|return\s+to|revisit)\s+(?:my\s+)?(?:saved\s+creations|previous\s+creations|created\s+websites)\b/.test(request)){recentButton.click();return}
   if(/^(?:please\s+)?(?:revise|edit|update|change|improve)\s+(?:my\s+)?(?:saved\s+)?(?:website|site)\b/.test(request)){recentButton.click();status.textContent="Choose the saved website to revise. Your revision request remains in the conversation for review and approval.";return}
   const named=request.match(/^(?:please\s+)?(?:find|show|open|return\s+to)\s+(?:my\s+)?(?:saved\s+)?(?:website|site|creation|project)\s+(?:named|called)\s+(.{2,100})$/);
