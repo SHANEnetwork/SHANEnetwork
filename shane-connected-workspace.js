@@ -119,6 +119,14 @@ function init(){
     link.textContent=item.title+" ("+item.type+")";
     link.href=item.url;
     link.rel="noopener";
+    link.addEventListener("click",event=>{
+     if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+     const destination=new URL(link.href,window.location.href);
+     if(destination.origin!==window.location.origin||!["builder.html","communities.html","campaigns.html","members.html"].includes(destination.pathname.split("/").pop()))return;
+     event.preventDefault();frame.src=destination.href;direct.href=destination.href;shell.dataset.open="true";active="saved-creation";
+     host.querySelectorAll("button[data-kind]").forEach(b=>b.setAttribute("aria-pressed","false"));
+     status.textContent="Your saved "+item.type+" is open beside the conversation. Continue refining your vision here.";
+    });
     const li=document.createElement("li");li.append(link);list.append(li);
    }
    recentArea.append(list);
