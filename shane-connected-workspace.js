@@ -80,7 +80,21 @@ function init(){
    invalidatePlan();
    const count=result?.completed?.length||0;
    status.textContent=result?.complete&&result?.verified?"Created and verified "+count+" saved item(s). Open Return to saved creations to continue.":"Saved "+count+" item(s). "+(result?.error||result?.verificationError||"Review your saved work before continuing.");
-   if(count&&result?.complete&&result?.verified&&typeof store?.recentCreations==="function")recentButton.click();
+   if(count&&result?.complete&&result?.verified&&typeof store?.recentCreations==="function"){
+    recentButton.click();
+    // Continue directly into the creation just verified, without making the
+    // member find it again or leaving their conversation behind.
+    const latest=result.completed[count-1];
+    const paths={"new-website":["builder.html","site"],"website":["builder.html","site"],community:["communities.html","organization"],campaign:["campaigns.html","campaign"],listing:["members.html","listing"]};
+    const target=paths[latest?.type];
+    if(target&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(String(latest?.id||""))){
+     const destination=new URL(target[0],window.location.href);
+     destination.searchParams.set(target[1],latest.id);
+     frame.src=destination.href;direct.href=destination.href;shell.dataset.open="true";active="saved-creation";
+     host.querySelectorAll("button[data-kind]").forEach(b=>b.setAttribute("aria-pressed","false"));
+     status.textContent="Your verified creation is open beside the conversation. Continue refining it here.";
+    }
+   }
   }catch(error){invalidatePlan();status.textContent="Creation stopped: "+(error?.message||"Please review saved work.");}
   finally{planButton.disabled=false}
  });
