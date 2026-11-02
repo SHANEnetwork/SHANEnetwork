@@ -138,7 +138,25 @@ function init(){
  // A handoff is a one-time workspace instruction. Keep its project identity
  // isolated from other endeavors and never import a stale selected project.
  const selected=window.SHANECurrentEndeavor?.read?.()||null;
- if(item.endeavorId&&selected&&selected!==item.endeavorId){offerAccountResume(page,target,field);return;}
+ if(item.endeavorId&&selected!==item.endeavorId){
+  // A destination may load before the account-verified URL receiver finishes.
+  // Wait for verified selection instead of discarding a valid cross-page vision.
+  const requested=new URLSearchParams(location.search).get("endeavor");
+  if(requested===item.endeavorId){
+   let retried=false;
+   const resume=()=>{if(retried)return;retried=true;document.removeEventListener("shane:active-endeavor-changed",onChange);init()};
+   const onChange=event=>{if(event.detail?.id===item.endeavorId)resume()};
+   document.addEventListener("shane:active-endeavor-changed",onChange);
+   document.addEventListener("shane:journey-endeavor-unavailable",event=>{
+    if(event.detail?.endeavorId!==item.endeavorId)return;
+    document.removeEventListener("shane:active-endeavor-changed",onChange);
+    const status=document.getElementById(target.status);
+    if(status)status.textContent="This saved endeavor is unavailable to this account. Your incoming writing has not been published.";
+   },{once:true});
+   return;
+  }
+  offerAccountResume(page,target,field);return;
+ }
  if(field.value.trim()&&field.value.trim()===item.text.trim()){
   // The receiving page may already have restored the same idea as a draft.
   // Treat that as an arrival, not a conflicting edit.
