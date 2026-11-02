@@ -29,7 +29,13 @@ const base = process.env.SHANE_TEST_BASE || 'http://127.0.0.1:8765';
    await page.screenshot({path:'test-artifacts/responsive/home-'+name+'.png',fullPage:true});
    const cards=page.locator('.shane-entry-cards a');
    assert((await cards.count())>=5,'Homepage navigation cards missing');
-   for(const link of await cards.all()){const href=await link.getAttribute('href');assert(href&&!href.startsWith('#'),'Card has no destination');}
+   for(const link of await cards.all()){
+    const href=await link.getAttribute('href');
+    assert(href&&!href.startsWith('#'),'Card has no destination');
+    const target=new URL(href,base+'/index.html');
+    const response=await page.request.get(target.toString());
+    assert(response.ok(),'Card destination is broken: '+href+' ('+response.status()+')');
+   }
    const homeOverflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+4);
    assert(!homeOverflow,'Homepage horizontal overflow at '+width+'px');
    console.log(name+': forms, artwork, cards, viewport checked; page errors: '+errors.length);
