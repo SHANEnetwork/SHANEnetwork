@@ -15,6 +15,7 @@ function init(){
  let displayedId=currentId();
  function updateContext(event){if(!event?.detail||!Object.prototype.hasOwnProperty.call(event.detail,"id"))return;const announced=event.detail.id;const selectedBefore=currentId();if(announced===selectedBefore)return;if(announced!==null&&(typeof announced!=="string"||!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(announced)))return;remember(announced);const selected=currentId();if(active&&displayedId!==selected){const button=host.querySelector('button[data-kind="'+active+'"]');if(button){active="";open(button.dataset.kind,button.dataset.page);status.textContent="Switched the connected Network workspace to your selected endeavor.";}}}
  document.addEventListener("shane:endeavor-changed",()=>queueMicrotask(revealReturnSite));
+ document.addEventListener("shane:active-endeavor-changed",()=>queueMicrotask(revealReturnSite));
  document.addEventListener("shane:endeavor-changed",updateContext);
  document.addEventListener("shane:active-endeavor-changed",updateContext);
  document.addEventListener("shane:endeavor-context-ready",event=>{if(!active)return;const announced=event?.detail?.endeavorId;if(announced&&announced!==currentId())return;const selected=currentId();if(selected===displayedId)return;const button=host.querySelector('button[data-kind="'+active+'"]');if(!button)return;active="";open(button.dataset.kind,button.dataset.page);status.textContent="Connected Network workspace synchronized with your saved endeavor.";});
