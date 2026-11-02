@@ -40,7 +40,7 @@ footer{color:inherit}
 
 /* The home page is an invitation into a creative world, not a product catalog. */
 .shane-home-world{position:relative;isolation:isolate;overflow:hidden;min-height:460px;padding:clamp(32px,6vw,84px)!important;border:1px solid rgba(243,212,149,.65)!important;border-radius:28px!important;background:radial-gradient(ellipse at 85% 18%,rgba(255,217,139,.8),transparent 26%),radial-gradient(ellipse at 75% 75%,rgba(72,162,149,.37),transparent 35%),radial-gradient(ellipse at 6% 95%,rgba(76,146,181,.23),transparent 44%),linear-gradient(130deg,#f8f4e6 4%,#e8f6f0 49%,#e1f1f5 100%)!important;color:#184458!important;box-shadow:0 25px 70px rgba(13,70,79,.14)!important}
-.shane-home-world:before{content:"";position:absolute;z-index:-1;width:420px;height:420px;right:-80px;top:-160px;border:2px solid rgba(255,255,255,.5);border-radius:50%;box-shadow:0 0 0 42px rgba(255,255,255,.11),0 0 0 90px rgba(255,255,255,.08)}
+.shane-home-world:before{content:"";position:absolute;z-index:-1;width:320px;height:320px;right:-100px;top:-140px;border:2px solid rgba(255,255,255,.5);border-radius:50%;box-shadow:0 0 0 28px rgba(255,255,255,.10),0 0 0 65px rgba(255,255,255,.06);pointer-events:none}
 .shane-home-world h1{max-width:850px;margin:18px 0!important;font-family:Georgia,"Palatino Linotype",serif!important;font-size:clamp(2.6rem,6.5vw,5.7rem)!important;line-height:1.05!important;letter-spacing:-.045em;color:#164c64!important;text-shadow:0 2px 0 rgba(255,255,255,.5)}
 .shane-world-kicker{display:inline-flex;padding:7px 16px;background:rgba(255,255,255,.74);border:1px solid #d7e5d6;border-radius:30px;font-weight:750;color:#27705c;letter-spacing:.025em}
 .shane-home-world .shane-world-lead{max-width:690px;font-size:clamp(1.08rem,2vw,1.35rem);line-height:1.65;color:#275669!important}
@@ -57,3 +57,11 @@ footer{color:inherit}
 #shane-idea-conversation{background:rgba(255,255,255,.83)!important;border-radius:20px!important}
 #shane-live-canvas{border-radius:20px!important;overflow:hidden}
 @media(max-width:680px){.shane-home-world{min-height:0}.shane-world-actions{flex-direction:column}.shane-world-actions .button{width:100%}}
+
+/* Hero readability: opaque light reading surface; decoration stays outside text. */
+.shane-home-world{background:linear-gradient(125deg,#fffaf3 0%,#f8f0e9 58%,#f3e8e3 100%)!important;color:#30283b!important}
+.shane-home-world:after{content:none!important}
+.shane-home-world h1{color:#30283b!important;text-shadow:none!important;max-width:850px}
+.shane-home-world .shane-world-lead{color:#423749!important;max-width:850px}
+.shane-home-world .shane-world-kicker{color:#225b50!important;background:#fff!important}
+.shane-home-world .shane-world-promise{color:#423749!important}
