@@ -264,6 +264,9 @@ jobs:
           assert.match(page,/id="shane-network-idea-start"/);
           assert.match(page,/id="shane-network-idea"/);
           assert.match(page,/shane-family-bridge\.js/);
+          assert.match(page,/assets\/shane-network-connected-world\.svg/);
+          assert.match(page,/https:\/\/shonnetwork\.org/);
+          assert.match(page,/Your SHANE account and private records are not transferred/);
           assert.match(bridge,/auth\.getUser\(\)/);
           assert.match(bridge,/from\("shane_endeavors"\)\.insert/);
           assert.match(bridge,/owner_id:user\.id/);
