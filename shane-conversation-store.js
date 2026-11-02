@@ -712,7 +712,10 @@ async function endeavorSnapshot({endeavorId}={}){
   const {data:site}=await db.from("shane_sites").select("id,name,status").eq("id",endeavor.linked_site_id).eq("owner_id",account.id).maybeSingle();
   if(site)allCreations.unshift({id:site.id,title:site.name,type:"website",url:"builder.html?site="+encodeURIComponent(site.id)+"&endeavor="+encodeURIComponent(endeavorId),linkedToEndeavor:true,status:site.status});
  }
- const linkedCreations=allCreations.filter(item=>item.linkedToEndeavor);
+ const linkedCreations=allCreations.filter(item=>item.linkedToEndeavor).map(item=>({
+  ...item,
+  url:item.url?(new URL(item.url,location.href).searchParams.has("endeavor")?item.url:item.url+(item.url.includes("?")?"&":"?")+"endeavor="+encodeURIComponent(endeavorId)):null
+ }));
  // Saved creation plans are shared across pages. Recovery is read-only here:
  // no action is executed and incomplete steps remain visible.
  let plan=null,progress=null,planError=null;
