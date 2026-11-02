@@ -822,13 +822,28 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
  const url=destinations[type]+encodeURIComponent(id);
  // Give the endeavor a durable website relationship, independent of the
  // conversation receipt window. Never replace a previously linked site.
+ let endeavorLink={attempted:false,linked:false,reason:null};
  if(type==="new-website"&&endeavorId){
+  endeavorLink.attempted=true;
   const {data:linked,error:linkError}=await db.from("shane_endeavors")
    .update({linked_site_id:id}).eq("id",endeavorId).eq("owner_id",account.id)
    .is("linked_site_id",null).select("id").maybeSingle();
-  if(linkError)console.warn("Website saved, but endeavor link needs reconciliation:",linkError.message);
+  if(linkError){
+   endeavorLink.reason="The private website was saved, but its endeavor link could not be confirmed: "+linkError.message;
+  }else if(linked){
+   endeavorLink.linked=true;
+  }else{
+   const {data:current,error:readError}=await db.from("shane_endeavors")
+    .select("linked_site_id").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
+   if(readError||!current)endeavorLink.reason="The website was saved, but its endeavor relationship could not be verified.";
+   else if(current.linked_site_id===id)endeavorLink.linked=true;
+   else endeavorLink.reason=current.linked_site_id
+    ?"The endeavor already has a primary website. This new private website was saved separately."
+    :"The website was saved, but its endeavor relationship was not established.";
+  }
+  if(endeavorLink.reason)console.warn(endeavorLink.reason);
  }
- const creation={type,id,url,vision:request,endeavorId:endeavorId||null,created:Date.now()};
+ const creation={type,id,url,vision:request,endeavorId:endeavorId||null,endeavorLink,created:Date.now()};
  try{sessionStorage.setItem("shane-last-created-artifact-v1",JSON.stringify(creation))}catch{}
  document.dispatchEvent(new CustomEvent("shane:artifact-created",{detail:creation}));
  // Save a readable creation memory for the shared AI conversation, regardless
@@ -841,7 +856,7 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
    creation.historySaved=false;
   }
  }
- return {saved:true,published:false,type,id,url,result,receipt:{operation:type,resource:computerCapabilities.find(x=>x.id===type).resource,id,verifiedSaved:true,published:false,at:new Date().toISOString()}};
+ return {saved:true,published:false,type,id,url,result,endeavorLink,receipt:{operation:type,resource:computerCapabilities.find(x=>x.id===type).resource,id,verifiedSaved:true,published:false,at:new Date().toISOString()}};
 }
 async function ownedSites(){
  const account=await user();if(!account)throw Error("Sign in to access your websites.");
