@@ -40,7 +40,10 @@ function init(){
       const {data:{user:current},error:authError}=await sb.auth.getUser();if(authError||!current||current.id!==user.id)throw Error("Your account session has changed. Sign in again.");
       const {data:access,error:accessError}=await sb.from("shane_collaboration_requests").select("id,status,sender_id,recipient_id").eq("id",request.id).maybeSingle();
       if(accessError||!access||access.status!=="accepted"||![access.sender_id,access.recipient_id].includes(current.id))throw Error("This collaboration is no longer available for messaging.");
-      const {error}=await sb.from("shane_collaboration_messages").insert({request_id:request.id,sender_id:current.id,body});if(error)throw error;input.value="";feedback.textContent="Message sent.";await show();
+      const {error}=await sb.from("shane_collaboration_messages").insert({request_id:request.id,sender_id:current.id,body});if(error)throw error;
+      const {data:confirmed,error:verifyError}=await sb.from("shane_collaboration_messages").select("request_id,sender_id,body").eq("request_id",request.id).eq("sender_id",current.id).eq("body",body).order("created_at",{ascending:false}).limit(1);
+      if(verifyError||!confirmed?.length){feedback.textContent="Message submitted, but its saved record could not be verified. Refresh before sending again.";return}
+      input.value="";feedback.textContent="Message saved.";await show();
      }catch(e){feedback.textContent="Message not sent: "+(e.message||String(e))}finally{send.disabled=false}});
     await show();
    }
