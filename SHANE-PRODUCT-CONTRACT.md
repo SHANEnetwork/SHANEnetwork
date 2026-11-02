@@ -11,6 +11,16 @@
 - Every feature and AI operation should strengthen or preserve the central Network's ability to connect people and endeavors. Do not make website-building the default prerequisite.
 - Keep SHANEnetwork and the SHANE Network distinct from the separate SHONnetwork initiative.
 
+## One conversational intelligence, two complementary experiences
+
+**SHANE creation experience:** A person describes a website, project, association, club, business, research effort, or other ambition. SHANE interprets the conversation, builds and configures supported capabilities, preserves the evolving endeavor, and helps revise it. A website is optional.
+
+**SHANE Network experience:** People describe the endeavors they want to establish, join, support, or collaborate on. SHANE helps them discover people and existing endeavors, organize memberships and permissions, invite collaborators with consent, communicate, coordinate activities, and grow their work. The central endeavor identity is shared across specialized hubs and created websites.
+
+**No disconnected duplication:** Creating a website for an endeavor must not silently create a second unrelated endeavor. Starting from Network discovery must not require a website. Both entry points converge on the same owner-scoped endeavor and permissioned relationships.
+
+**Implementation requirement:** Conversational AI should operate actual supported services with verified, persistent results and appropriate approvals, rather than only suggest pages, fill forms, or redirect users to unrelated tools. Manual access remains optional. Distinguish planned operations from executed actions.
+
 ## One-sentence contract
 **The person describes the endeavor they imagine. SHANE designs, writes, builds, configures, and refines the actual website and its supported capabilities; the person guides the vision and approves important decisions.**
 
