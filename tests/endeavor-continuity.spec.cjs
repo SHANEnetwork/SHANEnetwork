@@ -154,7 +154,9 @@ test('saved endeavor resumes creation, network discovery and a guarded website r
   // The AI controls are inside the optional advanced editor. Exercise the guard
   // directly without forcing an advanced-mode UI that the user has not opened.
   await page.locator('#generateAI').evaluate(button => button.click());
-  await expect(page.locator('#aiStatus')).toContainText(/Sign in|Open the saved website|Select and open/);
+  // The account check can resolve asynchronously after the click. Verify the
+  // unsigned-in boundary by waiting for the actual guard response.
+  await expect(page.locator('#aiStatus')).toContainText(/Sign in|Open the saved website|Select and open/, {timeout:15000});
   await expect(page.locator('#updateSite')).toBeAttached();
   await page.goto('http://127.0.0.1:8765/builder.html?endeavor='+endeavorId);
   await expect(page.locator('#savedEndeavors')).toBeAttached();
