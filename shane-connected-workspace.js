@@ -155,7 +155,7 @@ function init(){
     link.href=item.url;
     link.textContent=item.listingTitle+" ("+item.role+")";
     const li=document.createElement("li");li.append(link);
-    if(item.id){const conversation=document.createElement("a");conversation.href="members.html?conversation="+encodeURIComponent(item.id)+"#collaborationSection";conversation.textContent="Private messages";li.append(document.createTextNode(" · "),conversation)}
+    if(item.id&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(item.id)){const conversation=document.createElement("a");conversation.href="members.html?conversation="+encodeURIComponent(item.id)+"#collaborationSection";conversation.textContent="Private messages";li.append(document.createTextNode(" · "),conversation)}
     list.append(li);
    }
    collaborationList.append(list);
