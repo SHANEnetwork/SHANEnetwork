@@ -442,11 +442,11 @@ async function proposeAICreationSequence({vision,endeavorId}={}){
  const request=String(vision||"").trim();
  if(request.length<8)return {ready:false,steps:[],reason:"Describe your endeavor first."};
  if(!endeavorId)return {ready:false,steps:[],reason:"Save and select your endeavor before asking SHANE to plan its creation."};
- const purpose="Interpret the person's endeavor as a practical creation sequence. Respond with ONLY a JSON object: {\\\"steps\\\":[{\\\"type\\\":\\\"new-website|community|campaign|listing\\\",\\\"vision\\\":\\\"specific creation instructions\\\"}],\\\"explanation\\\":\\\"brief rationale\\\"}. Include only necessary supported capabilities, at most 8 steps. No publishing, invitations, payments, or claims of execution. Never invent details. The person will review and approve before saving drafts.";
+ const purpose="Interpret this endeavor into a practical creation sequence. Return only a JSON object with steps (array of objects with type and vision) and explanation (brief rationale). Supported types: new-website, community, campaign, listing. Include only necessary capabilities, at most 8 steps. No publishing, invitations, payments, or claims of execution. Never invent details. The person reviews and approves before creating private drafts.";
  const result=await converse({endeavorId,request,purpose});
  let parsed;
  try{
-  const answer=String(result.response||"").trim().replace(/^\\`\\`\\`(?:json)?\\s*/i,"").replace(/\\s*\\`\\`\\`$/,"");
+  const answer=String(result.response||"").trim().replace(/^\x60\x60\x60(?:json)?\\s*/i,"").replace(/\\s*\x60\x60\x60$/,"");
   parsed=JSON.parse(answer);
  }catch{return {ready:false,steps:[],reason:"SHANE provided advice but not a structured creation plan. Ask SHANE to prepare a reviewable creation plan."}}
  const allowed=new Set(["new-website","community","campaign","listing"]);
