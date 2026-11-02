@@ -861,3 +861,22 @@ test('AI-only planner can prepare a saved endeavor without the legacy keyword pl
   await expect(page.locator('#shane-connected-plan-review')).toContainText('inviting community pottery studio');
   await expect(page.locator('#shane-connected-create')).toBeEnabled();
 });
+
+test('creation planning prioritizes the latest conversational refinement', async ({ page }) => {
+  const id='11111111-1111-4111-8111-111111111111';
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(endeavorId=>{
+    sessionStorage.setItem('shane-active-endeavor-v1',JSON.stringify({id:endeavorId}));
+    window.__planRequest=null;
+    window.SHANEConversationStore={proposeAICreationSequence:async args=>{
+      window.__planRequest=args;
+      return {ready:true,steps:[{type:'new-website',vision:args.vision,endeavorId}]};
+    }};
+  },id);
+  await page.locator('#visionPrompt').fill('Create a pottery studio website');
+  await page.locator('#shaneIdeaReply').fill('Make the pottery studio accessible and include a class calendar');
+  await page.locator('#shane-connected-plan').click();
+  await expect(page.locator('#shane-connected-plan-review')).toContainText('class calendar');
+  const planned=await page.evaluate(()=>window.__planRequest);
+  expect(planned.vision).toContain('class calendar');
+});
