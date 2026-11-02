@@ -211,7 +211,7 @@ test('first-time member can remember a vision without selecting an endeavor or c
         document.dispatchEvent(new Event('shane:conversation-context-changed'));
         return {id:active,saved:true};
       },
-      endeavorSnapshot:async()=>({endeavor:{id:active,idea:vision},creations:[],collaborations:[],collaborationListings:[],availability:{creations:true,collaborations:true},creationPlan:null}),
+      endeavorSnapshot:async()=>({endeavor:{id:active,idea:'Astronomy club'},creations:[],collaborations:[],collaborationListings:[],availability:{creations:true,collaborations:true},creationPlan:null}),
       endeavors:async()=>[{id:active,title:'Astronomy club'}]
     };
     document.dispatchEvent(new Event('shane:conversation-store-ready'));
