@@ -296,12 +296,20 @@ function init(){
  saveIdea.addEventListener("click",async()=>{
   const text=sharedComposerText();
   if(!text){composerStatus.textContent="Describe an idea first.";return}
-  const selected=window.SHANECurrentEndeavor?.read?.()||null;
-  if(!selected){composerStatus.textContent="Select an endeavor to save this idea to your account.";return}
-  saveIdea.disabled=true;composerStatus.textContent="Saving your idea…";
+  let selected=window.SHANECurrentEndeavor?.read?.()||null;
+  saveIdea.disabled=true;composerStatus.textContent=selected?"Saving your idea…":"Creating and saving your new endeavor…";
   try{
-   const saved=await window.SHANEConversationStore?.saveTurn?.(text,{page:location.pathname.split("/").pop()||"index.html",kind:"idea",endeavorId:selected});
-   if(!saved?.saved)throw Error("Account history is unavailable.");
+   // A first-time member can simply describe an endeavor and ask SHANE to
+   // remember it. Creating the account-backed endeavor is the default, not
+   // an administrative prerequisite. beginEndeavor saves the original idea.
+   if(!selected){
+    const started=await window.SHANEConversationStore?.beginEndeavor?.({vision:text});
+    if(!started?.saved||!started.id)throw Error("Sign in to save your new endeavor.");
+    selected=started.id;
+   }else{
+    const saved=await window.SHANEConversationStore?.saveTurn?.(text,{page:location.pathname.split("/").pop()||"index.html",kind:"idea",endeavorId:selected});
+    if(!saved?.saved)throw Error("Account history is unavailable.");
+   }
    if(window.SHANEEndeavorPlan?.refineJourney)await window.SHANEEndeavorPlan.refineJourney({request:text,endeavorId:selected});
    else if(window.SHANEEndeavorPlan?.create)await window.SHANEEndeavorPlan.create({vision:text,endeavorId:selected});
    // Feed the saved refinement into the current page's existing editable draft.
