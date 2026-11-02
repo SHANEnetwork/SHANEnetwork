@@ -30,6 +30,7 @@ function init(){
  const guide=document.getElementById("visionGuide");
  if(guide)guide.addEventListener("click",()=>{
   const request=vision.value.trim().toLowerCase();
+  if(!/^(?:please\s+)?(?:open|show|view|check|find|discover|browse|search\s+for|look\s+for)\b/.test(request))return;
   const routes=[
    {kind:"messages",match:/\b(?:open|show|view|check)\s+(?:my\s+)?(?:messages|inbox|conversations|connections)\b/},
    {kind:"endeavors",match:/\b(?:open|show|view|find)\s+(?:my\s+)?(?:saved\s+)?(?:projects|endeavors|websites)\b/},
