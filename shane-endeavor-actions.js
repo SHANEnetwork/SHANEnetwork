@@ -1394,7 +1394,10 @@ function init(){
    journey.style.cssText="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0";
    const journeyStep=(label,href,done=false)=>{
     const link=document.createElement("a");
-    link.href=href;link.textContent=(done?"✓ ":"") + label;
+    // Carry the active endeavor across pages; the destination still verifies account ownership.
+    const destination=new URL(href,location.href);
+    destination.searchParams.set("endeavor",id);
+    link.href=destination.href;link.textContent=(done?"✓ ":"") + label;
     link.style.cssText="display:inline-block;padding:7px 12px;border:1px solid #b18b9f;border-radius:20px;color:#704560;text-decoration:none;background:"+ (done?"#f3e7eb":"transparent");
     journey.append(link);
    };
