@@ -108,7 +108,7 @@ async function beginEndeavor({vision}={}){
  const idea=String(vision||"").trim();
  if(idea.length<8)throw Error("Describe your vision to begin.");
  const title=idea.split(/[.!?\n]/)[0].trim().slice(0,110)||"My new endeavor";
- const {data,error}=await db.from("shane_endeavors").insert({owner_id:account.id,title}).select("id,title").single();
+ const {data,error}=await db.from("shane_endeavors").insert({owner_id:account.id,title,idea}).select("id,title,idea").single();
  if(error||!data?.id)throw Error(error?.message||"Could not save your endeavor.");
  try{
   sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:data.id,title:data.title}));
