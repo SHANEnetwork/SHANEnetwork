@@ -39,7 +39,7 @@ function init(){
  function refreshOnSelection(){const selected=activeId();if(selected===lastSelected)return;lastSelected=selected;load()}
  document.addEventListener("shane:endeavor-changed",refreshOnSelection);
  document.addEventListener("shane:active-endeavor-changed",refreshOnSelection);
- document.addEventListener("shane:endeavor-context-ready",event=>{const id=event?.detail?.endeavorId;if(id&&id!==activeId())return;load()});
+ document.addEventListener("shane:endeavor-context-ready",event=>{const id=event?.detail?.endeavorId;if(id&&id!==activeId())return;if(id&&id===activeId()&&record?.id===id)return;load()});
  document.addEventListener("shane:account-db-ready",load);
  document.addEventListener("shane:auth-changed",load);
  load();
