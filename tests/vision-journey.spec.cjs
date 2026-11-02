@@ -432,7 +432,7 @@ test('one visitor journey carries vision into creation refinement and private co
   await page.goto('http://127.0.0.1:8765/index.html');
   await page.locator('#welcomeIdea').fill(vision);
   await page.locator('#shaneWelcome button[type="submit"]').click();
-  await expect(page).toHaveURL(/builder\\.html/);
+  await expect(page).toHaveURL(/builder\.html/);
   await expect(page.locator('#visionPrompt')).toHaveValue(vision);
   await page.locator('#visionGuide').click();
   await expect(page.locator('#shaneIdeaTurns')).toContainText('neighborhood pottery studio');
@@ -441,7 +441,7 @@ test('one visitor journey carries vision into creation refinement and private co
   await expect(page.locator('#aiMode')).toHaveValue('revise');
   await expect(page.locator('#aiPrompt')).toHaveValue(/Earlier request 1:/);
   await page.locator('#shanePrepareIntroduction').click();
-  await expect(page).toHaveURL(/network\\.html\\?q=/);
+  await expect(page).toHaveURL(/network\.html\?q=/);
   const prepared = await page.evaluate(() => sessionStorage.getItem('shane_collaboration_intro_draft_v1'));
   expect(prepared).toContain('volunteer calendar');
   await page.goBack();
