@@ -832,3 +832,19 @@ test('unsupported AI creation operation cannot enter the approval flow', async (
   await expect(page.locator('#shane-connected-status')).toContainText('unsupported creation step');
   await expect(page.locator('#shane-connected-create')).toBeDisabled();
 });
+
+test('review shows the AI creation instructions and clears them when vision changes', async ({ page }) => {
+  const id='11111111-1111-4111-8111-111111111111';
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(endeavorId=>{
+    sessionStorage.setItem('shane-active-endeavor-v1',JSON.stringify({id:endeavorId}));
+    window.SHANEConversationStore={proposeAICreationSequence:async()=>({ready:true,steps:[{type:'new-website',vision:'Create a welcoming ceramics studio with an accessible events calendar',endeavorId}]})};
+  },id);
+  await page.locator('#visionPrompt').fill('Build a ceramics studio website');
+  await page.locator('#shane-connected-plan').click();
+  await expect(page.locator('#shane-connected-plan-review')).toContainText('accessible events calendar');
+  await expect(page.locator('#shane-connected-create')).toBeEnabled();
+  await page.locator('#visionPrompt').fill('Build a ceramics studio and community');
+  await expect(page.locator('#shane-connected-plan-review')).toBeEmpty();
+  await expect(page.locator('#shane-connected-create')).toBeDisabled();
+});
