@@ -92,7 +92,7 @@
  window.SHANECurrentEndeavor=Object.freeze({
   read:()=>{try{const id=JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id;return typeof id==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(id)?id:null}catch{return null}},
   context:async()=>{const id=window.SHANECurrentEndeavor.read();if(!id||!window.SHANEConversationStore)return [];return window.SHANEConversationStore.endeavorContext(id)},
-  continueIn:(destination,text)=>{const id=window.SHANECurrentEndeavor.read();const idea=String(text||recentSubstantive()?.text||"").trim();if(!idea)return false;sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination,text:idea,endeavorId:id,created:Date.now()}));return true}
+  continueIn:(destination,text)=>{const id=window.SHANECurrentEndeavor.read();const idea=String(text||recentSubstantive()?.text||"").trim();if(!idea)return false;const target=String(destination||"").split(/[?#]/)[0].split("/").pop();if(!target||!(/^[a-z0-9-]+\.html$/i).test(target))return false;sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination:target,text:idea.slice(0,12000),endeavorId:id,created:Date.now()}));return true}
  });
  document.addEventListener("shane:conversation-store-ready",async()=>{try{const entries=await window.SHANECurrentEndeavor.context();document.dispatchEvent(new CustomEvent("shane:endeavor-context-ready",{detail:{entries}}))}catch{}});
  // One receiver owns incoming vision text. shane-vision-arrival.js preserves existing
