@@ -166,3 +166,29 @@ main :where([role=status],[aria-live=polite]){overflow-wrap:anywhere}
 .shane-plan-progress-step span:nth-child(2){text-transform:capitalize;color:#77586d}
 .shane-unified-nav .shane-plan-progress-step button{padding:7px 12px;border:0;border-radius:10px;background:#704760;color:#fff;font:700 .82rem system-ui,sans-serif}
 .shane-plan-progress[hidden]{display:none!important}
+
+/* Conversation-first visual hierarchy shared by the existing SHANE pages.
+   Keep native forms available while treating them as secondary tools. */
+:where(.shane-conversation-intake,#shane-idea-conversation,#shane-connected-workspace){
+  position:relative;
+  isolation:isolate;
+  border:1px solid #dfc5c8;
+  background:linear-gradient(145deg,#fffdf9 0%,#fff5ee 55%,#f9edf4 100%);
+  box-shadow:0 18px 52px #70476017;
+}
+:where(.shane-conversation-intake,#shane-idea-conversation) :where(textarea,input[type=text]){
+  background:#fffefa;
+  border:1px solid #d7bdc6;
+  color:#352b3d;
+  line-height:1.55;
+}
+:where(.shane-conversation-intake,#shane-idea-conversation) :where(textarea):focus{
+  border-color:#9d5f7d;
+  box-shadow:0 0 0 4px #a46a7b19;
+}
+:where(.shane-conversation-intake,#shane-idea-conversation) :where(h2,h3){
+  color:#56364d;
+}
+@media(max-width:680px){
+  :where(.shane-conversation-intake,#shane-idea-conversation,#shane-connected-workspace){border-radius:18px}
+}
