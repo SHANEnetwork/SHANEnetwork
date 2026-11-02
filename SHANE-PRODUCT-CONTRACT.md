@@ -40,6 +40,14 @@ The SHANE Network should support discovery by profession, interests, goals, loca
 
 SHANE should help members explore feasible arrangements and coordinate work, but never promise negotiated rates, insurance eligibility, event invitations, legal recognition, or other third-party outcomes. Financial, insurance, employment, and collective-bargaining arrangements require applicable legal and regulatory review and explicit participant authorization. Protect private membership and association information with purpose-limited permissions and consent. No automatic public exposure or outreach.
 
+## Example: independent SHONnetwork association connected to SHANE Network
+
+SHONnetwork is a separate housing-stability and mutual-support initiative, not another name for SHANEnetwork or the SHANE Network. If its owner elects to establish a SHONnetwork association on SHANE Network, it should operate as an independently governed endeavor that connects to the central Network and specialized hubs **without altering SHONnetwork's separate website, infrastructure, or records without explicit authorization**.
+
+Its potential scope includes homelessness prevention and response; aging in place and shared property upkeep; mutual support, companionship and compatible housemates; support needs whether or not formally medically recognized; temporary or transitional housing for relocation and rebuilding stability; and connecting people with willing hosts, property owners, organizations, and resources. Eligibility and discovery should not presume homelessness, diagnosis, age, or income level.
+
+Housing matches require consent, privacy controls, appropriate verification, safeguarding, clear expectations and exit rights. SHANE can assist with discovery and coordination, but must not imply a match, accommodation, or service has been guaranteed.
+
 ## One-sentence contract
 **The person describes the endeavor they imagine. SHANE designs, writes, builds, configures, and refines the actual website and its supported capabilities; the person guides the vision and approves important decisions.**
 
