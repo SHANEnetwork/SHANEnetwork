@@ -601,3 +601,20 @@ test('conversation workspace carries a saved website into collaboration without 
   await expect(page.locator('#visionPrompt')).toHaveValue(vision);
   await expect(page.locator('#shaneIdeaReply')).toHaveValue(revision);
 });
+
+test('connected conversation opens collaboration coordination and preserves drafted intent', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(() => {
+    window.SHANEConversationStore={
+      joinedCollaborations:async()=>[{id:'11111111-1111-4111-8111-111111111111',status:'accepted',listingTitle:'Community makers event',role:'owner',url:'workspace.html?collaboration=11111111-1111-4111-8111-111111111111&endeavor=22222222-2222-4222-8222-222222222222'}]
+    };
+  });
+  await page.locator('#visionPrompt').fill('Organize a community makers event');
+  await page.locator('#shaneIdeaReply').fill('Invite ceramic artists and local musicians');
+  await page.locator('#shane-connected-collaborations').click();
+  await expect(page.locator('#shane-connected-collaborations-list a')).toHaveAttribute('href',/collaboration=11111111/);
+  await page.getByRole('button',{name:'Connections & messages'}).click();
+  await expect(page.locator('#shane-connected-frame iframe')).toHaveAttribute('src',/my-network\.html/);
+  await expect(page.locator('#visionPrompt')).toHaveValue('Organize a community makers event');
+  await expect(page.locator('#shaneIdeaReply')).toHaveValue('Invite ceramic artists and local musicians');
+});
