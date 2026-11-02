@@ -699,3 +699,29 @@ test('generic revision request never modifies a saved website', async ({ page })
   await expect(page.locator('#shane-connected-status')).toContainText('Describe what should change');
   expect(await page.evaluate(()=>window.__revisionCalls)).toBe(0);
 });
+
+test('revision cannot silently target a different website than the open preview', async ({ page }) => {
+  const first='11111111-1111-4111-8111-111111111111';
+  const second='22222222-2222-4222-8222-222222222222';
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(([a,b])=>{
+    window.__revisionCalls=0;
+    window.SHANEConversationStore={
+      recentCreations:async()=>[
+        {id:a,type:'website',title:'Pottery studio',url:'builder.html?site='+a},
+        {id:b,type:'website',title:'Community bakery',url:'builder.html?site='+b}
+      ],
+      reviseSite:async()=>{window.__revisionCalls++;return {saved:true}}
+    };
+    window.confirm=()=>true;
+  },[first,second]);
+  await page.locator('#visionPrompt').fill('Build a community makers network');
+  await page.locator('#shaneIdeaReply').fill('Add a gallery to the homepage');
+  await page.locator('#shane-connected-recent').click();
+  await page.locator('#shane-connected-creations a').filter({hasText:'Pottery studio'}).click();
+  await expect(page.locator('#shane-connected-frame iframe')).toHaveAttribute('src',new RegExp('site='+first));
+  await page.locator('#shane-connected-creations button').filter({hasText:'Revise Community bakery'}).click();
+  await expect(page.locator('#shane-connected-status')).toContainText('different website');
+  expect(await page.evaluate(()=>window.__revisionCalls)).toBe(0);
+  await expect(page.locator('#shaneIdeaReply')).toHaveValue('Add a gallery to the homepage');
+});
