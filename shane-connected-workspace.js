@@ -14,6 +14,7 @@ function init(){
  function updateContext(event){if(!event?.detail||!Object.prototype.hasOwnProperty.call(event.detail,"id"))return;remember(event.detail.id);const selected=currentId();if(active&&displayedId!==selected){const button=host.querySelector('button[data-kind="'+active+'"]');if(button){active="";open(button.dataset.kind,button.dataset.page);status.textContent="Switched the connected Network workspace to your selected endeavor.";}}}
  document.addEventListener("shane:endeavor-changed",updateContext);
  document.addEventListener("shane:active-endeavor-changed",updateContext);
+ document.addEventListener("shane:endeavor-context-ready",()=>{if(!active)return;const selected=currentId();if(selected===displayedId)return;const button=host.querySelector('button[data-kind="'+active+'"]');if(!button)return;active="";open(button.dataset.kind,button.dataset.page);status.textContent="Connected Network workspace synchronized with your saved endeavor.";});
  const accountSelect=document.getElementById("savedEndeavors");
  if(accountSelect){accountSelect.addEventListener("change",()=>{if(accountSelect.value)status.textContent="Selected an endeavor. Open it to make it the active Network context."})}
  function open(kind,page){
