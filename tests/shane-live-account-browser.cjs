@@ -19,6 +19,11 @@ const sb=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false
   assert.ifError(insertError);
   assert.equal(created.owner_id,user.id);
   id=created.id;
+  const anonymous=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
+  const {data:exposed,error:anonymousError}=await anonymous.from('shane_endeavors')
+   .select('id,idea').eq('id',id);
+  assert.ifError(anonymousError);
+  assert.equal(exposed.length,0,'PRIVATE DATA EXPOSURE: anonymous visitors can read a private endeavor');
   const {data:updated,error:updateError}=await sb.from('shane_endeavors')
    .update({idea:'Revised vision '+token}).eq('id',id).eq('owner_id',user.id)
    .select('id,idea').single();
