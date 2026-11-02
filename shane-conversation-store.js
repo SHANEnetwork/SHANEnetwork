@@ -175,7 +175,7 @@ const reasoningPrinciples=Object.freeze({
  feasibility:"Distinguish confirmed facts, constraints, permissions and available tools from assumptions.",
  communication:"Explain the chosen path naturally and distinguish proposed from completed work."
 });
-async function converse({endeavorId,request,purpose}){
+async function converse({endeavorId,request,purpose,mode}){
  const account=await user();
  if(!account)throw Error("Sign in to continue your endeavor with SHANE AI.");
  if(!endeavorId)throw Error("Select a saved endeavor first.");
@@ -261,7 +261,7 @@ async function converse({endeavorId,request,purpose}){
    if(matches.length)groundedPurpose+="\nPossible earlier endeavors (suggest, do not assume identity): "+matches.map(item=>item.endeavorId+" ["+item.steps.map(step=>step.type+":"+step.status).join(", ")+"] "+item.description).join("; ");
   }
  }catch{}
- const {data,error}=await db.functions.invoke("shane-converse",{body:{endeavorId,request,purpose:groundedPurpose}});
+ const {data,error}=await db.functions.invoke("shane-converse",{body:{endeavorId,request,purpose:groundedPurpose,...(mode==="creation-plan"?{mode:"creation-plan"}:{})}});
  if(error||data?.error)throw Error(data?.error||error?.message||"SHANE AI is unavailable.");
  if(typeof data?.response!=="string"||!data.response.trim())throw Error("SHANE returned no response.");
  return data;
@@ -443,7 +443,7 @@ async function proposeAICreationSequence({vision,endeavorId}={}){
  if(request.length<8)return {ready:false,steps:[],reason:"Describe your endeavor first."};
  if(!endeavorId)return {ready:false,steps:[],reason:"Save and select your endeavor before asking SHANE to plan its creation."};
  const purpose="Interpret this endeavor into a practical creation sequence. Return only a JSON object with steps (array of objects with type and vision) and explanation (brief rationale). Supported types: new-website, community, campaign, listing. Include only necessary capabilities, at most 8 steps. No publishing, invitations, payments, or claims of execution. Never invent details. The person reviews and approves before creating private drafts.";
- const result=await converse({endeavorId,request,purpose});
+ const result=await converse({endeavorId,request,purpose,mode:"creation-plan"});
  let parsed;
  try{
   const answer=String(result.response||"").trim().replace(/^\x60\x60\x60(?:json)?\s*/i,"").replace(/\s*\x60\x60\x60$/,"");
