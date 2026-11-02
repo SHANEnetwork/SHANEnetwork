@@ -83,14 +83,15 @@ function init(){
   finally{planButton.disabled=false}
  });
 
- planButton.addEventListener("click",()=>{
+ planButton.addEventListener("click",async()=>{
   const idea=vision.value.trim()||reply.value.trim();
   const store=window.SHANEConversationStore;
   if(typeof store?.proposeCreationSequence!=="function"){status.textContent="The creation planner is not ready yet.";return}
   try{
    invalidatePlan();
-   const proposal=store.proposeCreationSequence({vision:idea,endeavorId:currentId()});
-   if(proposal&&typeof proposal.then==="function"){status.textContent="The creation planner returned an asynchronous result. Please wait for a supported planning flow before approving creation.";return}
+   planButton.disabled=true;
+   status.textContent="Preparing your creation plan…";
+   const proposal=await store.proposeCreationSequence({vision:idea,endeavorId:currentId()});
    if(!proposal||!proposal.ready||!Array.isArray(proposal.steps)||!proposal.steps.length){status.textContent=proposal.reason||"Describe the website, community, event, or listing you want to create.";return}
    const names={"new-website":"website",community:"community",campaign:"campaign or event",listing:"listing"};
    const parts=proposal.steps.map(step=>names[step.type]||step.type);
@@ -99,6 +100,7 @@ function init(){
    if(endeavorId){reviewedPlan={endeavorId,steps:proposal.steps};createButton.disabled=false}
    status.textContent="Creation plan: "+parts.join(", ")+". Review your vision and save your endeavor before executing any creation. Nothing has been published.";
   }catch(error){status.textContent="Could not prepare the creation plan: "+(error?.message||"Please try again.");}
+  finally{planButton.disabled=false}
  });
  // Return to durable account-owned creations without leaving the conversation.
  const recentButton=host.querySelector("#shane-connected-recent");
