@@ -235,11 +235,14 @@ function init(){
   collaborationButton.disabled=true;
   status.textContent="Finding your accepted collaborations…";
   try{
+   const requestedEndeavor=currentId();
    const items=await store.joinedCollaborations({limit:30});
+   if(currentId()!==requestedEndeavor){status.textContent="The selected endeavor changed while collaborations loaded. Reopen collaborations for the current endeavor.";return}
    collaborationList.replaceChildren();
    if(!items.length){status.textContent="No accepted collaborations are available for this account yet. Use Discover to find people to work with.";return}
    const list=document.createElement("ul");
    for(const item of items){
+    if(requestedEndeavor&&item.endeavorId&&item.endeavorId!==requestedEndeavor)continue;
     if(item.status!=="accepted"||!item.url?.startsWith("workspace.html?"))continue;
     const link=document.createElement("a");
     link.href=item.url;
