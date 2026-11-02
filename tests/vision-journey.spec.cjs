@@ -785,3 +785,19 @@ test('asynchronous creation planning waits for the proposal and still requires a
   await expect(page.locator('#shane-connected-status')).toContainText('Created and verified');
   expect(await page.evaluate(()=>window.__creationExecutions)).toBe(1);
 });
+
+test('asynchronous plan is discarded if the vision changes before planning completes', async ({ page }) => {
+  const id='11111111-1111-4111-8111-111111111111';
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(endeavorId=>{
+    sessionStorage.setItem('shane-active-endeavor-v1',JSON.stringify({id:endeavorId}));
+    window.SHANEConversationStore={proposeCreationSequence:()=>new Promise(resolve=>{window.__resolvePlan=resolve})};
+  },id);
+  await page.locator('#visionPrompt').fill('Create a makers studio website');
+  await page.locator('#shane-connected-plan').click();
+  await expect(page.locator('#shane-connected-status')).toContainText('Preparing');
+  await page.locator('#visionPrompt').fill('Create a makers studio and neighborhood events');
+  await page.evaluate(()=>window.__resolvePlan({ready:true,steps:[{type:'new-website'}]}));
+  await expect(page.locator('#shane-connected-status')).toContainText('changed while planning');
+  await expect(page.locator('#shane-connected-create')).toBeDisabled();
+});
