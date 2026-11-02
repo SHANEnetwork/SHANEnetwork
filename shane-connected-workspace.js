@@ -49,7 +49,7 @@ function init(){
   frame.src=destination.href;direct.href=destination.href;shell.dataset.open="true";active="saved-creation";returnSite.hidden=true;host.querySelectorAll("button[data-kind]").forEach(b=>b.setAttribute("aria-pressed","false"));
   status.textContent="Your saved website is back beside the conversation. Continue revising it here.";
  });
- const revealReturnSite=()=>{returnSite.hidden=!(lastSavedCreation&&active!=="saved-creation")};
+ const revealReturnSite=()=>{returnSite.hidden=!(lastSavedCreation&&active!=="saved-creation"&&shell.dataset.open==="true")};
  document.addEventListener("shane:conversation-network-intent",()=>queueMicrotask(revealReturnSite));
  // Persist a new endeavor through the account-backed conversation store.
  // Creation is user-initiated, never inferred from merely typing an idea.
