@@ -86,7 +86,7 @@ function init(){
  });
 
  planButton.addEventListener("click",async()=>{
-  const idea=vision.value.trim()||reply.value.trim();
+  const idea=reply.value.trim()||vision.value.trim();
   const store=window.SHANEConversationStore;
   if(typeof store?.proposeAICreationSequence!=="function"&&typeof store?.proposeCreationSequence!=="function"){status.textContent="The creation planner is not ready yet.";return}
   try{
