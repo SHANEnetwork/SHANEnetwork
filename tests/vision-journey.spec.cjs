@@ -426,3 +426,26 @@ test('creator prepares an editable private introduction without sending an invit
   expect(draft).toContain('Community pottery workshops');
   expect(draft).toContain('explore whether our ideas');
 });
+
+test('one visitor journey carries vision into creation refinement and private collaborator discovery', async ({ page }) => {
+  const vision = 'Create a neighborhood pottery studio website with workshops and a community calendar.';
+  await page.goto('http://127.0.0.1:8765/index.html');
+  await page.locator('#welcomeIdea').fill(vision);
+  await page.locator('#shaneWelcome button[type="submit"]').click();
+  await expect(page).toHaveURL(/builder\\.html/);
+  await expect(page.locator('#visionPrompt')).toHaveValue(vision);
+  await page.locator('#visionGuide').click();
+  await expect(page.locator('#shaneIdeaTurns')).toContainText('neighborhood pottery studio');
+  await page.locator('#visionPrompt').fill('Add accessible beginner workshops and a volunteer calendar.');
+  await page.locator('#visionGuide').click();
+  await expect(page.locator('#aiMode')).toHaveValue('revise');
+  await expect(page.locator('#aiPrompt')).toHaveValue(/Earlier request 1:/);
+  await page.locator('#shanePrepareIntroduction').click();
+  await expect(page).toHaveURL(/network\\.html\\?q=/);
+  const prepared = await page.evaluate(() => sessionStorage.getItem('shane_collaboration_intro_draft_v1'));
+  expect(prepared).toContain('volunteer calendar');
+  await page.goBack();
+  await expect(page.locator('#visionPrompt')).toBeVisible();
+  // This browser scenario tests the visitor-facing handoff. Account-backed
+  // persistence and actual invitations require a separate authenticated run.
+});
