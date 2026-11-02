@@ -235,3 +235,10 @@ jobs:
           }
           console.log('Validated '+pages.length+' pages and '+checked+' inline scripts plus publishing invariants.');
           NODE
+
+      - name: Check Network Safety wiring and private-record invariants
+        run: |
+          node --check shane-safety-account.js
+          node --check shane-network-safety.js
+          node --check shane-agreement-file.js
+          node tests/network-safety-regression.cjs
