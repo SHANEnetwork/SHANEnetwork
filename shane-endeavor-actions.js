@@ -1532,6 +1532,60 @@ function init(){
      finally{apply.disabled=false}
     };
     endeavorContinuity.append(apply);
+    // Keep the undo path beside conversational revisions, not buried in
+    // advanced editor controls. Only account-owned snapshots are returned.
+    const versions=document.createElement("details");
+    versions.style.cssText="display:block;margin:10px 0";
+    const summary=document.createElement("summary");
+    summary.textContent="Previous website versions and restoration";
+    versions.append(summary);
+    const versionStatus=document.createElement("div");
+    versionStatus.textContent="Open to review your saved versions.";
+    versions.append(versionStatus);
+    let versionRun=0;
+    versions.addEventListener("toggle",async()=>{
+     if(!versions.open)return;
+     const run=++versionRun;
+     const store=window.SHANEConversationStore;
+     if(!store?.siteVersions||!store?.restoreSiteVersion){
+      versionStatus.textContent="Version restoration is not available.";return;
+     }
+     versionStatus.textContent="Loading saved website versions…";
+     try{
+      const rows=await store.siteVersions(snapshot.endeavor.linkedSiteId);
+      if(run!==versionRun||!versions.open||window.SHANECurrentEndeavor?.read?.()!==id)return;
+      versionStatus.replaceChildren();
+      if(!rows.length){versionStatus.textContent="No earlier versions yet. A snapshot is created when you revise your saved website.";return}
+      for(const row of rows.slice(0,15)){
+       const line=document.createElement("div");
+       const button=document.createElement("button");
+       button.type="button";
+       button.textContent="Restore version "+row.version_number+" ("+(row.name||"Website")+")";
+       button.onclick=async()=>{
+        if(window.SHANECurrentEndeavor?.read?.()!==id)return;
+        if(!confirm("Restore this earlier website version? Your current saved version will be preserved for recovery."))return;
+        button.disabled=true;
+        versionStatus.append(document.createTextNode(" Restoring…"));
+        try{
+         const latest=await store.endeavorSnapshot({endeavorId:id});
+         if(window.SHANECurrentEndeavor?.read?.()!==id||latest.endeavor?.linkedSiteId!==snapshot.endeavor.linkedSiteId)
+          throw Error("The selected website changed.");
+         const result=await store.restoreSiteVersion({siteId:snapshot.endeavor.linkedSiteId,versionId:row.id,confirmed:true});
+         if(!result?.restored||result.siteId!==snapshot.endeavor.linkedSiteId)throw Error("Restoration was not verified.");
+         let remembered=false;
+         try{remembered=(await store.saveTurn("Restored website "+result.siteId+" to saved version "+row.version_number,
+          {page:location.pathname.split("/").pop()||"builder.html",kind:"creation-summary",endeavorId:id}))?.saved===true}catch{}
+         composerStatus.textContent=remembered?"Website restored. Your endeavor history was updated.":"Website restored, but the conversation history could not be updated.";
+         document.dispatchEvent(new Event("shane:artifact-created"));
+        }catch(error){composerStatus.textContent="Restoration not confirmed: "+String(error?.message||error)}
+        finally{button.disabled=false}
+       };
+       line.append(button);
+       versionStatus.append(line);
+      }
+     }catch(error){if(run===versionRun)versionStatus.textContent="Previous versions unavailable: "+String(error?.message||error)}
+    });
+    endeavorContinuity.append(versions);
    }
    // Collaboration begins with a saved endeavor-owned opportunity, even
    // before another member accepts an invitation.
