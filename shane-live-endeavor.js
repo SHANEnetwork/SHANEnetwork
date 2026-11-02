@@ -37,6 +37,7 @@ function init(){
  document.addEventListener("shane:active-endeavor-changed",load);
  document.addEventListener("shane:endeavor-context-ready",load);
  document.addEventListener("shane:account-db-ready",load);
+ document.addEventListener("shane:auth-changed",load);
  load();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
