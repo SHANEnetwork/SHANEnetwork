@@ -20,6 +20,12 @@ const base = process.env.SHANE_TEST_BASE || 'http://127.0.0.1:8765';
    assert(image.loaded,'Network illustration did not load');
    const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+4);
    assert(!overflow,'Horizontal page overflow at '+width+'px');
+   const panoramaSource=await page.locator('.shane-network-panorama').getAttribute('src');
+   assert(panoramaSource&&panoramaSource.startsWith('assets/'),'Network panorama must use a committed asset');
+   const panoramaResponse=await page.request.get(new URL(panoramaSource,base+'/network.html').toString());
+   assert(panoramaResponse.ok(),'Network panorama asset URL is broken');
+   const type=panoramaResponse.headers()['content-type']||'';
+   assert(type.includes('image/'),'Network panorama is not served as an image');
    const networkGeometry=await page.evaluate(()=>{
     const field=document.querySelector('#shane-network-idea').getBoundingClientRect();
     const submit=document.querySelector('#shane-network-idea-start button[type="submit"]').getBoundingClientRect();
