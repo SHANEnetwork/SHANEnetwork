@@ -763,3 +763,25 @@ test('unconfirmed endeavor save does not advance the active project context', as
   await expect(page.locator('#shane-connected-status')).toContainText('save was not confirmed');
   expect(await page.evaluate(()=>sessionStorage.getItem('shane-active-endeavor-v1'))).toBeNull();
 });
+
+test('asynchronous creation planning waits for the proposal and still requires approval', async ({ page }) => {
+  const id='11111111-1111-4111-8111-111111111111';
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(endeavorId=>{
+    sessionStorage.setItem('shane-active-endeavor-v1',JSON.stringify({id:endeavorId}));
+    window.SHANEConversationStore={
+      proposeCreationSequence:async({vision,endeavorId:id})=>({ready:true,steps:[{type:'new-website',vision,endeavorId:id}]}),
+      executeApprovedSequence:async()=>{window.__creationExecutions=(window.__creationExecutions||0)+1;return {complete:true,verified:true,completed:[{type:'new-website'}]}}
+    };
+    window.__creationExecutions=0;
+    window.confirm=()=>true;
+  },id);
+  await page.locator('#visionPrompt').fill('Build a pottery studio website');
+  await page.locator('#shane-connected-plan').click();
+  await expect(page.locator('#shane-connected-status')).toContainText('Creation plan: website');
+  await expect(page.locator('#shane-connected-create')).toBeEnabled();
+  expect(await page.evaluate(()=>window.__creationExecutions)).toBe(0);
+  await page.locator('#shane-connected-create').click();
+  await expect(page.locator('#shane-connected-status')).toContainText('Created and verified');
+  expect(await page.evaluate(()=>window.__creationExecutions)).toBe(1);
+});
