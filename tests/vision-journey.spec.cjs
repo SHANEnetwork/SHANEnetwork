@@ -595,7 +595,7 @@ test('conversation workspace carries a saved website into collaboration without 
   await expect(page.locator('#shane-connected-collaborations')).toBeVisible();
   await page.locator('#shane-connected-collaborations').click();
   await expect(page.locator('#shane-connected-collaborations-list')).toContainText('Pottery fair');
-  await expect(page.locator('#shane-connected-collaborations-list a')).toHaveAttribute('href',/workspace\.html\?collaboration=/);
+  await expect(page.locator('#shane-connected-collaborations-list a').first()).toHaveAttribute('href',/workspace\.html\?collaboration=/);
   await expect(page.locator('#visionPrompt')).toHaveValue(vision);
   await expect(page.locator('#shaneIdeaReply')).toHaveValue(revision);
   await page.getByRole('button',{name:'Connections & messages'}).click();
