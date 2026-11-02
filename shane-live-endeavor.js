@@ -33,7 +33,7 @@ function init(){
   if(field.value.trim()&&field.value.trim()!==record.idea&&!confirm("Replace the current vision text with this saved endeavor? Your website draft will stay unchanged."))return;
   field.value=record.idea.slice(0,12000);field.dispatchEvent(new Event("input",{bubbles:true}));status.textContent="Saved endeavor vision brought into the conversation. The existing website draft is unchanged.";field.focus();
  };
- document.addEventListener("shane:endeavor-changed",load);
+ document.addEventListener("shane:endeavor-changed",event=>{if(event?.detail?.reason==="signed-out")return;load()});
  document.addEventListener("shane:active-endeavor-changed",load);
  document.addEventListener("shane:endeavor-context-ready",load);
  document.addEventListener("shane:account-db-ready",load);
