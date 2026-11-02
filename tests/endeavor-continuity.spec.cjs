@@ -224,3 +224,31 @@ test('first-time member can remember a vision without selecting an endeavor or c
   // remembering a vision. The new endeavor becomes the active conversation.
   await expect.poll(()=>page.evaluate(()=>window.SHANECurrentEndeavor.read())).toBe('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa');
 });
+
+test('saved endeavor journey opens its actual website, Network opportunity and accepted workspace', async ({page}) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  const endeavor='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+  const site='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+  const listing='cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+  const collaboration='dddddddd-dddd-4ddd-8ddd-dddddddddddd';
+  await page.evaluate(({endeavor,site,listing,collaboration})=>{
+    window.SHANECurrentEndeavor={read:()=>endeavor};
+    window.SHANEConversationStore={
+      endeavorSnapshot:async()=>({
+        endeavor:{id:endeavor,idea:'Create a welcoming local pottery club',linkedSiteId:site},
+        creations:[{id:site,type:'website',title:'Pottery club',url:'builder.html?site='+site+'&endeavor='+endeavor}],
+        collaborationListings:[{id:listing,title:'Join the pottery club',url:'members.html?listing='+listing+'&endeavor='+endeavor}],
+        collaborations:[{id:collaboration,listingTitle:'Pottery collaborators',url:'workspace.html?collaboration='+collaboration}],
+        availability:{creations:true,collaborations:true},creationPlan:null
+      }),
+      joinedCollaborations:async()=>[],
+      endeavors:async()=>[{id:endeavor,title:'Pottery club'}]
+    };
+    document.dispatchEvent(new Event('shane:conversation-store-ready'));
+    document.dispatchEvent(new Event('shane:endeavor-context-ready'));
+  },{endeavor,site,listing,collaboration});
+  const journey=page.getByRole('navigation',{name:'Endeavor journey'});
+  await expect(journey.getByRole('link',{name:/Create or revise/})).toHaveAttribute('href',new RegExp('builder\\.html\\?site='+site+'.*endeavor='+endeavor));
+  await expect(journey.getByRole('link',{name:/Manage Network opportunity/})).toHaveAttribute('href',new RegExp('members\\.html\\?listing='+listing+'.*endeavor='+endeavor));
+  await expect(journey.getByRole('link',{name:/Work together/})).toHaveAttribute('href',new RegExp('workspace\\.html\\?collaboration='+collaboration+'.*endeavor='+endeavor));
+});
