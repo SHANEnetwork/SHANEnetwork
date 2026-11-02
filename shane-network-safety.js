@@ -6,7 +6,7 @@ $('safety-reset')?.addEventListener('click',()=>{document.querySelectorAll('.saf
 $('incident-clear')?.addEventListener('click',()=>{notes.value='';status.textContent='Notes cleared from this page.'});
 $('incident-export')?.addEventListener('click',()=>{
 const value=notes.value.trim();if(!value){status.textContent='Enter notes before downloading.';return}
-const blob=new Blob(['Private concern notes - user-authored, not verified by SHANE\nExported: '+new Date().toISOString()+'\n\n'+value],{type:'text/plain;charset=utf-8'});
+const blob=new Blob(['Private concern notes - user-authored, not verified by SHANE\nExported: '+new Date().toISOString()+(endeavor?'\nEndeavor context (user-selected, not verified): '+endeavor:'')+'\n\n'+value],{type:'text/plain;charset=utf-8'});
 const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='shane-private-concern-notes.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);status.textContent='Downloaded notes to your device. Check where your browser saved the file.';
 });
 });})();
