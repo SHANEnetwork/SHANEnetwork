@@ -635,3 +635,20 @@ test('accepted collaboration offers its private conversation and rejects pending
   await expect(list).not.toContainText('Pending invitation');
   await expect(list.locator('a')).toHaveCount(2);
 });
+
+test('collaboration and private messages remain inside creative workspace', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(() => {
+    window.SHANEConversationStore={joinedCollaborations:async()=>[{id:'11111111-1111-4111-8111-111111111111',status:'accepted',listingTitle:'Community makers event',role:'owner',url:'workspace.html?collaboration=11111111-1111-4111-8111-111111111111'}]};
+  });
+  await page.locator('#visionPrompt').fill('A welcoming neighborhood makers festival');
+  await page.locator('#shaneIdeaReply').fill('Add a collaborative ceramics gallery');
+  await page.locator('#shane-connected-collaborations').click();
+  const list=page.locator('#shane-connected-collaborations-list');
+  await list.getByRole('link',{name:/Community makers event/}).click();
+  await expect(page.locator('#shane-connected-frame iframe')).toHaveAttribute('src',/workspace\.html\?collaboration=11111111/);
+  await list.getByRole('link',{name:'Private messages'}).click();
+  await expect(page.locator('#shane-connected-frame iframe')).toHaveAttribute('src',/members\.html\?conversation=11111111/);
+  await expect(page.locator('#visionPrompt')).toHaveValue('A welcoming neighborhood makers festival');
+  await expect(page.locator('#shaneIdeaReply')).toHaveValue('Add a collaborative ceramics gallery');
+});
