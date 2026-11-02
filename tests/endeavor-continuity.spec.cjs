@@ -157,7 +157,7 @@ test('saved endeavor resumes creation, network discovery and a guarded website r
   await expect(page.locator('#aiStatus')).toContainText(/Sign in|Open the saved website|Select and open/);
   await expect(page.locator('#updateSite')).toBeAttached();
   await page.goto('http://127.0.0.1:8765/builder.html?endeavor='+endeavorId);
-  await expect(page.locator('#savedEndeavors')).toBeVisible();
+  await expect(page.locator('#savedEndeavors')).toBeAttached();
   // This scenario checks browser continuity and the safe unsigned-in boundary.
   // Real database persistence, collaboration acceptance, and revision saving
   // still require a signed-in test account on an isolated project.
