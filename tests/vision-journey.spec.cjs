@@ -848,3 +848,16 @@ test('review shows the AI creation instructions and clears them when vision chan
   await expect(page.locator('#shane-connected-plan-review')).toBeEmpty();
   await expect(page.locator('#shane-connected-create')).toBeDisabled();
 });
+
+test('AI-only planner can prepare a saved endeavor without the legacy keyword planner', async ({ page }) => {
+  const id='11111111-1111-4111-8111-111111111111';
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(endeavorId=>{
+    sessionStorage.setItem('shane-active-endeavor-v1',JSON.stringify({id:endeavorId}));
+    window.SHANEConversationStore={proposeAICreationSequence:async()=>({ready:true,steps:[{type:'new-website',vision:'Create an inviting community pottery studio website',endeavorId}],explanation:'A welcoming digital home first.'})};
+  },id);
+  await page.locator('#visionPrompt').fill('Help me launch a neighborhood pottery studio');
+  await page.locator('#shane-connected-plan').click();
+  await expect(page.locator('#shane-connected-plan-review')).toContainText('inviting community pottery studio');
+  await expect(page.locator('#shane-connected-create')).toBeEnabled();
+});
