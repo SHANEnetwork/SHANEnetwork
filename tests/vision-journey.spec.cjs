@@ -481,3 +481,24 @@ test('connected Network tools follow endeavor switches without losing the conver
   await expect(hub.locator('#shane-connected-status')).toContainText('Switched');
   await expect(page.locator('#visionPrompt')).toBeVisible();
 });
+
+test('conversation commands open connected tools without changing the creative prompt', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  const hub=page.locator('#shane-connected-workspace');
+  await page.locator('#visionPrompt').fill('Show my messages');
+  await page.locator('#visionGuide').click();
+  await expect(hub.locator('iframe')).toHaveAttribute('src',/my-network\.html/);
+  await expect(page.locator('#visionPrompt')).toHaveValue('Show my messages');
+  await page.locator('#visionPrompt').fill('I want a website where people can find collaborators');
+  await page.locator('#visionGuide').click();
+  await expect(hub.locator('iframe')).toHaveAttribute('src',/my-network\.html/);
+});
+
+test('conversation intent event opens a requested workspace and ignores unknown capabilities', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  const hub=page.locator('#shane-connected-workspace');
+  await page.evaluate(()=>document.dispatchEvent(new CustomEvent('shane:conversation-network-intent',{detail:{kind:'endeavors'}})));
+  await expect(hub.locator('iframe')).toHaveAttribute('src',/dashboard\.html/);
+  await page.evaluate(()=>document.dispatchEvent(new CustomEvent('shane:conversation-network-intent',{detail:{kind:'unsupported'}})));
+  await expect(hub.locator('iframe')).toHaveAttribute('src',/dashboard\.html/);
+});
