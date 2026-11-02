@@ -880,3 +880,24 @@ test('creation planning prioritizes the latest conversational refinement', async
   const planned=await page.evaluate(()=>window.__planRequest);
   expect(planned.vision).toContain('class calendar');
 });
+
+test('approval rejects an unreviewed conversational change even without an input event', async ({ page }) => {
+  const id='11111111-1111-4111-8111-111111111111';
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(endeavorId=>{
+    sessionStorage.setItem('shane-active-endeavor-v1',JSON.stringify({id:endeavorId}));
+    window.__executed=false;
+    window.SHANEConversationStore={
+      proposeAICreationSequence:async()=>({ready:true,steps:[{type:'new-website',vision:'Build a welcoming art studio website',endeavorId}]}),
+      executeApprovedSequence:async()=>{window.__executed=true;return {complete:true,verified:true,completed:[]}}
+    };
+    window.confirm=()=>true;
+  },id);
+  await page.locator('#visionPrompt').fill('Build a welcoming art studio website');
+  await page.locator('#shane-connected-plan').click();
+  await expect(page.locator('#shane-connected-create')).toBeEnabled();
+  await page.evaluate(()=>{document.querySelector('#shaneIdeaReply').value='Actually build a community instead';});
+  await page.locator('#shane-connected-create').click();
+  await expect(page.locator('#shane-connected-status')).toContainText('Review a fresh plan');
+  expect(await page.evaluate(()=>window.__executed)).toBe(false);
+});
