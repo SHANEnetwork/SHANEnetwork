@@ -190,6 +190,9 @@ async function converse({endeavorId,request,purpose}){
    const others=snapshot.accountCreations.filter(item=>!item.linkedToEndeavor).slice(0,8);
    if(others.length)groundedPurpose+="\\nOther account-owned creations that might be reusable, but are NOT linked to this endeavor: "+others.map(item=>String(item.type)+" "+String(item.title||"Untitled").slice(0,90)).join("; ");
    if(!snapshot.availability.creations||!snapshot.availability.history)groundedPurpose+="\\nSome saved creation context is unavailable. Do not assume missing records mean nothing exists.";
+   if(snapshot.collaborations.length){
+    groundedPurpose+="\\nExisting accepted collaborations: "+snapshot.collaborations.slice(0,5).map(item=>String(item.listingTitle||"Collaboration").slice(0,80)).join("; ")+". Prefer coordinating existing relationships before suggesting duplicates.";
+   }
    if(snapshot.creationPlan){
     const plan=snapshot.creationPlan;
     groundedPurpose+="\\nSaved endeavor plan: "+plan.steps+" steps; "+plan.remaining+" remaining; next capability "+String(plan.nextStep||"none")+". Previously completed: "+plan.completed.map(item=>item.type).join(", ")+". Avoid recreating confirmed work.";
