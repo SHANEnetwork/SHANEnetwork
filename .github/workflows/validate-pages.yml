@@ -242,7 +242,7 @@ jobs:
           import fs from 'node:fs';
           import assert from 'node:assert/strict';
           const page=fs.readFileSync('index.html','utf8');
-          assert.match(page,/<h1>What would you like to create\?<\/h1>/);
+          assert.match(page,/<h1>From Idea to Reality\.<\/h1>/);
           assert.match(page,/id="shane-home-vision-form"/);
           assert.match(page,/href="dashboard.html">Continue saved work/);
           assert.match(page,/href="network.html">Explore the Network/);
@@ -251,6 +251,26 @@ jobs:
           assert.match(page,/moveWorkspace/);
           assert.match(page,/@media\(max-width:600px\)/);
           console.log('Conversation-first homepage checks passed.');
+          NODE
+      - name: Check shared Network entry and account persistence wiring
+        run: |
+          node --check shane-family-bridge.js
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import assert from 'node:assert/strict';
+          const page=fs.readFileSync('network.html','utf8');
+          const bridge=fs.readFileSync('shane-family-bridge.js','utf8');
+          const family=fs.readFileSync('shane-family-design.css','utf8');
+          assert.match(page,/id="shane-network-idea-start"/);
+          assert.match(page,/id="shane-network-idea"/);
+          assert.match(page,/shane-family-bridge\.js/);
+          assert.match(bridge,/auth\.getUser\(\)/);
+          assert.match(bridge,/from\("shane_endeavors"\)\.insert/);
+          assert.match(bridge,/owner_id:user\.id/);
+          assert.match(bridge,/visibility:"private"/);
+          assert.match(bridge,/builder\.html#vision-first/);
+          assert.match(family,/@media\(max-width:650px\)/);
+          console.log('Shared Network entry static checks passed.');
           NODE
       - name: Check Network Safety wiring and private-record invariants
         run: |
