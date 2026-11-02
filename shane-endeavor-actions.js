@@ -1384,6 +1384,22 @@ function init(){
    }
    if(!snapshot.availability.creations||!snapshot.availability.collaborations)bits.push("some records unavailable");
    endeavorContinuity.append(document.createTextNode(bits.join(" · ")));
+   // Restore the authoritative vision only when the member explicitly asks.
+   // Never replace unfinished conversation text on page load or navigation.
+   if(snapshot.endeavor?.idea){
+    const original=document.createElement("button");
+    original.type="button";
+    original.textContent="Return to my original vision";
+    original.style.cssText="margin-left:12px;border:1px solid #ad7b94;border-radius:16px;padding:4px 10px;background:transparent;color:#784b6c;cursor:pointer";
+    original.onclick=()=>{
+     const unfinished=sharedComposerText();
+     if(unfinished.trim()&&unfinished.trim()!==snapshot.endeavor.idea&&!confirm("Replace your current unsent message with the saved original vision?"))return;
+     entry.value=snapshot.endeavor.idea;
+     entry.dispatchEvent(new Event("input",{bubbles:true}));
+     entry.focus();
+    };
+    endeavorContinuity.append(original);
+   }
    // The endeavor's actual creations are the shortest route back to work.
    // Never invent a destination or silently open a different member's artifact.
    for(const item of snapshot.creations.slice(0,5)){
