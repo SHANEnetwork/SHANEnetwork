@@ -901,3 +901,26 @@ test('approval rejects an unreviewed conversational change even without an input
   await expect(page.locator('#shane-connected-status')).toContainText('Review a fresh plan');
   expect(await page.evaluate(()=>window.__executed)).toBe(false);
 });
+
+test('verified creation opens saved website beside conversation without a saved-list service', async ({ page }) => {
+ const endeavorId='11111111-1111-4111-8111-111111111111';
+ const siteId='22222222-2222-4222-8222-222222222222';
+ await page.goto('http://127.0.0.1:8765/builder.html');
+ await page.evaluate(({endeavorId,siteId})=>{
+  sessionStorage.setItem('shane-active-endeavor-v1',JSON.stringify({id:endeavorId}));
+  window.confirm=()=>true;
+  window.SHANEConversationStore={
+   proposeAICreationSequence:async()=>({ready:true,steps:[{type:'new-website',vision:'Create an accessible studio website',endeavorId}]}),
+   executeApprovedSequence:async()=>({complete:true,verified:true,completed:[{type:'new-website',id:siteId}]})
+  };
+ },{endeavorId,siteId});
+ await page.locator('#visionPrompt').fill('Create an accessible studio website');
+ await page.locator('#shaneIdeaReply').fill('Include classes and a welcoming home page');
+ await page.locator('#shane-connected-plan').click();
+ await expect(page.locator('#shane-connected-create')).toBeEnabled();
+ await page.locator('#shane-connected-create').click();
+ await expect(page.locator('#shane-connected-status')).toContainText('open beside the conversation');
+ await expect(page.locator('#shane-connected-frame iframe')).toHaveAttribute('src',new RegExp('builder\\.html\\?site='+siteId));
+ await expect(page.locator('#visionPrompt')).toHaveValue('Create an accessible studio website');
+ await expect(page.locator('#shaneIdeaReply')).toHaveValue('Include classes and a welcoming home page');
+});
