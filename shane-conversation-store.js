@@ -767,8 +767,9 @@ async function executeVisionSequence({steps,endeavorId,startIndex=0}={}){
    completed.push(result);
    const historyEndeavor=step.endeavorId||endeavorId;
    if(historyEndeavor){
-    try{await saveTurn("Created "+result.type+" "+result.id+" fingerprint "+endeavorStepFingerprint(step,index+startIndex),{page:"shane-computer",kind:"creation",endeavorId:historyEndeavor})}
+    try{const receipt=await saveTurn("Created "+result.type+" "+result.id+" fingerprint "+endeavorStepFingerprint(step,index+startIndex),{page:"shane-computer",kind:"creation",endeavorId:historyEndeavor});result.historySaved=receipt.saved===true}
     catch{result.historySaved=false}
+    if(!result.historySaved)return {complete:false,completed,failedStep:index+1,error:"Creation saved but recovery receipt unavailable. Review saved work before continuing.",needsReconciliation:true};
    }
   }catch(error){
    return {complete:false,completed,failedStep:index+1,error:String(error?.message||error)};
