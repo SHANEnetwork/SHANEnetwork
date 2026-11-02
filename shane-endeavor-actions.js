@@ -15,8 +15,9 @@ if(journeyId&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(journeyId)){
    const member=await store.connectedUser();
    if(!member)return;
    const records=await store.endeavors();
+   if(!Array.isArray(records))throw Error("Could not verify saved endeavors.");
    settled=true;
-   if(!Array.isArray(records)||!records.some(item=>item.id===journeyId)){
+   if(!records.some(item=>item.id===journeyId)){
     document.dispatchEvent(new CustomEvent("shane:journey-endeavor-unavailable",{detail:{endeavorId:journeyId}}));
     return;
    }
