@@ -502,3 +502,44 @@ test('conversation intent event opens a requested workspace and ignores unknown 
   await page.evaluate(()=>document.dispatchEvent(new CustomEvent('shane:conversation-network-intent',{detail:{kind:'unsupported'}})));
   await expect(hub.locator('iframe')).toHaveAttribute('src',/dashboard\.html/);
 });
+
+test('connected workspace preserves the draft while previewing an endeavor creation plan', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(() => {
+    window.SHANEConversationStore={
+      proposeCreationSequence:({vision,endeavorId})=>({ready:true,steps:[{type:'new-website',vision,endeavorId},{type:'community',vision,endeavorId}]})
+    };
+  });
+  await page.locator('#visionPrompt').fill('Build a pottery website and community for local artists');
+  await page.locator('#shane-connected-plan').click();
+  await expect(page.locator('#shane-connected-status')).toContainText('website, community');
+  await expect(page.locator('#visionPrompt')).toHaveValue('Build a pottery website and community for local artists');
+  await expect(page.locator('#shane-connected-create')).toBeDisabled();
+});
+
+test('connected workspace can retrieve account-backed saved creations', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(() => {
+    window.SHANEConversationStore={
+      recentCreations:async()=>[{id:'11111111-1111-4111-8111-111111111111',type:'website',title:'Pottery studio',url:'builder.html?site=11111111-1111-4111-8111-111111111111'}]
+    };
+  });
+  await page.locator('#shane-connected-recent').click();
+  await expect(page.locator('#shane-connected-creations a')).toContainText(['Pottery studio (website)']);
+  await expect(page.locator('#shane-connected-creations button')).toContainText(['Revise Pottery studio']);
+});
+
+test('connected workspace only displays accepted account collaborations', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(() => {
+    window.SHANEConversationStore={
+      joinedCollaborations:async()=>[
+        {status:'accepted',listingTitle:'Pottery fair',role:'collaborator',url:'workspace.html?collaboration=11111111-1111-4111-8111-111111111111'},
+        {status:'pending',listingTitle:'Unaccepted request',role:'collaborator',url:'workspace.html?collaboration=22222222-2222-4222-8222-222222222222'}
+      ]
+    };
+  });
+  await page.locator('#shane-connected-collaborations').click();
+  await expect(page.locator('#shane-connected-collaborations-list')).toContainText('Pottery fair');
+  await expect(page.locator('#shane-connected-collaborations-list')).not.toContainText('Unaccepted request');
+});
