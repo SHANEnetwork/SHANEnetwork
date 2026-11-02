@@ -128,7 +128,7 @@ test('starting a fresh endeavor clears the previous vision without deleting save
   await page.locator('#visionGuide').click();
   await page.evaluate(() => document.dispatchEvent(new CustomEvent('shane:endeavor-changed', {detail:{id:'33333333-3333-4333-8333-333333333333',reason:'saved'}})));
   page.once('dialog', dialog => dialog.accept());
-  await page.locator('#newEndeavor').click();
+  await page.getByRole('button', {name:'Start a new endeavor'}).filter({visible:true}).first().click();
   await expect(page.locator('#visionPrompt')).toHaveValue('');
   await expect(page.locator('#shaneIdeaTurns')).not.toContainText('arts festival');
   const previous = await page.evaluate(() => JSON.parse(sessionStorage.getItem('shane_idea_conversation_endeavor_33333333-3333-4333-8333-333333333333')));
