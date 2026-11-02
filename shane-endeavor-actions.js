@@ -1300,9 +1300,17 @@ function init(){
     if(!restorePlan.disabled)restorePlan.click();
     return;
    }
-   const request=plan?.complete
-    ?"Review this completed endeavor and its existing creations. Help improve and connect what is already built without repeating completed work."
-    :"Review this endeavor as a whole. Use its saved creations and accepted collaborations to propose the next useful, achievable step.";
+   // Resume from actual saved creations and accepted collaborations.
+   const savedCreations=(Array.isArray(snapshot.creations)?snapshot.creations:[]).slice(0,8)
+    .map(item=>String(item.title||item.type||"Saved creation").slice(0,100));
+   const accepted=(Array.isArray(snapshot.collaborations)?snapshot.collaborations:[]).slice(0,8)
+    .map(item=>String(item.listingTitle||"Accepted collaboration").slice(0,100));
+   const request=[
+    plan?.complete?"Review my completed endeavor and improve what exists without recreating it.":"Help me continue this saved endeavor without starting over.",
+    savedCreations.length?"Saved creations: "+savedCreations.join("; ")+".":"",
+    accepted.length?"Accepted collaborations: "+accepted.join("; ")+".":"",
+    "Suggest the next useful action using these saved records. Ask before publishing or contacting anyone."
+   ].filter(Boolean).join(" ");
    // Returning must never erase a member's unfinished words.
    // Offer the saved-work continuation while leaving their current draft intact.
    if(entry.value.trim()){
