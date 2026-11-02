@@ -16,14 +16,14 @@ function init(){
   try{
    const {data:{user},error:authError}=await sb.auth.getUser();if(run!==generation)return;
    if(authError||!user){status.textContent="Sign in through Members to see private collaborations.";return}
-   const {data:listings,error:listingError}=await sb.from("shane_listings").select("id,title").eq("endeavor_id",id).eq("owner_id",user.id).limit(100);
+   const {data:listings,error:listingError}=await sb.from("shane_listings").select("id,title").eq("endeavor_id",id).limit(100);
    if(run!==generation)return;if(listingError)throw listingError;
-   if(!listings?.length){status.textContent="No owned Network listings are linked to this endeavor yet. You can prepare one from the creation conversation.";return}
+   if(!listings?.length){status.textContent="No accessible Network listings are linked to this endeavor yet.";return}
    const ids=listings.map(x=>x.id);
    const {data:requests,error:requestError}=await sb.from("shane_collaboration_requests").select("id,listing_id,sender_id,recipient_id,status").in("listing_id",ids).eq("status","accepted").limit(100);
    if(run!==generation)return;if(requestError)throw requestError;
    const accepted=(requests||[]).filter(x=>x.sender_id===user.id||x.recipient_id===user.id);
-   if(!accepted.length){status.textContent="This endeavor has linked listings, but no accepted collaboration workspaces yet.";return}
+   if(!accepted.length){status.textContent="This endeavor has linked listings, but no accepted collaborations visible to your account.";return}
    const byId=new Map(listings.map(x=>[x.id,x]));
    for(const request of accepted){
     const li=document.createElement("li"),a=document.createElement("a");a.href="workspace.html?collaboration="+encodeURIComponent(request.id)+"&endeavor="+encodeURIComponent(id);a.textContent="Collaboration: "+(byId.get(request.listing_id)?.title||"Network opportunity");li.append(a);
