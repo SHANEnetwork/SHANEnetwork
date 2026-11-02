@@ -724,7 +724,9 @@ async function endeavorSnapshot({endeavorId}={}){
   if(plan)progress=await inspectSavedEndeavor({endeavorId,steps:plan.steps});
  }catch(error){planError=String(error?.message||error)}
  return {endeavor:{id:endeavor.id,title:endeavor.title,idea:endeavor.idea,linkedSiteId:endeavor.linked_site_id,updatedAt:endeavor.updated_at},
-  creations:linkedCreations,accountCreations:allCreations,collaborations:collaborations.status==="fulfilled"?collaborations.value.collaborations:[],
+  creations:linkedCreations,accountCreations:allCreations,
+  collaborationListings:collaborations.status==="fulfilled"?collaborations.value.listings.map(item=>({...item,url:"members.html?listing="+encodeURIComponent(item.id)+"&endeavor="+encodeURIComponent(endeavorId)})):[],
+  collaborations:collaborations.status==="fulfilled"?collaborations.value.collaborations:[],
   creationPlan:plan?{steps:plan.steps.length,types:plan.steps.map(step=>step.type),remaining:progress?.remaining??null,completed:progress?.completed||[],nextStep:progress?.nextStep||null,complete:progress?.complete===true}:null,planError,
   recentHistory:history.status==="fulfilled"?history.value.slice(0,12).map(row=>({kind:row.entry_kind,text:String(row.body||"").slice(0,900),at:row.created_at})):[],
   availability:{creations:creations.status==="fulfilled",collaborations:collaborations.status==="fulfilled",history:history.status==="fulfilled"},
