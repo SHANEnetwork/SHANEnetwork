@@ -449,3 +449,19 @@ test('one visitor journey carries vision into creation refinement and private co
   // This browser scenario tests the visitor-facing handoff. Account-backed
   // persistence and actual invitations require a separate authenticated run.
 });
+
+test('saved endeavor revision handoff reaches the existing website editor without automatic generation', async ({ page }) => {
+  const endeavorId='11111111-1111-4111-8111-111111111111';
+  const siteId='22222222-2222-4222-8222-222222222222';
+  const request='Add an accessible beginners pottery workshop page and preserve existing pages.';
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(({endeavorId,siteId,request}) => {
+    sessionStorage.setItem('shane-website-revision-handoff-v1',JSON.stringify({endeavorId,siteId,request,at:Date.now()}));
+  },{endeavorId,siteId,request});
+  await page.goto('http://127.0.0.1:8765/builder.html?site='+siteId+'&endeavor='+endeavorId);
+  await expect(page.locator('#aiPrompt')).toHaveValue(request);
+  await expect(page.locator('#aiMode')).toHaveValue('revise');
+  await expect(page.locator('#aiStatus')).toContainText('Review the current website');
+  expect(await page.evaluate(() => sessionStorage.getItem('shane-website-revision-handoff-v1'))).toBeNull();
+  // The receiving page prepares a revision only; it does not call the generator.
+});
