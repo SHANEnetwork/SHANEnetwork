@@ -1295,9 +1295,8 @@ function init(){
    const snapshot=await store.endeavorSnapshot({endeavorId:selected});
    if(window.SHANECurrentEndeavor?.read?.()!==selected)return;
    const plan=snapshot.creationPlan;
-   if(plan?.remaining>0){
-    // Restore actual receipts and the reviewed execution controls, rather
-    // than proposing a second plan for work that is already saved.
+   if(plan?.remaining>0 || (snapshot.planError && plan)){
+    // A saved plan resumes through durable receipts and explicit approval.
     if(!restorePlan.disabled)restorePlan.click();
     return;
    }
