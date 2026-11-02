@@ -71,7 +71,7 @@ function init(){
   const store=window.SHANEConversationStore;
   if(typeof store?.executeApprovedSequence!=="function"){status.textContent="Creation service is not ready.";return}
   if(!window.confirm("Create the reviewed items as saved drafts in this endeavor?"))return;
-  if(plan!==reviewedPlan||plan.endeavorId!==currentId()){invalidatePlan();status.textContent="The endeavor changed. Review your plan again.";return}
+  if(plan!==reviewedPlan||plan.endeavorId!==currentId()||plan.vision!==vision.value||plan.reply!==reply.value){invalidatePlan();status.textContent="Your vision, conversation, or endeavor changed. Review a fresh plan before creating.";return}
   createButton.disabled=true;
   planButton.disabled=true;
   status.textContent="Creating the reviewed items…";
@@ -122,7 +122,7 @@ function init(){
    }
    planReview.append(reviewHeading,reviewList);
    const endeavorId=currentId();
-   if(endeavorId){reviewedPlan={endeavorId,steps:proposal.steps};createButton.disabled=false}
+   if(endeavorId){reviewedPlan={endeavorId,steps:proposal.steps,vision:vision.value,reply:reply.value};createButton.disabled=false}
    status.textContent="Creation plan: "+parts.join(", ")+". "+(proposal.explanation?proposal.explanation+" ":"")+"Review the proposed drafts before approving creation. Nothing has been published.";
   }catch(error){status.textContent="Could not prepare the creation plan: "+(error?.message||"Please try again.");}
   finally{planButton.disabled=false}
