@@ -37,3 +37,48 @@ begin
   end if;
   raise notice 'SHANE Test linked fixture verified: endeavor, owned draft site, listing, and accepted two-account collaboration';
 end $shane$;
+
+-- Account-scoped visibility: execute each transaction as the real authenticated
+-- PostgreSQL role, not as postgres/service_role. All checks are read-only.
+-- Owner sees the complete private endeavor and its website.
+begin read only;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',true);
+do $owner$
+begin
+ if (select count(*) from public.shane_endeavors where id='44444444-4444-4444-8444-444444444444')<>1
+ or (select count(*) from public.shane_sites where id='55555555-5555-4555-8555-555555555555')<>1
+ or (select count(*) from public.shane_collaboration_requests where id='88888888-8888-4888-8888-888888888888')<>1
+ then raise exception 'Owner cannot recover the saved journey'; end if;
+end $owner$;
+rollback;
+
+-- Accepted collaborator can coordinate through the Network but has not
+-- implicitly been invited into the private endeavor or draft website.
+begin read only;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','22222222-2222-4222-8222-222222222222',true);
+do $collaborator$
+begin
+ if (select count(*) from public.shane_endeavors where id='44444444-4444-4444-8444-444444444444')<>0
+ or (select count(*) from public.shane_sites where id='55555555-5555-4555-8555-555555555555')<>0
+ or (select count(*) from public.shane_collaboration_requests where id='88888888-8888-4888-8888-888888888888')<>1
+ or (select count(*) from public.shane_listings where id='77777777-7777-4777-8777-777777777777')<>1
+ then raise exception 'Accepted collaborator visibility is incorrect'; end if;
+end $collaborator$;
+rollback;
+
+-- Unrelated member can discover the Network listing, but cannot access
+-- the private endeavor, website, or accepted collaboration.
+begin read only;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','33333333-3333-4333-8333-333333333333',true);
+do $outsider$
+begin
+ if (select count(*) from public.shane_endeavors where id='44444444-4444-4444-8444-444444444444')<>0
+ or (select count(*) from public.shane_sites where id='55555555-5555-4555-8555-555555555555')<>0
+ or (select count(*) from public.shane_collaboration_requests where id='88888888-8888-4888-8888-888888888888')<>0
+ or (select count(*) from public.shane_listings where id='77777777-7777-4777-8777-777777777777')<>1
+ then raise exception 'Unrelated member visibility is incorrect'; end if;
+end $outsider$;
+rollback;
