@@ -7,6 +7,7 @@ function init(){
  hub.append(host);
  const frame=host.querySelector("iframe"),shell=host.querySelector(".frame"),direct=host.querySelector("#shane-connected-direct"),status=host.querySelector("#shane-connected-status");
  let active="";
+ let lastSavedCreation=null;
  const CONTEXT="shane-active-endeavor-v1";
  function remember(id){try{if(typeof id==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(id))sessionStorage.setItem(CONTEXT,JSON.stringify({id,updated:new Date().toISOString()}));else sessionStorage.removeItem(CONTEXT)}catch{}}
  function currentId(){try{const x=JSON.parse(sessionStorage.getItem(CONTEXT)||"null");return typeof x?.id==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(x.id)?x.id:null}catch{return null}}
@@ -30,11 +31,26 @@ function init(){
   event.preventDefault();
   const destination=new URL(href,window.location.href);
   if(destination.origin!==window.location.origin||!["workspace.html","members.html"].includes(destination.pathname.split("/").pop()))return;
+  if(active==="saved-creation"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(new URL(frame.src,window.location.href).searchParams.get("site")||""))lastSavedCreation=frame.src;
   frame.src=destination.href;direct.href=destination.href;shell.dataset.open="true";active="collaboration";
   host.querySelectorAll("button[data-kind]").forEach(b=>b.setAttribute("aria-pressed","false"));
-  status.textContent=label+" is open beside your conversation. Your vision and revision draft remain here.";
+  status.textContent=label+" is open beside your conversation. Your vision and revision draft remain here.";revealReturnSite();
  }
 
+ // Return from private collaboration or messages to the saved website without
+ // losing the vision or the conversational refinement.
+ const returnSite=document.createElement("button");
+ returnSite.type="button";returnSite.textContent="Return to my website";returnSite.hidden=true;
+ status.insertAdjacentElement("afterend",returnSite);
+ returnSite.addEventListener("click",()=>{
+  if(!lastSavedCreation)return;
+  const destination=new URL(lastSavedCreation,window.location.href);
+  if(destination.origin!==window.location.origin||destination.pathname.split("/").pop()!=="builder.html"||!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(destination.searchParams.get("site")||""))return;
+  frame.src=destination.href;direct.href=destination.href;shell.dataset.open="true";active="saved-creation";returnSite.hidden=true;
+  status.textContent="Your saved website is back beside the conversation. Continue revising it here.";
+ });
+ const revealReturnSite=()=>{returnSite.hidden=!(lastSavedCreation&&active!=="saved-creation")};
+ document.addEventListener("shane:conversation-network-intent",()=>queueMicrotask(revealReturnSite));
  // Persist a new endeavor through the account-backed conversation store.
  // Creation is user-initiated, never inferred from merely typing an idea.
  const saveVision=host.querySelector("#shane-connected-save-vision");
@@ -91,7 +107,7 @@ function init(){
     if(target&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(String(latest?.id||""))){
      const destination=new URL(target[0],window.location.href);
      destination.searchParams.set(target[1],latest.id);
-     frame.src=destination.href;direct.href=destination.href;shell.dataset.open="true";active="saved-creation";
+     frame.src=destination.href;direct.href=destination.href;shell.dataset.open="true";active="saved-creation";if(latest.type==="new-website"||latest.type==="website")lastSavedCreation=destination.href;
      host.querySelectorAll("button[data-kind]").forEach(b=>b.setAttribute("aria-pressed","false"));
      status.textContent="Your verified creation is open beside the conversation. Continue refining it here.";
     }
@@ -168,7 +184,7 @@ function init(){
      if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
      const destination=new URL(link.href,window.location.href);
      if(destination.origin!==window.location.origin||!["builder.html","communities.html","campaigns.html","members.html"].includes(destination.pathname.split("/").pop()))return;
-     event.preventDefault();frame.src=destination.href;direct.href=destination.href;shell.dataset.open="true";active="saved-creation";
+     event.preventDefault();frame.src=destination.href;direct.href=destination.href;shell.dataset.open="true";active="saved-creation";if(item.type==="website")lastSavedCreation=destination.href;
      host.querySelectorAll("button[data-kind]").forEach(b=>b.setAttribute("aria-pressed","false"));
      status.textContent="Your saved "+item.type+" is open beside the conversation. Continue refining your vision here.";
     });
