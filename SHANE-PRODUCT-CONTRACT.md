@@ -32,6 +32,14 @@ When a person describes a new website, club, association, project, business, or 
 - Never automatically contact others, join a group, publish a listing, or disclose private interests without the person's approval.
 - Keep discovery usable independently of website creation; make it available within the builder and central Network.
 
+## Collective opportunity and member-led organizations
+
+SHANEnetwork must support not only individuals creating websites or projects but people **finding one another and organizing collective endeavors**: professional associations, peer groups, guilds, coalitions, clubs, trade networks, cooperatives, worker organizations and unions. People may join several endeavors with different roles and permissions.
+
+The SHANE Network should support discovery by profession, interests, goals, location, and collaboration intent; member invitations and approval; governance and membership choices; private discussion and shared workspaces; proposals, voting or decision processes where configured; joint projects and events; and negotiated opportunities such as collective advertising, purchasing, shared services, event access, and exploration of group insurance. Specialized hubs and websites plug into the same endeavor and member relationship graph.
+
+SHANE should help members explore feasible arrangements and coordinate work, but never promise negotiated rates, insurance eligibility, event invitations, legal recognition, or other third-party outcomes. Financial, insurance, employment, and collective-bargaining arrangements require applicable legal and regulatory review and explicit participant authorization. Protect private membership and association information with purpose-limited permissions and consent. No automatic public exposure or outreach.
+
 ## One-sentence contract
 **The person describes the endeavor they imagine. SHANE designs, writes, builds, configures, and refines the actual website and its supported capabilities; the person guides the vision and approves important decisions.**
 
