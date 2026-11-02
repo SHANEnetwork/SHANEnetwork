@@ -615,7 +615,7 @@ test('connected conversation opens collaboration coordination and preserves draf
   await page.locator('#shaneIdeaReply').fill('Invite ceramic artists and local musicians');
   await expect(page.locator('#shane-connected-collaborations')).toBeVisible();
   await page.locator('#shane-connected-collaborations').click();
-  await expect(page.locator('#shane-connected-collaborations-list a')).toHaveAttribute('href',/collaboration=11111111/);
+  await expect(page.locator('#shane-connected-collaborations-list a').first()).toHaveAttribute('href',/collaboration=11111111/);
   await page.getByRole('button',{name:'Connections & messages'}).click();
   await expect(page.locator('#shane-connected-frame iframe')).toHaveAttribute('src',/my-network\.html/);
   await expect(page.locator('#visionPrompt')).toHaveValue('Organize a community makers event');
