@@ -16,15 +16,16 @@ function init(){
   try{
    const {data:{user},error:authError}=await sb.auth.getUser();if(run!==generation)return;
    if(authError||!user){status.textContent="Sign in through Members to see private collaborations.";return}
-   const {data:listings,error:listingError}=await sb.from("shane_listings").select("id,title").eq("endeavor_id",id).limit(100);
-   if(run!==generation)return;if(listingError)throw listingError;
-   if(!listings?.length){status.textContent="No accessible Network listings are linked to this endeavor yet.";return}
-   const ids=listings.map(x=>x.id);
-   const {data:requests,error:requestError}=await sb.from("shane_collaboration_requests").select("id,listing_id,sender_id,recipient_id,status").in("listing_id",ids).eq("status","accepted").limit(100);
+   const {data:requests,error:requestError}=await sb.from("shane_collaboration_requests").select("id,listing_id,sender_id,recipient_id,status").eq("status","accepted").or("sender_id.eq."+user.id+",recipient_id.eq."+user.id).limit(100);
    if(run!==generation)return;if(requestError)throw requestError;
-   const accepted=(requests||[]).filter(x=>x.sender_id===user.id||x.recipient_id===user.id);
-   if(!accepted.length){status.textContent="This endeavor has linked listings, but no accepted collaborations visible to your account.";return}
-   const byId=new Map(listings.map(x=>[x.id,x]));
+   const participated=(requests||[]).filter(x=>x.sender_id===user.id||x.recipient_id===user.id);
+   if(!participated.length){status.textContent="No accepted collaborations are connected to this account yet.";return}
+   const ids=[...new Set(participated.map(x=>x.listing_id).filter(Boolean))];
+   const {data:listings,error:listingError}=await sb.from("shane_listings").select("id,title,endeavor_id").in("id",ids);
+   if(run!==generation)return;if(listingError)throw listingError;
+   const byId=new Map((listings||[]).map(x=>[x.id,x]));
+   const accepted=participated.filter(x=>byId.get(x.listing_id)?.endeavor_id===id);
+   if(!accepted.length){status.textContent="No accepted collaborations with accessible listing details are linked to this endeavor. Other accepted collaborations remain available under My collaborations.";return}
    for(const request of accepted){
     const li=document.createElement("li"),a=document.createElement("a");a.href="workspace.html?collaboration="+encodeURIComponent(request.id)+"&endeavor="+encodeURIComponent(id);a.textContent="Collaboration: "+(byId.get(request.listing_id)?.title||"Network opportunity");li.append(a);
     const feed=document.createElement("div");feed.setAttribute("aria-label","Recent collaboration messages");feed.textContent="Loading recent messages…";li.append(feed);
