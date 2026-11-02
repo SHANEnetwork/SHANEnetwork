@@ -819,3 +819,16 @@ test('restoring the same vision text still invalidates an in-flight creation pla
   await expect(page.locator('#shane-connected-status')).toContainText('changed while planning');
   await expect(page.locator('#shane-connected-create')).toBeDisabled();
 });
+
+test('unsupported AI creation operation cannot enter the approval flow', async ({ page }) => {
+  const id='11111111-1111-4111-8111-111111111111';
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(endeavorId=>{
+    sessionStorage.setItem('shane-active-endeavor-v1',JSON.stringify({id:endeavorId}));
+    window.SHANEConversationStore={proposeCreationSequence:async()=>({ready:true,steps:[{type:'new-website'},{type:'unsupported-operation'}]})};
+  },id);
+  await page.locator('#visionPrompt').fill('Create a makers website and community');
+  await page.locator('#shane-connected-plan').click();
+  await expect(page.locator('#shane-connected-status')).toContainText('unsupported creation step');
+  await expect(page.locator('#shane-connected-create')).toBeDisabled();
+});
