@@ -112,6 +112,9 @@ async function beginEndeavor({vision}={}){
  if(error||!data?.id)throw Error(error?.message||"Could not save your endeavor.");
  try{
   sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:data.id,title:data.title}));
+  // Tell every open SHANE surface about the newly persisted endeavor, not only the conversation history.
+  document.dispatchEvent(new CustomEvent("shane:endeavor-changed",{detail:{id:data.id,reason:"created"}}));
+  document.dispatchEvent(new CustomEvent("shane:active-endeavor-changed",{detail:{id:data.id,reason:"created"}}));
   document.dispatchEvent(new CustomEvent("shane:conversation-context-changed",{detail:{endeavorId:data.id}}));
   document.dispatchEvent(new CustomEvent("shane:endeavor-context-ready",{detail:{endeavorId:data.id,entries:[]}}));
  }catch{}
