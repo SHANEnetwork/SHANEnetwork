@@ -1486,6 +1486,52 @@ function init(){
      location.href=target;
     };
     endeavorContinuity.append(revise);
+    // The primary conversational path can update the actual saved website
+    // without requiring the member to operate the advanced editor.
+    const apply=document.createElement("button");
+    apply.type="button";
+    apply.textContent="Apply my website changes with SHANE";
+    apply.style.cssText="margin-left:12px;border:1px solid #ad7b94;border-radius:16px;padding:4px 10px;background:#f3e7eb;color:#784b6c;cursor:pointer";
+    apply.onclick=async()=>{
+     const request=sharedComposerText();
+     if(request.length<3){
+      composerStatus.textContent="Describe the changes you want in the conversation first.";
+      entry.focus();return;
+     }
+     if(window.SHANECurrentEndeavor?.read?.()!==id){
+      composerStatus.textContent="Select this endeavor before changing its website.";return;
+     }
+     if(!confirm("Apply these changes to your saved website? SHANE will preserve your existing work and will not publish it."))return;
+     const store=window.SHANEConversationStore;
+     if(!store?.reviseSite){composerStatus.textContent="Website revision is temporarily unavailable.";return}
+     apply.disabled=true;
+     composerStatus.textContent="SHANE is revising your saved website…";
+     try{
+      // Verify the same owner-linked site is still selected before mutation.
+      const latest=await store.endeavorSnapshot({endeavorId:id});
+      if(window.SHANECurrentEndeavor?.read?.()!==id||latest.endeavor?.linkedSiteId!==snapshot.endeavor.linkedSiteId)
+       throw Error("The selected endeavor or linked website changed. Reload before revising.");
+      const result=await store.reviseSite({siteId:snapshot.endeavor.linkedSiteId,request});
+      if(!result?.saved||result.siteId!==snapshot.endeavor.linkedSiteId)
+       throw Error("The saved revision could not be verified.");
+      let memorySaved=true;
+      try{
+       const history=await store.saveTurn("Website revision saved for site "+result.siteId+". Requested change: "+request.slice(0,1200),
+        {page:location.pathname.split("/").pop()||"builder.html",kind:"creation-summary",endeavorId:id});
+       memorySaved=history?.saved===true;
+      }catch{memorySaved=false}
+      composerStatus.replaceChildren();
+      composerStatus.append(document.createTextNode(memorySaved
+       ?"Your website changes are saved. ":"Website changes saved, but conversation memory needs retry. "));
+      const link=document.createElement("a");
+      link.href="builder.html?site="+encodeURIComponent(result.siteId)+"&endeavor="+encodeURIComponent(id);
+      link.textContent="Open revised website";
+      composerStatus.append(link);
+      document.dispatchEvent(new Event("shane:artifact-created"));
+     }catch(error){composerStatus.textContent="Website revision was not confirmed: "+String(error?.message||error)}
+     finally{apply.disabled=false}
+    };
+    endeavorContinuity.append(apply);
    }
    // Collaboration begins with a saved endeavor-owned opportunity, even
    // before another member accepts an invitation.
