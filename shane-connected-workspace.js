@@ -58,7 +58,9 @@ function init(){
   const store=window.SHANEConversationStore;
   if(typeof store?.executeApprovedSequence!=="function"){status.textContent="Creation service is not ready.";return}
   if(!window.confirm("Create the reviewed items as saved drafts in this endeavor?"))return;
+  if(plan!==reviewedPlan||plan.endeavorId!==currentId()){invalidatePlan();status.textContent="The endeavor changed. Review your plan again.";return}
   createButton.disabled=true;
+  planButton.disabled=true;
   status.textContent="Creating the reviewed items…";
   try{
    const result=await store.executeApprovedSequence({steps:plan.steps,endeavorId:plan.endeavorId,approved:true});
@@ -66,6 +68,7 @@ function init(){
    const count=result?.completed?.length||0;
    status.textContent=result?.complete&&result?.verified?"Created and verified "+count+" saved item(s).":"Saved "+count+" item(s). "+(result?.error||result?.verificationError||"Review your saved work before continuing.");
   }catch(error){invalidatePlan();status.textContent="Creation stopped: "+(error?.message||"Please review saved work.");}
+  finally{planButton.disabled=false}
  });
 
  planButton.addEventListener("click",()=>{
@@ -73,6 +76,7 @@ function init(){
   const store=window.SHANEConversationStore;
   if(typeof store?.proposeCreationSequence!=="function"){status.textContent="The creation planner is not ready yet.";return}
   try{
+   invalidatePlan();
    const proposal=store.proposeCreationSequence({vision:idea,endeavorId:currentId()});
    if(!proposal.ready||!proposal.steps?.length){status.textContent=proposal.reason||"Describe the website, community, event, or listing you want to create.";return}
    const names={"new-website":"website",community:"community",campaign:"campaign or event",listing:"listing"};
