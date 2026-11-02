@@ -618,3 +618,20 @@ test('connected conversation opens collaboration coordination and preserves draf
   await expect(page.locator('#visionPrompt')).toHaveValue('Organize a community makers event');
   await expect(page.locator('#shaneIdeaReply')).toHaveValue('Invite ceramic artists and local musicians');
 });
+
+test('accepted collaboration offers its private conversation and rejects pending links', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(() => {
+    window.SHANEConversationStore={
+      joinedCollaborations:async()=>[
+        {id:'11111111-1111-4111-8111-111111111111',status:'accepted',listingTitle:'Community fair',role:'collaborator',url:'workspace.html?collaboration=11111111-1111-4111-8111-111111111111'},
+        {id:'22222222-2222-4222-8222-222222222222',status:'pending',listingTitle:'Pending invitation',role:'collaborator',url:'workspace.html?collaboration=22222222-2222-4222-8222-222222222222'}
+      ]
+    };
+  });
+  await page.locator('#shane-connected-collaborations').click();
+  const list=page.locator('#shane-connected-collaborations-list');
+  await expect(list.getByRole('link',{name:'Private messages'})).toHaveAttribute('href','members.html?conversation=11111111-1111-4111-8111-111111111111#collaborationSection');
+  await expect(list).not.toContainText('Pending invitation');
+  await expect(list.locator('a')).toHaveCount(2);
+});
