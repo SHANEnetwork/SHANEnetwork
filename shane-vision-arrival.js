@@ -138,7 +138,7 @@ function init(){
  // A handoff is a one-time workspace instruction. Keep its project identity
  // isolated from other endeavors and never import a stale selected project.
  const selected=window.SHANECurrentEndeavor?.read?.()||null;
- if(item.endeavorId&&selected!==item.endeavorId){
+ if(item.endeavorId&&(selected!==item.endeavorId||(new URLSearchParams(location.search).get("endeavor")===item.endeavorId&&!window.SHANEVerifiedJourney?.has?.(item.endeavorId)))){
   // A destination may load before the account-verified URL receiver finishes.
   // Wait for verified selection instead of discarding a valid cross-page vision.
   const requested=new URLSearchParams(location.search).get("endeavor");
