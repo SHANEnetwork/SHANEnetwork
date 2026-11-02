@@ -465,3 +465,19 @@ test('saved endeavor revision handoff reaches the existing website editor withou
   expect(await page.evaluate(() => sessionStorage.getItem('shane-website-revision-handoff-v1'))).toBeNull();
   // The receiving page prepares a revision only; it does not call the generator.
 });
+
+
+test('connected Network tools follow endeavor switches without losing the conversation', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  const hub = page.locator('#shane-connected-workspace');
+  await expect(hub).toHaveCount(1);
+  const first = '11111111-1111-4111-8111-111111111111';
+  const second = '22222222-2222-4222-8222-222222222222';
+  await page.evaluate(id => document.dispatchEvent(new CustomEvent('shane:endeavor-changed', { detail: { id } })), first);
+  await hub.locator('[data-kind="messages"]').click();
+  await expect(hub.locator('iframe')).toHaveAttribute('src', new RegExp('my-network\\.html\\?endeavor=' + first));
+  await page.evaluate(id => document.dispatchEvent(new CustomEvent('shane:active-endeavor-changed', { detail: { id } })), second);
+  await expect(hub.locator('iframe')).toHaveAttribute('src', new RegExp('my-network\\.html\\?endeavor=' + second));
+  await expect(hub.locator('#shane-connected-status')).toContainText('Switched');
+  await expect(page.locator('#visionPrompt')).toBeVisible();
+});
