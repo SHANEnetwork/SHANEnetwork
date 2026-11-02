@@ -310,8 +310,12 @@ function init(){
     const saved=await window.SHANEConversationStore?.saveTurn?.(text,{page:location.pathname.split("/").pop()||"index.html",kind:"idea",endeavorId:selected});
     if(!saved?.saved)throw Error("Account history is unavailable.");
    }
-   if(window.SHANEEndeavorPlan?.refineJourney)await window.SHANEEndeavorPlan.refineJourney({request:text,endeavorId:selected});
-   else if(window.SHANEEndeavorPlan?.create)await window.SHANEEndeavorPlan.create({vision:text,endeavorId:selected});
+   // Account persistence must not depend on optional AI planning availability.
+   let planningWarning=null;
+   try{
+    if(window.SHANEEndeavorPlan?.refineJourney)await window.SHANEEndeavorPlan.refineJourney({request:text,endeavorId:selected});
+    else if(window.SHANEEndeavorPlan?.create)await window.SHANEEndeavorPlan.create({vision:text,endeavorId:selected});
+   }catch(error){planningWarning=String(error?.message||error)}
    // Feed the saved refinement into the current page's existing editable draft.
    // The draft adapter only fills empty fields; it never publishes or sends.
    const page=location.pathname.split("/").pop()||"index.html";
@@ -362,7 +366,9 @@ function init(){
     });
     composerStatus.append(link,document.createTextNode("."));
    }else{
-    composerStatus.textContent="Saved to this endeavor. Your editable draft is ready where supported.";
+    composerStatus.textContent=planningWarning
+     ?"Your endeavor was saved. Planning is temporarily unavailable; your original idea is preserved."
+     :"Saved to this endeavor. Your editable draft is ready where supported.";
    }
    document.dispatchEvent(new Event("shane:conversation-context-changed"));
   }catch(error){composerStatus.textContent="The idea could not be fully saved to your account. "+String(error?.message||error)}
