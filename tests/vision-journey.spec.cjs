@@ -744,3 +744,22 @@ test('conversation events retrieve saved work and accepted collaborations withou
   await expect(page.locator('#visionPrompt')).toHaveValue('Create a welcoming makers event');
   await expect(page.locator('#shaneIdeaReply')).toHaveValue('Add a community gallery');
 });
+
+test('new endeavor save selects a confirmed identity before the next creation step', async ({ page }) => {
+  const id='11111111-1111-4111-8111-111111111111';
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(endeavorId=>{window.SHANEConversationStore={beginEndeavor:async()=>({id:endeavorId})}},id);
+  await page.locator('#visionPrompt').fill('Create a neighborhood arts and makers collective');
+  await page.locator('#shane-connected-save-vision').click();
+  await expect(page.locator('#shane-connected-status')).toContainText('saved to your account and selected');
+  expect(await page.evaluate(()=>JSON.parse(sessionStorage.getItem('shane-active-endeavor-v1')).id)).toBe(id);
+});
+
+test('unconfirmed endeavor save does not advance the active project context', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(()=>{sessionStorage.removeItem('shane-active-endeavor-v1');window.SHANEConversationStore={beginEndeavor:async()=>({})}});
+  await page.locator('#visionPrompt').fill('Create a neighborhood arts and makers collective');
+  await page.locator('#shane-connected-save-vision').click();
+  await expect(page.locator('#shane-connected-status')).toContainText('save was not confirmed');
+  expect(await page.evaluate(()=>sessionStorage.getItem('shane-active-endeavor-v1'))).toBeNull();
+});
