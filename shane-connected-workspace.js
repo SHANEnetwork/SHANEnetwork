@@ -46,7 +46,7 @@ function init(){
  returnSite.type="button";returnSite.textContent="Return to my website";returnSite.hidden=true;
  status.insertAdjacentElement("afterend",returnSite);
  returnSite.addEventListener("click",()=>{
-  if(!lastSavedCreation||lastSavedEndeavor!==currentId()){status.textContent="The selected endeavor has changed. Open a saved website in this endeavor before returning.";return}
+  if(!lastSavedCreation||lastSavedEndeavor!==currentId()){returnSite.hidden=true;status.textContent="The selected endeavor has changed. Open a saved website in this endeavor before returning.";return}
   const destination=new URL(lastSavedCreation,window.location.href);
   if(destination.origin!==window.location.origin||destination.pathname.split("/").pop()!=="builder.html"||!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(destination.searchParams.get("site")||""))return;
   frame.src=destination.href;direct.href=destination.href;shell.dataset.open="true";active="saved-creation";returnSite.hidden=true;host.querySelectorAll("button[data-kind]").forEach(b=>b.setAttribute("aria-pressed","false"));
