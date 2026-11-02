@@ -682,3 +682,20 @@ test('named saved website opens beside the conversation and refreshes after appr
   await expect(page.locator('#visionPrompt')).toHaveValue('Create a welcoming pottery studio website');
   await expect(page.locator('#shaneIdeaReply')).toHaveValue('Add a gallery for recent pottery projects');
 });
+
+test('generic revision request never modifies a saved website', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(() => {
+    window.__revisionCalls=0;
+    window.SHANEConversationStore={
+      recentCreations:async()=>[{id:'11111111-1111-4111-8111-111111111111',type:'website',title:'Pottery studio',url:'builder.html?site=11111111-1111-4111-8111-111111111111'}],
+      reviseSite:async()=>{window.__revisionCalls++;return {saved:true}}
+    };
+    window.confirm=()=>true;
+  });
+  await page.locator('#visionPrompt').fill('Revise my website');
+  await page.locator('#shane-connected-recent').click();
+  await page.locator('#shane-connected-creations button').filter({hasText:'Revise Pottery studio'}).click();
+  await expect(page.locator('#shane-connected-status')).toContainText('Describe what should change');
+  expect(await page.evaluate(()=>window.__revisionCalls)).toBe(0);
+});
