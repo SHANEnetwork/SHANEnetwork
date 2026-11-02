@@ -13,7 +13,7 @@ function init(){
  function remember(id){try{if(typeof id==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(id))sessionStorage.setItem(CONTEXT,JSON.stringify({id,updated:new Date().toISOString()}));else sessionStorage.removeItem(CONTEXT)}catch{}}
  function currentId(){try{const x=JSON.parse(sessionStorage.getItem(CONTEXT)||"null");return typeof x?.id==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(x.id)?x.id:null}catch{return null}}
  let displayedId=currentId();
- function updateContext(event){if(!event?.detail||!Object.prototype.hasOwnProperty.call(event.detail,"id"))return;const announced=event.detail.id;const selectedBefore=currentId();if(announced===selectedBefore)return;if(announced!==null&&(typeof announced!=="string"||!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(announced)))return;remember(announced);const selected=currentId();if(active&&displayedId!==selected){const button=host.querySelector('button[data-kind="'+active+'"]');if(button){active="";open(button.dataset.kind,button.dataset.page);status.textContent="Switched the connected Network workspace to your selected endeavor.";}}}
+ function updateContext(event){if(!event?.detail||!Object.prototype.hasOwnProperty.call(event.detail,"id"))return;const announced=event.detail.id;const selectedBefore=currentId();if(announced===selectedBefore)return;if(announced!==null&&(typeof announced!=="string"||!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(announced)))return;remember(announced);const selected=currentId();if(active==="saved-creation"&&displayedId!==selected){shell.dataset.open="false";active="";frame.removeAttribute("src");direct.href="network.html";status.textContent="Selected endeavor changed. Open a saved creation belonging to this endeavor to continue.";revealReturnSite();}if(active&&displayedId!==selected){const button=host.querySelector('button[data-kind="'+active+'"]');if(button){active="";open(button.dataset.kind,button.dataset.page);status.textContent="Switched the connected Network workspace to your selected endeavor.";}}}
  document.addEventListener("shane:endeavor-changed",()=>queueMicrotask(revealReturnSite));
  document.addEventListener("shane:active-endeavor-changed",()=>queueMicrotask(revealReturnSite));
  document.addEventListener("shane:endeavor-changed",updateContext);
@@ -110,7 +110,7 @@ function init(){
     if(target&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(String(latest?.id||""))){
      const destination=new URL(target[0],window.location.href);
      destination.searchParams.set(target[1],latest.id);
-     frame.src=destination.href;direct.href=destination.href;shell.dataset.open="true";active="saved-creation";if(latest.type==="new-website"||latest.type==="website"){lastSavedCreation=destination.href;lastSavedEndeavor=currentId()}
+     frame.src=destination.href;direct.href=destination.href;shell.dataset.open="true";active="saved-creation";if(latest.type==="new-website"||latest.type==="website"){lastSavedCreation=destination.href;lastSavedEndeavor=currentId();displayedId=currentId()}
      host.querySelectorAll("button[data-kind]").forEach(b=>b.setAttribute("aria-pressed","false"));
      status.textContent="Your verified creation is open beside the conversation. Continue refining it here.";
     }
@@ -187,7 +187,7 @@ function init(){
      if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
      const destination=new URL(link.href,window.location.href);
      if(destination.origin!==window.location.origin||!["builder.html","communities.html","campaigns.html","members.html"].includes(destination.pathname.split("/").pop()))return;
-     event.preventDefault();frame.src=destination.href;direct.href=destination.href;shell.dataset.open="true";active="saved-creation";if(item.type==="website"){lastSavedCreation=destination.href;lastSavedEndeavor=currentId()}
+     event.preventDefault();frame.src=destination.href;direct.href=destination.href;shell.dataset.open="true";active="saved-creation";if(item.type==="website"){lastSavedCreation=destination.href;lastSavedEndeavor=currentId();displayedId=currentId()}
      host.querySelectorAll("button[data-kind]").forEach(b=>b.setAttribute("aria-pressed","false"));
      status.textContent="Your saved "+item.type+" is open beside the conversation. Continue refining your vision here.";
     });
