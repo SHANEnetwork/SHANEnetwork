@@ -181,6 +181,22 @@
   `;
   document.head.append(style);
  }
+ // Keep the underlying saved-project controls, but explain them in everyday language.
+ const clarifyConversationLabels=()=>{
+  const replacements=new Map([
+   ["Continue my endeavor with SHANE","Create something new or continue a project"],
+   ["Our continuing conversation","Your saved conversations"],
+   ["Refresh conversation","Check for new messages"],
+   ["Select an endeavor to see our saved conversation here.","Choose a saved project to see what we worked on together. Or simply tell SHANE what you'd like to create."]
+  ]);
+  const root=document.querySelector(".shane-conversation-workspace");if(!root)return;
+  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);const nodes=[];
+  while(walker.nextNode()){const node=walker.currentNode;if(replacements.has(node.textContent.trim()))nodes.push(node)}
+  for(const node of nodes)node.textContent=replacements.get(node.textContent.trim());
+ };
+ clarifyConversationLabels();
+ const conversationLabelsObserver=new MutationObserver(()=>{conversationLabelsObserver.disconnect();clarifyConversationLabels();conversationLabelsObserver.observe(document.body,{subtree:true,childList:true,characterData:true})});
+ conversationLabelsObserver.observe(document.body,{subtree:true,childList:true,characterData:true});
  const accountResume=document.createElement("script");accountResume.src="shane-account-resume-nav.js";accountResume.defer=true;document.head.append(accountResume);
  const milestoneScript=document.createElement("script");milestoneScript.src="shane-endeavor-continuity.js";milestoneScript.defer=true;document.head.append(milestoneScript);
  const endeavorActions=document.createElement("script");endeavorActions.src="shane-endeavor-actions.js";endeavorActions.defer=true;document.head.append(endeavorActions);
