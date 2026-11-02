@@ -1515,6 +1515,24 @@ function init(){
  void refreshActiveContext();
  heading.append(eyebrow,title,intro,activeContext);
  host.append(heading,group);
+ // A new endeavor is a first-class conversational action, even when legacy
+ // assessment panels are collapsed by the page's navigation.
+ if(page==="builder.html"){
+  const startNew=document.getElementById("newEndeavor");
+  if(startNew){
+   const fresh=document.createElement("button");
+   fresh.type="button";fresh.className="shane-start-fresh-endeavor";
+   fresh.textContent="Start a new endeavor";
+   fresh.addEventListener("click",()=>{
+    // Reuse the existing reset workflow; do not delete saved account history.
+    startNew.click();
+    document.dispatchEvent(new Event("shane:conversation-context-changed"));
+    const vision=document.getElementById("visionPrompt");
+    if(vision){vision.scrollIntoView({behavior:"smooth",block:"center"});vision.focus()}
+   });
+   heading.append(fresh);
+  }
+ }
  // Keep the conversational workspace outside legacy tabbed/hidden page sections.
  // It must remain available when a member returns to a saved endeavor.
  const topbar=document.querySelector(".shane-unified-topbar");
