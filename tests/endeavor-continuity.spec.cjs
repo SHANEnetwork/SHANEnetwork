@@ -128,10 +128,12 @@ test('returning member can restore full saved endeavor vision without silently o
   }, {id,original});
   const restore = page.getByRole('button',{name:'Return to my original vision'});
   await expect(restore).toBeVisible();
-  const composer = page.locator('#shaneUnifiedComposerInput');
-  // Use the actual shared composer rather than the specialist website form.
-  const target = page.locator('textarea').filter({visible:true}).first();
+  const composer = page.locator('#shane-shared-vision-input');
+  await composer.fill('Keep my current unsent idea');
+  page.once('dialog', dialog => dialog.dismiss());
   await restore.click();
-  await expect(page.locator('body')).toContainText('Return to my original vision');
-  expect(await page.locator('textarea').evaluateAll((els, vision) => els.some(el => el.value === vision), original)).toBe(true);
+  await expect(composer).toHaveValue('Keep my current unsent idea');
+  page.once('dialog', dialog => dialog.accept());
+  await restore.click();
+  await expect(composer).toHaveValue(original);
 });
