@@ -537,7 +537,7 @@ async function collaborationContext({endeavorId,limit=12}={}){
  const collaborations=await Promise.all(accepted.map(async item=>{
   const {data,error}=await db.from("shane_collaboration_messages").select("sender_id,body,created_at").eq("request_id",item.id).order("created_at",{ascending:false}).limit(3);
   return {id:item.id,listingId:item.listing_id,listingTitle:titles.get(item.listing_id)||"Network opportunity",
-   url:"workspace.html?collaboration="+encodeURIComponent(item.id),status:"accepted",
+   url:"workspace.html?collaboration="+encodeURIComponent(item.id)+"&endeavor="+encodeURIComponent(endeavorId),status:"accepted",
    messagesAvailable:!error,messages:error?[]:(data||[]).slice().reverse().map(message=>({
     fromSelf:message.sender_id===account.id,body:String(message.body||"").slice(0,500),at:message.created_at
    }))};
