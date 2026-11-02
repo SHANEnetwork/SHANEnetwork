@@ -20,6 +20,17 @@ const base = process.env.SHANE_TEST_BASE || 'http://127.0.0.1:8765';
    assert(image.loaded,'Network illustration did not load');
    const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+4);
    assert(!overflow,'Horizontal page overflow at '+width+'px');
+   const networkGeometry=await page.evaluate(()=>{
+    const field=document.querySelector('#shane-network-idea').getBoundingClientRect();
+    const submit=document.querySelector('#shane-network-idea-start button[type="submit"]').getBoundingClientRect();
+    const panorama=document.querySelector('.shane-network-panorama').getBoundingClientRect();
+    return {fieldWidth:field.width,submitWidth:submit.width,panoramaWidth:panorama.width,fieldVisible:field.top<innerHeight&&field.bottom>0,buttonInside:submit.left>=-2&&submit.right<=innerWidth+2};
+   });
+   assert(networkGeometry.fieldWidth>=180,'Network idea input too narrow at '+width);
+   assert(networkGeometry.submitWidth>=85&&networkGeometry.buttonInside,'Network submit control clipped at '+width);
+   assert(networkGeometry.panoramaWidth>=120,'Panorama collapsed at '+width);
+   await page.locator('#shane-network-idea').focus();
+   assert(await page.locator('#shane-network-idea').evaluate(e=>document.activeElement===e),'Network idea input not keyboard focusable');
    const label=page.locator('label[for="shane-network-idea"]');
    assert(await label.isVisible(),'Prompt label not visible');
    await page.locator('#shane-network-idea').fill('Build a community music festival');
