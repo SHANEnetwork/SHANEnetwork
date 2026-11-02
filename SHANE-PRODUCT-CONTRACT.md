@@ -54,6 +54,16 @@ A SHONnetwork association's housing-stability work may help an existing resident
 
 Support resident-led listings as well as conventional housing seekers. Distinguish rent, shared expenses, household assistance, and companionship clearly; do not presume unpaid care, medical support, or an obligation to provide services. Check permission to sublet or host, relevant occupancy and housing rules, accessibility needs, compatibility, written terms, safety, privacy, and fair exit arrangements. Never promise that a boarder will solve financial insecurity or prevent displacement.
 
+## SHANE-wide counterparty investigation and pre-signature agreement review
+
+SHANE should offer a reusable, optional **Investigate and Review Before Committing** capability across endeavors, professional associations, purchasing groups, business relationships, services, and SHONnetwork housing arrangements.
+
+Before a person signs, pays, shares sensitive data, or enters an arrangement, SHANE should help them (1) verify the claimed identity, affiliation, ownership or authority of the other party using consent-based verification and lawful, reliable sources; (2) investigate relevant documented inconsistencies, fraud indicators, payment requests, and conflicts of interest; (3) review the actual contract and supporting documents for financial exploitation, abusive or one-sided obligations, hidden fees, coercive restrictions, liability shifts, termination barriers, privacy and data-use risks, and missing protections; (4) explain findings in accessible language with cited evidence, clause references, uncertainty, and concrete questions or proposed revisions; and (5) preserve a private, user-controlled review record where authorized.
+
+The reviewer must distinguish verified facts, allegations, unanswered questions, and legal conclusions; never invent background-check results, guarantee trustworthiness, label someone abusive without adequate evidence, or claim legal review is a substitute for qualified jurisdiction-specific counsel. Follow applicable screening, consumer protection, privacy, anti-discrimination, and consent requirements. Do not contact, expose, accuse, or report a person or organization automatically. Protect both parties' legitimate interests and permit correction of errors.
+
+The capability should be accessible during the conversational creation and collaboration journey, **before** any binding commitment. SHONnetwork can reuse it without altering SHON's independent infrastructure absent authorization.
+
 ## One-sentence contract
 **The person describes the endeavor they imagine. SHANE designs, writes, builds, configures, and refines the actual website and its supported capabilities; the person guides the vision and approves important decisions.**
 
