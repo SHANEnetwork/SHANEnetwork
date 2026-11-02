@@ -23,7 +23,11 @@ if(journeyId&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(journeyId)){
    document.dispatchEvent(new CustomEvent("shane:active-endeavor-changed",{detail:{id:journeyId}}));
    document.dispatchEvent(new Event("shane:endeavor-context-ready"));
   }catch(error){
-   document.dispatchEvent(new CustomEvent("shane:journey-endeavor-error",{detail:{message:String(error?.message||error)}}));
+   const message=String(error?.message||error);
+   if(message==="The selected endeavor is unavailable to this account."){
+    settled=true;
+    document.dispatchEvent(new CustomEvent("shane:journey-endeavor-unavailable",{detail:{endeavorId:journeyId}}));
+   }else document.dispatchEvent(new CustomEvent("shane:journey-endeavor-error",{detail:{endeavorId:journeyId,message}}));
   }finally{resolving=false}
  };
  document.addEventListener("shane:conversation-store-ready",()=>void resolveJourney());
