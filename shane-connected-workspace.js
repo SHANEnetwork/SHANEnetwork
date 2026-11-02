@@ -24,6 +24,8 @@ function init(){
   if(button)nextActions.append(button);
  }
  toolsDisclosure.before(nextActions);
+ nextActions.querySelector("#shane-connected-plan")?.setAttribute("aria-label","Plan my idea with SHANE");
+ nextActions.querySelector("#shane-connected-create")?.setAttribute("aria-label","Create the reviewed result");
  const workspaceStyle=document.createElement("style");
  workspaceStyle.textContent="#shane-connected-workspace .shane-capabilities{margin:14px 0;border:1px solid #e2cbd1;border-radius:17px;background:#fffdfac9;padding:12px 16px}#shane-connected-workspace .shane-capabilities>summary{cursor:pointer;color:#69465f;font-weight:650;line-height:1.5}#shane-connected-workspace .shane-capabilities>.actions{margin-top:14px}#shane-connected-workspace .shane-capabilities:focus-within{outline-offset:3px}";
  workspaceStyle.textContent+="#shane-connected-workspace .shane-next-actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 16px}#shane-connected-workspace .shane-next-actions button{background:linear-gradient(120deg,#704760,#a76573);box-shadow:0 5px 14px #70476020}#shane-connected-workspace .shane-next-actions button:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}";
