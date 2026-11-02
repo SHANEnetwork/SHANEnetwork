@@ -155,8 +155,8 @@ test('account memory is read before a local conversation can overwrite it', asyn
     window.__resolveMemory = null;
     window.shaneAccountDb = {
       auth: { getUser: async () => ({data:{user:{id:'11111111-1111-4111-8111-111111111111'}}}) },
-      from: () => ({
-        select: () => ({eq: () => ({eq: () => ({maybeSingle: () => new Promise(resolve => {window.__resolveMemory = resolve})})})}),
+      from: table => ({
+        select: () => ({eq: () => ({eq: () => ({maybeSingle: () => table==="shane_endeavors" ? Promise.resolve({data:null,error:null}) : new Promise(resolve => {window.__resolveMemory=resolve})})})}),
         upsert: async payload => {window.__memoryWrites.push(payload);return {error:null}}
       })
     };
@@ -218,8 +218,8 @@ test('late account restore merges conversation turns added during lookup', async
     window.__resolveRestore = null;
     window.shaneAccountDb = {
       auth: {getUser: async () => ({data:{user:{id:'11111111-1111-4111-8111-111111111111'}}})},
-      from: () => ({
-        select: () => ({eq: () => ({eq: () => ({maybeSingle: () => new Promise(resolve => {window.__resolveRestore=resolve})})})}),
+      from: table => ({
+        select: () => ({eq: () => ({eq: () => ({maybeSingle: () => table==="shane_endeavors" ? Promise.resolve({data:null,error:null}) : new Promise(resolve => {window.__resolveRestore=resolve})})})}),
         upsert: async () => ({error:null})
       })
     };
@@ -241,8 +241,8 @@ test('overlapping local edits and remote restore merge account history', async (
     window.__conflictWrites = [];
     window.shaneAccountDb = {
       auth: {getUser: async () => ({data:{user:{id:'11111111-1111-4111-8111-111111111111'}}})},
-      from: () => ({
-        select: () => ({eq: () => ({eq: () => ({maybeSingle: () => new Promise(resolve => {window.__resolveConflict=resolve})})})}),
+      from: table => ({
+        select: () => ({eq: () => ({eq: () => ({maybeSingle: () => table==="shane_endeavors" ? Promise.resolve({data:null,error:null}) : new Promise(resolve => {window.__resolveConflict=resolve})})})}),
         upsert: async payload => {window.__conflictWrites.push(payload);return {error:null}}
       })
     };
@@ -373,8 +373,8 @@ test('delayed account restoration excludes stale local turns but preserves new e
     window.__resolveStaleRestore = null;
     window.shaneAccountDb = {
       auth: {getUser: async () => ({data:{user:{id:'11111111-1111-4111-8111-111111111111'}}})},
-      from: () => ({
-        select: () => ({eq: () => ({eq: () => ({maybeSingle: () => new Promise(resolve => {window.__resolveStaleRestore=resolve})})})}),
+      from: table => ({
+        select: () => ({eq: () => ({eq: () => ({maybeSingle: () => table==="shane_endeavors" ? Promise.resolve({data:null,error:null}) : new Promise(resolve => {window.__resolveStaleRestore=resolve})})})}),
         upsert: async () => ({error:null})
       })
     };
