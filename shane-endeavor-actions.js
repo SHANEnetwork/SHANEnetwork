@@ -1329,6 +1329,18 @@ function init(){
     };
     endeavorContinuity.append(next);
    }
+   if(snapshot.creationPlan?.complete && snapshot.creations.length){
+    const improve=document.createElement("button");
+    improve.type="button";
+    improve.textContent="Improve this endeavor";
+    improve.onclick=()=>{
+     entry.value="Review my existing creations and propose improvements without repeating completed work.";
+     entry.dispatchEvent(new Event("input",{bubbles:true}));
+     entry.focus();
+     if(!askAI.disabled)askAI.click();
+    };
+    endeavorContinuity.append(improve);
+   }
    for(const item of snapshot.collaborations.slice(0,3)){
     const link=document.createElement("a");link.href=item.url;link.textContent=item.listingTitle;
     link.style.cssText="margin-left:12px;color:#784b6c;text-decoration:underline";
