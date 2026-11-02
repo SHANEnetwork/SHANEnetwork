@@ -185,3 +185,14 @@ test('joined Network workspaces remain reachable with or without an owned endeav
   await expect(continuity.getByRole('link',{name:'Festival team'})).toHaveAttribute('href',joinedUrl);
   await expect(continuity).toContainText('Together in this endeavor');
 });
+
+test('SHANE Network exposes a return path for accepted collaborations beside saved endeavors', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/my-network.html');
+  const region=page.locator('#joinedWorkspaces');
+  await expect(region.getByRole('heading',{name:'Your shared endeavors'})).toBeVisible();
+  await expect(page.locator('#savedEndeavorResults')).toBeAttached();
+  await expect(page.locator('#joinedWorkspacesResults')).toBeAttached();
+  await expect(page.locator('#joinedWorkspacesStatus')).toBeAttached();
+  // No accepted collaboration should be invented for an unsigned-in visitor.
+  await expect(region.getByRole('link',{name:'Return to shared workspace'})).toHaveCount(0);
+});
