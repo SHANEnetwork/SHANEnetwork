@@ -90,9 +90,13 @@ function init(){
   try{
    invalidatePlan();
    planButton.disabled=true;
+   const initialEndeavor=currentId();
+   const initialVision=vision.value;
+   const initialReply=reply.value;
    status.textContent="Preparing your creation plan…";
-   const proposal=await store.proposeCreationSequence({vision:idea,endeavorId:currentId()});
-   if(!proposal||!proposal.ready||!Array.isArray(proposal.steps)||!proposal.steps.length){status.textContent=proposal.reason||"Describe the website, community, event, or listing you want to create.";return}
+   const proposal=await store.proposeCreationSequence({vision:idea,endeavorId:initialEndeavor});
+   if(currentId()!==initialEndeavor||vision.value!==initialVision||reply.value!==initialReply){status.textContent="Your vision or selected endeavor changed while planning. Review a fresh plan for the current conversation.";return}
+   if(!proposal||!proposal.ready||!Array.isArray(proposal.steps)||!proposal.steps.length){status.textContent=proposal?.reason||"Describe the website, community, event, or listing you want to create.";return}
    const names={"new-website":"website",community:"community",campaign:"campaign or event",listing:"listing"};
    const parts=proposal.steps.map(step=>names[step.type]||step.type);
    invalidatePlan();
