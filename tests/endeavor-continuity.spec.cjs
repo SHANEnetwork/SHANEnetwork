@@ -1,0 +1,42 @@
+const { test, expect } = require('@playwright/test');
+
+// End-to-end continuity contract for the existing SHANE creator and network.
+// These tests deliberately stop before publication or external invitations.
+test('one vision moves from welcome to creator and retains its conversation on return', async ({ page }) => {
+  const vision = 'Create a neighborhood bakery with a welcoming website and local collaborators.';
+  await page.goto('http://127.0.0.1:8765/index.html');
+  await page.locator('#welcomeIdea').fill(vision);
+  await page.locator('#shaneWelcome button[type="submit"]').click();
+  await expect(page).toHaveURL(/builder\.html/);
+  await expect(page.locator('#visionPrompt')).toHaveValue(vision);
+  await page.locator('#visionGuide').click();
+  await expect(page.locator('#shaneIdeaTurns')).toContainText('neighborhood bakery');
+  await page.goto('http://127.0.0.1:8765/network.html');
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await expect(page.locator('#shaneIdeaTurns')).toContainText('neighborhood bakery');
+});
+
+test('multi-capability journey prepares work without silently executing or publishing', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  const result = await page.evaluate(() => {
+    const api = window.SHANECapabilities;
+    if (!api) return { missing: true };
+    const journey = api.journey({
+      vision: 'Create a bakery website, find collaborators and organize a community event.',
+      latestRequest: 'Help me find partners for our bakery.'
+    });
+    const website = journey.steps.find(step => step.path === 'builder.html');
+    const prepared = website && api.prepareJourneyStep({ journey, capabilityId: website.capabilityId });
+    const handoff = JSON.parse(sessionStorage.getItem('shane-intent-handoff-v1') || 'null');
+    return { journey, prepared, handoff };
+  });
+  expect(result.missing).not.toBe(true);
+  expect(result.journey.steps.map(step => step.path)).toContain('builder.html');
+  expect(result.journey.steps.map(step => step.path)).toContain('my-network.html');
+  expect(result.prepared.ok).toBe(true);
+  expect(result.prepared.executed).toBe(false);
+  expect(result.prepared.requiresConfirmation).toBe(true);
+  expect(result.handoff.context.purpose).toContain('bakery website');
+  expect(result.handoff.context.latestRequest).toContain('find partners');
+  expect(result.handoff.destination).toBe('builder.html');
+});
