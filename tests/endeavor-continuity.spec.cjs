@@ -196,3 +196,31 @@ test('SHANE Network exposes a return path for accepted collaborations beside sav
   // No accepted collaboration should be invented for an unsigned-in visitor.
   await expect(region.getByRole('link',{name:'Return to shared workspace'})).toHaveCount(0);
 });
+
+test('first-time member can remember a vision without selecting an endeavor or configuring a website', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  const vision='Create a neighborhood astronomy club with stargazing events and a SHANE Network community.';
+  await page.evaluate(() => {
+    let active=null;
+    window.SHANECurrentEndeavor={read:()=>active};
+    window.__savedFirstVision=[];
+    window.SHANEConversationStore={
+      beginEndeavor:async ({vision})=>{
+        window.__savedFirstVision.push(vision);
+        active='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+        document.dispatchEvent(new Event('shane:conversation-context-changed'));
+        return {id:active,saved:true};
+      },
+      endeavorSnapshot:async()=>({endeavor:{id:active,idea:vision},creations:[],collaborations:[],collaborationListings:[],availability:{creations:true,collaborations:true},creationPlan:null}),
+      endeavors:async()=>[{id:active,title:'Astronomy club'}]
+    };
+    document.dispatchEvent(new Event('shane:conversation-store-ready'));
+  });
+  await page.locator('#shane-shared-vision-input').fill(vision);
+  await page.getByRole('button',{name:'Remember this idea'}).click();
+  await expect.poll(()=>page.evaluate(()=>window.__savedFirstVision.length)).toBe(1);
+  expect(await page.evaluate(()=>window.__savedFirstVision[0])).toBe(vision);
+  // No website, invitation, payment or publication should be triggered by
+  // remembering a vision. The new endeavor becomes the active conversation.
+  await expect.poll(()=>page.evaluate(()=>window.SHANECurrentEndeavor.read())).toBe('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa');
+});
