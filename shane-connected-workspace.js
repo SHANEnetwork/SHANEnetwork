@@ -28,7 +28,9 @@ function init(){
  function openCollaborationLink(event,href,label){
   if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
   event.preventDefault();
-  frame.src=href;direct.href=href;shell.dataset.open="true";active="collaboration";
+  const destination=new URL(href,window.location.href);
+  if(destination.origin!==window.location.origin||!["workspace.html","members.html"].includes(destination.pathname.split("/").pop()))return;
+  frame.src=destination.href;direct.href=destination.href;shell.dataset.open="true";active="collaboration";
   host.querySelectorAll("button[data-kind]").forEach(b=>b.setAttribute("aria-pressed","false"));
   status.textContent=label+" is open beside your conversation. Your vision and revision draft remain here.";
  }
