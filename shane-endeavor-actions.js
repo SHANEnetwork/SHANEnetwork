@@ -1303,6 +1303,14 @@ function init(){
    const request=plan?.complete
     ?"Review this completed endeavor and its existing creations. Help improve and connect what is already built without repeating completed work."
     :"Review this endeavor as a whole. Use its saved creations and accepted collaborations to propose the next useful, achievable step.";
+   // Returning must never erase a member's unfinished words.
+   // Offer the saved-work continuation while leaving their current draft intact.
+   if(entry.value.trim()){
+    aiReply.textContent="Your unfinished message is still here. Continue it when ready, or open a saved creation above.";
+    entry.scrollIntoView({behavior:"smooth",block:"center"});
+    entry.focus();
+    return;
+   }
    entry.value=request;
    entry.dispatchEvent(new Event("input",{bubbles:true}));
    entry.scrollIntoView({behavior:"smooth",block:"center"});
