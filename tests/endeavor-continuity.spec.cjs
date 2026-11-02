@@ -62,3 +62,26 @@ test('saved endeavor journey offers direct continuation without inventing discov
   await expect(journey.getByRole('link', {name:'Find collaborators'})).toBeVisible();
   await expect(journey.getByRole('link', {name:/Work together/})).toContainText('✓');
 });
+
+test('returning to a saved endeavor does not erase an unfinished message', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  const id = '88888888-8888-4888-8888-888888888888';
+  await page.evaluate(endeavorId => {
+    window.SHANECurrentEndeavor = {read: () => endeavorId};
+    window.SHANEConversationStore = {
+      endeavorSnapshot: async () => ({
+        creations: [], collaborations: [], availability: {creations:true,collaborations:true},
+        creationPlan: null
+      }),
+      endeavors: async () => [{id:endeavorId,title:'Bakery'}]
+    };
+    document.dispatchEvent(new Event('shane:conversation-store-ready'));
+    document.dispatchEvent(new Event('shane:endeavor-context-ready'));
+  }, id);
+  const draft = 'Keep the bakery welcoming and add a community recipe exchange.';
+  const entry = page.locator('#shane-shared-vision-input');
+  await entry.fill(draft);
+  await page.getByRole('button', {name:'Continue saved endeavor'}).click();
+  await expect(entry).toHaveValue(draft);
+  await expect(page.locator('.shane-endeavor-continuity-line')).toBeVisible();
+});
