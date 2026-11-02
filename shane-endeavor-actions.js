@@ -1410,6 +1410,24 @@ function init(){
     link.style.cssText="display:inline-block;margin-left:12px;color:#784b6c;text-decoration:underline";
     endeavorContinuity.append(link);
    }
+   // Collaboration begins with a saved endeavor-owned opportunity, even
+   // before another member accepts an invitation.
+   for(const opportunity of (snapshot.collaborationListings||[]).slice(0,5)){
+    if(!opportunity.url)continue;
+    const link=document.createElement("a");
+    link.href=opportunity.url;
+    link.textContent="Collaborate: "+(opportunity.title||"Network opportunity");
+    link.style.cssText="display:inline-block;margin-left:12px;color:#784b6c;text-decoration:underline";
+    endeavorContinuity.append(link);
+   }
+   for(const collaboration of snapshot.collaborations.slice(0,5)){
+    if(!collaboration.url)continue;
+    const link=document.createElement("a");
+    link.href=collaboration.url+(collaboration.url.includes("?")?"&":"?")+"endeavor="+encodeURIComponent(id);
+    link.textContent="Continue collaboration: "+(collaboration.listingTitle||"Shared workspace");
+    link.style.cssText="display:inline-block;margin-left:12px;color:#784b6c;text-decoration:underline";
+    endeavorContinuity.append(link);
+   }
    if(snapshot.creationPlan?.remaining>0){
     const next=document.createElement("button");
     next.type="button";
