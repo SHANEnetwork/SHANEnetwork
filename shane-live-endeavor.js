@@ -16,6 +16,8 @@ function init(){
   const run=++generation;record=null;details.hidden=true;resume.hidden=true;
   const id=activeId();
   const sb=window.shaneAccountDb;if(!sb){status.textContent="Waiting for SHANE's account connection…";return}
+  // Keep this display-only lookup independent of the conversation memory save queue.
+  // Account clients may be injected late, so a failed lookup must not change the active endeavor.
   status.textContent="Loading your private endeavor context…";
   try{
    const {data:{user},error:authError}=await sb.auth.getUser();if(run!==generation)return;
