@@ -23,7 +23,7 @@ function init(){
   let url=page;
   if(kind==="discover"){const words=(vision.value.trim()||reply.value.trim()).replace(/[^\p{L}\p{N}\s-]/gu," ").split(/\s+/).filter(w=>w.length>3&&!/^(with|from|this|that|website|create|build|want|have|would|could|should|about|people)$/i.test(w)).slice(0,4);if(words.length)url+="?q="+encodeURIComponent(words.join(" "))}
   const id=currentId();displayedId=id;if(id)url+=(url.includes("?")?"&":"?")+"endeavor="+encodeURIComponent(id);
-  frame.src=url;direct.href=url;shell.dataset.open="true";active=kind;host.querySelectorAll("button[data-kind]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.kind===kind)));status.textContent="Showing "+kind+" inside your creative workspace. Your draft and conversation are unchanged.";
+  frame.src=url;direct.href=url;shell.dataset.open="true";active=kind;host.querySelectorAll("button[data-kind]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.kind===kind)));status.textContent="Showing "+kind+" inside your creative workspace. Your draft and conversation are unchanged.";if(typeof revealReturnSite==="function")revealReturnSite();
  }
  host.querySelectorAll("button[data-kind]").forEach(b=>{b.setAttribute("aria-pressed","false");b.addEventListener("click",()=>open(b.dataset.kind,b.dataset.page))});
  function openCollaborationLink(event,href,label){
