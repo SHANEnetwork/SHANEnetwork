@@ -151,9 +151,11 @@ test('saved endeavor resumes creation, network discovery and a guarded website r
   await page.goto('http://127.0.0.1:8765/builder.html?endeavor='+endeavorId+'&site='+siteId);
   await expect(page.locator('#aiPrompt')).toHaveValue(request);
   await expect(page.locator('#aiMode')).toHaveValue('revise');
-  await page.locator('#generateAI').click();
+  // The AI controls are inside the optional advanced editor. Exercise the guard
+  // directly without forcing an advanced-mode UI that the user has not opened.
+  await page.locator('#generateAI').evaluate(button => button.click());
   await expect(page.locator('#aiStatus')).toContainText(/Sign in|Open the saved website|Select and open/);
-  await expect(page.locator('#updateSite')).toBeVisible();
+  await expect(page.locator('#updateSite')).toBeAttached();
   await page.goto('http://127.0.0.1:8765/builder.html?endeavor='+endeavorId);
   await expect(page.locator('#savedEndeavors')).toBeVisible();
   // This scenario checks browser continuity and the safe unsigned-in boundary.
