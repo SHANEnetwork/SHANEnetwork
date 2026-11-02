@@ -25,6 +25,21 @@ function init(){
   frame.src=url;direct.href=url;shell.dataset.open="true";active=kind;host.querySelectorAll("button[data-kind]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.kind===kind)));status.textContent="Showing "+kind+" inside your creative workspace. Your draft and conversation are unchanged.";
  }
  host.querySelectorAll("button[data-kind]").forEach(b=>{b.setAttribute("aria-pressed","false");b.addEventListener("click",()=>open(b.dataset.kind,b.dataset.page))});
+ // Explicit requests in the creative prompt can bring the appropriate existing
+ // workspace alongside the draft; ordinary brainstorming remains untouched.
+ const guide=document.getElementById("visionGuide");
+ if(guide)guide.addEventListener("click",()=>{
+  const request=vision.value.trim().toLowerCase();
+  const routes=[
+   {kind:"messages",match:/\b(?:open|show|view|check)\s+(?:my\s+)?(?:messages|inbox|conversations|connections)\b/},
+   {kind:"endeavors",match:/\b(?:open|show|view|find)\s+(?:my\s+)?(?:saved\s+)?(?:projects|endeavors|websites)\b/},
+   {kind:"discover",match:/\b(?:find|discover|search\s+for|look\s+for)\s+(?:some\s+)?(?:collaborators|partners|members|people\s+to\s+work\s+with)\b/},
+   {kind:"communities",match:/\b(?:open|show|browse|find)\s+(?:my\s+)?communities\b/},
+   {kind:"campaigns",match:/\b(?:open|show|browse|find)\s+(?:my\s+)?(?:campaigns|events)\b/}
+  ];
+  const route=routes.find(item=>item.match.test(request));
+  if(route)document.dispatchEvent(new CustomEvent("shane:conversation-network-intent",{detail:{kind:route.kind}}));
+ });
  // Conversation-driven workspace navigation reuses the same guarded in-page tools.
  // It does not send messages, publish listings, or alter a saved website.
  document.addEventListener("shane:conversation-network-intent",event=>{
