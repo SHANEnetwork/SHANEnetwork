@@ -698,7 +698,7 @@ async function continueSavedEndeavor({endeavorId,steps}={}){
 async function endeavorSnapshot({endeavorId}={}){
  const account=await user();if(!account)throw Error("Sign in to inspect your endeavor.");
  if(!endeavorId)throw Error("Select an endeavor.");
- const {data:endeavor,error}=await db.from("shane_endeavors").select("id,title,idea,updated_at").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
+ const {data:endeavor,error}=await db.from("shane_endeavors").select("id,title,idea,linked_site_id,updated_at").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
  if(error||!endeavor)throw Error("The selected endeavor is unavailable to this account.");
  const [creations,collaborations,history]=await Promise.allSettled([
   recentCreations({limit:40}),collaborationContext({endeavorId,limit:20}),list({endeavorId,limit:200,kinds:["creation-summary","creation","ai-request","ai-response","idea"]})
@@ -706,7 +706,13 @@ async function endeavorSnapshot({endeavorId}={}){
  const creationItems=creations.status==="fulfilled"?creations.value:[];
  const receipts=history.status==="fulfilled"?history.value.filter(row=>["creation-summary","creation"].includes(row.entry_kind)):[];
  const linked=creationItems.filter(item=>receipts.some(row=>new RegExp("(^|[^0-9a-f-])"+item.id+"([^0-9a-f-]|$)","i").test(String(row.body||""))));
- const allCreations=creationItems.map(item=>({...item,linkedToEndeavor:linked.some(found=>found.id===item.id)}));
+ const allCreations=creationItems.map(item=>({...item,linkedToEndeavor:linked.some(found=>found.id===item.id)||item.type==="website"&&item.id===endeavor.linked_site_id}));
+ // The direct relationship survives conversation archival and result limits.
+ if(endeavor.linked_site_id&&!allCreations.some(item=>item.id===endeavor.linked_site_id)){
+  const {data:site}=await db.from("shane_sites").select("id,name,status").eq("id",endeavor.linked_site_id).eq("owner_id",account.id).maybeSingle();
+  if(site)allCreations.unshift({id:site.id,title:site.name,type:"website",url:"builder.html?site="+encodeURIComponent(site.id),linkedToEndeavor:true,status:site.status});
+ }
+ const linkedCreations=allCreations.filter(item=>item.linkedToEndeavor);
  // Saved creation plans are shared across pages. Recovery is read-only here:
  // no action is executed and incomplete steps remain visible.
  let plan=null,progress=null,planError=null;
@@ -714,8 +720,8 @@ async function endeavorSnapshot({endeavorId}={}){
   plan=await loadCreationPlan({endeavorId});
   if(plan)progress=await inspectSavedEndeavor({endeavorId,steps:plan.steps});
  }catch(error){planError=String(error?.message||error)}
- return {endeavor:{id:endeavor.id,title:endeavor.title,idea:endeavor.idea,updatedAt:endeavor.updated_at},
-  creations:linked,accountCreations:allCreations,collaborations:collaborations.status==="fulfilled"?collaborations.value.collaborations:[],
+ return {endeavor:{id:endeavor.id,title:endeavor.title,idea:endeavor.idea,linkedSiteId:endeavor.linked_site_id,updatedAt:endeavor.updated_at},
+  creations:linkedCreations,accountCreations:allCreations,collaborations:collaborations.status==="fulfilled"?collaborations.value.collaborations:[],
   creationPlan:plan?{steps:plan.steps.length,types:plan.steps.map(step=>step.type),remaining:progress?.remaining??null,completed:progress?.completed||[],nextStep:progress?.nextStep||null,complete:progress?.complete===true}:null,planError,
   recentHistory:history.status==="fulfilled"?history.value.slice(0,12).map(row=>({kind:row.entry_kind,text:String(row.body||"").slice(0,900),at:row.created_at})):[],
   availability:{creations:creations.status==="fulfilled",collaborations:collaborations.status==="fulfilled",history:history.status==="fulfilled"},
@@ -814,6 +820,14 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
   "community":"communities.html?organization=","campaign":"campaigns.html?campaign=","listing":"members.html?listing="
  };
  const url=destinations[type]+encodeURIComponent(id);
+ // Give the endeavor a durable website relationship, independent of the
+ // conversation receipt window. Never replace a previously linked site.
+ if(type==="new-website"&&endeavorId){
+  const {data:linked,error:linkError}=await db.from("shane_endeavors")
+   .update({linked_site_id:id}).eq("id",endeavorId).eq("owner_id",account.id)
+   .is("linked_site_id",null).select("id").maybeSingle();
+  if(linkError)console.warn("Website saved, but endeavor link needs reconciliation:",linkError.message);
+ }
  const creation={type,id,url,vision:request,endeavorId:endeavorId||null,created:Date.now()};
  try{sessionStorage.setItem("shane-last-created-artifact-v1",JSON.stringify(creation))}catch{}
  document.dispatchEvent(new CustomEvent("shane:artifact-created",{detail:creation}));
