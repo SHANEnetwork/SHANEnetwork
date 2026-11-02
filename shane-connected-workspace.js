@@ -109,7 +109,8 @@ function init(){
   try{
    const query=recentButton.dataset.search||"";
    delete recentButton.dataset.search;
-   const items=query&&typeof store.findSavedCreations==="function"?await store.findSavedCreations({query,limit:20}):await store.recentCreations({limit:12});
+   if(query&&typeof store.findSavedCreations!=="function"){status.textContent="Named creation search is not available yet. Your saved work has not been changed.";return}
+   const items=query?await store.findSavedCreations({query,limit:20}):await store.recentCreations({limit:12});
    recentArea.replaceChildren();
    if(!items.length){status.textContent=query?"No saved creations matched \""+query+"\" in this account. Try another name.":"No saved creations were found in this account yet.";return}
    const list=document.createElement("ul");
@@ -138,7 +139,7 @@ function init(){
     button.textContent="Revise "+item.title;
     button.addEventListener("click",async()=>{
      const instruction=reply.value.trim()||vision.value.trim();
-     if(instruction.length<3){status.textContent="Describe the website revision in the conversation first.";return}
+     if(instruction.length<3||/^(?:please\s+)?(?:revise|edit|update|change|improve)\s+(?:my\s+)?(?:saved\s+)?(?:website|site)\s*[.!?]*$/i.test(instruction)){status.textContent="Describe what should change on the website before approving a revision.";return}
      if(!window.confirm("Apply this revision to "+item.title+"? SHANE will update the saved website."))return;
      const service=window.SHANEConversationStore;
      if(typeof service?.reviseSite!=="function"){status.textContent="The website revision service is not ready.";return}
