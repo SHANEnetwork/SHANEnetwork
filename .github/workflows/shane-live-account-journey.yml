@@ -1,0 +1,34 @@
+name: SHANE live account journey (explicit test account only)
+on:
+  workflow_dispatch:
+jobs:
+  account-journey:
+    if: ${{ vars.SHANE_ENABLE_LIVE_E2E == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      SHANE_E2E_EMAIL: ${{ secrets.SHANE_E2E_EMAIL }}
+      SHANE_E2E_PASSWORD: ${{ secrets.SHANE_E2E_PASSWORD }}
+      SHANE_E2E_URL: https://shanenetwork.org
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser
+        run: |
+          npm install --no-save --no-package-lock playwright@1.58.2
+          npx playwright install --with-deps chromium
+      - name: Verify dedicated account is configured
+        run: |
+          test -n "$SHANE_E2E_EMAIL" || { echo 'Dedicated test email secret is missing'; exit 1; }
+          test -n "$SHANE_E2E_PASSWORD" || { echo 'Dedicated test password secret is missing'; exit 1; }
+      - name: Run signed-in persistence checks
+        run: node tests/shane-live-account-browser.cjs
+      - name: Upload safe diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shane-live-e2e-diagnostics
+          path: test-artifacts/live-e2e/
+          if-no-files-found: ignore
