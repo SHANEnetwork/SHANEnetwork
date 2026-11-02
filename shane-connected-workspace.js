@@ -180,6 +180,7 @@ function init(){
      status.textContent="Revising your saved website…";
      try{
       const result=await service.reviseSite({siteId:item.id,request:instruction});
+      if(instruction!==(reply.value.trim()||vision.value.trim())){status.textContent=result?.saved?"Your earlier revision was saved, but the conversation has changed. Review the saved website before requesting another change.":"Your conversation changed while revising. Check the saved website before retrying.";return}
       status.textContent=result?.saved?"Your website revision was saved. Reopen the website to review it.":"The revision was not confirmed saved. Review your website before trying again.";
       if(result?.saved&&shell.dataset.open==="true"&&new URL(frame.src,window.location.href).searchParams.get("site")===item.id){frame.src=frame.src;status.textContent="Your website revision was saved. The open website is refreshing so you can review the result beside our conversation.";}
      }catch(error){status.textContent="Website revision could not be saved: "+(error?.message||"Please try again.");}
