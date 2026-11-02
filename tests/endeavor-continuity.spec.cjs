@@ -109,3 +109,29 @@ test('saved work context is included in continuation without publishing or conta
   await expect(entry).toHaveValue(/Local Bakers Collective/);
   await expect(entry).toHaveValue(/Ask before publishing or contacting anyone/);
 });
+
+test('returning member can restore full saved endeavor vision without silently overwriting a new message', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  const id = '99999999-9999-4999-8999-999999999999';
+  const original = 'Create a welcoming neighborhood pottery studio website, beginner classes, and a collaborative community calendar.';
+  await page.evaluate(({id,original}) => {
+    window.SHANECurrentEndeavor = {read: () => id};
+    window.SHANEConversationStore = {
+      endeavorSnapshot: async () => ({
+        endeavor:{id,title:'Pottery studio',idea:original},
+        creations:[],collaborations:[],availability:{creations:true,collaborations:true},creationPlan:null
+      }),
+      endeavors: async () => [{id,title:'Pottery studio'}]
+    };
+    document.dispatchEvent(new Event('shane:conversation-store-ready'));
+    document.dispatchEvent(new Event('shane:endeavor-context-ready'));
+  }, {id,original});
+  const restore = page.getByRole('button',{name:'Return to my original vision'});
+  await expect(restore).toBeVisible();
+  const composer = page.locator('#shaneUnifiedComposerInput');
+  // Use the actual shared composer rather than the specialist website form.
+  const target = page.locator('textarea').filter({visible:true}).first();
+  await restore.click();
+  await expect(page.locator('body')).toContainText('Return to my original vision');
+  expect(await page.locator('textarea').evaluateAll((els, vision) => els.some(el => el.value === vision), original)).toBe(true);
+});
