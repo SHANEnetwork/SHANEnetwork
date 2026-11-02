@@ -725,3 +725,22 @@ test('revision cannot silently target a different website than the open preview'
   expect(await page.evaluate(()=>window.__revisionCalls)).toBe(0);
   await expect(page.locator('#shaneIdeaReply')).toHaveValue('Add a gallery to the homepage');
 });
+
+test('conversation events retrieve saved work and accepted collaborations without losing the draft', async ({ page }) => {
+  const id='11111111-1111-4111-8111-111111111111';
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(collaborationId=>{
+    window.SHANEConversationStore={
+      recentCreations:async()=>[{id:collaborationId,type:'website',title:'Makers studio',url:'builder.html?site='+collaborationId}],
+      joinedCollaborations:async()=>[{id:collaborationId,status:'accepted',role:'collaborator',listingTitle:'Makers event',url:'workspace.html?collaboration='+collaborationId}]
+    };
+  },id);
+  await page.locator('#visionPrompt').fill('Create a welcoming makers event');
+  await page.locator('#shaneIdeaReply').fill('Add a community gallery');
+  await page.evaluate(()=>document.dispatchEvent(new CustomEvent('shane:conversation-network-intent',{detail:{kind:'saved-creations'}})));
+  await expect(page.locator('#shane-connected-creations')).toContainText('Makers studio');
+  await page.evaluate(()=>document.dispatchEvent(new CustomEvent('shane:conversation-network-intent',{detail:{kind:'collaborations'}})));
+  await expect(page.locator('#shane-connected-collaborations-list')).toContainText('Makers event');
+  await expect(page.locator('#visionPrompt')).toHaveValue('Create a welcoming makers event');
+  await expect(page.locator('#shaneIdeaReply')).toHaveValue('Add a community gallery');
+});
