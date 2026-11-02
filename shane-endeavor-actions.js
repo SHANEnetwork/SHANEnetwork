@@ -1295,11 +1295,15 @@ function init(){
    const snapshot=await store.endeavorSnapshot({endeavorId:selected});
    if(window.SHANECurrentEndeavor?.read?.()!==selected)return;
    const plan=snapshot.creationPlan;
-   const request=plan?.remaining>0
-    ?"Continue this saved endeavor. Review the remaining "+plan.remaining+" planned creation steps, recognize completed work, and propose the best next approved action."
-    :plan?.complete
-     ?"Review this completed endeavor and its existing creations. Help improve and connect what is already built without repeating completed work."
-     :"Review this endeavor as a whole. Use its saved creations and accepted collaborations to propose the next useful, achievable step.";
+   if(plan?.remaining>0){
+    // Restore actual receipts and the reviewed execution controls, rather
+    // than proposing a second plan for work that is already saved.
+    if(!restorePlan.disabled)restorePlan.click();
+    return;
+   }
+   const request=plan?.complete
+    ?"Review this completed endeavor and its existing creations. Help improve and connect what is already built without repeating completed work."
+    :"Review this endeavor as a whole. Use its saved creations and accepted collaborations to propose the next useful, achievable step.";
    entry.value=request;
    entry.dispatchEvent(new Event("input",{bubbles:true}));
    entry.scrollIntoView({behavior:"smooth",block:"center"});
@@ -1349,11 +1353,9 @@ function init(){
     next.onclick=()=>{
      // Return to conversation instead of sending the member through menus.
      // Reviewing the next step never authorizes its execution.
-     entry.value="Review the remaining steps of my saved endeavor plan and help me decide what to create next.";
-     entry.dispatchEvent(new Event("input",{bubbles:true}));
-     entry.scrollIntoView({behavior:"smooth",block:"center"});
-     entry.focus();
-     if(!askAI.disabled)askAI.click();
+     // The same approved continuation journey is available from every page.
+     if(!restorePlan.disabled)restorePlan.click();
+     aiReply.scrollIntoView({behavior:"smooth",block:"center"});
     };
     endeavorContinuity.append(next);
    }
