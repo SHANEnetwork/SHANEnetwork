@@ -58,7 +58,8 @@ function init(){
  const planButton=host.querySelector("#shane-connected-plan");
  const createButton=host.querySelector("#shane-connected-create");
  let reviewedPlan=null;
- const invalidatePlan=()=>{reviewedPlan=null;createButton.disabled=true};
+ let planningVersion=0;
+ const invalidatePlan=()=>{planningVersion++;reviewedPlan=null;createButton.disabled=true};
  vision.addEventListener("input",invalidatePlan);
  reply.addEventListener("input",invalidatePlan);
  document.addEventListener("shane:endeavor-changed",invalidatePlan);
@@ -89,13 +90,14 @@ function init(){
   if(typeof store?.proposeCreationSequence!=="function"){status.textContent="The creation planner is not ready yet.";return}
   try{
    invalidatePlan();
+   const thisPlanVersion=planningVersion;
    planButton.disabled=true;
    const initialEndeavor=currentId();
    const initialVision=vision.value;
    const initialReply=reply.value;
    status.textContent="Preparing your creation plan…";
    const proposal=await store.proposeCreationSequence({vision:idea,endeavorId:initialEndeavor});
-   if(currentId()!==initialEndeavor||vision.value!==initialVision||reply.value!==initialReply){status.textContent="Your vision or selected endeavor changed while planning. Review a fresh plan for the current conversation.";return}
+   if(planningVersion!==thisPlanVersion||currentId()!==initialEndeavor||vision.value!==initialVision||reply.value!==initialReply){status.textContent="Your vision or selected endeavor changed while planning. Review a fresh plan for the current conversation.";return}
    if(!proposal||!proposal.ready||!Array.isArray(proposal.steps)||!proposal.steps.length){status.textContent=proposal?.reason||"Describe the website, community, event, or listing you want to create.";return}
    const names={"new-website":"website",community:"community",campaign:"campaign or event",listing:"listing"};
    const parts=proposal.steps.map(step=>names[step.type]||step.type);
