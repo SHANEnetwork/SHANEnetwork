@@ -438,7 +438,7 @@ test('one visitor journey carries vision into creation refinement and private co
   await expect(page.locator('#shaneIdeaTurns')).toContainText('neighborhood pottery studio');
   await page.locator('#visionPrompt').fill('Add accessible beginner workshops and a volunteer calendar.');
   await page.locator('#visionGuide').click();
-  await expect(page.locator('#aiMode')).toHaveValue('revise');
+  await expect(page.locator('#aiMode')).toHaveValue('new'); // No website draft exists yet; prior requests still inform first creation.
   await expect(page.locator('#aiPrompt')).toHaveValue(/Earlier request 1:/);
   await page.locator('#shanePrepareIntroduction').click();
   await expect(page).toHaveURL(/network\.html\?q=/);
