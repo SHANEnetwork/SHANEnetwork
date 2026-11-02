@@ -26,7 +26,7 @@ function init(){
    if(!accepted.length){status.textContent="This endeavor has linked listings, but no accepted collaboration workspaces yet.";return}
    const byId=new Map(listings.map(x=>[x.id,x]));
    for(const request of accepted){
-    const li=document.createElement("li"),a=document.createElement("a");a.href="workspace.html?collaboration="+encodeURIComponent(request.id);a.textContent="Collaboration: "+(byId.get(request.listing_id)?.title||"Network opportunity");li.append(a);
+    const li=document.createElement("li"),a=document.createElement("a");a.href="workspace.html?collaboration="+encodeURIComponent(request.id)+"&endeavor="+encodeURIComponent(id);a.textContent="Collaboration: "+(byId.get(request.listing_id)?.title||"Network opportunity");li.append(a);
     const feed=document.createElement("div");feed.setAttribute("aria-label","Recent collaboration messages");feed.textContent="Loading recent messages…";li.append(feed);
     const form=document.createElement("form"),label=document.createElement("label"),input=document.createElement("textarea"),send=document.createElement("button"),feedback=document.createElement("p");
     label.textContent="Write to this collaboration";input.rows=2;input.maxLength=5000;input.required=true;input.style.cssText="display:block;width:100%;box-sizing:border-box;margin:8px 0;padding:9px;border:1px solid #cbb8c4;border-radius:10px";send.type="submit";send.textContent="Send message";feedback.setAttribute("role","status");label.append(input);form.append(label,send,feedback);li.append(form);results.append(li);
