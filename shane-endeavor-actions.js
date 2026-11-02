@@ -1370,6 +1370,23 @@ function init(){
     };
     endeavorContinuity.append(improve);
    }
+   // A single usable journey, not a collection of disconnected feature menus.
+   // These destinations already exist; progress is derived from confirmed
+   // account-owned records rather than optimistic client-side flags.
+   const journey=document.createElement("nav");
+   journey.setAttribute("aria-label","Endeavor journey");
+   journey.style.cssText="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0";
+   const journeyStep=(label,href,done=false)=>{
+    const link=document.createElement("a");
+    link.href=href;link.textContent=(done?"✓ ":"") + label;
+    link.style.cssText="display:inline-block;padding:7px 12px;border:1px solid #b18b9f;border-radius:20px;color:#704560;text-decoration:none;background:"+ (done?"#f3e7eb":"transparent");
+    journey.append(link);
+   };
+   journeyStep("Create or revise","builder.html",snapshot.creations.some(item=>item.type==="website"));
+   journeyStep("Build community","communities.html",snapshot.creations.some(item=>item.type==="community"));
+   journeyStep("Find collaborators","network.html",snapshot.collaborations.length>0);
+   journeyStep("Work together","workspace.html",snapshot.collaborations.length>0);
+   endeavorContinuity.append(journey);
    for(const item of snapshot.collaborations.slice(0,3)){
     const link=document.createElement("a");link.href=item.url;link.textContent=item.listingTitle;
     link.style.cssText="margin-left:12px;color:#784b6c;text-decoration:underline";
