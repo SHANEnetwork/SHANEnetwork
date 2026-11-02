@@ -1562,12 +1562,22 @@ function init(){
     link.style.cssText="display:inline-block;padding:7px 12px;border:1px solid #b18b9f;border-radius:20px;color:#704560;text-decoration:none;background:"+ (done?"#f3e7eb":"transparent");
     journey.append(link);
    };
-   journeyStep("Create or revise","builder.html",snapshot.creations.some(item=>item.type==="website"));
+   const savedSite=snapshot.endeavor?.linkedSiteId;
+   journeyStep("Create or revise",savedSite
+    ?"builder.html?site="+encodeURIComponent(savedSite):"builder.html",
+    snapshot.creations.some(item=>item.type==="website"));
    journeyStep("Build community","communities.html",snapshot.creations.some(item=>item.type==="community"));
-   // Finding people is not the same as securing an accepted collaboration.
-   // Never mark discovery complete solely because a collaboration exists.
+   // A saved endeavor must have a usable Network opportunity, not just a
+   // discovery menu. Members without one can create a private listing first.
+   const opportunity=(snapshot.collaborationListings||[])[0];
+   journeyStep(opportunity?"Manage Network opportunity":"Connect to SHANE Network",
+    opportunity?.url||"members.html",Boolean(opportunity));
    journeyStep("Find collaborators","network.html");
-   journeyStep("Work together","workspace.html",snapshot.collaborations.length>0);
+   // workspace.html requires a verified accepted collaboration identifier.
+   // Never send members to an empty workspace with only an endeavor query.
+   const accepted=snapshot.collaborations.find(item=>item.url);
+   journeyStep("Work together",accepted?.url||"my-network.html#joinedWorkspaces",
+    Boolean(accepted));
    // Bring the member back to their account-owned endeavor, not a new blank idea.
    const returnToWork=document.createElement("button");
    returnToWork.type="button";
