@@ -236,6 +236,22 @@ jobs:
           console.log('Validated '+pages.length+' pages and '+checked+' inline scripts plus publishing invariants.');
           NODE
 
+      - name: Check conversation-first homepage and responsive entry
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import assert from 'node:assert/strict';
+          const page=fs.readFileSync('index.html','utf8');
+          assert.match(page,/<h1>What would you like to create\?<\/h1>/);
+          assert.match(page,/id="shane-home-vision-form"/);
+          assert.match(page,/href="dashboard.html">Continue saved work/);
+          assert.match(page,/href="network.html">Explore the Network/);
+          assert.match(page,/href="members.html">Find people/);
+          assert.match(page,/shane-home-extras/);
+          assert.match(page,/moveWorkspace/);
+          assert.match(page,/@media\(max-width:600px\)/);
+          console.log('Conversation-first homepage checks passed.');
+          NODE
       - name: Check Network Safety wiring and private-record invariants
         run: |
           node --check shane-safety-account.js
