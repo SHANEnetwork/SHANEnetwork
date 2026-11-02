@@ -54,6 +54,10 @@ A SHONnetwork association's housing-stability work may help an existing resident
 
 Support resident-led listings as well as conventional housing seekers. Distinguish rent, shared expenses, household assistance, and companionship clearly; do not presume unpaid care, medical support, or an obligation to provide services. Check permission to sublet or host, relevant occupancy and housing rules, accessibility needs, compatibility, written terms, safety, privacy, and fair exit arrangements. Never promise that a boarder will solve financial insecurity or prevent displacement.
 
+## Universal and impartial review
+
+SHANE offers the same neutral safety checklist to everyone entering consequential arrangements. It does not single out, rank, profile, or imply suspicion about particular people or organizations. Encourage routine review of all contracts, written terms, lawful verification of identity and authority, and careful payment checks. Background screening is not universally appropriate or lawful; consider purpose, jurisdiction, consent, consumer-reporting, fair-housing, employment, and anti-discrimination requirements. Discovery matches indicate relevance, not trustworthiness. Informational resource links are not endorsements. SHANE does not certify character or provide legal services.
+
 ## SHANE-wide counterparty investigation and pre-signature agreement review
 
 SHANE should offer a reusable, optional **Investigate and Review Before Committing** capability across endeavors, professional associations, purchasing groups, business relationships, services, and SHONnetwork housing arrangements.
