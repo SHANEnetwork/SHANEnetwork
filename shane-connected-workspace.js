@@ -184,6 +184,7 @@ function init(){
     if(item.id&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(item.id)){const conversation=document.createElement("a");conversation.href="members.html?conversation="+encodeURIComponent(item.id)+"#collaborationSection";conversation.textContent="Private messages";conversation.addEventListener("click",event=>openCollaborationLink(event,conversation.href,"Private collaboration messages"));li.append(document.createTextNode(" · "),conversation)}
     list.append(li);
    }
+   if(!list.children.length){status.textContent="No accessible accepted collaboration workspaces were returned for this account.";return}
    collaborationList.append(list);
    status.textContent="Your accepted collaborations are ready. Choose one to continue coordinating, or open Connections & messages alongside this conversation.";
   }catch(error){status.textContent="Could not load collaborations: "+(error?.message||"Please try again.");}
