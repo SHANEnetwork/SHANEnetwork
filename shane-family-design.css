@@ -1,0 +1,13 @@
+/* Shared SHANE family visual language. Opt-in: SHON may adopt without shared data. */
+:root{--shane-ink:#30243c;--shane-plum:#553760;--shane-gold:#dba76a;--shane-cream:#fffaf3;--shane-focus:#8d4ca8}
+.shane-family-entry{position:relative;isolation:isolate;overflow:hidden;border:1px solid #d8b9c9;border-radius:26px;padding:clamp(22px,4vw,50px);background:radial-gradient(ellipse at 90% 12%,#ffdcab 0%,transparent 42%),radial-gradient(ellipse at 8% 100%,#b8dfd3 0%,transparent 44%),linear-gradient(135deg,#fff9ee,#f4e0e6 58%,#e7e6f6);color:var(--shane-ink);box-shadow:0 15px 40px #3727441c}
+.shane-family-entry h1,.shane-family-entry h2{font-family:Georgia,serif;color:#30243c;line-height:1.12}
+.shane-family-entry p{color:#47384f;line-height:1.6}
+.shane-family-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.shane-family-actions a,.shane-family-actions button{display:inline-flex;justify-content:center;align-items:center;min-height:44px;padding:10px 17px;border-radius:999px;border:1px solid #8e6b92;background:#fffaf6;color:#37263f;text-decoration:none;font-weight:700;font:inherit;cursor:pointer}
+.shane-family-actions a:first-child,.shane-family-actions button:first-child{background:#553760;color:white}
+.shane-family-actions a:focus-visible,.shane-family-actions button:focus-visible,.shane-family-entry textarea:focus-visible{outline:3px solid var(--shane-focus);outline-offset:3px}
+.shane-family-entry textarea{width:100%;min-height:105px;padding:15px;border-radius:16px;border:1px solid #a995b0;background:#fff;color:#30243c;font:inherit;font-size:16px;resize:vertical}
+.shane-family-note{font-size:.9rem;color:#594961}
+@media(max-width:650px){.shane-family-entry{padding:20px 16px;border-radius:19px}.shane-family-actions a,.shane-family-actions button{flex:1 1 170px;text-align:center}}
+@media(prefers-reduced-motion:reduce){.shane-family-entry *{scroll-behavior:auto!important;transition:none!important}}
