@@ -252,3 +252,41 @@ test('saved endeavor journey opens its actual website, Network opportunity and a
   await expect(journey.getByRole('link',{name:/Manage Network opportunity/})).toHaveAttribute('href',new RegExp('members\\.html\\?listing='+listing+'.*endeavor='+endeavor));
   await expect(journey.getByRole('link',{name:/Work together/})).toHaveAttribute('href',new RegExp('workspace\\.html\\?collaboration='+collaboration+'.*endeavor='+endeavor));
 });
+
+test('SHANE revises the linked saved website conversationally and remembers the result',async ({page})=>{
+ await page.goto('http://127.0.0.1:8765/builder.html');
+ const endeavor='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+ const site='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+ await page.evaluate(({endeavor,site})=>{
+  window.SHANECurrentEndeavor={read:()=>endeavor};
+  window.__revisionCalls=[];
+  window.SHANEConversationStore={
+   endeavorSnapshot:async()=>({
+    endeavor:{id:endeavor,idea:'A welcoming community bakery',linkedSiteId:site},
+    creations:[{id:site,type:'website',title:'Bakery',url:'builder.html?site='+site}],
+    collaborations:[],collaborationListings:[],availability:{creations:true,collaborations:true},creationPlan:null
+   }),
+   joinedCollaborations:async()=>[],
+   endeavors:async()=>[{id:endeavor,title:'Bakery'}],
+   reviseSite:async input=>{window.__revisionCalls.push({kind:'revise',...input});return {saved:true,siteId:site}},
+   saveTurn:async (body,options)=>{window.__revisionCalls.push({kind:'memory',body,options});return {saved:true}}
+  };
+  document.dispatchEvent(new Event('shane:conversation-store-ready'));
+  document.dispatchEvent(new Event('shane:endeavor-context-ready'));
+ },{endeavor,site});
+ const action=page.getByRole('button',{name:'Apply my website changes with SHANE'});
+ await expect(action).toBeVisible();
+ const composer=page.locator('#shane-shared-vision-input');
+ await composer.fill('Add an accessible bakery workshop calendar and keep the existing homepage.');
+ page.once('dialog',dialog=>dialog.dismiss());
+ await action.click();
+ expect(await page.evaluate(()=>window.__revisionCalls)).toEqual([]);
+ page.once('dialog',dialog=>dialog.accept());
+ await action.click();
+ await expect.poll(()=>page.evaluate(()=>window.__revisionCalls.length)).toBe(2);
+ const calls=await page.evaluate(()=>window.__revisionCalls);
+ expect(calls[0]).toMatchObject({kind:'revise',siteId:site,request:'Add an accessible bakery workshop calendar and keep the existing homepage.'});
+ expect(calls[1].kind).toBe('memory');
+ expect(calls[1].options.endeavorId).toBe(endeavor);
+ await expect(page.getByRole('link',{name:'Open revised website'})).toHaveAttribute('href','builder.html?site='+site+'&endeavor='+endeavor);
+});
