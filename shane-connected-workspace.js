@@ -88,7 +88,7 @@ function init(){
  planButton.addEventListener("click",async()=>{
   const idea=vision.value.trim()||reply.value.trim();
   const store=window.SHANEConversationStore;
-  if(typeof store?.proposeCreationSequence!=="function"){status.textContent="The creation planner is not ready yet.";return}
+  if(typeof store?.proposeAICreationSequence!=="function"&&typeof store?.proposeCreationSequence!=="function"){status.textContent="The creation planner is not ready yet.";return}
   try{
    invalidatePlan();
    const thisPlanVersion=planningVersion;
@@ -97,7 +97,8 @@ function init(){
    const initialVision=vision.value;
    const initialReply=reply.value;
    status.textContent="Preparing your creation plan…";
-   const planner=typeof store.proposeAICreationSequence==="function"&&initialEndeavor?store.proposeAICreationSequence:store.proposeCreationSequence;
+   const aiAvailable=typeof store.proposeAICreationSequence==="function";
+   const planner=aiAvailable?store.proposeAICreationSequence:store.proposeCreationSequence;
    const proposal=await planner({vision:idea,endeavorId:initialEndeavor});
    if(planningVersion!==thisPlanVersion||currentId()!==initialEndeavor||vision.value!==initialVision||reply.value!==initialReply){status.textContent="Your vision or selected endeavor changed while planning. Review a fresh plan for the current conversation.";return}
    if(!proposal||!proposal.ready||!Array.isArray(proposal.steps)||!proposal.steps.length){status.textContent=proposal?.reason||"Describe the website, community, event, or listing you want to create.";return}
