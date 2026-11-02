@@ -543,3 +543,36 @@ test('connected workspace only displays accepted account collaborations', async 
   await expect(page.locator('#shane-connected-collaborations-list')).toContainText('Pottery fair');
   await expect(page.locator('#shane-connected-collaborations-list')).not.toContainText('Unaccepted request');
 });
+
+test('conversation revision uses a selected saved website and explicit approval', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(() => {
+    window.__revisionCalls=[];
+    window.confirm=()=>true;
+    window.SHANEConversationStore={
+      recentCreations:async()=>[{id:'11111111-1111-4111-8111-111111111111',type:'website',title:'Pottery studio',url:'builder.html?site=11111111-1111-4111-8111-111111111111'}],
+      reviseSite:async args=>{window.__revisionCalls.push(args);return {saved:true,siteId:args.siteId}}
+    };
+  });
+  await page.locator('#shane-connected-recent').click();
+  await page.locator('#shaneIdeaReply').fill('Please add a gallery of ceramic pieces');
+  await page.getByRole('button',{name:'Revise Pottery studio'}).click();
+  await expect(page.locator('#shane-connected-status')).toContainText('revision was saved');
+  await expect.poll(()=>page.evaluate(()=>window.__revisionCalls)).toEqual([{siteId:'11111111-1111-4111-8111-111111111111',request:'Please add a gallery of ceramic pieces'}]);
+});
+
+test('conversation revision does not execute without approval', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(() => {
+    window.__revisionCalls=[];
+    window.confirm=()=>false;
+    window.SHANEConversationStore={
+      recentCreations:async()=>[{id:'11111111-1111-4111-8111-111111111111',type:'website',title:'Pottery studio',url:'builder.html?site=11111111-1111-4111-8111-111111111111'}],
+      reviseSite:async args=>{window.__revisionCalls.push(args);return {saved:true}}
+    };
+  });
+  await page.locator('#shane-connected-recent').click();
+  await page.locator('#shaneIdeaReply').fill('Change the homepage title');
+  await page.getByRole('button',{name:'Revise Pottery studio'}).click();
+  await expect.poll(()=>page.evaluate(()=>window.__revisionCalls.length)).toBe(0);
+});
