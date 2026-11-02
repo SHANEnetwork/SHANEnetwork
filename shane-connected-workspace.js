@@ -102,6 +102,7 @@ function init(){
    const names={"new-website":"website",community:"community",campaign:"campaign or event",listing:"listing"};
    const allowedTypes=new Set(Object.keys(names));
    if(proposal.steps.some(step=>!step||!allowedTypes.has(step.type))){status.textContent="The planner proposed an unsupported creation step. Review a new plan before creating anything.";return}
+   if(proposal.steps.length>12){status.textContent="The creation plan contains too many operations for one review. Ask SHANE to divide it into smaller stages.";return}
    const parts=proposal.steps.map(step=>names[step.type]);
    invalidatePlan();
    const endeavorId=currentId();
