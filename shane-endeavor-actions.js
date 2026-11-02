@@ -32,6 +32,8 @@ if(journeyId&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(journeyId)){
   }finally{resolving=false}
  };
  document.addEventListener("shane:conversation-store-ready",()=>void resolveJourney());
+ document.addEventListener("shane:account-db-ready",()=>void resolveJourney());
+ document.addEventListener("shane:auth-changed",()=>void resolveJourney());
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>void resolveJourney(),{once:true});
  else void resolveJourney();
 }
