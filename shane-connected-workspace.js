@@ -139,6 +139,8 @@ function init(){
     button.textContent="Revise "+item.title;
     button.addEventListener("click",async()=>{
      const instruction=reply.value.trim()||vision.value.trim();
+     const selectedSite=new URL(frame.src||window.location.href,window.location.href).searchParams.get("site");
+     if(shell.dataset.open==="true"&&active==="saved-creation"&&selectedSite&&selectedSite!==item.id){status.textContent="A different website is open beside your conversation. Open "+item.title+" first to confirm which website you want to revise.";return}
      const navigationOnly=/^(?:please\s+)?(?:open|show|view|find|return\s+to|revisit)\s+(?:my\s+)?(?:saved\s+)?(?:website|site|creation|project)(?:\s+(?:named|called)\s+.+)?\s*[.!?]*$/i;
      if(instruction.length<3||/^(?:please\s+)?(?:revise|edit|update|change|improve)\s+(?:my\s+)?(?:saved\s+)?(?:website|site)\s*[.!?]*$/i.test(instruction)||navigationOnly.test(instruction)){status.textContent="Describe what should change on the website before approving a revision.";return}
      if(!window.confirm("Apply this revision to "+item.title+"? SHANE will update the saved website."))return;
