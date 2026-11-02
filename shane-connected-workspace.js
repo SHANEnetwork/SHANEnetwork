@@ -66,7 +66,8 @@ function init(){
    const result=await store.executeApprovedSequence({steps:plan.steps,endeavorId:plan.endeavorId,approved:true});
    invalidatePlan();
    const count=result?.completed?.length||0;
-   status.textContent=result?.complete&&result?.verified?"Created and verified "+count+" saved item(s).":"Saved "+count+" item(s). "+(result?.error||result?.verificationError||"Review your saved work before continuing.");
+   status.textContent=result?.complete&&result?.verified?"Created and verified "+count+" saved item(s). Open Return to saved creations to continue.":"Saved "+count+" item(s). "+(result?.error||result?.verificationError||"Review your saved work before continuing.");
+   if(count&&typeof store?.recentCreations==="function")recentButton.click();
   }catch(error){invalidatePlan();status.textContent="Creation stopped: "+(error?.message||"Please review saved work.");}
   finally{planButton.disabled=false}
  });
