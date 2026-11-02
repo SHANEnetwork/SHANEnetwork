@@ -40,3 +40,25 @@ test('multi-capability journey prepares work without silently executing or publi
   expect(result.handoff.context.latestRequest).toContain('find partners');
   expect(result.handoff.destination).toBe('builder.html');
 });
+
+test('saved endeavor journey offers direct continuation without inventing discovery completion', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  const id = '77777777-7777-4777-8777-777777777777';
+  await page.evaluate(endeavorId => {
+    window.SHANECurrentEndeavor = {read: () => endeavorId};
+    window.SHANEConversationStore = {
+      endeavorSnapshot: async () => ({
+        creations: [], collaborations: [{listingTitle:'Accepted teammate',url:'workspace.html'}],
+        availability: {creations:true,collaborations:true}, creationPlan:null
+      }),
+      endeavors: async () => [{id:endeavorId,title:'Neighborhood bakery'}]
+    };
+    document.dispatchEvent(new Event('shane:conversation-store-ready'));
+    document.dispatchEvent(new Event('shane:endeavor-context-ready'));
+  }, id);
+  const journey = page.locator('nav[aria-label="Endeavor journey"]');
+  await expect(journey).toBeVisible();
+  await expect(journey.getByRole('button', {name:'Continue saved endeavor'})).toBeVisible();
+  await expect(journey.getByRole('link', {name:'Find collaborators'})).toBeVisible();
+  await expect(journey.getByRole('link', {name:/Work together/})).toContainText('✓');
+});
