@@ -48,8 +48,9 @@ function init(){
   try{
    const result=await store.beginEndeavor({vision:idea});
    const id=result?.id||result?.endeavor?.id;
-   if(id&&currentId()!==id)document.dispatchEvent(new CustomEvent("shane:endeavor-changed",{detail:{id}}));
-   status.textContent="Your new endeavor is saved to your account. Continue refining it here or open My endeavors.";
+   if(typeof id!=="string"||!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(id)){status.textContent="The save was not confirmed with an endeavor identifier. Review My endeavors before trying again.";return}
+   if(currentId()!==id)document.dispatchEvent(new CustomEvent("shane:endeavor-changed",{detail:{id}}));
+   status.textContent="Your new endeavor is saved to your account and selected for the next creation step. Continue refining it here or plan its website and Network capabilities.";
   }catch(error){status.textContent="Could not save the endeavor: "+(error?.message||"Please try again.");}
   finally{saveVision.disabled=false}
  });
