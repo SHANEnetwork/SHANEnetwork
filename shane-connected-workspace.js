@@ -111,7 +111,7 @@ function init(){
    delete recentButton.dataset.search;
    const items=query&&typeof store.findSavedCreations==="function"?await store.findSavedCreations({query,limit:20}):await store.recentCreations({limit:12});
    recentArea.replaceChildren();
-   if(!items.length){status.textContent="No saved creations were found in this account yet.";return}
+   if(!items.length){status.textContent=query?"No saved creations matched \""+query+"\" in this account. Try another name.":"No saved creations were found in this account yet.";return}
    const list=document.createElement("ul");
    for(const item of items){
     if(!item?.url||!item?.title)continue;
@@ -147,6 +147,7 @@ function init(){
      try{
       const result=await service.reviseSite({siteId:item.id,request:instruction});
       status.textContent=result?.saved?"Your website revision was saved. Reopen the website to review it.":"The revision was not confirmed saved. Review your website before trying again.";
+      if(result?.saved&&shell.dataset.open==="true"&&new URL(frame.src,window.location.href).searchParams.get("site")===item.id){frame.src=frame.src;status.textContent="Your website revision was saved. The open website is refreshing so you can review the result beside our conversation.";}
      }catch(error){status.textContent="Website revision could not be saved: "+(error?.message||"Please try again.");}
      finally{button.disabled=false}
     });
