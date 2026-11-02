@@ -85,3 +85,27 @@ test('returning to a saved endeavor does not erase an unfinished message', async
   await expect(entry).toHaveValue(draft);
   await expect(page.locator('.shane-endeavor-continuity-line')).toBeVisible();
 });
+
+test('saved work context is included in continuation without publishing or contacting anyone', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  const id = '99999999-9999-4999-8999-999999999999';
+  await page.evaluate(endeavorId => {
+    window.SHANECurrentEndeavor = {read: () => endeavorId};
+    window.SHANEConversationStore = {
+      endeavorSnapshot: async () => ({
+        creations: [{type:'website',title:'Warm Bakery Website',url:'builder.html?site=123'}],
+        collaborations: [{listingTitle:'Local Bakers Collective',url:'workspace.html'}],
+        availability: {creations:true,collaborations:true}, creationPlan:null
+      }),
+      endeavors: async () => [{id:endeavorId,title:'Bakery'}]
+    };
+    document.dispatchEvent(new Event('shane:conversation-store-ready'));
+    document.dispatchEvent(new Event('shane:endeavor-context-ready'));
+  }, id);
+  const entry = page.locator('#shane-shared-vision-input');
+  await entry.fill('');
+  await page.getByRole('button', {name:'Continue saved endeavor'}).click();
+  await expect(entry).toHaveValue(/Warm Bakery Website/);
+  await expect(entry).toHaveValue(/Local Bakers Collective/);
+  await expect(entry).toHaveValue(/Ask before publishing or contacting anyone/);
+});
