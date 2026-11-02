@@ -137,3 +137,26 @@ test('returning member can restore full saved endeavor vision without silently o
   await restore.click();
   await expect(composer).toHaveValue(original);
 });
+
+test('saved endeavor resumes creation, network discovery and a guarded website revision across pages', async ({ page }) => {
+  const endeavorId='11111111-1111-4111-8111-111111111111';
+  const siteId='22222222-2222-4222-8222-222222222222';
+  const request='Add a welcoming pottery workshop page while preserving the existing website.';
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(({endeavorId,siteId,request})=>{
+    sessionStorage.setItem('shane-website-revision-handoff-v1',JSON.stringify({
+      endeavorId,siteId,request,at:Date.now()
+    }));
+  },{endeavorId,siteId,request});
+  await page.goto('http://127.0.0.1:8765/builder.html?endeavor='+endeavorId+'&site='+siteId);
+  await expect(page.locator('#aiPrompt')).toHaveValue(request);
+  await expect(page.locator('#aiMode')).toHaveValue('revise');
+  await page.locator('#generateAI').click();
+  await expect(page.locator('#aiStatus')).toContainText(/Sign in|Open the saved website|Select and open/);
+  await expect(page.locator('#updateSite')).toBeVisible();
+  await page.goto('http://127.0.0.1:8765/builder.html?endeavor='+endeavorId);
+  await expect(page.locator('#savedEndeavors')).toBeVisible();
+  // This scenario checks browser continuity and the safe unsigned-in boundary.
+  // Real database persistence, collaboration acceptance, and revision saving
+  // still require a signed-in test account on an isolated project.
+});
