@@ -21,6 +21,17 @@
 
 **Implementation requirement:** Conversational AI should operate actual supported services with verified, persistent results and appropriate approvals, rather than only suggest pages, fill forms, or redirect users to unrelated tools. Manual access remains optional. Distinguish planned operations from executed actions.
 
+## Discovery and collaboration start during creation
+
+When a person describes a new website, club, association, project, business, or other endeavor, SHANE should offer relevant **existing Network endeavors, organizations, people, and collaboration opportunities from the beginning**, not only after publication. The user may choose to create something new, join something existing, or do both.
+
+- Search only legitimately discoverable Network records, respect privacy and account permissions, and distinguish confirmed matches from suggestions or inferred fit.
+- Explain why a result may be relevant to the person's stated aims, capabilities, location preferences, and collaboration interests; provide a route to inspect the real listing.
+- Allow conversational refinement of discovery goals and results, including exploration of specific organizations and collaborators.
+- Connect opt-in introductions, collaboration invitations, messaging, and shared workspaces to the same persistent endeavor identity.
+- Never automatically contact others, join a group, publish a listing, or disclose private interests without the person's approval.
+- Keep discovery usable independently of website creation; make it available within the builder and central Network.
+
 ## One-sentence contract
 **The person describes the endeavor they imagine. SHANE designs, writes, builds, configures, and refines the actual website and its supported capabilities; the person guides the vision and approves important decisions.**
 
