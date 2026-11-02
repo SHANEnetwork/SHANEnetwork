@@ -1389,6 +1389,29 @@ function init(){
    }catch(error){console.warn("Joined collaborations unavailable",error)}
    return;
   }
+  // Joined workspaces are independent of the selected owned endeavor. Keep
+  // them discoverable even while the member is developing another project.
+  if(store?.joinedCollaborations){
+   try{
+    const joined=await store.joinedCollaborations({limit:12});
+    if(run!==continuityRun||window.SHANECurrentEndeavor?.read?.()!==id)return;
+    if(joined.length){
+     const joinedGroup=document.createElement("div");
+     joinedGroup.style.cssText="margin-top:8px";
+     const heading=document.createElement("strong");
+     heading.textContent="Your joined Network workspaces: ";
+     joinedGroup.append(heading);
+     for(const item of joined.slice(0,8)){
+      const link=document.createElement("a");
+      link.href=item.url;
+      link.textContent=item.listingTitle;
+      link.style.cssText="display:inline-block;margin-left:12px;color:#784b6c;text-decoration:underline";
+      joinedGroup.append(link);
+     }
+     endeavorContinuity.append(joinedGroup);
+    }
+   }catch(error){console.warn("Joined collaborations unavailable",error)}
+  }
   if(!store?.endeavorSnapshot)return;
   try{
    const snapshot=await store.endeavorSnapshot({endeavorId:id});
