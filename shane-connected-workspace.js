@@ -203,7 +203,7 @@ function init(){
   if(/^(?:please\s+)?(?:revise|edit|update|change|improve)\s+(?:my\s+)?(?:saved\s+)?(?:website|site)\b/.test(request)){recentButton.click();status.textContent="Choose the saved website to revise. Your revision request remains in the conversation for review and approval.";return}
   const named=request.match(/^(?:please\s+)?(?:find|show|open|return\s+to)\s+(?:my\s+)?(?:saved\s+)?(?:website|site|creation|project)\s+(?:named|called)\s+(.{2,100})$/);
   if(named){recentButton.dataset.search=named[1];recentButton.click();return}
-  if(/^(?:please\s+)?(?:open|show|view|find|rejoin)\s+(?:my\s+)?(?:accepted\s+)?collaborations\b/.test(request)){collaborationButton.click();return}
+  if(/^(?:please\s+)?(?:open|show|view|find|rejoin|return\s+to)\s+(?:my\s+)?(?:accepted\s+)?(?:collaborations|shared\s+workspaces|collaborative\s+projects)\b/.test(request)){collaborationButton.click();return}
   const routes=[
    {kind:"messages",match:/\b(?:open|show|view|check)\s+(?:my\s+)?(?:messages|inbox|conversations|connections)\b/},
    {kind:"endeavors",match:/\b(?:open|show|view|find)\s+(?:my\s+)?(?:saved\s+)?(?:projects|endeavors|websites)\b/},
@@ -218,6 +218,8 @@ function init(){
  // It does not send messages, publish listings, or alter a saved website.
  document.addEventListener("shane:conversation-network-intent",event=>{
   const kind=event?.detail?.kind;
+  if(kind==="collaborations"){collaborationButton.click();return}
+  if(kind==="saved-creations"){recentButton.click();return}
   const button=typeof kind==="string"?host.querySelector('button[data-kind="'+kind.replace(/[^a-z-]/g,"")+'"]'):null;
   if(!button||button.dataset.kind!==kind)return;
   if(active!==kind)open(kind,button.dataset.page);
