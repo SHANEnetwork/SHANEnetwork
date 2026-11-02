@@ -180,6 +180,8 @@ function init(){
  if(guide)guide.addEventListener("click",()=>{
   const request=vision.value.trim().toLowerCase();
   if(!/^(?:please\s+)?(?:open|show|view|check|find|discover|browse|search\s+for|look\s+for)\b/.test(request))return;
+  if(/^(?:please\s+)?(?:open|show|view|find|return\s+to|revisit)\s+(?:my\s+)?(?:saved\s+creations|previous\s+creations|created\s+websites)\b/.test(request)){recentButton.click();return}
+  if(/^(?:please\s+)?(?:open|show|view|find|rejoin)\s+(?:my\s+)?(?:accepted\s+)?collaborations\b/.test(request)){collaborationButton.click();return}
   const routes=[
    {kind:"messages",match:/\b(?:open|show|view|check)\s+(?:my\s+)?(?:messages|inbox|conversations|connections)\b/},
    {kind:"endeavors",match:/\b(?:open|show|view|find)\s+(?:my\s+)?(?:saved\s+)?(?:projects|endeavors|websites)\b/},
