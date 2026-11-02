@@ -1410,6 +1410,27 @@ function init(){
     link.style.cssText="display:inline-block;margin-left:12px;color:#784b6c;text-decoration:underline";
     endeavorContinuity.append(link);
    }
+   // Revising a saved website should start with the real, owner-linked
+   // artifact, not an unscoped new-build conversation.
+   if(snapshot.endeavor?.linkedSiteId){
+    const revise=document.createElement("button");
+    revise.type="button";
+    revise.textContent="Revise my saved website";
+    revise.style.cssText="margin-left:12px;border:1px solid #ad7b94;border-radius:16px;padding:4px 10px;background:transparent;color:#784b6c;cursor:pointer";
+    revise.onclick=()=>{
+     const existing=sharedComposerText();
+     if(existing&& !confirm("Use your current message as a website revision request? Choose Cancel to keep it unchanged."))return;
+     if(!existing){
+      entry.value="Improve my saved website while preserving its existing content and design decisions.";
+      entry.dispatchEvent(new Event("input",{bubbles:true}));
+     }
+     const revision=entry.value.trim();
+     const target="builder.html?site="+encodeURIComponent(snapshot.endeavor.linkedSiteId)+"&endeavor="+encodeURIComponent(id);
+     try{sessionStorage.setItem("shane-website-revision-handoff-v1",JSON.stringify({endeavorId:id,siteId:snapshot.endeavor.linkedSiteId,request:revision,at:Date.now()}))}catch{}
+     location.href=target;
+    };
+    endeavorContinuity.append(revise);
+   }
    // Collaboration begins with a saved endeavor-owned opportunity, even
    // before another member accepts an invitation.
    for(const opportunity of (snapshot.collaborationListings||[]).slice(0,5)){
