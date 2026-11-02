@@ -3,7 +3,7 @@
 function init(){
  const hub=document.getElementById("shane-idea-conversation"),reply=document.getElementById("shaneIdeaReply"),vision=document.getElementById("visionPrompt");if(!hub||!reply||!vision)return;
  const host=document.createElement("section");host.id="shane-connected-workspace";host.setAttribute("aria-label","Connected SHANE workspace");
- host.innerHTML='<style>#shane-connected-workspace{margin:20px 0;padding:18px;border:1px solid #dec7cc;border-radius:22px;background:linear-gradient(130deg,#fffaf4,#f9f0f7)}#shane-connected-workspace h3{margin:0 0 8px;color:#69465f;font:700 1.5rem Georgia,serif}#shane-connected-workspace p{color:#695767}#shane-connected-workspace .actions{display:flex;gap:8px;flex-wrap:wrap}#shane-connected-workspace button{background:#76516a;color:white;border:0;border-radius:24px;padding:10px 14px;cursor:pointer;font:600 14px system-ui}#shane-connected-workspace button[aria-pressed=true]{background:#b25e74}#shane-connected-workspace .frame{display:none;margin-top:15px;border:1px solid #e2cfd7;border-radius:14px;overflow:hidden;background:white}#shane-connected-workspace .frame[data-open=true]{display:block}#shane-connected-workspace iframe{display:block;width:100%;height:min(70vh,720px);min-height:420px;border:0}#shane-connected-workspace .frame a{display:inline-block;padding:9px 15px;color:#69465f;font-weight:600}#shane-connected-workspace button:focus-visible{outline:3px solid #d38b2e;outline-offset:3px}</style><h3>Your network, alongside our conversation</h3><p>Discover collaborators, revisit endeavors, and follow conversations without leaving your creative draft. SHANE keeps these existing tools connected in one place.</p><div class="actions" role="group" aria-label="Explore connected tools"><button type="button" data-page="network.html" data-kind="discover">Discover</button><button type="button" data-page="dashboard.html" data-kind="endeavors">My endeavors</button><button type="button" data-page="my-network.html" data-kind="messages">Connections & messages</button><button type="button" data-page="communities.html" data-kind="communities">Communities</button><button type="button" data-page="campaigns.html" data-kind="campaigns">Campaigns & events</button><button type="button" id="shane-connected-save-vision">Save vision as new endeavor</button><button type="button" id="shane-connected-plan">Plan creation from vision</button><button type="button" id="shane-connected-create" disabled>Create reviewed plan</button></div><p id="shane-connected-status" role="status">Choose a Network capability. Your website draft stays here.</p><div class="frame" id="shane-connected-frame"><a id="shane-connected-direct" href="network.html" target="_blank" rel="noopener">Open this workspace in a full tab</a><iframe title="Connected SHANE Network workspace" loading="lazy"></iframe></div>';
+ host.innerHTML='<style>#shane-connected-workspace{margin:20px 0;padding:18px;border:1px solid #dec7cc;border-radius:22px;background:linear-gradient(130deg,#fffaf4,#f9f0f7)}#shane-connected-workspace h3{margin:0 0 8px;color:#69465f;font:700 1.5rem Georgia,serif}#shane-connected-workspace p{color:#695767}#shane-connected-workspace .actions{display:flex;gap:8px;flex-wrap:wrap}#shane-connected-workspace button{background:#76516a;color:white;border:0;border-radius:24px;padding:10px 14px;cursor:pointer;font:600 14px system-ui}#shane-connected-workspace button[aria-pressed=true]{background:#b25e74}#shane-connected-workspace .frame{display:none;margin-top:15px;border:1px solid #e2cfd7;border-radius:14px;overflow:hidden;background:white}#shane-connected-workspace .frame[data-open=true]{display:block}#shane-connected-workspace iframe{display:block;width:100%;height:min(70vh,720px);min-height:420px;border:0}#shane-connected-workspace .frame a{display:inline-block;padding:9px 15px;color:#69465f;font-weight:600}#shane-connected-workspace button:focus-visible{outline:3px solid #d38b2e;outline-offset:3px}</style><h3>Your network, alongside our conversation</h3><p>Discover collaborators, revisit endeavors, and follow conversations without leaving your creative draft. SHANE keeps these existing tools connected in one place.</p><div class="actions" role="group" aria-label="Explore connected tools"><button type="button" data-page="network.html" data-kind="discover">Discover</button><button type="button" data-page="dashboard.html" data-kind="endeavors">My endeavors</button><button type="button" data-page="my-network.html" data-kind="messages">Connections & messages</button><button type="button" data-page="communities.html" data-kind="communities">Communities</button><button type="button" data-page="campaigns.html" data-kind="campaigns">Campaigns & events</button><button type="button" id="shane-connected-save-vision">Save vision as new endeavor</button><button type="button" id="shane-connected-plan">Plan creation from vision</button><button type="button" id="shane-connected-create" disabled>Create reviewed plan</button><button type="button" id="shane-connected-recent">Return to saved creations</button></div><div id="shane-connected-creations" aria-live="polite"></div><p id="shane-connected-status" role="status">Choose a Network capability. Your website draft stays here.</p><div class="frame" id="shane-connected-frame"><a id="shane-connected-direct" href="network.html" target="_blank" rel="noopener">Open this workspace in a full tab</a><iframe title="Connected SHANE Network workspace" loading="lazy"></iframe></div>';
  hub.append(host);
  const frame=host.querySelector("iframe"),shell=host.querySelector(".frame"),direct=host.querySelector("#shane-connected-direct"),status=host.querySelector("#shane-connected-status");
  let active="";
@@ -82,6 +82,32 @@ function init(){
    if(endeavorId){reviewedPlan={endeavorId,steps:proposal.steps};createButton.disabled=false}
    status.textContent="Creation plan: "+parts.join(", ")+". Review your vision and save your endeavor before executing any creation. Nothing has been published.";
   }catch(error){status.textContent="Could not prepare the creation plan: "+(error?.message||"Please try again.");}
+ });
+ // Return to durable account-owned creations without leaving the conversation.
+ const recentButton=host.querySelector("#shane-connected-recent");
+ const recentArea=host.querySelector("#shane-connected-creations");
+ recentButton.addEventListener("click",async()=>{
+  const store=window.SHANEConversationStore;
+  if(typeof store?.recentCreations!=="function"){status.textContent="Saved creations are not ready yet.";return}
+  recentButton.disabled=true;
+  status.textContent="Finding your saved creations…";
+  try{
+   const items=await store.recentCreations({limit:12});
+   recentArea.replaceChildren();
+   if(!items.length){status.textContent="No saved creations were found in this account yet.";return}
+   const list=document.createElement("ul");
+   for(const item of items){
+    if(!item?.url||!item?.title)continue;
+    const link=document.createElement("a");
+    link.textContent=item.title+" ("+item.type+")";
+    link.href=item.url;
+    link.rel="noopener";
+    const li=document.createElement("li");li.append(link);list.append(li);
+   }
+   recentArea.append(list);
+   status.textContent="Your saved creations are ready. Choose one to continue working.";
+  }catch(error){status.textContent="Could not retrieve saved creations: "+(error?.message||"Please try again.");}
+  finally{recentButton.disabled=false}
  });
  // Explicit requests in the creative prompt can bring the appropriate existing
  // workspace alongside the draft; ordinary brainstorming remains untouched.
