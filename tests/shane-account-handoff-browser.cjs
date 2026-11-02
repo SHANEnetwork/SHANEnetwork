@@ -21,6 +21,8 @@ const base=process.env.SHANE_TEST_BASE||'http://127.0.0.1:8765';
    }));
    assert.equal(result.idea,'Start a local art collective');
    assert.equal(JSON.parse(result.handoff).visibility,'private');
+   assert.equal(JSON.parse(result.handoff).origin,'network');
+   if(scenario==='signed-in')assert.equal(JSON.parse(result.active).origin,'network');
    if(scenario==='signed-in')assert.equal(JSON.parse(result.active).id,'11111111-1111-4111-8111-111111111111');
    if(scenario==='guest'||scenario==='save-error')assert(!result.active,'No account record should be claimed for '+scenario);
    console.log(scenario+': private handoff and navigation passed');
