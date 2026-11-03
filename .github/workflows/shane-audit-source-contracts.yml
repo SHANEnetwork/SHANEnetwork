@@ -1,0 +1,18 @@
+name: SHANE audit source contracts (manual)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Endeavor account continuity contracts
+        run: node tests/endeavor-account-save-idempotency-contract.cjs
+      - name: Collaboration workspace authorization contracts
+        run: node tests/workspace-write-authorization-contract.cjs
