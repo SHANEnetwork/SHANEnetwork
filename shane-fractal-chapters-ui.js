@@ -13,6 +13,31 @@ async function refresh(){turns.replaceChildren();if(!valid(current)){summary.tex
 open.addEventListener("click",async()=>{turns.replaceChildren();if(!valid(current)||!window.SHANEFractalMemory||!window.shaneAccountDb){summary.textContent="Open a saved endeavor first.";return}const chapter=Number(number.value);if(!Number.isSafeInteger(chapter)||chapter<1){summary.textContent="Choose a valid chapter number.";return}try{const memory=window.SHANEFractalMemory.create(window.shaneAccountDb,current),rows=await memory.readChapter(chapter);summary.textContent=rows.length?"Chapter "+chapter+" has "+rows.length+" archived turns.":"No archived turns in chapter "+chapter+".";for(const t of rows){const li=document.createElement("li"),speaker=document.createElement("strong"),body=document.createElement("span");speaker.textContent=t.role==="you"?"You: ":"SHANE: ";body.textContent=t.body;li.append(speaker,body);li.style.marginBottom="10px";turns.append(li)}}catch{summary.textContent="Unable to retrieve this chapter right now."}});
 find.addEventListener("click",async()=>{turns.replaceChildren();if(!valid(current)||!window.SHANEFractalMemory||!window.shaneAccountDb){summary.textContent="Open a saved endeavor first.";return}const query=search.value.trim();if(query.length<2){summary.textContent="Enter at least two characters to search.";return}try{const rows=await window.SHANEFractalMemory.create(window.shaneAccountDb,current).find(query,50);summary.textContent=rows.length?rows.length+" matching turns. Open a chapter to read its surrounding conversation.":"No matching archived turns found.";for(const t of rows){const li=document.createElement("li"),label=document.createElement("strong"),body=document.createElement("span");label.textContent="Chapter "+t.chapter+", turn "+t.turn_number+" ("+(t.role==="you"?"You":"SHANE")+"): ";const jump=document.createElement("button");jump.type="button";jump.textContent="Read surrounding chapter";jump.style.cssText="display:block;margin:6px 0 10px";jump.addEventListener("click",()=>{number.value=String(t.chapter);open.click()});body.textContent=t.body;li.append(label,body,jump);li.style.marginBottom="10px";turns.append(li)}}catch{summary.textContent="Archive search is temporarily unavailable."}});
 search.addEventListener("keydown",event=>{if(event.key==="Enter"){event.preventDefault();find.click()}});
+const associate=document.createElement("button");associate.type="button";associate.textContent="Explore related memories";associate.style.cssText="margin:8px;padding:8px";controls.append(associate);
+associate.addEventListener("click",async()=>{
+ turns.replaceChildren();
+ const id=current,query=search.value.trim();
+ if(!valid(id)||!window.SHANEFractalMemory||!window.shaneAccountDb||!window.SHANEVortexRecall){summary.textContent="Open a saved endeavor with chapter memory connected first.";return}
+ if(query.length<3){summary.textContent="Enter at least three characters to explore related memories.";return}
+ associate.disabled=true;summary.textContent="Following connections through archived chapters...";
+ try{
+  const memory=window.SHANEFractalMemory.create(window.shaneAccountDb,id);
+  const graph=await window.SHANEVortexRecall.load(memory,{maxChapters:100});
+  if(current!==id)return;
+  const matches=window.SHANEVortexRecall.recall(graph,query,{limit:15,steps:2});
+  summary.textContent=matches.length?matches.length+" associated turns. These are suggestions, not verified conclusions.":"No related turns found.";
+  for(const t of matches){
+   const li=document.createElement("li"),label=document.createElement("strong"),body=document.createElement("span"),jump=document.createElement("button");
+   label.textContent="Chapter "+t.chapter+", turn "+t.turnNumber+" ("+(t.role==="you"?"You":"SHANE")+"): ";
+   body.textContent=t.body;
+   jump.type="button";jump.textContent="Read original chapter";jump.style.cssText="display:block;margin:6px 0 10px";
+   jump.addEventListener("click",()=>{number.value=String(t.chapter);open.click()});
+   li.append(label,body,jump);li.style.marginBottom="10px";turns.append(li);
+  }
+ }catch(error){summary.textContent="Associative exploration is unavailable for this archive right now. Exact chapter search remains available.";console.warn("Vortex memory exploration:",error?.message||error)}
+ finally{associate.disabled=false}
+});
+
 document.addEventListener("shane:endeavor-changed",event=>{current=valid(event.detail?.id)?event.detail.id:null;refresh()});
 document.addEventListener("shane:endeavor-account-saved",event=>{current=valid(event.detail?.id)?event.detail.id:current;refresh()});
 document.addEventListener("shane:account-db-ready",refresh);
