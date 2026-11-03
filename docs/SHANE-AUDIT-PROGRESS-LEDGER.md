@@ -47,3 +47,6 @@ Updated: 2026-11-02. Scope: development branch only. This is a **qualitative evi
 First run source and browser regressions for the new workspace access guards and private-site save. Next test authenticated, two-account database policies including revocation. Then complete one immersive creation → save → return → collaboration journey, with artwork installed and version recovery. Expand to remaining domains before release certification.
 
 References: `docs/SHANE-BASELINE-CLOSURE.md`, `docs/SHANE-SHON-VISION-INTEGRATION-AUDIT.md`, `docs/SHANE-INTEGRATED-SYSTEMS-MAP.md`.
+
+## Source regression verification, 2026-11-02
+Fetched the current development-branch `workspace.html` and evaluated the fourteen source-contract assertions for `tests/workspace-write-authorization-contract.cjs` against its actual text: **14/14 passed**. Verified six guarded write handlers, four task mutations, account/session validation, accepted request status, participant membership, overview/message guards, and 4,000-character message enforcement. This is an in-session source assertion evaluation, **not** a Node test process, GitHub Actions run, authenticated browser test, or database RLS verification. The committed test remains to be executed by Node/CI. No acceptance gate is closed on this evidence alone.
