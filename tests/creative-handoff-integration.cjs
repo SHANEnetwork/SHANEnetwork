@@ -4,7 +4,7 @@ const vm = require('node:vm');
 const handoffScript = fs.readFileSync('shane-creative-handoff.js', 'utf8');
 const entryScript = fs.readFileSync('shane-vision-entry.js', 'utf8');
 const KEY = 'shane-creative-handoff-v1';
-function scenario({text, existing='', disabled=false, order=['handoff','entry'], created=Date.now()}) {
+function scenario({text, existing='', disabled=false, sendDisabled=false, order=['handoff','entry'], created=Date.now()}) {
   const values = new Map([[KEY, JSON.stringify({text, created})]]);
   const store = {getItem:k=>values.get(k)||null, setItem:(k,v)=>values.set(k,v), removeItem:k=>values.delete(k)};
   let clicks=0;
@@ -12,7 +12,7 @@ function scenario({text, existing='', disabled=false, order=['handoff','entry'],
   const reply={value:''};
   const button={disabled, click(){clicks++}};
   const status={textContent:''};
-  const elements={visionPrompt:vision,shaneIdeaReply:reply,shaneBuildVisionNow:button,visionStatus:status};
+  const elements={visionPrompt:vision,shaneIdeaReply:reply,shaneBuildVisionNow:button,shaneIdeaSend:{disabled:sendDisabled},visionStatus:status};
   const document={readyState:'complete',getElementById:id=>elements[id]||null,createElement:()=>({setAttribute(){},addEventListener(){},append(){}})};
   const context={document,sessionStorage:store,window:{SHANEConversation:{remember(){}}},Event:class Event{},Date};
   vm.createContext(context);
@@ -33,6 +33,9 @@ assert.ok(editing.handoff,'do not discard a different pending idea');
 const busy=scenario({text:'Ready to create',disabled:true});
 assert.equal(busy.clicks,0);
 assert.ok(busy.handoff,'disabled creator must preserve handoff');
+const generating=scenario({text:'Do not discard me',sendDisabled:true});
+assert.equal(generating.clicks,0);
+assert.ok(generating.handoff,'busy AI creator must preserve the handoff');
 const expired=scenario({text:'Old idea',created:Date.now()-2*3600000});
 assert.equal(expired.clicks,0,'expired handoff must not auto-create');
 console.log('Creative entry handoff integration scenarios passed');

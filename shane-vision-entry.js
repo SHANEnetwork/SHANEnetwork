@@ -1,8 +1,8 @@
 /* Receive a vision from SHANE's conversational entry and invoke the existing draft creator. */
 (()=>{"use strict";
 function arrive(){
- const field=document.getElementById("visionPrompt"),button=document.getElementById("shaneBuildVisionNow"),status=document.getElementById("visionStatus");
- if(!field||!button)return;
+ const field=document.getElementById("visionPrompt"),button=document.getElementById("shaneBuildVisionNow"),send=document.getElementById("shaneIdeaSend"),status=document.getElementById("visionStatus");
+ if(!field||!button||!send)return;
  let handoff=null;
  try{handoff=JSON.parse(sessionStorage.getItem("shane-creative-handoff-v1")||"null")}catch{}
  if(!handoff||typeof handoff.text!=="string"||!handoff.text.trim()||!Number.isFinite(handoff.created)||Date.now()-handoff.created>3600000)return;
@@ -12,7 +12,7 @@ function arrive(){
  field.value=idea;field.dispatchEvent(new Event("input",{bubbles:true}));
  // Only consume the handoff after the private draft action can actually start.
  // A disabled button may indicate an in-progress request or an unavailable creator.
- if(button.disabled){if(status)status.textContent="Your vision is ready, but SHANE cannot start another draft yet. Your idea is preserved.";return}
+ if(button.disabled||send.disabled){if(status)status.textContent="Your vision is ready, but SHANE cannot start another draft yet. Your idea is preserved.";return}
  if(status)status.textContent="Your vision has arrived. SHANE is preparing its first editable draft.";
  // Only the existing private draft action is invoked; never publish, message or invite.
  button.click();
