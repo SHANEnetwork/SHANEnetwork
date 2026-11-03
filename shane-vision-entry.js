@@ -10,10 +10,13 @@ function arrive(){
  if(field.value.trim()&&field.value.trim()!==handoff.text.trim().slice(0,10000)){if(status)status.textContent="Your incoming vision is saved in this browser. The current draft has been preserved.";return}
  const idea=handoff.text.trim().slice(0,10000);
  field.value=idea;field.dispatchEvent(new Event("input",{bubbles:true}));
- try{sessionStorage.removeItem("shane-creative-handoff-v1")}catch{}
+ // Only consume the handoff after the private draft action can actually start.
+ // A disabled button may indicate an in-progress request or an unavailable creator.
+ if(button.disabled){if(status)status.textContent="Your vision is ready, but SHANE cannot start another draft yet. Your idea is preserved.";return}
  if(status)status.textContent="Your vision has arrived. SHANE is preparing its first editable draft.";
  // Only the existing private draft action is invoked; never publish, message or invite.
- if(!button.disabled)button.click();
+ button.click();
+ try{sessionStorage.removeItem("shane-creative-handoff-v1")}catch{}
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",arrive,{once:true});else arrive();
 })();
