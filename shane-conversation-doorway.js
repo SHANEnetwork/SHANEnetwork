@@ -29,6 +29,8 @@ function init(){
  form.addEventListener("submit",event=>{
   event.preventDefault();const vision=input.value.trim();if(vision.length<20){input.setCustomValidity("Please describe your idea in at least 20 characters.");input.reportValidity();return}input.setCustomValidity("");
   try{
+   const destination=window.SHANEEndeavorCore?.handoff(vision,path);
+   if(destination){location.assign(destination);return}
    const created=Date.now();
    sessionStorage.setItem("shane-creative-handoff-v1",JSON.stringify({text:vision,created}));
    sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination:"builder.html",text:vision,endeavorId:null,created,origin:path,visibility:"private"}));
