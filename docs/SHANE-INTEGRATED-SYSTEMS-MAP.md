@@ -127,3 +127,6 @@ The `builder.html` account save handler previously set its disabled/in-flight gu
 
 ### MAP-07: endeavor switch during pending account save (2026-11-02)
 The account save and `newEndeavor` / `openEndeavor` handlers previously could overlap. The builder now prevents those two user actions while the account save is in flight and captures `endeavorAtSaveStart` for the update query rather than reading the active ID after asynchronous authentication (commit `9ce5082d`). The source contract was expanded (commit `6a578051`). Source inspection confirmed the new guards and captured target; actual concurrent browser interactions and other asynchronous endeavor-switch paths still require testing.
+
+### MAP-08: asynchronous account return can overwrite an active save (2026-11-02)
+Inspected `builder.html` latest-account load and selected-endeavor open handlers. Both previously could cross an in-flight endeavor save and then replace the active endeavor and draft fields. Added guards at handler entry and after the awaited account query to preserve the current draft if a save is active (commit `8ac0fd07`). Extended the source regression contract (commit `d2eca439`). This addresses these two code paths only; other asynchronous return triggers, real browser races and account persistence still require verification.
