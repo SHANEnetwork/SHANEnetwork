@@ -31,14 +31,14 @@ function init(){
     const messagesLink=document.createElement("a");messagesLink.href="members.html?conversation="+encodeURIComponent(request.id)+"#collaborationSection";messagesLink.textContent="Open private conversation";messagesLink.style.cssText="display:inline-block;margin:8px 0 10px 12px";li.append(messagesLink);
     const feed=document.createElement("div");feed.setAttribute("aria-label","Recent collaboration messages");feed.textContent="Loading recent messages…";li.append(feed);
     const form=document.createElement("form"),label=document.createElement("label"),input=document.createElement("textarea"),send=document.createElement("button"),feedback=document.createElement("p");
-    label.textContent="Write to this collaboration";input.rows=2;input.maxLength=5000;input.required=true;input.style.cssText="display:block;width:100%;box-sizing:border-box;margin:8px 0;padding:9px;border:1px solid #cbb8c4;border-radius:10px";send.type="submit";send.textContent="Send message";feedback.setAttribute("role","status");label.append(input);form.append(label,send,feedback);li.append(form);results.append(li);
+    label.textContent="Write to this collaboration";input.rows=2;input.maxLength=4000;input.required=true;input.style.cssText="display:block;width:100%;box-sizing:border-box;margin:8px 0;padding:9px;border:1px solid #cbb8c4;border-radius:10px";send.type="submit";send.textContent="Send message";feedback.setAttribute("role","status");label.append(input);form.append(label,send,feedback);li.append(form);results.append(li);
     const show=async()=>{
      const {data,error}=await sb.from("shane_collaboration_messages").select("sender_id,body,created_at").eq("request_id",request.id).order("created_at",{ascending:false}).limit(5);
      if(run!==generation)return;feed.replaceChildren();if(error){feed.textContent="Messages unavailable: "+error.message;return}
      if(!data?.length){feed.textContent="No messages yet. Start the conversation here.";return}
      for(const msg of data.slice().reverse()){const p=document.createElement("p");p.style.cssText="padding:9px;background:#fff;border-radius:9px;white-space:pre-wrap;overflow-wrap:anywhere";const strong=document.createElement("strong");strong.textContent=msg.sender_id===user.id?"You: ":"Collaborator: ";p.append(strong,document.createTextNode(msg.body||""));feed.append(p)}
     };
-    form.addEventListener("submit",async event=>{event.preventDefault();const body=input.value.trim();if(!body||send.disabled)return;send.disabled=true;feedback.textContent="Sending…";try{
+    form.addEventListener("submit",async event=>{event.preventDefault();const body=input.value.trim();if(!body||body.length>4000||send.disabled)return;send.disabled=true;feedback.textContent="Sending…";try{
       const {data:{user:current},error:authError}=await sb.auth.getUser();if(authError||!current||current.id!==user.id)throw Error("Your account session has changed. Sign in again.");
       const {data:access,error:accessError}=await sb.from("shane_collaboration_requests").select("id,status,sender_id,recipient_id").eq("id",request.id).maybeSingle();
       if(accessError||!access||access.status!=="accepted"||![access.sender_id,access.recipient_id].includes(current.id))throw Error("This collaboration is no longer available for messaging.");
