@@ -28,17 +28,17 @@ const {data:{user},error:authError}=await sb.auth.getUser();
 if(authError)throw authError;
 if(!user){status.textContent="Sign in to your SHANE account to see saved endeavors. Your work is not displayed to visitors.";status.append(document.createTextNode(" "));status.append(link("Open SHANE sign-in","dashboard.html",true))}
 else{
-const {data,error}=await sb.from("shane_endeavors").select("id,title,idea").eq("owner_id",user.id).limit(100);
+const {data,error}=await sb.from("shane_endeavors").select("id,title,idea,updated_at").eq("owner_id",user.id).order("updated_at",{ascending:false}).limit(100);
 if(error)throw error;
 const rows=data||[];
 status.textContent=rows.length?("Your saved endeavors ("+rows.length+(rows.length===100?"+":"")+")"):"No saved endeavors yet. Start by telling SHANE what you want to create.";
 for(const item of rows){
 const card=document.createElement("article"),h=document.createElement("h2"),p=document.createElement("p");
-h.textContent=item.title||"Untitled endeavor";p.textContent=(item.idea||"").slice(0,350);card.append(h,p);
+h.textContent=item.title||"Untitled endeavor";p.textContent=(item.idea||"").slice(0,350);card.append(h,p);if(item.updated_at){const stamp=document.createElement("small");const date=new Date(item.updated_at);if(!Number.isNaN(date.getTime())){stamp.textContent="Last updated "+date.toLocaleDateString();card.append(stamp)}}
 const url="builder.html?endeavor="+encodeURIComponent(item.id)+"#vision-first";
 const resume=link("Continue creating",url);
 resume.addEventListener("click",()=>{try{sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:item.id,origin:"account-library"}));sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination:"builder.html",endeavorId:item.id,origin:"account-library",visibility:"private",created:Date.now()}))}catch{}});
-card.append(resume,link("Find collaborators","members.html#collaborationSection",true));projects.append(card)
+card.append(resume,link("Find collaborators","members.html?endeavor="+encodeURIComponent(item.id),true));projects.append(card)
 }
 }
 }catch(error){status.textContent="Unable to load saved endeavors. Nothing has been changed. Please try again after signing in.";console.warn("SHANE endeavor library:",error)}
