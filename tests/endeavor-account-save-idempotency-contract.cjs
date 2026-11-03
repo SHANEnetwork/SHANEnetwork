@@ -19,4 +19,9 @@ assert(html.includes('newEndeavor").onclick=()=>{if(endeavorAccountSaveInFlight)
 assert(html.includes('openEndeavor").onclick=async()=>{const out=document.getElementById("planRecoveryStatus"),id=document.getElementById("savedEndeavors").value;if(endeavorAccountSaveInFlight)'), 'opening another endeavor waits for active save');
 assert(handler.includes('const endeavorAtSaveStart=activeEndeavorId;'), 'save captures original endeavor identity');
 assert(handler.includes('.eq("id",endeavorAtSaveStart)'), 'update targets captured identity');
+const latest=html.slice(html.indexOf('document.getElementById("loadEndeavorAccount").onclick='),html.indexOf('async function refreshEndeavors()'));
+assert(latest.includes('if(endeavorAccountSaveInFlight)'), 'latest endeavor load checks in-flight save');
+assert(latest.includes('An endeavor save started while loading.'), 'latest endeavor load rechecks after database response');
+const open=html.slice(html.indexOf('document.getElementById("openEndeavor").onclick='),html.indexOf('document.getElementById("linkEndeavorSite").onclick='));
+assert(open.includes('An endeavor save started while loading.'), 'selected endeavor load rechecks after database response');
 console.log('Endeavor save source-contract assertions passed; runtime tests still required.');
