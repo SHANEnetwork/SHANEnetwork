@@ -109,3 +109,9 @@ flowchart LR
 **MAP-04: Multiple navigation identities must agree.** `workspace.html` receives both collaboration and endeavor IDs. Audit must confirm the collaboration request's listing belongs to the specified endeavor and the authenticated member is authorized, independent of URL contents.
 
 All four are source-backed audit findings, **not claims of observed exploitation or live failures**. Cross-reference these in the master audit and test them before declaring the Network journey complete.
+
+### MAP-01 correction candidate (2026-11-02)
+The endeavor collaboration composer now uses `input.maxLength=4000` and rejects trimmed messages longer than 4,000 characters before insert, matching the member inbox's existing 4,000-character client contract. Commit `fb087846`. The database-side constraint is not yet verified; MAP-01 remains open for schema and authenticated message tests.
+
+### MAP-04 source clarification (2026-11-02)
+Inspected `workspace.html`: it reads the `collaboration` URL parameter and loads the collaboration request by ID, then checks `status === 'accepted'` and authenticated membership of sender/recipient before enabling the workspace. It derives the displayed endeavor from the request's associated listing (`listing.endeavor_id`), rather than trusting the separate `endeavor` URL parameter for the displayed endeavor. This reduces URL-mismatch exposure in the inspected code path. Database RLS and all workspace mutations still require two-account verification; MAP-04 is not certified closed.
