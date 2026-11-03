@@ -67,3 +67,45 @@ flowchart TD
 6. **Specialized hubs**: verify SHON independence and any future explicitly authorized integration contract.
 
 Each edge must have: **source → event/API → destination → identity → permission → persisted result → failure/retry behavior → test evidence**. Keep unresolved edges open; do not infer completion from source wiring. All fixes must preserve existing functionality and stay on the development branch until verified.
+
+## Verified source trace: Network discovery to collaboration (2026-11-02)
+
+This trace expands the map across `network.html`, `members.html`, and `shane-endeavor-collaboration.js`. It describes inspected source behavior, not successful live account execution.
+
+```mermaid
+flowchart LR
+  PROFILE[Member profile interests] --> MATCH[network.html: published listing matches]
+  MATCH --> LISTING[shane_listings: public discovery]
+  DRAFT[Builder endeavor + draft] --> MEMBER[members.html: owner-verified listing]
+  MEMBER --> LISTING
+  LISTING --> REQUEST[shane_collaboration_requests]
+  REQUEST --> ACCEPT[Accepted participation]
+  ACCEPT --> JOIN[shane-endeavor-collaboration.js: listing endeavor_id join]
+  JOIN --> WORK[workspace.html: collaboration ID + endeavor ID]
+  JOIN --> CHAT[members.html: conversation ID]
+  CHAT --> MSG[shane_collaboration_messages]
+```
+
+### Joined relationships and failure boundaries
+
+| Edge | Actual source observation | Invariant / unresolved audit |
+| --- | --- | --- |
+| Profile → suggestions | `network.html` derives terms from the member's `interests` and `seeking`, reads up to 500 `published` listings excluding the member's own, and ranks keyword overlap. | Recommendations are keyword-based, not verified AI reasoning; test privacy, scale and relevance. |
+| Builder → member listing | `members.html` checks that a carried `endeavor_id` belongs to the authenticated owner before inserting a listing. A `published` listing requires an attribution confirmation. | Source guard is not sufficient without live RLS negative tests. |
+| Listing → request inbox | `members.html` loads collaboration requests, filters to sender/recipient and can load an explicitly selected conversation. | Confirm database RLS protects both list and direct-ID lookup. |
+| Accepted request → endeavor | `shane-endeavor-collaboration.js` queries accepted requests involving the user, then loads referenced listings and retains only those whose `endeavor_id` matches the active endeavor. | Listing visibility can suppress legitimate accepted collaborations; test private/unpublished listing visibility and authorization. |
+| Endeavor → workspace | The accepted collaboration UI builds `workspace.html?collaboration=<request-id>&endeavor=<id>`. | Query parameters are navigation context, never authorization. Inspect workspace permissions and cross-endeavor mismatch handling. |
+| Endeavor → messaging | The same UI links `members.html?conversation=<request-id>` and queries `shane_collaboration_messages` by request ID. | Test accepted-only read/write, rejection, revocation, direct-ID guessing and account switching. |
+| Member inbox → messages | `members.html` loads request-scoped messages and offers sending with a 4,000-character client limit. | `shane-endeavor-collaboration.js` uses a 5,000-character client limit. Reconcile to actual database constraint; no silent truncation. |
+
+### New cross-program audit findings
+
+**MAP-01: Conversation message limits disagree.** Member inbox limits a message to 4,000 characters; endeavor collaboration UI allows 5,000. The database limit and rejection behavior were not verified. Normalize both clients to a shared server-backed contract after schema inspection.
+
+**MAP-02: Accepted collaboration visibility depends on listing reads.** A user can be party to an accepted request but unable to read its listing. The endeavor view then omits the collaboration. Determine whether this is intended revocation or a visibility mismatch; do not weaken RLS to make it appear.
+
+**MAP-03: Source discovery is keyword matching.** The public opportunity matching in `network.html` ranks keyword overlap on recent published listings. This does not satisfy the full product contract's conversational, reasoned discovery vision. Keep it as a functional fallback while implementing verified conversational orchestration.
+
+**MAP-04: Multiple navigation identities must agree.** `workspace.html` receives both collaboration and endeavor IDs. Audit must confirm the collaboration request's listing belongs to the specified endeavor and the authenticated member is authorized, independent of URL contents.
+
+All four are source-backed audit findings, **not claims of observed exploitation or live failures**. Cross-reference these in the master audit and test them before declaring the Network journey complete.
