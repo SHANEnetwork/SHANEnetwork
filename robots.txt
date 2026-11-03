@@ -1,0 +1,12 @@
+# Public SHANEnetwork pages may be crawled. Private work must require authentication.
+User-agent: *
+Allow: /
+Disallow: /builder.html
+Disallow: /dashboard.html
+Disallow: /my-endeavors.html
+Disallow: /workspace.html
+Disallow: /conversation-history.html
+Disallow: /growth.html
+Disallow: /appearance.html
+Disallow: /site.html
+Sitemap: https://shanenetwork.org/sitemap.xml
