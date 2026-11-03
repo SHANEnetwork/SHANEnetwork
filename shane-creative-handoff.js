@@ -7,7 +7,12 @@ function read(){let draft="";try{const raw=sessionStorage.getItem(KEY);if(raw){c
 function clear(){try{sessionStorage.removeItem(KEY);sessionStorage.removeItem("shane_welcome_draft");sessionStorage.removeItem("shane_dashboard_goal")}catch{}}
 function init(){const vision=$("visionPrompt"),reply=$("shaneIdeaReply");if(!vision||!reply)return;
 const text=read();if(!text)return;try{window.SHANEConversation?.remember(text,"creator-handoff")}catch{}
-const existing=vision.value.trim()||reply.value.trim();if(existing){if(existing===text)clear();return}
+const existing=vision.value.trim()||reply.value.trim();if(existing){
+ // A matching field may already have been populated by another continuity module.
+ // Preserve a fresh explicit handoff so the private draft creator can consume it.
+ if(existing===text){try{const item=JSON.parse(sessionStorage.getItem(KEY)||"null");if(!item||item.text!==text||!Number.isFinite(item.created)||Date.now()-item.created>3600000)clear()}catch{clear()}}
+ return
+}
 const notice=document.createElement("p");notice.id="shane-handoff-notice";notice.setAttribute("role","status");notice.className="shane-handoff-notice";
 notice.textContent="I brought your idea here from the Network. It's ready to develop, and nothing has been published.";
 const button=document.createElement("button");button.type="button";button.textContent="Dismiss";button.addEventListener("click",()=>notice.remove());notice.append(" ",button);
