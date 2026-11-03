@@ -7,12 +7,13 @@ const STOP=new Set("a an and are as at be by for from has have i in is it of on 
 const tokens=s=>[...new Set((String(s||"").toLowerCase().match(/[\\p{L}\\p{N}]{3,}/gu)||[]).filter(w=>!STOP.has(w)))];
 function build(chapters){
  const nodes=[],links=new Map(),inverted=new Map();
+ let previousGlobal=null;
  const connect=(a,b,weight,type)=>{if(a===b)return;for(const [x,y] of [[a,b],[b,a]]){if(!links.has(x))links.set(x,[]);links.get(x).push({id:y,weight,type})}};
  for(const chapter of chapters){
   const number=Number(chapter.number);
   if(!Number.isSafeInteger(number)||number<1)continue;
   const turns=Array.isArray(chapter.turns)?chapter.turns:[];
-  let previous=null;
+  let previous=previousGlobal;
   for(const turn of turns){
    const index=Number(turn.turn_number);
    if(!Number.isSafeInteger(index)||index<1||typeof turn.body!=="string")continue;
@@ -22,8 +23,11 @@ function build(chapters){
    if(previous)connect(previous,id,.32,"sequence");
    previous=id;
   }
+  previousGlobal=previous;
  }
  const byId=new Map(nodes.map(n=>[n.id,n]));
+ // Prevent duplicate or inconsistent source turns from silently corrupting retrieval.
+ if(byId.size!==nodes.length)throw new Error("Duplicate archived turn identifiers detected");
  // Only connect a bounded number of neighbors for each distinctive shared term.
  for(const [word,ids] of inverted){if(ids.length<2||ids.length>32)continue;for(let i=0;i<ids.length;i++)for(let j=Math.max(0,i-5);j<i;j++)connect(ids[i],ids[j],.16/Math.sqrt(ids.length),"association:"+word)}
  return {nodes,byId,links,inverted};
