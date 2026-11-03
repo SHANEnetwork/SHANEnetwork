@@ -11,7 +11,9 @@ function start(){
  anchor.append(section);
  const status=$("shane-continuity-status");
  const getVision=()=>vision.value.trim();
- const carry=(destination,url)=>{const idea=getVision();if(!idea){status.textContent="Describe your vision above first.";vision.focus();return}try{sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination,text:idea.slice(0,4000),created:Date.now()}));location.assign(url)}catch{status.textContent="This browser could not transfer the idea. Your builder draft is unchanged."}};
+ // Carry the currently saved endeavor identity, not merely its prose.
+ const activeEndeavorId=()=>{try{const id=JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id;return typeof id==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(id)?id:null}catch{return null}};
+ const carry=(destination,url)=>{const idea=getVision();if(!idea){status.textContent="Describe your vision above first.";vision.focus();return}try{sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination,text:idea.slice(0,4000),endeavorId:activeEndeavorId(),created:Date.now()}));location.assign(url)}catch{status.textContent="This browser could not transfer the idea. Your builder draft is unchanged."}};
  $("shane-continuity-community").onclick=()=>carry("communities.html","communities.html");
  $("shane-continuity-campaign").onclick=()=>carry("campaigns.html","campaigns.html#create");
  $("shane-continuity-growth").onclick=()=>carry("growth.html","growth.html");
@@ -23,13 +25,13 @@ function start(){
   try{sessionStorage.setItem("shane_network_vision_handoff_v1",JSON.stringify({vision:idea.slice(0,12000)}))}catch{}
   location.assign("network.html?q="+encodeURIComponent(idea.slice(0,120)));
  };
- $("shane-continuity-discover").addEventListener("click",()=>{const idea=getVision();if(!idea)return;try{sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination:"network.html",text:idea.slice(0,4000),created:Date.now()}))}catch{}}, {capture:true});
+ $("shane-continuity-discover").addEventListener("click",()=>{const idea=getVision();if(!idea)return;try{sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination:"network.html",text:idea.slice(0,4000),endeavorId:activeEndeavorId(),created:Date.now()}))}catch{}}, {capture:true});
  $("shane-continuity-listing").onclick=()=>{
   const idea=getVision();if(!idea){status.textContent="Describe your vision above first.";vision.focus();return}
   const name=($("business")?.value||"").trim();
   const title=name&&name!=="My New Idea"?name:idea.slice(0,100);
   const about=($("about")?.value||"").trim();
-  try{sessionStorage.setItem("shane-network-draft-v1",JSON.stringify({title,description:about&&about!=="Tell visitors what you do, who you serve, and why it matters."?about:idea,category:"project",endeavor_id:null}));location.assign("members.html#listingSection")}
+  try{sessionStorage.setItem("shane-network-draft-v1",JSON.stringify({title,description:about&&about!=="Tell visitors what you do, who you serve, and why it matters."?about:idea,category:"project",endeavor_id:activeEndeavorId()}));location.assign("members.html#listingSection")}
   catch{status.textContent="This browser could not transfer your draft. Your original vision remains in the builder."}
  };
 }
