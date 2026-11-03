@@ -1,0 +1,12 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const html=fs.readFileSync('builder.html','utf8');
+const a=html.indexOf('<script id="shane-conversation-commands">');
+const b=html.indexOf('</script>',a);
+assert.ok(a>=0&&b>a);
+const command=html.slice(a,b);
+assert.match(command,/accountSave=intent\.name==="save"/);
+assert.match(command,/\$\("saveEndeavorAccount"\)/);
+assert.match(command,/reply\.value=text;message\.textContent="Account saving is unavailable/);
+assert.match(command,/else action\.click\(\)/);
+console.log('Conversational endeavor save routing contract passed');
