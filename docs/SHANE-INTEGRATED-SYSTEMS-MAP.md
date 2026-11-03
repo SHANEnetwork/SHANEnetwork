@@ -121,3 +121,6 @@ Inspected `workspace.html`: it reads the `collaboration` URL parameter and loads
 
 ### Workspace write-path follow-up
 Inspected `workspace.html`: all four task write paths, the private message send, and the shared-direction save now call `requireCurrentCollaborationAccess()` before writing. Source changes: `d80864ec` and `56f543e9`. The workspace message handler also rejects programmatically inserted drafts over 4,000 characters without clearing them. These are source-level fixes; revocation races, server-side RLS, and two-account/browser tests remain open.
+
+### MAP-06: duplicate endeavor account saves before authentication completes (2026-11-02)
+The `builder.html` account save handler previously set its disabled/in-flight guard **after** awaiting `sb.auth.getUser()`, allowing overlapping rapid requests before the guard. The lock now engages before the first await and is released in `finally` (commit `d36e3401`). Added a source regression contract at `tests/endeavor-account-save-idempotency-contract.cjs` (commit `c6d4e6b5`). Browser concurrency, database uniqueness and recovery remain unverified; the source correction is not a certified end-to-end pass.
