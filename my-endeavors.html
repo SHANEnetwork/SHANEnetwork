@@ -34,7 +34,7 @@ status.textContent=rows.length?("Your saved endeavors ("+rows.length+(rows.lengt
 for(const item of rows){
 const card=document.createElement("article"),h=document.createElement("h2"),p=document.createElement("p");
 h.textContent=item.title||"Untitled endeavor";p.textContent=(item.idea||"").slice(0,350);card.append(h,p);
-const url="builder.html#vision-first";
+const url="builder.html?endeavor="+encodeURIComponent(item.id)+"#vision-first";
 const resume=link("Continue creating",url);
 resume.addEventListener("click",()=>{try{sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:item.id,origin:"account-library"}));sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination:"builder.html",endeavorId:item.id,origin:"account-library",visibility:"private",created:Date.now()}))}catch{}});
 card.append(resume,link("Find collaborators","members.html#collaborationSection",true));projects.append(card)
