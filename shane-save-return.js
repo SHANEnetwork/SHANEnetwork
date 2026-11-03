@@ -12,7 +12,9 @@ function init(){
  const library=document.createElement("a");library.href="my-endeavors.html";library.textContent="My saved endeavors";library.style.cssText="display:inline-block;margin:8px 0;color:#704760;font-weight:700";
  button.addEventListener("click",()=>{if(save.disabled){status.textContent="A save is already in progress.";return}status.textContent="Checking your account and saving your endeavor…";save.click()});
  document.addEventListener("shane:endeavor-account-saved",event=>{if(!event.detail?.id)return;status.textContent="Saved to your SHANE account. You can return and continue this endeavor later.";button.textContent="Save updates to my endeavor"});
- wrap.append(heading,note,button,status,library);hub.append(wrap);
+ const collaborate=document.createElement("a");collaborate.href="members.html";collaborate.textContent="Find collaborators for this endeavor";collaborate.style.cssText="display:none;margin:8px 0 8px 20px;color:#704760;font-weight:700";
+document.addEventListener("shane:endeavor-account-saved",event=>{const id=event.detail?.id;if(!id)return;collaborate.href="members.html?endeavor="+encodeURIComponent(id);collaborate.style.display="inline-block"});
+wrap.append(heading,note,button,status,library,collaborate);hub.append(wrap);
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
