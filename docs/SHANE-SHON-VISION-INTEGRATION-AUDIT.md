@@ -74,3 +74,29 @@ Inspect existing migrations, endeavor data services, conversation-to-operation w
 - Security advisor reported nine callable `SECURITY DEFINER` functions and leaked-password protection disabled. Inspected all nine definitions: `shane_incident_history`, `shane_invited_organization_names`, `shane_manage_incident`, `shane_record_health_check`, `shane_respond_to_endeavor_invite`, `shane_restore_organization_config`, `shane_revoke_endeavor_member`, `shane_verify_incident`, and `shane_verify_incident_from_check`. Each contains caller identity or ownership checks; no obvious absent caller check in this source review. This is **not** proof of safety against all paths or a substitute for multi-account execution tests.
 - Remaining security work: isolated authenticated two-account negative/positive tests; inspect effective grants and related tables; assess password protection setting. No production data or policies modified.
 - Initial audit can close with explicit `not yet verified` entries for browser experience, artwork installation, real AI generation, account persistence, and cross-network permissions. These are implementation/acceptance milestones, not reasons to keep the baseline audit open indefinitely.
+
+## Integration audit continuation: creator, account save and return (2026-11-02)
+
+Scope: source inspection of `builder.html`, `shane-unified-private-save.js`, product contract, and earlier live security baseline. **Not a completed runtime audit or release certification.** SHON repository and production deployments unchanged.
+
+### Observed code paths
+- Conversation outcome `shaneChatSave` now invokes `saveEndeavorAccount`; account save writes an owner-scoped `shane_endeavors` record and dispatches `shane:endeavor-account-saved` only after a successful insert/update.
+- `shane-unified-private-save.js` listens for that event. If the editor contains a named, nonempty website draft and no selected saved website, it clicks the existing private `saveSite` action. It deliberately does not overwrite a selected existing website.
+- The `saveSite` handler inserts a `shane_sites` record with `status:"draft"`. The new link operation updates the active, owner-scoped endeavor's `linked_site_id` only after website insert succeeds; failure is reported separately.
+- The account save event now exposes an endeavor-specific return link. The endeavor open handler loads owner-scoped fields and fires `shane:endeavor-changed`; conversation memory switches by endeavor ID and attempts account restoration. The conversation offers a linked-website continuation control using the existing owner-checked loader.
+- New source contract: `tests/unified-private-save-contract.cjs`. **Committed, not yet executed in CI or a real browser.** Static assertions do not prove database or UI behavior.
+
+### Findings and corrections
+| ID | Domain | Finding | Status | Required verification |
+| --- | --- | --- | --- | --- |
+| INT-01 | Creation / persistence | Endeavor save and private new-site save are now wired through an event and owner-scoped link, but the operations are sequential, not atomic. A website can be saved without its endeavor link. | Partially verified (source) | Two-account authenticated create/save/return; failure injection for link and retry behavior |
+| INT-02 | Revision | Existing selected websites are intentionally not auto-updated, preventing silent overwrite but leaving conversational revision-to-persistence incomplete. | Partially verified (source) | Safe update/restore workflow with explicit published-site approval |
+| INT-03 | Continuity | Endeavor-specific return URL and account conversation load are present. Conversation, website, and versions are not yet demonstrated as a single restored session. | Partially verified (source) | Sign out/in, reload, two distinct endeavors, cross-device, version restore |
+| INT-04 | Security | Owner filters and draft-only insert are present in client code; earlier live RLS inspection was favorable but runtime denial tests remain outstanding. | Partially verified | Unauthorized linked ID, second-account reads/writes, published-site safety |
+| INT-05 | Experience / artwork | Product contract requires immersive original artwork and AI-operated creation; neither has been certified in a deployed browser journey. | Not yet verified | Original-asset inventory, screenshot comparison, actual AI generation and revision |
+| INT-06 | Collaboration / discovery | Source supports endeavor handoff and invitation flow; no accepted two-account invitation/message evidence recorded. | Not yet verified | Consent-gated listing, invitation, acceptance, private messaging, rejection tests |
+| INT-07 | Operations / release | Development commits are on `audit/vision-alignment-baseline-20261103`, not certified as deployed; test suite and rollback need evidence. | Not yet verified | Execute Node/browser/CI suite, compare main/deployment, rollback rehearsal |
+| INT-08 | SHON isolation | No SHON repository or database mutation in this audit continuation. | Verified for audited writes | Confirm any future integration remains separately authorized |
+
+### Full-audit completion criteria
+Close each of the original 16 domains with a dated evidence record, observed runtime result, regression test, and explicit owner decision where authorization is required. Run the complete signed-in creation → generated preview → conversational revision → private save/link → sign out → return/restore → opt-in discovery → two-account collaboration scenario. Test negative permission cases, accessibility, responsiveness, performance, alert handling, rollback, and SHON isolation. Only then mark release readiness verified. No unmeasured numerical completion score.
