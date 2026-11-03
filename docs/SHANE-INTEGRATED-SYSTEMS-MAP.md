@@ -133,3 +133,6 @@ Inspected `builder.html` latest-account load and selected-endeavor open handlers
 
 ### MAP-09: overlapping account loads may apply stale endeavor data (2026-11-02)
 Two concurrent account-return requests could complete out of order and overwrite the person's latest selected endeavor. Added `endeavorLoadEpoch` to `builder.html`: both latest-account and selected-endeavor loaders take a request token and discard results when superseded; new endeavor and account save invalidate pending loads (commit `1471debc`). Extended source regression checks (commit `5e9e95e5`). Verified the token and post-await guards exist in both source paths. Browser execution and interaction with other asynchronous listeners remain outstanding.
+
+### MAP-10: direct return incorrectly marked complete before endeavor open (2026-11-02)
+The `refreshEndeavors()` URL-return path set `window.shaneDirectEndeavorOpened=true` before dispatching `openEndeavor`, so a failed/cancelled open was incorrectly recorded as completed. Moved the completion marker into the selected endeavor's successful open path and added a save-in-flight guard before triggering direct open (commit `cad42b5f`). Source regression coverage extended (commit `28143e35`). A real-browser direct-link test, including cancelled open and sign-in retry, is still needed.
