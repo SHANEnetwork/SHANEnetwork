@@ -313,9 +313,9 @@ if(saveIntent||libraryIntent||collaboratorIntent){
  }
  return;
 }
-const isNetworkRequest=/\\b(find|show|open|see|check|view|read|refresh)\\b/.test(command)&&/\\b(collaborat(?:ion|ions|ors?)|messages?|network|discover|communities|campaigns|endeavors?)\\b/.test(command);
+const isNetworkRequest=/\b(find|show|open|see|check|view|read|refresh)\b/.test(command)&&/\b(collaborat(?:ion|ions|ors?)|messages?|network|discover|communities|campaigns|endeavors?)\b/.test(command);
 if(isNetworkRequest){
- const kind=/\\b(messages?|collaborat(?:ion|ions|ors?))\\b/.test(command)?"messages":/\\b(communities)\\b/.test(command)?"communities":/\\b(campaigns)\\b/.test(command)?"campaigns":/\\b(endeavors?)\\b/.test(command)?"endeavors":"discover";
+ const kind=/\b(messages?|collaborat(?:ion|ions|ors?))\b/.test(command)?"messages":/\b(communities)\b/.test(command)?"communities":/\b(campaigns)\b/.test(command)?"campaigns":/\b(endeavors?)\b/.test(command)?"endeavors":"discover";
  const target=document.querySelector('#shane-connected-workspace button[data-kind="'+kind+'"]');
  if(target){say("you",text);target.click();say("shane","I've opened the "+kind+" workspace alongside our conversation. Your website draft is unchanged.");message.textContent="Network workspace opened without regenerating your website.";return}
 }
