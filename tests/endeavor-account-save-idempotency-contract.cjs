@@ -15,4 +15,8 @@ assert(handler.includes('if(endeavorAccountSaveInFlight)return'),'duplicate invo
 assert(handler.includes('endeavorAccountSaveInFlight=false;\n  saveButton.disabled=false;'),'finally releases lock');
 assert(handler.includes('.insert(payload).select("id").single()'),'new endeavor saves through account');
 assert(handler.includes('shane:endeavor-account-saved'),'successful save emits continuity event');
+assert(html.includes('newEndeavor").onclick=()=>{if(endeavorAccountSaveInFlight)'), 'new endeavor action waits for active save');
+assert(html.includes('openEndeavor").onclick=async()=>{const out=document.getElementById("planRecoveryStatus"),id=document.getElementById("savedEndeavors").value;if(endeavorAccountSaveInFlight)'), 'opening another endeavor waits for active save');
+assert(handler.includes('const endeavorAtSaveStart=activeEndeavorId;'), 'save captures original endeavor identity');
+assert(handler.includes('.eq("id",endeavorAtSaveStart)'), 'update targets captured identity');
 console.log('Endeavor save source-contract assertions passed; runtime tests still required.');
