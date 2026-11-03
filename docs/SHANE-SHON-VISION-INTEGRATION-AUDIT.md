@@ -115,3 +115,6 @@ Node VM execution of `shane-unified-private-save.js` confirmed that two consecut
 
 ### INT-11 correction candidate (2026-11-02)
 `builder.html` now serializes private website save handler entry using `privateSiteSaveInFlight` set before the first await and cleared in `finally` (commit `d8a293c3`). This prevents a second invocation from beginning a concurrent insert while the first is unresolved. Added `tests/private-site-save-concurrency.cjs` (commit `678494eb`) to exercise concurrent invocations and subsequent retry with a delayed mock insert. **Test committed, not yet executed in CI or browser; INT-11 remains open pending test execution and real-account validation.**
+
+### Integrated Network trace (2026-11-02)
+The connected source map in `docs/SHANE-INTEGRATED-SYSTEMS-MAP.md` now traces `network.html` → `shane_listings` → `members.html` collaboration inbox → accepted request → `shane-endeavor-collaboration.js` → `workspace.html` / private messages. New findings: MAP-01 inconsistent message limits (4,000 vs 5,000); MAP-02 accepted collaboration visibility coupled to listing SELECT; MAP-03 keyword-only suggestion fallback versus conversational discovery vision; MAP-04 paired workspace collaboration/endeavor IDs require server-side relationship validation. Source observations only. No live account tests or security exploit confirmed. Commit `155fc53f`.
