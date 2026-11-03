@@ -112,3 +112,6 @@ Added `tests/unified-private-save-runtime.cjs` (commit `3d063353`), executing `s
 
 ### INT-11: repeated save confirmation causes duplicate requests
 Node VM execution of `shane-unified-private-save.js` confirmed that two consecutive `shane:endeavor-account-saved` events can invoke the private website save action twice before completion. This is a reproduced bridge-level idempotency defect. Six existing isolated scenarios passed, but this new concurrency case fails. A guarded in-flight operation and completion/failure signaling are required, followed by browser/database verification. The connected database read was unavailable during this pass. No production data changed.
+
+### INT-11 correction candidate (2026-11-02)
+`builder.html` now serializes private website save handler entry using `privateSiteSaveInFlight` set before the first await and cleared in `finally` (commit `d8a293c3`). This prevents a second invocation from beginning a concurrent insert while the first is unresolved. Added `tests/private-site-save-concurrency.cjs` (commit `678494eb`) to exercise concurrent invocations and subsequent retry with a delayed mock insert. **Test committed, not yet executed in CI or browser; INT-11 remains open pending test execution and real-account validation.**
