@@ -22,7 +22,9 @@ if(endeavorId&&/^[0-9a-f-]{36}$/i.test(endeavorId)){
    const {data,error}=await sb.from("shane_endeavors").select("id,title,idea,region").eq("id",endeavorId).eq("owner_id",user.id).maybeSingle();
    if(error)throw error;
    if(!data){item=null;prepare.hidden=true;message.textContent="This endeavor is not available in your account.";return}
-   item=data;title.textContent="Find collaborators for "+(data.title||"your endeavor");
+   item=data;
+   window.SHANEEndeavorCore?.update({id:data.id,vision:data.idea||"",source:"verified-network-endeavor"},"verified-owner");
+   title.textContent="Find collaborators for "+(data.title||"your endeavor");
    message.textContent="SHANE can prepare a discoverable listing from your saved vision. You review it and choose whether to publish.";
    prepare.hidden=false;
   }catch(error){item=null;prepare.hidden=true;message.textContent="Could not retrieve this endeavor from your account. No listing has been created."}
