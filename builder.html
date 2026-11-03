@@ -160,7 +160,7 @@ try{
     :await sb.from("shane_endeavors").insert(payload).select("id").single();
   if(result.error)throw result.error;
   activeEndeavorId=result.data.id;document.dispatchEvent(new CustomEvent("shane:endeavor-changed",{detail:{id:activeEndeavorId,reason:"saved"}}));
-  out.textContent="Your ambition is saved privately to your SHANE account. You can return to it from My Network.";
+  out.textContent="Your ambition is saved privately to your SHANE account. You can return to it from My Network.";document.dispatchEvent(new CustomEvent("shane:endeavor-account-saved",{detail:{id:activeEndeavorId}}));
   try{sessionStorage.removeItem("shane-welcome-v1")}catch{}
   try{
     await refreshEndeavors();
@@ -410,4 +410,4 @@ document.addEventListener("shane:saved-website-revised",async event=>{
   if(recorded?.saved!==true)console.warn("Website saved but endeavor revision history was not recorded:",recorded?.reason||"unknown reason");
  }catch(error){console.warn("Website saved; endeavor revision history could not be confirmed:",error.message)}
 });
-</script><script src="shane-connected-workspace.js" defer></script><script src="shane-live-endeavor.js" defer></script><script src="shane-arrival-draft.js" defer></script><script src="shane-vision-entry.js" defer></script></body></html>
+</script><script src="shane-connected-workspace.js" defer></script><script src="shane-live-endeavor.js" defer></script><script src="shane-arrival-draft.js" defer></script><script src="shane-vision-entry.js" defer></script><script src="shane-save-return.js" defer></script></body></html>
