@@ -18,21 +18,21 @@ if(endeavorId&&/^[0-9a-f-]{36}$/i.test(endeavorId)){
   try{
    const {data:{user},error:authError}=await sb.auth.getUser();
    if(authError)throw authError;
-   if(!user){message.textContent="Sign in to prepare a collaboration listing for this endeavor. No project has been changed.";return}
+   if(!user){item=null;prepare.hidden=true;message.textContent="Sign in to prepare a collaboration listing for this endeavor. No project has been changed.";return}
    const {data,error}=await sb.from("shane_endeavors").select("id,title,idea,region").eq("id",endeavorId).eq("owner_id",user.id).maybeSingle();
    if(error)throw error;
-   if(!data){message.textContent="This endeavor is not available in your account.";return}
+   if(!data){item=null;prepare.hidden=true;message.textContent="This endeavor is not available in your account.";return}
    item=data;title.textContent="Find collaborators for "+(data.title||"your endeavor");
    message.textContent="SHANE can prepare a discoverable listing from your saved vision. You review it and choose whether to publish.";
    prepare.hidden=false;
-  }catch(error){message.textContent="Could not retrieve this endeavor from your account. No listing has been created."}
+  }catch(error){item=null;prepare.hidden=true;message.textContent="Could not retrieve this endeavor from your account. No listing has been created."}
  }
  prepare.addEventListener("click",()=>{
   if(!item)return;
   const fields=[["listingIdea",item.idea],["title",item.title],["description",item.idea],["listingRegion",item.region]];
   let preserved=false;
   for(const [name,value]of fields){const field=document.getElementById(name);if(!field||!value)continue;if(field.value.trim()){preserved=true;continue}field.value=String(value).slice(0,field.maxLength>0?field.maxLength:4000);field.dispatchEvent(new Event("input",{bubbles:true}))}
-  const category=document.getElementById("category");if(category&&category.value==="business")category.value="project";
+  const publication=document.getElementById("publication");if(publication)publication.value="draft";const category=document.getElementById("category");if(category&&category.value==="business")category.value="project";
   message.textContent=preserved?"Existing listing edits were preserved. Review your prepared draft below. Nothing has been published.":"Your endeavor is ready as an editable listing draft. Review it before choosing to save or publish.";
   if(section){section.hidden=false;section.scrollIntoView({behavior:"smooth",block:"start"})}
  });
