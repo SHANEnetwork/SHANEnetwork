@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Return to your endeavors | SHANE</title>
+<link rel="stylesheet" href="shane-unified-experience.css">
+<style>
+body{margin:0;font:16px/1.55 system-ui,sans-serif;background:#fff8f1;color:#332c39}
+header{padding:22px max(20px,calc((100vw - 1080px)/2));background:#463247;color:white}
+header a{color:#fff4df}main{max-width:1080px;margin:auto;padding:28px 20px}
+.intro{padding:clamp(25px,5vw,58px);border-radius:26px;color:white;background:linear-gradient(90deg,#251e32ed,#3b2b46a6),url("assets/shane-network-connected-world.svg") center/cover}
+h1{font:clamp(2rem,5vw,3.5rem)/1.1 Georgia,serif}.intro p{max-width:650px}
+#projects{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,310px),1fr));gap:18px;margin-top:24px}
+article{padding:24px;border:1px solid #ead7cc;border-radius:18px;background:#fffdfa;box-shadow:0 10px 30px #32203612}
+article h2{font:1.45rem Georgia,serif;margin:0 0 10px}article p{overflow-wrap:anywhere}
+a.action{display:inline-block;padding:11px 16px;border-radius:11px;background:#69475d;color:white;text-decoration:none;margin:6px 8px 0 0}
+a.action.secondary{background:#f3e6df;color:#483344}#status{margin-top:24px}
+</style></head><body>
+<header><a href="index.html">SHANEnetwork</a> · <a href="builder.html#vision-first">Create with SHANE</a> · <a href="network.html">Network</a></header>
+<main><section class="intro"><h1>Your ideas have a place to grow.</h1><p>Return to an endeavor, keep shaping it in conversation, or bring others into the work. Your account keeps the thread connected.</p><a class="action" href="builder.html#vision-first">Describe a new endeavor</a></section>
+<p id="status" role="status" aria-live="polite">Checking your SHANE account…</p><section id="projects" aria-label="Your saved endeavors"></section></main>
+<script type="module">
+import {createClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/+esm";
+const status=document.getElementById("status"),projects=document.getElementById("projects");
+const sb=createClient("https://ufxzogeixdwvbpdypojb.supabase.co","sb_publishable_iR9kxdCfQ7850VleEUx7mA_nHS4WZpB");
+function link(text,url,secondary=false){const a=document.createElement("a");a.textContent=text;a.href=url;a.className="action"+(secondary?" secondary":"");return a}
+try{
+const {data:{user},error:authError}=await sb.auth.getUser();
+if(authError)throw authError;
+if(!user){status.textContent="Sign in to your SHANE account to see saved endeavors. Your work is not displayed to visitors.";status.append(document.createTextNode(" "));status.append(link("Open SHANE sign-in","dashboard.html",true))}
+else{
+const {data,error}=await sb.from("shane_endeavors").select("id,title,idea").eq("owner_id",user.id).limit(100);
+if(error)throw error;
+const rows=data||[];
+status.textContent=rows.length?("Your saved endeavors ("+rows.length+(rows.length===100?"+":"")+")"):"No saved endeavors yet. Start by telling SHANE what you want to create.";
+for(const item of rows){
+const card=document.createElement("article"),h=document.createElement("h2"),p=document.createElement("p");
+h.textContent=item.title||"Untitled endeavor";p.textContent=(item.idea||"").slice(0,350);card.append(h,p);
+const url="builder.html#vision-first";
+const resume=link("Continue creating",url);
+resume.addEventListener("click",()=>{try{sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:item.id,origin:"account-library"}));sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination:"builder.html",endeavorId:item.id,origin:"account-library",visibility:"private",created:Date.now()}))}catch{}});
+card.append(resume,link("Find collaborators","members.html#collaborationSection",true));projects.append(card)
+}
+}
+}catch(error){status.textContent="Unable to load saved endeavors. Nothing has been changed. Please try again after signing in.";console.warn("SHANE endeavor library:",error)}
+</script></body></html>
