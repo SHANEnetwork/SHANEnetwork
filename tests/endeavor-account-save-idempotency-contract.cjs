@@ -24,4 +24,11 @@ assert(latest.includes('if(endeavorAccountSaveInFlight)'), 'latest endeavor load
 assert(latest.includes('An endeavor save started while loading.'), 'latest endeavor load rechecks after database response');
 const open=html.slice(html.indexOf('document.getElementById("openEndeavor").onclick='),html.indexOf('document.getElementById("linkEndeavorSite").onclick='));
 assert(open.includes('An endeavor save started while loading.'), 'selected endeavor load rechecks after database response');
+assert(html.includes('let activeEndeavorId=null;let endeavorLoadEpoch=0;'), 'load epoch initialized');
+assert(html.includes('endeavorLoadEpoch++;activeEndeavorId=null;'), 'new endeavor invalidates pending loads');
+assert(handler.includes('endeavorLoadEpoch++;saveButton.disabled=true;'), 'save invalidates pending loads');
+assert(latest.includes('const loadEpoch=++endeavorLoadEpoch;'), 'latest account load has request epoch');
+assert((latest.match(/loadEpoch!==endeavorLoadEpoch/g)||[]).length>=2, 'latest load discards stale results');
+assert(open.includes('const loadEpoch=++endeavorLoadEpoch;'), 'selected endeavor load has request epoch');
+assert((open.match(/loadEpoch!==endeavorLoadEpoch/g)||[]).length>=2, 'selected load discards stale results');
 console.log('Endeavor save source-contract assertions passed; runtime tests still required.');
