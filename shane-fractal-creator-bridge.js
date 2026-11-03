@@ -4,7 +4,7 @@
 const queueKey="shane-fractal-pending-v1",statusId="shane-fractal-status";
 let pending=[],endeavorId=null,flushing=false,ready=false;
 const validId=id=>typeof id==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(id);
-try{const saved=JSON.parse(sessionStorage.getItem(queueKey)||"[]");if(Array.isArray(saved))pending=saved.filter(x=>x&&validId(x.id)&&validId(x.endeavorId)&&["you","shane"].includes(x.role)&&typeof x.text==="string").slice(-200)}catch{}
+try{const saved=JSON.parse(sessionStorage.getItem(queueKey)||"[]");if(Array.isArray(saved))pending=saved.filter(x=>x&&validId(x.id)&&validId(x.endeavorId)&&["you","shane"].includes(x.role)&&typeof x.text==="string")}catch{}
 function saveQueue(){try{sessionStorage.setItem(queueKey,JSON.stringify(pending))}catch{}}
 function report(message){let node=document.getElementById(statusId);if(!node){const host=document.getElementById("shane-journey-save")||document.getElementById("vision-first");if(!host)return;node=document.createElement("p");node.id=statusId;node.setAttribute("role","status");node.setAttribute("aria-live","polite");host.append(node)}node.textContent=message}
 function add(role,text,id){if(!validId(id)||!["you","shane"].includes(role)||typeof text!=="string"||!text.trim())return;const turn={id:crypto.randomUUID(),endeavorId:id,role,text:text.slice(0,12000)};pending.push(turn);saveQueue();flush()}
