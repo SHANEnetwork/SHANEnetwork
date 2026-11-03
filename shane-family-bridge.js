@@ -48,4 +48,10 @@ async function startSharedEndeavor(text){
  return true;
 }
 window.SHANEFamily=Object.freeze({find,startSharedEndeavor,integrations});
+document.addEventListener("DOMContentLoaded",()=>{
+ if(!document.getElementById("shane-return-endeavors")){
+  const form=document.getElementById("shane-home-vision-form");
+  if(form){const p=document.createElement("p");p.id="shane-return-endeavors";p.style.margin="12px 0 0";const a=document.createElement("a");a.href="my-endeavors.html";a.textContent="Return to my saved endeavors";a.style.color="#704760";a.style.fontWeight="700";p.append(a);form.insertAdjacentElement("afterend",p)}
+ }
+});
 })();
