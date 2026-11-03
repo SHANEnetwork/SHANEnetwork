@@ -124,3 +124,6 @@ Inspected `workspace.html`: all four task write paths, the private message send,
 
 ### MAP-06: duplicate endeavor account saves before authentication completes (2026-11-02)
 The `builder.html` account save handler previously set its disabled/in-flight guard **after** awaiting `sb.auth.getUser()`, allowing overlapping rapid requests before the guard. The lock now engages before the first await and is released in `finally` (commit `d36e3401`). Added a source regression contract at `tests/endeavor-account-save-idempotency-contract.cjs` (commit `c6d4e6b5`). Browser concurrency, database uniqueness and recovery remain unverified; the source correction is not a certified end-to-end pass.
+
+### MAP-07: endeavor switch during pending account save (2026-11-02)
+The account save and `newEndeavor` / `openEndeavor` handlers previously could overlap. The builder now prevents those two user actions while the account save is in flight and captures `endeavorAtSaveStart` for the update query rather than reading the active ID after asynchronous authentication (commit `9ce5082d`). The source contract was expanded (commit `6a578051`). Source inspection confirmed the new guards and captured target; actual concurrent browser interactions and other asynchronous endeavor-switch paths still require testing.
