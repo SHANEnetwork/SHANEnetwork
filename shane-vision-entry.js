@@ -3,7 +3,7 @@
 
 // Load the same shared endeavor foundation used by Network pages.
 // This avoids replacing the large existing creator application.
-if(!window.SHANEEndeavorCore&&!document.querySelector('script[data-shane-core-loader]')){
+if(!window.SHANEEndeavorCore&&!document.querySelector('script[src="shane-endeavor-core.js"]')){
  const script=document.createElement("script");script.src="shane-endeavor-core.js";script.dataset.shaneCoreLoader="true";document.head.append(script);
 }
 document.addEventListener("shane:endeavor-account-saved",event=>{
