@@ -13,7 +13,11 @@ notice.textContent="I brought your idea here from the Network. It's ready to dev
 const button=document.createElement("button");button.type="button";button.textContent="Dismiss";button.addEventListener("click",()=>notice.remove());notice.append(" ",button);
 const target=$("shane-idea-conversation")||vision.closest("section");
 if(target)target.insertBefore(notice,target.firstChild);
-vision.value=text;vision.dispatchEvent(new Event("input",{bubbles:true}));clear();
+vision.value=text;vision.dispatchEvent(new Event("input",{bubbles:true}));
+// Keep the fresh, explicit handoff until shane-vision-entry has had a chance to
+// create the private draft. Older entry formats remain prefill-only.
+try{const item=JSON.parse(sessionStorage.getItem(KEY)||"null");if(!item||typeof item.text!=="string"||item.text.trim()!==text||!Number.isFinite(item.created)||Date.now()-item.created>3600000)sessionStorage.removeItem(KEY)}catch{sessionStorage.removeItem(KEY)}
+try{sessionStorage.removeItem("shane_welcome_draft");sessionStorage.removeItem("shane_dashboard_goal")}catch{}
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
