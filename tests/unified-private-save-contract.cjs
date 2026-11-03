@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const html=fs.readFileSync('builder.html','utf8');
+const bridge=fs.readFileSync('shane-unified-private-save.js','utf8');
+assert.match(html,/<script src="shane-unified-private-save\.js" defer><\/script>/);
+assert.match(html,/dispatchEvent\(new CustomEvent\("shane:endeavor-account-saved"/);
+assert.match(bridge,/addEventListener\('shane:endeavor-account-saved'/);
+assert.match(bridge,/if\(existing\?\.value\)/);
+assert.match(bridge,/save\.click\(\)/);
+assert.match(html,/linked_site_id:data\.id/);
+assert.match(html,/\.eq\("owner_id",user\.id\)/);
+assert.match(html,/status:"draft"/);
+assert.match(html,/shane:endeavor-site-linked/);
+console.log('Unified private-save source contracts passed. Browser and database verification still required.');
