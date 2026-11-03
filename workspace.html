@@ -2,6 +2,8 @@
 import{createClient}from"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/+esm";
 const sb=createClient("https://ufxzogeixdwvbpdypojb.supabase.co","sb_publishable_iR9kxdCfQ7850VleEUx7mA_nHS4WZpB"),$=id=>document.getElementById(id),id=new URLSearchParams(location.search).get("collaboration");
 let user=null,collaboration=null,overviewVersion=null;
+async function requireCurrentCollaborationAccess(){if(!user||!collaboration)throw Error("Open an accepted collaboration first.");const auth=await sb.auth.getUser();if(auth.error||!auth.data?.user||auth.data.user.id!==user.id)throw Error("Your account session changed. Sign in again.");const access=await sb.from("shane_collaboration_requests").select("id,status,sender_id,recipient_id").eq("id",id).maybeSingle();if(access.error||!access.data||access.data.status!=="accepted"||![access.data.sender_id,access.data.recipient_id].includes(user.id))throw Error("This collaboration is no longer accepted for shared edits.");return auth.data.user}
+
 async function loadOverview(){const {data,error}=await sb.from("shane_collaboration_overviews").select("purpose,next_step,updated_at").eq("request_id",id).maybeSingle();if(error){$("overviewStatus").textContent="Could not load shared direction: "+error.message;return}overviewVersion=data?.updated_at||null;$("sharedPurpose").value=data?.purpose||"";$("sharedNext").value=data?.next_step||""}
 $("refreshOverview").onclick=loadOverview;
 $("overviewForm").onsubmit=async e=>{e.preventDefault();if(!user||!collaboration)return;const button=e.target.querySelector('button[type="submit"]');button.disabled=true;try{const auth=await sb.auth.getUser();if(auth.error||!auth.data?.user||auth.data.user.id!==user.id)throw Error("Your account session changed. Sign in again before saving.");const access=await sb.from("shane_collaboration_requests").select("id,status,sender_id,recipient_id").eq("id",id).maybeSingle();if(access.error||!access.data||access.data.status!=="accepted"||![access.data.sender_id,access.data.recipient_id].includes(user.id))throw Error("This collaboration is no longer accepted for shared edits.");const purpose=$("sharedPurpose").value.trim(),next_step=$("sharedNext").value.trim();const stamp=new Date().toISOString();let result;if(overviewVersion){result=await sb.from("shane_collaboration_overviews").update({purpose,next_step,updated_by:user.id,updated_at:stamp}).eq("request_id",id).eq("updated_at",overviewVersion).select("updated_at").maybeSingle()}else{result=await sb.from("shane_collaboration_overviews").insert({request_id:id,purpose,next_step,updated_by:user.id,updated_at:stamp}).select("updated_at").single()}button.disabled=false;if(result.error){$("overviewStatus").textContent=result.error.code==="23505"?"Your collaborator saved a shared direction first. Copy your text before refreshing.":"Could not save: "+result.error.message;return}if(!result.data){$("overviewStatus").textContent="Someone updated this direction since you opened it. Copy your text before refreshing to avoid losing changes.";return}overviewVersion=result.data.updated_at;$("overviewStatus").textContent="Shared direction saved.";await loadActivity()}catch(error){$("overviewStatus").textContent="Could not save shared direction: "+(error?.message||String(error))}finally{button.disabled=false}};
@@ -65,13 +67,12 @@ async function init(){if(!id||!/^[0-9a-f-]{36}$/i.test(id)){$("status").textCont
  feedback.textContent="Endeavor context refreshed."}catch(error){feedback.textContent="Unable to refresh endeavor: "+(error?.message||String(error))}finally{button.disabled=false}};$("refreshEndeavor").onclick=refresh;await refresh()}$("status").textContent="Your private collaboration workspace is ready.";$("campaignLink").href="campaigns.html?collaboration="+encodeURIComponent(id)+"#create";$("shaneWorkspaceCampaign").href="campaigns.html?collaboration="+encodeURIComponent(id)+"#create";$("workspace").hidden=false;await Promise.all([messages(),loadTasks(),loadActivity(),loadOverview()])}
 $("refreshMessages").onclick=messages;
 $("insertPrompt").onclick=()=>{if(!$("prompt").value)return;const field=$("body");field.value+=(field.value.trim()?"\n\n":"")+$("prompt").value;field.focus()};
-$("messageForm").onsubmit=async e=>{e.preventDefault();const body=$("body").value.trim();if(!body)return;const btn=e.target.querySelector("button");if(btn.disabled)return;btn.disabled=true;try{if(!user||!collaboration){$("messageStatus").textContent="Open an accepted collaboration before sending.";return}const {error}=await sb.from("shane_collaboration_messages").insert({request_id:id,sender_id:user.id,body});if(error)throw error;$("body").value="";$("messageStatus").textContent="Message sent.";await Promise.allSettled([messages(),loadActivity()])}catch(error){$("messageStatus").textContent="Message not sent: "+(error?.message||String(error))}finally{btn.disabled=false}};
+$("messageForm").onsubmit=async e=>{e.preventDefault();const body=$("body").value.trim();if(!body)return;const btn=e.target.querySelector("button");if(btn.disabled)return;btn.disabled=true;try{await requireCurrentCollaborationAccess();const {error}=await sb.from("shane_collaboration_messages").insert({request_id:id,sender_id:user.id,body});if(error)throw error;$("body").value="";$("messageStatus").textContent="Message sent.";await Promise.allSettled([messages(),loadActivity()])}catch(error){$("messageStatus").textContent="Message not sent: "+(error?.message||String(error))}finally{btn.disabled=false}};
 function openTaskEditor(task,row){const existing=row.querySelector("form");if(existing){existing.remove();return}const form=document.createElement("form");const fields=[["Title","textarea",task.title],["Details","textarea",task.details||""],["Due date","date",task.due_date||""]];const inputs=[];for(const [label,type,value] of fields){const wrap=document.createElement("label");wrap.textContent=label;const input=document.createElement("input");input.type=type==="date"?"date":"text";input.value=value;input.maxLength=label==="Title"?240:4000;wrap.append(input);form.append(wrap);inputs.push(input)}const select=document.createElement("select");for(const [value,label] of [["","Unassigned"],[user.id,"Me"],[collaboration.sender_id===user.id?collaboration.recipient_id:collaboration.sender_id,"Collaborator"]]){const opt=document.createElement("option");opt.value=value;opt.textContent=label;select.append(opt)}select.value=task.assignee_id||"";const assigned=document.createElement("label");assigned.textContent="Assigned to";assigned.append(select);form.append(assigned);const save=document.createElement("button");save.textContent="Save task";form.append(save);const cancel=document.createElement("button");cancel.type="button";cancel.textContent="Cancel";cancel.onclick=()=>form.remove();form.append(cancel);form.onsubmit=async e=>{e.preventDefault();const title=inputs[0].value.trim();if(!title){$("taskStatus").textContent="Task title cannot be empty.";inputs[0].focus();return}if(save.disabled)return;
 save.disabled=true;
 taskMutationInFlight++;
 taskRefreshVersion++;
-try{
-  const {error}=await sb.from("shane_collaboration_tasks").update({title,details:inputs[1].value.trim(),due_date:inputs[2].value||null,assignee_id:select.value||null}).eq("id",task.id).eq("request_id",id);
+try{await requireCurrentCollaborationAccess();const {error}=await sb.from("shane_collaboration_tasks").update({title,details:inputs[1].value.trim(),due_date:inputs[2].value||null,assignee_id:select.value||null}).eq("id",task.id).eq("request_id",id);
   $("taskStatus").textContent=error?"Update failed: "+error.message:"Task updated.";
   if(!error){form.remove();await loadActivity()}
 }catch(error){
@@ -87,8 +88,7 @@ function taskEditorOrMutationActive(){return taskMutationInFlight>0 || Boolean($
 async function loadTasks(){const host=$("taskList"),version=++taskRefreshVersion;const {data,error}=await sb.from("shane_collaboration_tasks").select("id,title,details,assignee_id,creator_id,due_date,completed,created_at").eq("request_id",id).order("created_at",{ascending:true}).limit(100);if(version!==taskRefreshVersion)return;if(taskEditorOrMutationActive())return;if(error){if(!host.children.length)host.textContent="Could not load tasks: "+error.message;return}host.replaceChildren();if(!data?.length){host.textContent="No shared tasks yet. Add a first step below to begin working together.";return}const done=data.filter(x=>x.completed).length;const summary=document.createElement("p");summary.textContent=done+" of "+data.length+" tasks complete";summary.setAttribute("role","status");host.append(summary);for(const x of data){const row=document.createElement("div");row.className="message";const label=document.createElement("label"),check=document.createElement("input");check.type="checkbox";check.checked=x.completed;label.append(check,document.createTextNode(" "+x.title));check.onchange=async()=>{
   const previous=!check.checked;
   check.disabled=true;taskMutationInFlight++;taskRefreshVersion++;
-  try{
-    const {error}=await sb.from("shane_collaboration_tasks").update({completed:check.checked}).eq("id",x.id).eq("request_id",id);
+  try{await requireCurrentCollaborationAccess();const {error}=await sb.from("shane_collaboration_tasks").update({completed:check.checked}).eq("id",x.id).eq("request_id",id);
     if(error)throw error;
     $("taskStatus").textContent="Task updated.";
     await loadActivity();
@@ -104,8 +104,7 @@ async function loadTasks(){const host=$("taskList"),version=++taskRefreshVersion
   del.disabled=true;
   taskMutationInFlight++;
   taskRefreshVersion++;
-  try{
-    const {error}=await sb.from("shane_collaboration_tasks").delete().eq("id",x.id).eq("creator_id",user.id);
+  try{await requireCurrentCollaborationAccess();const {error}=await sb.from("shane_collaboration_tasks").delete().eq("id",x.id).eq("creator_id",user.id);
     $("taskStatus").textContent=error?"Task removal failed: "+error.message:"Task removed.";
     if(!error)await loadActivity();
   }catch(error){
@@ -127,8 +126,7 @@ $("taskForm").onsubmit=async e=>{
   button.disabled=true;
   taskMutationInFlight++;
   taskRefreshVersion++;
-  try{
-    const {error}=await sb.from("shane_collaboration_tasks").insert({
+  try{await requireCurrentCollaborationAccess();const {error}=await sb.from("shane_collaboration_tasks").insert({
       request_id:id,creator_id:user.id,title,details:$("taskDetails").value.trim(),
       assignee_id:$("taskAssignee").value||null,due_date:$("taskDue").value||null
     });
