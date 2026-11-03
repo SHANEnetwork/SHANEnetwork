@@ -34,4 +34,8 @@ assert((open.match(/loadEpoch!==endeavorLoadEpoch/g)||[]).length>=2, 'selected l
 const refresh=html.slice(html.indexOf('async function refreshEndeavors()'),html.indexOf('document.getElementById("refreshEndeavors").onclick='));
 assert(!refresh.includes('window.shaneDirectEndeavorOpened=true'), 'direct return is not marked complete before opening');
 assert(open.includes('if(new URLSearchParams(location.search).get("endeavor")===id)window.shaneDirectEndeavorOpened=true;'), 'direct return completes after successful opening');
+assert(refresh.includes('const previouslySelected=select.value;select.replaceChildren('), 'refresh preserves selection until results arrive');
+assert(refresh.includes('if(previouslySelected&&Array.from(select.options).some('), 'refresh restores available selection');
+assert(html.includes('let endeavorListRefreshEpoch=0;async function refreshEndeavors(){const refreshEpoch=++endeavorListRefreshEpoch;'), 'refresh uses monotonic request epoch');
+assert((refresh.match(/refreshEpoch!==endeavorListRefreshEpoch/g)||[]).length>=3, 'refresh rejects stale auth, list and direct-link lookups');
 console.log('Endeavor save source-contract assertions passed; runtime tests still required.');
