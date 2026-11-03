@@ -1,0 +1,19 @@
+/* Read-only chapter navigator for the saved endeavor in SHANE Creator. */
+(()=>{"use strict";
+let current=null;const valid=id=>typeof id==="string"&&/^[0-9a-f-]{36}$/i.test(id);
+function init(){const host=document.getElementById("vision-first");if(!host||document.getElementById("shane-chapter-library"))return;
+const section=document.createElement("section");section.id="shane-chapter-library";section.style.cssText="margin:20px 0;padding:20px;border-radius:18px;background:#fffaf3;border:1px solid #dfc9bc;color:#453340";
+const title=document.createElement("h3");title.textContent="Your conversation chapters";
+const note=document.createElement("p");note.textContent="Earlier conversations remain available as 20-turn chapters. Open a chapter to revisit the original discussion.";
+const controls=document.createElement("div"),number=document.createElement("input"),open=document.createElement("button"),summary=document.createElement("p"),turns=document.createElement("ol");
+number.type="number";number.min="1";number.value="1";number.setAttribute("aria-label","Chapter number");number.style.cssText="width:75px;margin-right:8px;padding:8px";
+open.type="button";open.textContent="Open chapter";summary.setAttribute("role","status");summary.setAttribute("aria-live","polite");turns.style.cssText="padding-left:24px;overflow-wrap:anywhere";
+controls.append(number,open);section.append(title,note,controls,summary,turns);host.append(section);
+async function refresh(){turns.replaceChildren();if(!valid(current)){summary.textContent="Save or open an endeavor to see its chapters.";return}if(!window.SHANEFractalMemory||!window.shaneAccountDb){summary.textContent="Chapter storage is not connected yet.";return}try{const mem=window.SHANEFractalMemory.create(window.shaneAccountDb,current),count=await mem.listChapters();summary.textContent=count.turns+" archived turns across "+count.chapters+" chapters.";if(count.chapters&&Number(number.value)>count.chapters)number.value=String(count.chapters)}catch{summary.textContent="Chapter archive is unavailable. Your existing conversation is unchanged."}}
+open.addEventListener("click",async()=>{turns.replaceChildren();if(!valid(current)||!window.SHANEFractalMemory||!window.shaneAccountDb){summary.textContent="Open a saved endeavor first.";return}const chapter=Number(number.value);if(!Number.isSafeInteger(chapter)||chapter<1){summary.textContent="Choose a valid chapter number.";return}try{const memory=window.SHANEFractalMemory.create(window.shaneAccountDb,current),rows=await memory.readChapter(chapter);summary.textContent=rows.length?"Chapter "+chapter+" has "+rows.length+" archived turns.":"No archived turns in chapter "+chapter+".";for(const t of rows){const li=document.createElement("li"),speaker=document.createElement("strong"),body=document.createElement("span");speaker.textContent=t.role==="you"?"You: ":"SHANE: ";body.textContent=t.body;li.append(speaker,body);li.style.marginBottom="10px";turns.append(li)}}catch{summary.textContent="Unable to retrieve this chapter right now."}});
+document.addEventListener("shane:endeavor-changed",event=>{current=valid(event.detail?.id)?event.detail.id:null;refresh()});
+document.addEventListener("shane:endeavor-account-saved",event=>{current=valid(event.detail?.id)?event.detail.id:current;refresh()});
+document.addEventListener("shane:account-db-ready",refresh);
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
