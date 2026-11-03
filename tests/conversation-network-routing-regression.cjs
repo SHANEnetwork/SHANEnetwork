@@ -1,0 +1,13 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const html = fs.readFileSync('builder.html','utf8');
+const start = html.indexOf('const isNetworkRequest=');
+const end = html.indexOf('if(isNetworkRequest)',start);
+assert.ok(start>=0&&end>start,'conversation Network routing exists');
+const route = html.slice(start,end);
+assert.ok(route.includes('/\\b('),'word boundary expressions must use a single backslash');
+assert.ok(!route.includes('/\\\\b('),'double-escaped word boundaries must not recur');
+const matches = phrase => /\b(find|show|open|see|check|view|read|refresh)\b/.test(phrase) && /\b(collaborat(?:ion|ions|ors?)|messages?|network|discover|communities|campaigns|endeavors?)\b/.test(phrase);
+for(const phrase of ['show my messages','open communities','find collaborators','view endeavors']) assert.ok(matches(phrase),phrase);
+assert.equal(matches('create a website'),false);
+console.log('Conversation Network workspace routing regression passed');
