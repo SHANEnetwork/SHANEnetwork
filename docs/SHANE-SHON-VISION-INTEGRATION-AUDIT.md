@@ -60,3 +60,9 @@ Preserve working behavior; avoid destructive rewrites; use scoped reversible cha
 
 ## Next verification
 Inspect existing migrations, endeavor data services, conversation-to-operation wiring, per-endeavor access controls, deployment versions, and real-account persistence before choosing implementation changes. Never run SHANE migrations against SHON.
+
+## Follow-up source trace: saved endeavor to collaboration (2026-11-02)
+- `shane-creative-continuity.js` now includes the active endeavor ID in intent and listing handoffs (branch commit `237f11c2`). This is a browser-level handoff, not authorization.
+- `members.html` receives `shane-network-draft-v1`, copies `endeavor_id` to the listing form, and defaults the incoming listing to `draft`. On submit it authenticates the current user and checks `shane_endeavors.id` with `owner_id` equal to that user before inserting the linked listing. This is client-side evidence only; confirm RLS independently.
+- `shane-endeavor-collaboration.js` filters accepted collaboration requests through listings whose `endeavor_id` matches the active endeavor and offers an existing workspace/private conversation. This confirms a source-level join path, not successful live messaging.
+- Verification still required: database RLS for linked listing insertion, forged endeavor IDs, multi-account permissions, stale session identity, cross-page return, and real-account invitation/message tests.
