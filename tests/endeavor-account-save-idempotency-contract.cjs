@@ -31,4 +31,7 @@ assert(latest.includes('const loadEpoch=++endeavorLoadEpoch;'), 'latest account 
 assert((latest.match(/loadEpoch!==endeavorLoadEpoch/g)||[]).length>=2, 'latest load discards stale results');
 assert(open.includes('const loadEpoch=++endeavorLoadEpoch;'), 'selected endeavor load has request epoch');
 assert((open.match(/loadEpoch!==endeavorLoadEpoch/g)||[]).length>=2, 'selected load discards stale results');
+const refresh=html.slice(html.indexOf('async function refreshEndeavors()'),html.indexOf('document.getElementById("refreshEndeavors").onclick='));
+assert(!refresh.includes('window.shaneDirectEndeavorOpened=true'), 'direct return is not marked complete before opening');
+assert(open.includes('if(new URLSearchParams(location.search).get("endeavor")===id)window.shaneDirectEndeavorOpened=true;'), 'direct return completes after successful opening');
 console.log('Endeavor save source-contract assertions passed; runtime tests still required.');
