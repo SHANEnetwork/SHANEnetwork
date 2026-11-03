@@ -3,7 +3,7 @@
 (()=>{"use strict";
 const KEY="shane-creative-handoff-v1";
 const $=id=>document.getElementById(id);
-function read(){let draft="";try{const raw=sessionStorage.getItem(KEY);if(raw){const item=JSON.parse(raw);if(item&&typeof item.text==="string"&&Date.now()-item.created<86400000)draft=item.text}if(!draft)draft=sessionStorage.getItem("shane_welcome_draft")||sessionStorage.getItem("shane_dashboard_goal")||""}catch{}return draft.slice(0,2000).trim()}
+function read(){let draft="";try{const raw=sessionStorage.getItem(KEY);if(raw){const item=JSON.parse(raw);if(item&&typeof item.text==="string"&&Date.now()-item.created<86400000)draft=item.text}if(!draft)draft=sessionStorage.getItem("shane_welcome_draft")||sessionStorage.getItem("shane_dashboard_goal")||""}catch{}return draft.slice(0,10000).trim()}
 function clear(){try{sessionStorage.removeItem(KEY);sessionStorage.removeItem("shane_welcome_draft");sessionStorage.removeItem("shane_dashboard_goal")}catch{}}
 function init(){const vision=$("visionPrompt"),reply=$("shaneIdeaReply");if(!vision||!reply)return;
 const text=read();if(!text)return;try{window.SHANEConversation?.remember(text,"creator-handoff")}catch{}
