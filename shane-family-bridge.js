@@ -17,11 +17,13 @@ async function startSharedEndeavor(text){
  sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination:"builder.html",text:idea,endeavorId:null,created,origin:"network",visibility:"private"}));
  }catch(e){throw new Error("Your browser cannot save this draft. Please allow session storage before continuing.")}
  let savedId=null;
+ let saveAttempted=false;
  try{
   const {createClient}=await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/+esm");
   const sb=createClient("https://ufxzogeixdwvbpdypojb.supabase.co","sb_publishable_iR9kxdCfQ7850VleEUx7mA_nHS4WZpB");
   const {data:{user},error:authError}=await sb.auth.getUser();
   if(!authError&&user){
+   saveAttempted=true;
    const payload={owner_id:user.id,title:idea.split(/[.!?]/)[0].slice(0,90)||"My Network endeavor",idea,region:"",audience:"",resources:"",plan:""};
    const result=await sb.from("shane_endeavors").insert(payload).select("id").single();
    if(result.error)throw result.error;
@@ -33,7 +35,12 @@ async function startSharedEndeavor(text){
   if(status)status.textContent="Account save unavailable. Your idea remains in this browser; save it from SHANE after signing in.";
   if(error?.message)console.warn("SHANE Network private save:",error.message);
  }
+ if(!savedId&&saveAttempted){
+  // Do not silently represent a failed account write as a durable save.
+  try{sessionStorage.setItem("shane-account-save-pending-v1",JSON.stringify({idea,created,origin:"network"}))}catch{}
+ }
  if(savedId){
+  try{sessionStorage.removeItem("shane-account-save-pending-v1")}catch{}
   const status=document.getElementById("shane-network-idea-status");
   if(status)status.textContent="Saved privately to your SHANE account. Opening your endeavor…";
  }
