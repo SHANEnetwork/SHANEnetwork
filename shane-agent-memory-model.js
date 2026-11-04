@@ -20,3 +20,13 @@ export function evolveAgentSnapshot({agent,endeavorId,previous,request,response,
   directionHistory,milestones,observations,updatedAt:at
  };
 }
+
+export function recordAgentMilestone({agent,endeavorId,previous,description,receiptId,at=new Date().toISOString()}){
+ const base=previous&&typeof previous==="object"?previous:{};
+ const milestones=Array.isArray(base.milestones)?base.milestones.slice(-39):[];
+ const id=clip(receiptId,120);
+ const text=clip(description,2000);
+ if(!id||!text)throw Error("A saved creation receipt and description are required.");
+ if(!milestones.some(item=>item.receiptId===id))milestones.push({at,receiptId:id,description:text,status:"confirmed-record"});
+ return {...base,version:3,agent,endeavorId,lens:agentLenses[agent]||agentLenses.shane,milestones,updatedAt:at};
+}
