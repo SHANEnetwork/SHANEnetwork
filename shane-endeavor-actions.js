@@ -829,6 +829,11 @@ function init(){
      const answerSaved=await window.SHANEConversationStore.saveTurn(data.response,{page,kind:"ai-response",endeavorId});
      if(!questionSaved?.saved||!answerSaved?.saved)throw Error("Account history was not saved.");
      exchangeSaved=true;
+     // Preserve an evolving, versioned agent perspective after both turns persist.
+     try{await window.SHANEConversationStore.updateAgentWorkingMemory?.({
+      endeavorId,agent:"shane",request,response:data.response
+     })}catch(error){console.warn("Agent memory update unavailable",error)}
+
     }catch(error){
      aiReply.textContent=data.response+"\n\nThis response is visible here, but saving it to account history could not be confirmed.";
     }
