@@ -118,14 +118,16 @@ const capabilityCatalog=Object.freeze(targets.filter(([path])=>path!=="system-he
 function interpretVision(text){
  const vision=String(text||"").trim();
  if(!vision)return {version:1,vision:"",capabilities:[],status:"needs-vision"};
- const capabilities=capabilityCatalog.filter(item=>intentRules.some(([path,pattern])=>path===item.path&&pattern.test(vision)));
+ const phaseOrder=["dashboard.html","workspace.html","communities.html","campaigns.html","my-network.html","network.html","growth.html","payments.html","members.html","builder.html"];
+ const capabilities=capabilityCatalog.filter(item=>intentRules.some(([path,pattern])=>path===item.path&&pattern.test(vision)))
+  .sort((a,b)=>{const rank=path=>{const i=phaseOrder.indexOf(path);return i<0?phaseOrder.length:i;};return rank(a.path)-rank(b.path);});
  // A new, unfamiliar kind of endeavor still has a place to begin: SHANE's
  // conversational creator. The original vision remains unchanged.
  if(!capabilities.length){
   const startingPoint=capabilityCatalog.find(item=>item.path==="dashboard.html");
   if(startingPoint)capabilities.push(startingPoint);
  }
- return {version:2,vision,capabilities,preferredDestination:capabilities[0]?.path||"dashboard.html",status:"proposed",execution:"not-started"};
+ return {version:3,vision,capabilities,preferredDestination:capabilities[0]?.path||"dashboard.html",status:"proposed",execution:"not-started",endeavorFirst:true,websiteOptional:capabilities.some(item=>item.path==="builder.html")};
 }
 // One controlled bridge for preparing existing module workflows. It never
 // publishes, pays, messages, invites, or modifies third-party data.
