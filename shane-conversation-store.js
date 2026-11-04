@@ -2,7 +2,7 @@
    Authenticated records use owner-scoped Supabase RLS. No automatic deletion or truncation. */
 import {createClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/+esm";
 const db=createClient("https://ufxzogeixdwvbpdypojb.supabase.co","sb_publishable_iR9kxdCfQ7850VleEUx7mA_nHS4WZpB");
-import {evolveAgentSnapshot,recordAgentMilestone,rememberBetterIdea} from "./shane-agent-memory-model.js";
+import {evolveAgentSnapshot,recordAgentMilestone,rememberBetterIdea,ponderHarmonize} from "./shane-agent-memory-model.js";
 const table="shane_conversation_entries";
 const activeEndeavor=()=>{try{const id=JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id;return typeof id==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(id)?id:null}catch{return null}};
 const pending=[];
@@ -989,7 +989,8 @@ async function rememberConfirmedMilestone({endeavorId,agent="shane",description,
 async function saveBetterIdea({endeavorId,agent="creator",idea,reason,comparedWith}={}){
  const kind="agent-memory-"+String(agent).toLowerCase().replace(/[^a-z0-9-]/g,"").slice(0,20);
  const previous=await agentWorkingMemory({endeavorId,agent});
- const snapshot=rememberBetterIdea({agent,endeavorId,previous,idea,reason,comparedWith});
+ const remembered=rememberBetterIdea({agent,endeavorId,previous,idea,reason,comparedWith});
+ const {snapshot}=ponderHarmonize({agent,endeavorId,previous:remembered});
  return saveTurn(JSON.stringify(snapshot),{endeavorId,kind,page:"agent-working-memory"});
 }
 async function getEndeavorVision({endeavorId}={}){
