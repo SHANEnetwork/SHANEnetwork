@@ -955,7 +955,26 @@ function init(){
  conversationReply.append(replyHeading,replyText,replyActions,askAI);
  // The AI reply and actionable destinations are mounted with the shared composer below.
  // Keep the conversation button in the composer even when suggested next steps are hidden.
- conversation.append(askAI,restorePlan,findPlans);
+ const resumeEndeavor=document.createElement("button");
+ resumeEndeavor.type="button";
+ resumeEndeavor.textContent="Continue my endeavor";
+ resumeEndeavor.onclick=async()=>{
+  const endeavorId=window.SHANECurrentEndeavor?.read?.();
+  if(!endeavorId){aiReply.textContent="Select a saved endeavor first.";return}
+  resumeEndeavor.disabled=true;
+  try{
+   const entries=await window.SHANEConversationStore.list({endeavorId,limit:20});
+   if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)return;
+   const vision=entries.find(item=>["idea","vision"].includes(item.entry_kind)&&item.body?.trim())?.body;
+   if(!vision){aiReply.textContent="Describe the next step for this endeavor.";return}
+   entry.value=vision;
+   entry.dispatchEvent(new Event("input",{bubbles:true}));
+   aiReply.textContent="Your saved endeavor is ready to continue. Tell SHANE what to develop next.";
+   entry.focus();
+  }catch(error){aiReply.textContent=String(error?.message||error)}
+  finally{resumeEndeavor.disabled=false}
+ };
+ conversation.append(askAI,resumeEndeavor,restorePlan,findPlans);
  const explainVision=()=>{
   const text=sharedComposerText();
   conversationReply.hidden=!text;
