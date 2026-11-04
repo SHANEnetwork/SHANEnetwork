@@ -964,7 +964,7 @@ function init(){
   if(!endeavorId){aiReply.textContent="Select a saved endeavor first.";return}
   resumeEndeavor.disabled=true;
   try{
-   const entries=await window.SHANEConversationStore.list({endeavorId,limit:100,kinds:["ai-request","idea","vision","user","request"]});
+   const entries=await window.SHANEConversationStore.list({endeavorId,limit:100,kinds:["ai-request","ai-response","idea","vision","user","request"]});
    if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)return;
    const original=await window.SHANEConversationStore.getEndeavorVision({endeavorId});
    if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)return;
@@ -988,7 +988,10 @@ function init(){
     aiNext.append(action);
    }
    aiNext.hidden=!journey.steps.length;
-   aiReply.textContent="Your endeavor and its connected work are ready to continue.";
+   const lastResponse=entries.find(item=>item.entry_kind==="ai-response"&&typeof item.body==="string"&&item.body.trim());
+   aiReply.textContent=lastResponse
+    ?"Last SHANE response:\n"+lastResponse.body+"\n\nContinue from here with your next instruction."
+    :"Your endeavor and its connected work are ready to continue.";
    entry.focus();
   }catch(error){aiReply.textContent=String(error?.message||error)}
   finally{resumeEndeavor.disabled=false}
