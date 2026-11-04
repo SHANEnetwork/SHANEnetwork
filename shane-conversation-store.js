@@ -954,6 +954,29 @@ async function restoreSiteVersion({siteId,versionId,confirmed=false}={}){
  if(error)throw error;if(!updated)throw Error("Site changed since restoration began. Reload before trying again.");
  return {restored:true,siteId,versionId};
 }
+// Versioned, private agent working memory. Each update is a new owner-scoped
+// history entry, never an overwrite. Agent output is not proof of execution.
+async function agentWorkingMemory({endeavorId,agent="shane"}={}){
+ const kind="agent-memory-"+String(agent).toLowerCase().replace(/[^a-z0-9-]/g,"").slice(0,20);
+ const rows=await list({endeavorId,limit:1,kinds:[kind]});
+ if(!rows.length)return null;
+ try{return JSON.parse(rows[0].body)}catch{return null}
+}
+async function updateAgentWorkingMemory({endeavorId,agent="shane",request,response}={}){
+ const kind="agent-memory-"+String(agent).toLowerCase().replace(/[^a-z0-9-]/g,"").slice(0,20);
+ if(!endeavorId||!String(request||"").trim()||!String(response||"").trim())return {saved:false};
+ const previous=await agentWorkingMemory({endeavorId,agent});
+ const observations=Array.isArray(previous?.observations)?previous.observations.slice(-29):[];
+ observations.push({
+  at:new Date().toISOString(),
+  request:String(request).slice(0,1200),
+  proposedResponse:String(response).slice(0,1800),
+  status:"conversation-only",
+  verifiedCompletion:false
+ });
+ const snapshot={version:1,agent,endeavorId,observations,updatedAt:new Date().toISOString()};
+ return saveTurn(JSON.stringify(snapshot),{endeavorId,kind,page:"agent-working-memory"});
+}
 async function getEndeavorVision({endeavorId}={}){
  const account=await user();
  if(!account)throw Error("Sign in to continue your endeavor.");
@@ -962,6 +985,6 @@ async function getEndeavorVision({endeavorId}={}){
  if(error||!data)throw Error(error?.message||"Saved endeavor not found.");
  return String(data.idea||"").trim();
 }
-window.SHANEConversationStore=Object.freeze({getEndeavorVision,beginEndeavor,converse,evaluateCreationPlan,synthesizeEndeavor,compassReview,harmonizeEndeavorPlan,coordinateEndeavor,collaborationContext,joinedCollaborations,endeavorSnapshot,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,computerCapabilities,inspectOperation,previewVisionSequence,proposeCreationSequence,proposeAICreationSequence,prepareCreationSequence,executeVision,executeVisionSequence,executeApprovedSequence,verifySequenceProgress,saveCreationPlan,loadCreationPlan,listSavedCreationPlans,searchSavedCreationPlans,recallEndeavor,describeSavedCreationPlan,recoverCreationProgress,inspectSavedEndeavor,continueSavedEndeavor,resumeVisionSequence,recentCreations,findSavedCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
+window.SHANEConversationStore=Object.freeze({agentWorkingMemory,updateAgentWorkingMemory,getEndeavorVision,beginEndeavor,converse,evaluateCreationPlan,synthesizeEndeavor,compassReview,harmonizeEndeavorPlan,coordinateEndeavor,collaborationContext,joinedCollaborations,endeavorSnapshot,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,computerCapabilities,inspectOperation,previewVisionSequence,proposeCreationSequence,proposeAICreationSequence,prepareCreationSequence,executeVision,executeVisionSequence,executeApprovedSequence,verifySequenceProgress,saveCreationPlan,loadCreationPlan,listSavedCreationPlans,searchSavedCreationPlans,recallEndeavor,describeSavedCreationPlan,recoverCreationProgress,inspectSavedEndeavor,continueSavedEndeavor,resumeVisionSequence,recentCreations,findSavedCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
 document.dispatchEvent(new Event("shane:conversation-store-ready"));
 void flush();
