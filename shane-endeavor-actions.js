@@ -610,7 +610,30 @@ function init(){
    if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)return;
    if(typeof data?.response!=="string"||!data.response.trim())throw Error("SHANE returned no response.");
    aiReply.textContent=data.response;
-   // Keep the full endeavor journey available independently of optional resource drafts.\n   const endeavorJourney=journeyFor({vision:plan?.vision||request,latestRequest:request,endeavorId});
+   // Keep the full endeavor journey available independently of optional resource drafts.
+   const endeavorJourney=journeyFor({vision:plan?.vision||request,latestRequest:request,endeavorId});
+   if(endeavorJourney.steps.length){
+    const journeyView=document.createElement("details");
+    const heading=document.createElement("summary");
+    heading.textContent="Develop this endeavor across SHANE";
+    journeyView.append(heading);
+    const intro=document.createElement("p");
+    intro.textContent="Your endeavor can develop across these connected SHANE capabilities. Choose where to work next while your original vision remains attached.";
+    journeyView.append(intro);
+    for(const step of endeavorJourney.steps){
+     const action=document.createElement("button");
+     action.type="button";
+     action.textContent=step.label;
+     action.addEventListener("click",()=>{
+      const prepared=prepareJourneyStep({journey:endeavorJourney,capabilityId:step.capabilityId});
+      if(prepared.ok)location.assign(step.path);
+      else aiReply.textContent="This step could not be prepared. Your saved endeavor remains unchanged.";
+     });
+     journeyView.append(action);
+    }
+    aiNext.append(journeyView);
+    aiNext.hidden=false;
+   }
    // An explicit empty AI plan means this is a conversation, not an order to build.
    // Only fall back to keyword interpretation when the AI planner is unavailable.
    const aiPlan=Array.isArray(data?.creationPlan?.steps)?data.creationPlan.steps:null;
