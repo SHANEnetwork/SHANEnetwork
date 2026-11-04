@@ -990,6 +990,7 @@ function init(){
     aiNext.append(action);
    }
    aiNext.hidden=!journey.steps.length;
+   if(livingNotes.open)await loadNotes();
    const lastResponse=entries.find(item=>item.entry_kind==="ai-response"&&typeof item.body==="string"&&item.body.trim());
    aiReply.textContent="Original endeavor: "+original+
     (latest&&latest!==original?"\n\nLatest instruction: "+latest:"")+
