@@ -57,17 +57,31 @@ export function ponderHarmonize({agent,endeavorId,previous,criteria=["impact","f
   return {item,evidence,score:evidence.filter(x=>x.mentions).length};
  }).sort((a,b)=>b.score-a.score||a.item.at.localeCompare(b.item.at));
  const [first,second]=ranked;
+ const sources=[first.item.idea,second.item.idea];
+ const concepts=Array.isArray(previous?.concepts)?previous.concepts.slice(-39):[];
+ const existing=concepts.find(x=>x.sources?.join("|")===sources.join("|"));
+ if(existing)return {snapshot:previous||null,comparison:null};
+ const tokens=value=>new Set(String(value||"").toLowerCase().match(/[a-z]{4,}/g)||[]);
+ const aTokens=tokens(first.item.idea),bTokens=tokens(second.item.idea);
+ const shared=[...aTokens].filter(x=>bTokens.has(x)).slice(0,8);
+ const distinctA=[...aTokens].filter(x=>!bTokens.has(x)).slice(0,8);
+ const distinctB=[...bTokens].filter(x=>!aTokens.has(x)).slice(0,8);
+ const focus=clip(previous?.currentDirection||"the endeavor's stated objective",180);
+ const hypothesis="Test an approach to "+focus+" that preserves "+clip(first.item.idea,250)+" while addressing "+clip(second.item.idea,250)+".";
  const concept={
   at,kind:"harmonized-concept",status:"proposed",criteria:dimensions,
-  sources:[first.item.idea,second.item.idea],
-  concept:"Combine "+first.item.idea+" with "+second.item.idea,
-  rationale:"Explore the complementary strengths of both approaches; assess tradeoffs before choosing implementation.",
+  sources,concept:hypothesis,
+  rationale:"Compare both proposals against the endeavor's objective; retain complementary strengths and explicitly investigate tensions instead of assuming either proposal wins.",
+  sharedThemes:shared,distinctStrengths:[distinctA,distinctB],
+  openQuestion:"Which constraints or evidence would make this synthesis better than either source?",
   comparison:ranked.map(x=>({idea:x.item.idea,score:x.score,evidence:x.evidence})),
-  evaluation:"Heuristic comparison based on recorded text; requires endeavor-specific validation."
+  evaluation:"Provisional synthesis hypothesis from recorded text; not an AI-validated breakthrough."
  };
- const concepts=Array.isArray(previous?.concepts)?previous.concepts.slice(-19):[];
- if(!concepts.some(x=>x.sources?.join("|")===concept.sources.join("|")))concepts.push(concept);
- return {snapshot:{...(previous||{}),version:5,agent,endeavorId,concepts,updatedAt:at},comparison:concept};
+ concepts.push(concept);
+ const ideas=Array.isArray(previous?.betterIdeas)?previous.betterIdeas.slice(-39):[];
+ if(!ideas.some(x=>x.idea===hypothesis))ideas.push({at,idea:hypothesis,reason:"Derived from comparison of two archived improvement candidates; evaluate against both source ideas.",comparedWith:sources.join(" | ").slice(0,1200),status:"candidate",source:{type:"ponder-harmonizer",sources}});
+ return {snapshot:{...(previous||{}),version:6,agent,endeavorId,betterIdeas:ideas,concepts,updatedAt:at},comparison:concept};
+
 }
 
 /* Extract explicitly suggested improvements from an archived chapter.
