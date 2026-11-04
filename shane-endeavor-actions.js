@@ -964,11 +964,11 @@ function init(){
   if(!endeavorId){aiReply.textContent="Select a saved endeavor first.";return}
   resumeEndeavor.disabled=true;
   try{
-   const entries=await window.SHANEConversationStore.list({endeavorId,limit:100,kinds:["idea","vision","user","request"]});
+   const entries=await window.SHANEConversationStore.list({endeavorId,limit:100,kinds:["ai-request","idea","vision","user","request"]});
    if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)return;
    const original=await window.SHANEConversationStore.getEndeavorVision({endeavorId});
    if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)return;
-   const latest=entries.find(item=>["user","request","vision"].includes(item.entry_kind)&&typeof item.body==="string"&&item.body.trim())?.body?.trim()||original;
+   const latest=entries.find(item=>["ai-request","user","request","vision"].includes(item.entry_kind)&&typeof item.body==="string"&&item.body.trim())?.body?.trim()||original;
    if(!original&&!latest){aiReply.textContent="Describe the next step for this endeavor.";return}
    if(entry.value.trim()&&entry.value.trim()!==original&&entry.value.trim()!==latest){
     aiReply.textContent="Your current draft is preserved. Continue writing or ask SHANE to develop it.";
