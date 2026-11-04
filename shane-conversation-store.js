@@ -240,6 +240,7 @@ async function converse({endeavorId,request,purpose,mode}){
   if(creatorMemory?.directionHistory?.length)groundedPurpose+="\\nCreator direction evolution: "+creatorMemory.directionHistory.slice(-6).map(item=>item.text).join(" -> ").slice(0,3000);
   if(creatorMemory?.currentDirection)groundedPurpose+="\\nCreator direction: "+creatorMemory.currentDirection;
   if(analystMemory?.latestPerspective)groundedPurpose+="\\nAnalyst perspective: "+analystMemory.latestPerspective;
+  if(creatorMemory?.concepts?.length)groundedPurpose+="\\nPonderer Harmonizer synthesized concepts: "+creatorMemory.concepts.slice(-4).map(item=>item.concept+" ("+item.rationale+")").join("; ").slice(0,4000);
   const notes=await list({endeavorId,limit:1,kinds:["endeavor-note"]});
   if(notes[0])groundedPurpose+="\nCurrent living endeavor notes: "+String(notes[0].body||"").slice(0,10000);
   const rows=await list({endeavorId,limit:48,kinds:["ai-request","ai-response","idea","creation","creation-summary"]});
