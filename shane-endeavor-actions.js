@@ -829,6 +829,11 @@ function init(){
      const answerSaved=await window.SHANEConversationStore.saveTurn(data.response,{page,kind:"ai-response",endeavorId});
      if(!questionSaved?.saved||!answerSaved?.saved)throw Error("Account history was not saved.");
      exchangeSaved=true;
+     await Promise.allSettled(["creator","analyst"].map(agent=>
+      window.SHANEConversationStore.updateAgentWorkingMemory({
+       endeavorId,agent,request,response:data.response
+      })
+     ));
      // Preserve an evolving, versioned agent perspective after both turns persist.
      try{await window.SHANEConversationStore.updateAgentWorkingMemory?.({
       endeavorId,agent:"shane",request,response:data.response
