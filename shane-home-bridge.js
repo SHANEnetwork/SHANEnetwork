@@ -8,24 +8,18 @@ function init(){
  const heroStatus=document.getElementById("shane-home-vision-status");
  if(heroForm&&heroIdea){
   heroForm.addEventListener("submit",event=>{
-   const workspace=document.getElementById("shane-conversation-workspace");
-   const composer=workspace?.querySelector("#shane-shared-vision-input");
-   if(!composer)return;
-   event.preventDefault();event.stopImmediatePropagation();
    const idea=heroIdea.value.trim();
-   if(!idea){if(heroStatus)heroStatus.textContent="Describe your idea to begin.";return}
-   composer.value=idea;
-   composer.dispatchEvent(new Event("input",{bubbles:true}));
-   workspace.scrollIntoView({behavior:"smooth",block:"start"});
-   const active=window.SHANECurrentEndeavor?.read?.();
-   const talk=Array.from(workspace.querySelectorAll("button")).find(button=>button.textContent==="Talk with SHANE AI");
-   if(talk&&!talk.disabled){
-    talk.click();
-    if(heroStatus)heroStatus.textContent="Your idea is continuing in SHANE's shared conversation.";
-   }else{
-    composer.focus({preventScroll:true});
-    if(heroStatus)heroStatus.textContent="Your idea is in SHANE's shared workspace. Select or save an endeavor there to continue with AI.";
+   if(!idea){event.preventDefault();if(heroStatus)heroStatus.textContent="Describe your idea to begin.";return}
+   // Carry the person's actual words directly into the existing creator.
+   // SHANE's creator prepares the first private draft on arrival; it never publishes automatically.
+   try{
+    sessionStorage.setItem("shane-creative-handoff-v1",JSON.stringify({text:idea.slice(0,10000),created:Date.now()}));
+   }catch(error){
+    event.preventDefault();if(heroStatus)heroStatus.textContent="This browser could not carry your idea. Please open Create & Build and paste your description there.";return;
    }
+   event.preventDefault();event.stopImmediatePropagation();
+   if(heroStatus)heroStatus.textContent="Opening your creation studio with your idea…";
+   location.assign("builder.html#vision-first");
   },true);
  }
  const welcome=document.getElementById("shane-home-create");
