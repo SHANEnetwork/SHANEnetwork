@@ -973,14 +973,7 @@ async function updateAgentWorkingMemory({endeavorId,agent="shane",request,respon
  const kind="agent-memory-"+String(agent).toLowerCase().replace(/[^a-z0-9-]/g,"").slice(0,20);
  if(!endeavorId||!String(request||"").trim()||!String(response||"").trim())return {saved:false};
  const previous=await agentWorkingMemory({endeavorId,agent});
- const observations=Array.isArray(previous?.observations)?previous.observations.slice(-29):[];
- observations.push({
-  at:new Date().toISOString(),
-  request:String(request).slice(0,1200),
-  proposedResponse:String(response).slice(0,1800),
-  status:"conversation-only",
-  verifiedCompletion:false
- });
+
  const snapshot=evolveAgentSnapshot({agent,endeavorId,previous,request,response});
  return saveTurn(JSON.stringify(snapshot),{endeavorId,kind,page:"agent-working-memory"});
 }
