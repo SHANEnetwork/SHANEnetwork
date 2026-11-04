@@ -58,6 +58,66 @@ function fifthCompass(v,findings){
   "What would change if the most limiting constraint disappeared?",
   ...findings.filter(x=>x.type==="unverified-requirement").map(x=>"What new approach could satisfy: "+x.detail+"?")])};
 }
+/* Rules are established before candidate examination. A candidate's self-reported
+   claims are not evidence: scoring tracks coverage and outstanding verification.
+   No random sampling or fictional Monte Carlo statistics are reported. */
+function evolve(input,options={}){
+ const v=normalize(input);
+ const maxRounds=Math.max(1,Math.min(5,Number.isInteger(options.rounds)?options.rounds:3));
+ const maxCandidates=Math.max(2,Math.min(20,Number.isInteger(options.maxCandidates)?options.maxCandidates:12));
+ const ledger=[],seen=new Set();
+ let population=v.candidates.slice(0,maxCandidates).map(c=>({...c,provisional:false,origin:"supplied"}));
+ const signature=c=>[...c.strengths].sort().join("|")+"::"+[...c.requirementsMet].sort().join("|")+"::"+[...c.weaknesses].sort().join("|");
+ const assess=c=>{
+  const findings=compasses(v,c);
+  const verified=!!c.evidence.length && !c.provisional;
+  const coverage=v.requirements.length?c.requirementsMet.filter(x=>v.requirements.includes(x)).length/v.requirements.length:0;
+  const preservation=v.strengths.length?v.strengths.filter(x=>c.strengths.includes(x)).length/v.strengths.length:0;
+  const risks=c.weaknesses.length+findings.length;
+  return {candidate:c,coverage,preservation,risks,findings,verified,
+   status:verified?"evidence-supplied-needs-independent-validation":"hypothesis-not-verified"};
+ };
+ for(let round=1;round<=maxRounds&&population.length;round++){
+  const ranked=population.map(assess).sort((a,b)=>
+   b.coverage-a.coverage||b.preservation-a.preservation||a.risks-b.risks||
+   a.candidate.id.localeCompare(b.candidate.id));
+  const best=ranked[0];
+  ledger.push({round,considered:ranked.length,leader:best.candidate.id,
+   reviews:ranked.map(x=>({id:x.candidate.id,coverage:x.coverage,preservation:x.preservation,
+    risks:x.risks,status:x.status,findings:x.findings})),
+   fifthCompass:fifthCompass(v,ranked.flatMap(x=>x.findings))});
+  if(round===maxRounds||ranked.length<2)break;
+  const parents=ranked.slice(0,Math.min(4,ranked.length));
+  const offspring=[];
+  for(let i=0;i<parents.length;i++)for(let j=i+1;j<parents.length;j++){
+   const merged=harmonize(v,parents[i].candidate,parents[j].candidate).candidate;
+   merged.id="round-"+round+"-"+parents[i].candidate.id+"-"+parents[j].candidate.id;
+   merged.origin="harmonizer-hypothesis";
+   // A union of desirable traits is an aspiration, not demonstrated retention.
+   merged.strengths=unique([...parents[i].candidate.strengths,...parents[j].candidate.strengths]);
+   merged.evidence=[];
+   const key=signature(merged);
+   if(!seen.has(key)){seen.add(key);offspring.push(merged)}
+  }
+  if(!offspring.length)break;
+  // Keep diverse original alternatives; never replace an evidenced input with an
+  // unverified merge solely because its aspirational strengths score higher.
+  population=[...population,...offspring].slice(0,maxCandidates);
+ }
+ const final=population.map(assess).sort((a,b)=>b.coverage-a.coverage||
+  b.preservation-a.preservation||a.risks-b.risks||a.candidate.id.localeCompare(b.candidate.id));
+ return {version:"1.1.0",rules:RULES,vision:v.vision,rounds:ledger,
+  candidates:final.map(x=>({candidate:x.candidate,coverage:x.coverage,
+   preservation:x.preservation,findings:x.findings,status:x.status})),
+  negativeFlips:v.negatives.map(flipper),
+  fifthCompass:fifthCompass(v,final.flatMap(x=>x.findings)),
+  recommendation:final.length?{candidateId:final[0].candidate.id,
+   status:"provisional-ranking-not-proof",reason:"Requirement coverage and preservation claims, penalized for outstanding findings."}:null,
+  stoppingReason:!v.candidates.length?"No concrete candidates; external creative generation is required.":
+   "Bounded exploration completed; real-world verification required before declaring improvement.",
+  provenance:{source:"supplied-candidates",simulationsRun:0,independentValidation:false,
+   note:"This is rule-conditioned candidate exploration, not a Monte Carlo simulation or autonomous AI deliberation."}};
+}
 function evaluate(input){
  const v=normalize(input),ideas=ponderer(v),reviews=v.candidates.map(c=>({candidate:c,findings:compasses(v,c)}));
  const merges=[];
@@ -73,7 +133,7 @@ function evaluate(input){
    evidenceStatus:"unverified-until-tested",candidateCount:v.candidates.length},
   nextAction:"Build or revise the actual endeavor; validate requirements, consent, preservation, and outcomes before claiming improvement."};
 }
-const api=Object.freeze({RULES,normalize,ponderer,flipper,compasses,harmonize,fifthCompass,evaluate,analyzePlan:evaluate,doubleHarmonize:(a,b,context={})=>harmonize(normalize(context),normalize({candidates:[a]}).candidates[0],normalize({candidates:[b]}).candidates[0])});
+const api=Object.freeze({RULES,normalize,ponderer,flipper,compasses,harmonize,fifthCompass,evaluate,evolve,analyzePlan:evaluate,doubleHarmonize:(a,b,context={})=>harmonize(normalize(context),normalize({candidates:[a]}).candidates[0],normalize({candidates:[b]}).candidates[0])});
 if(typeof module!=="undefined"&&module.exports)module.exports=api;
 if(root)root.SHANEGenies=api;
 })(typeof window!=="undefined"?window:undefined);
