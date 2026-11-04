@@ -965,11 +965,29 @@ function init(){
   try{
    const entries=await window.SHANEConversationStore.list({endeavorId,limit:20});
    if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)return;
-   const vision=entries.find(item=>["idea","vision"].includes(item.entry_kind)&&item.body?.trim())?.body;
-   if(!vision){aiReply.textContent="Describe the next step for this endeavor.";return}
-   entry.value=vision;
+   const visions=entries.filter(item=>["idea","vision"].includes(item.entry_kind)&&typeof item.body==="string"&&item.body.trim());
+   const original=visions[visions.length-1]?.body?.trim()||"";
+   const latest=entries.find(item=>["idea","vision","user","request"].includes(item.entry_kind)&&typeof item.body==="string"&&item.body.trim())?.body?.trim()||original;
+   if(!original&&!latest){aiReply.textContent="Describe the next step for this endeavor.";return}
+   if(entry.value.trim()&&entry.value.trim()!==original&&entry.value.trim()!==latest){
+    aiReply.textContent="Your current draft is preserved. Continue writing or ask SHANE to develop it.";
+    entry.focus();return;
+   }
+   entry.value=latest||original;
    entry.dispatchEvent(new Event("input",{bubbles:true}));
-   aiReply.textContent="Your saved endeavor is ready to continue. Tell SHANE what to develop next.";
+   const journey=journeyFor({vision:original||latest,latestRequest:latest,endeavorId});
+   aiNext.replaceChildren();
+   for(const step of journey.steps){
+    const action=document.createElement("button");action.type="button";action.textContent=step.label;
+    action.onclick=()=>{
+     const prepared=prepareJourneyStep({journey,capabilityId:step.capabilityId});
+     if(prepared.ok)location.assign(step.path);
+     else aiReply.textContent="This endeavor step could not be prepared.";
+    };
+    aiNext.append(action);
+   }
+   aiNext.hidden=!journey.steps.length;
+   aiReply.textContent="Your endeavor and its connected work are ready to continue.";
    entry.focus();
   }catch(error){aiReply.textContent=String(error?.message||error)}
   finally{resumeEndeavor.disabled=false}
