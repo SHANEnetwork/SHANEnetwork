@@ -231,6 +231,8 @@ async function converse({endeavorId,request,purpose,mode}){
   }catch(error){console.warn("Unified endeavor context unavailable",error)}
   // Keep conversational continuity and concrete creation receipts together.
   // Query by kind so unrelated navigation records cannot crowd out the memory.
+  const notes=await list({endeavorId,limit:1,kinds:["endeavor-note"]});
+  if(notes[0])groundedPurpose+="\nCurrent living endeavor notes: "+String(notes[0].body||"").slice(0,10000);
   const rows=await list({endeavorId,limit:48,kinds:["ai-request","ai-response","idea","creation","creation-summary"]});
   const recent=rows.slice(0,18).reverse();
   const milestones=rows.filter(item=>item.entry_kind==="creation-summary").slice(0,8).reverse();
