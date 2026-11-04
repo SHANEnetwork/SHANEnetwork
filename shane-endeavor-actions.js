@@ -974,7 +974,9 @@ function init(){
     aiReply.textContent="Your current draft is preserved. Continue writing or ask SHANE to develop it.";
     entry.focus();return;
    }
-   entry.value=latest||original;
+   // The previous request is history, not an unsent new instruction.
+   // Clear only a restored historical value; preserve genuine drafts.
+   entry.value="";
    entry.dispatchEvent(new Event("input",{bubbles:true}));
    const journey=journeyFor({vision:original||latest,latestRequest:latest,endeavorId});
    aiNext.replaceChildren();
@@ -989,9 +991,10 @@ function init(){
    }
    aiNext.hidden=!journey.steps.length;
    const lastResponse=entries.find(item=>item.entry_kind==="ai-response"&&typeof item.body==="string"&&item.body.trim());
-   aiReply.textContent=lastResponse
-    ?"Last SHANE response:\n"+lastResponse.body+"\n\nContinue from here with your next instruction."
-    :"Your endeavor and its connected work are ready to continue.";
+   aiReply.textContent="Original endeavor: "+original+
+    (latest&&latest!==original?"\n\nLatest instruction: "+latest:"")+
+    (lastResponse?"\n\nLast SHANE response:\n"+lastResponse.body:"")+
+    "\n\nDescribe what you want SHANE to develop next.";
    entry.focus();
   }catch(error){aiReply.textContent=String(error?.message||error)}
   finally{resumeEndeavor.disabled=false}
