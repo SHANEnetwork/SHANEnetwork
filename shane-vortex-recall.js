@@ -4,7 +4,7 @@
 (()=>{"use strict";
 if(window.SHANEVortexRecall)return;
 const STOP=new Set("a an and are as at be by for from has have i in is it of on or our that the their there this to was were what when where which who why with you your shane".split(" "));
-const tokens=s=>[...new Set((String(s||"").toLowerCase().match(/[\\p{L}\\p{N}]{3,}/gu)||[]).filter(w=>!STOP.has(w)))];
+const tokens=s=>[...new Set((String(s||"").toLowerCase().match(/[\p{L}\p{N}]{3,}/gu)||[]).filter(w=>!STOP.has(w)))];
 function build(chapters){
  const nodes=[],links=new Map(),inverted=new Map();
  let previousGlobal=null;
