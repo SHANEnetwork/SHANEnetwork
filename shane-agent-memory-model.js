@@ -17,7 +17,7 @@ export function evolveAgentSnapshot({agent,endeavorId,previous,request,response,
  return {
   version:3,agent,endeavorId,lens,
   currentDirection:next.request,latestPerspective:next.proposedResponse,
-  directionHistory,milestones,observations,updatedAt:at
+  directionHistory,milestones,betterIdeas:Array.isArray(previous?.betterIdeas)?previous.betterIdeas:[],concepts:Array.isArray(previous?.concepts)?previous.concepts:[],observations,updatedAt:at
  };
 }
 
@@ -39,4 +39,33 @@ export function rememberBetterIdea({agent,endeavorId,previous,idea,reason,compar
   ideas.push({at,idea:text,reason:clip(reason,1200),comparedWith:clip(comparedWith,1200),status:"candidate"});
  }
  return {...(previous||{}),version:4,agent,endeavorId,lens:agentLenses[agent]||agentLenses.shane,betterIdeas:ideas,updatedAt:at};
+}
+
+/* Ponderer compares alternatives; Harmonizer combines complementary strengths.
+   Scores are transparent heuristic signals, never claims of validated performance. */
+export function ponderHarmonize({agent,endeavorId,previous,criteria=["impact","feasibility","originality"],at=new Date().toISOString()}){
+ const ideas=Array.isArray(previous?.betterIdeas)?previous.betterIdeas:[];
+ const candidates=ideas.filter(item=>item.status==="candidate"||item.status==="promising");
+ if(candidates.length<2)return {snapshot:previous||null,comparison:null};
+ const dimensions=criteria.filter(x=>typeof x==="string"&&x.length<40).slice(0,6);
+ const ranked=candidates.map(item=>{
+  const text=(item.idea+" "+item.reason).toLowerCase();
+  const evidence=dimensions.map(criterion=>({
+   criterion,
+   mentions:text.includes(criterion.toLowerCase())
+  }));
+  return {item,evidence,score:evidence.filter(x=>x.mentions).length};
+ }).sort((a,b)=>b.score-a.score||a.item.at.localeCompare(b.item.at));
+ const [first,second]=ranked;
+ const concept={
+  at,kind:"harmonized-concept",status:"proposed",criteria:dimensions,
+  sources:[first.item.idea,second.item.idea],
+  concept:"Combine "+first.item.idea+" with "+second.item.idea,
+  rationale:"Explore the complementary strengths of both approaches; assess tradeoffs before choosing implementation.",
+  comparison:ranked.map(x=>({idea:x.item.idea,score:x.score,evidence:x.evidence})),
+  evaluation:"Heuristic comparison based on recorded text; requires endeavor-specific validation."
+ };
+ const concepts=Array.isArray(previous?.concepts)?previous.concepts.slice(-19):[];
+ if(!concepts.some(x=>x.sources?.join("|")===concept.sources.join("|")))concepts.push(concept);
+ return {snapshot:{...(previous||{}),version:5,agent,endeavorId,concepts,updatedAt:at},comparison:concept};
 }
