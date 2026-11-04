@@ -986,6 +986,12 @@ async function rememberConfirmedMilestone({endeavorId,agent="shane",description,
  const snapshot=recordAgentMilestone({agent,endeavorId,previous,description,receiptId});
  return saveTurn(JSON.stringify(snapshot),{endeavorId,kind,page:"agent-working-memory"});
 }
+async function saveBetterIdea({endeavorId,agent="creator",idea,reason,comparedWith}={}){
+ const kind="agent-memory-"+String(agent).toLowerCase().replace(/[^a-z0-9-]/g,"").slice(0,20);
+ const previous=await agentWorkingMemory({endeavorId,agent});
+ const snapshot=rememberBetterIdea({agent,endeavorId,previous,idea,reason,comparedWith});
+ return saveTurn(JSON.stringify(snapshot),{endeavorId,kind,page:"agent-working-memory"});
+}
 async function getEndeavorVision({endeavorId}={}){
  const account=await user();
  if(!account)throw Error("Sign in to continue your endeavor.");
