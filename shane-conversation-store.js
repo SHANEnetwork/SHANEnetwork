@@ -236,6 +236,7 @@ async function converse({endeavorId,request,purpose,mode}){
   if(working?.observations?.length)groundedPurpose+="\\nSHANE working-memory observations (prior AI exchanges, not verified outcomes): "+working.observations.slice(-8).map(x=>x.request+" => "+x.proposedResponse).join(" | ").slice(0,9000);
   const creatorMemory=await agentWorkingMemory({endeavorId,agent:"creator"});
   const analystMemory=await agentWorkingMemory({endeavorId,agent:"analyst"});
+  if(creatorMemory?.directionHistory?.length)groundedPurpose+="\\nCreator direction evolution: "+creatorMemory.directionHistory.slice(-6).map(item=>item.text).join(" -> ").slice(0,3000);
   if(creatorMemory?.currentDirection)groundedPurpose+="\\nCreator direction: "+creatorMemory.currentDirection;
   if(analystMemory?.latestPerspective)groundedPurpose+="\\nAnalyst perspective: "+analystMemory.latestPerspective;
   const notes=await list({endeavorId,limit:1,kinds:["endeavor-note"]});
