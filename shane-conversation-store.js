@@ -72,6 +72,7 @@ async function saveTurn(text,{page="unknown",kind="idea",endeavorId=activeEndeav
  if(endeavorId)record.endeavor_id=endeavorId;
  const {error}=await db.from(table).insert(record);
  if(error)throw error;
+ if(kind==="ai-response"&&endeavorId){try{await consolidateIdeaCheckpoint({endeavorId});}catch(error){console.warn("Idea checkpoint unavailable",error)}}
  document.dispatchEvent(new CustomEvent("shane:conversation-saved",{detail:{endeavorId,page}}));
  return {saved:true};
 }
