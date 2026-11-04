@@ -30,3 +30,13 @@ export function recordAgentMilestone({agent,endeavorId,previous,description,rece
  if(!milestones.some(item=>item.receiptId===id))milestones.push({at,receiptId:id,description:text,status:"confirmed-record"});
  return {...base,version:3,agent,endeavorId,lens:agentLenses[agent]||agentLenses.shane,milestones,updatedAt:at};
 }
+
+export function rememberBetterIdea({agent,endeavorId,previous,idea,reason,comparedWith="",at=new Date().toISOString()}){
+ const text=clip(idea,2000);
+ if(!text)throw Error("An improvement idea is required.");
+ const ideas=Array.isArray(previous?.betterIdeas)?previous.betterIdeas.slice(-39):[];
+ if(!ideas.some(item=>item.idea===text)){
+  ideas.push({at,idea:text,reason:clip(reason,1200),comparedWith:clip(comparedWith,1200),status:"candidate"});
+ }
+ return {...(previous||{}),version:4,agent,endeavorId,lens:agentLenses[agent]||agentLenses.shane,betterIdeas:ideas,updatedAt:at};
+}
