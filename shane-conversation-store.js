@@ -1022,8 +1022,9 @@ async function consolidateVortexChapter({endeavorId,chapter,turns}={}){
  const prior=await list({endeavorId,limit:100,kinds:["vortex-idea-checkpoint"]});
  if(prior.some(x=>x.body===marker))return {saved:false,reason:"already-consolidated"};
  const previous=await agentWorkingMemory({endeavorId,agent:"creator"});
- const {snapshot,comparison}=ponderHarmonize({agent:"creator",endeavorId,previous});
- if(comparison){
+ const harvested=harvestChapterIdeas({agent:"creator",endeavorId,previous,chapter,turns});
+ const {snapshot,comparison}=ponderHarmonize({agent:"creator",endeavorId,previous:harvested.snapshot});
+ if(harvested.harvested.length||comparison){
   const written=await saveTurn(JSON.stringify(snapshot),{endeavorId,kind:"agent-memory-creator",page:"vortex-consolidation"});
   if(!written.saved)return written;
  }
