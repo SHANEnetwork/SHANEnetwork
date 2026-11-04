@@ -234,6 +234,7 @@ async function converse({endeavorId,request,purpose,mode}){
   // Query by kind so unrelated navigation records cannot crowd out the memory.
   const working=await agentWorkingMemory({endeavorId,agent:"shane"});
   if(working?.observations?.length)groundedPurpose+="\\nSHANE working-memory observations (prior AI exchanges, not verified outcomes): "+working.observations.slice(-8).map(x=>x.request+" => "+x.proposedResponse).join(" | ").slice(0,9000);
+  if(working?.milestones?.length)groundedPurpose+="\\nRecorded endeavor accomplishments: "+working.milestones.slice(-15).map(item=>item.description+" [receipt "+item.receiptId+"]").join("; ").slice(0,4000);
   const creatorMemory=await agentWorkingMemory({endeavorId,agent:"creator"});
   const analystMemory=await agentWorkingMemory({endeavorId,agent:"analyst"});
   if(creatorMemory?.directionHistory?.length)groundedPurpose+="\\nCreator direction evolution: "+creatorMemory.directionHistory.slice(-6).map(item=>item.text).join(" -> ").slice(0,3000);
