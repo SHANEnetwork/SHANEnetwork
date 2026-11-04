@@ -231,6 +231,8 @@ async function converse({endeavorId,request,purpose,mode}){
   }catch(error){console.warn("Unified endeavor context unavailable",error)}
   // Keep conversational continuity and concrete creation receipts together.
   // Query by kind so unrelated navigation records cannot crowd out the memory.
+  const working=await agentWorkingMemory({endeavorId,agent:"shane"});
+  if(working?.observations?.length)groundedPurpose+="\\nSHANE working-memory observations (prior AI exchanges, not verified outcomes): "+working.observations.slice(-8).map(x=>x.request+" => "+x.proposedResponse).join(" | ").slice(0,9000);
   const notes=await list({endeavorId,limit:1,kinds:["endeavor-note"]});
   if(notes[0])groundedPurpose+="\nCurrent living endeavor notes: "+String(notes[0].body||"").slice(0,10000);
   const rows=await list({endeavorId,limit:48,kinds:["ai-request","ai-response","idea","creation","creation-summary"]});
