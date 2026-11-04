@@ -609,11 +609,11 @@ function init(){
    const data=await converse({endeavorId,request,purpose:plan?.vision||request});
    if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)return;
    if(typeof data?.response!=="string"||!data.response.trim())throw Error("SHANE returned no response.");
-   aiReply.textContent=data.response;
+   aiReply.textContent=data.response;\n   // Keep the full endeavor journey available independently of optional resource drafts.\n   const endeavorJourney=journeyFor({vision:plan?.vision||request,latestRequest:request,endeavorId});
    // An explicit empty AI plan means this is a conversation, not an order to build.
    // Only fall back to keyword interpretation when the AI planner is unavailable.
    const aiPlan=Array.isArray(data?.creationPlan?.steps)?data.creationPlan.steps:null;
-   const supported=new Set(["new-website","website","community","campaign","listing"]);
+   const supported=new Set(["new-website","website","community","campaign","listing"]);\n   // These are private resource drafts within an endeavor, not the endeavor itself.
    const validAIPlan=aiPlan!==null&&aiPlan.length<=8&&aiPlan.every(step=>
     supported.has(step?.type)&&typeof step?.vision==="string"&&step.vision.trim().length>=8&&step.vision.length<=10000);
    const interpreted=validAIPlan
