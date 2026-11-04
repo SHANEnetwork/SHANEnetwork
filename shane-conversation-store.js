@@ -994,6 +994,24 @@ async function saveBetterIdea({endeavorId,agent="creator",idea,reason,comparedWi
  const {snapshot}=ponderHarmonize({agent,endeavorId,previous:remembered});
  return saveTurn(JSON.stringify(snapshot),{endeavorId,kind,page:"agent-working-memory"});
 }
+async function consolidateIdeaCheckpoint({endeavorId,agent="creator"}={}){
+ if(!endeavorId)return {saved:false,reason:"no-endeavor"};
+ const account=await user();if(!account)return {saved:false,reason:"signed-out"};
+ const {count,error}=await db.from(table).select("id",{count:"exact",head:true})
+  .eq("owner_id",account.id).eq("endeavor_id",endeavorId).eq("entry_kind","ai-response");
+ if(error)throw error;
+ if(!count||count%20!==0)return {saved:false,reason:"not-checkpoint",turns:count};
+ const checkpoint=await list({endeavorId,limit:1,kinds:["idea-checkpoint"]});
+ if(checkpoint[0]?.body===String(count))return {saved:false,reason:"already-processed",turns:count};
+ const previous=await agentWorkingMemory({endeavorId,agent});
+ const {snapshot,comparison}=ponderHarmonize({agent,endeavorId,previous});
+ if(comparison){
+  const result=await saveTurn(JSON.stringify(snapshot),{endeavorId,kind:"agent-memory-"+agent,page:"idea-consolidation"});
+  if(!result.saved)return result;
+ }
+ const recorded=await saveTurn(String(count),{endeavorId,kind:"idea-checkpoint",page:"idea-consolidation"});
+ return {...recorded,turns:count,concept:comparison?.concept||null};
+}
 async function getEndeavorVision({endeavorId}={}){
  const account=await user();
  if(!account)throw Error("Sign in to continue your endeavor.");
