@@ -69,3 +69,27 @@ export function ponderHarmonize({agent,endeavorId,previous,criteria=["impact","f
  if(!concepts.some(x=>x.sources?.join("|")===concept.sources.join("|")))concepts.push(concept);
  return {snapshot:{...(previous||{}),version:5,agent,endeavorId,concepts,updatedAt:at},comparison:concept};
 }
+
+/* Extract explicitly suggested improvements from an archived chapter.
+   Preserve provenance; do not reinterpret every conversational sentence as a proposal. */
+export function harvestChapterIdeas({agent="creator",endeavorId,previous,chapter,turns,at=new Date().toISOString()}){
+ let snapshot=previous||{agent,endeavorId};
+ const matches=[];
+ const signal=/\b(?:better idea|better approach|instead we (?:could|should)|what if we|i suggest|i propose|we could improve|perhaps we should|another option is)\b/i;
+ for(const turn of turns||[]){
+  if(typeof turn?.body!=="string"||!Number.isSafeInteger(turn.turn_number))continue;
+  const sentences=turn.body.split(/(?<=[.!?])\s+|\n+/).map(x=>x.trim()).filter(Boolean);
+  for(const sentence of sentences){
+   if(!signal.test(sentence)||sentence.length<20)continue;
+   const idea=clip(sentence,700);
+   const before=snapshot.betterIdeas?.length||0;
+   snapshot=rememberBetterIdea({agent,endeavorId,previous:snapshot,idea,reason:"Explicitly proposed in archived conversation",comparedWith:"",at});
+   if((snapshot.betterIdeas?.length||0)>before){
+    const item=snapshot.betterIdeas[snapshot.betterIdeas.length-1];
+    item.source={type:"vortex-chapter",chapter,turnNumber:turn.turn_number,role:turn.role};
+    matches.push(item);
+   }
+  }
+ }
+ return {snapshot,harvested:matches};
+}
