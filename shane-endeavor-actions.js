@@ -609,13 +609,14 @@ function init(){
     entry.dispatchEvent(new Event("input",{bubbles:true}));
    }
    const plan=await window.SHANEEndeavorPlan?.latest?.(endeavorId);
+   const originalVision=await store.getEndeavorVision?.({endeavorId})||plan?.vision||request;
    if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)return;
-   const data=await converse({endeavorId,request,purpose:plan?.vision||request});
+   const data=await converse({endeavorId,request,purpose:originalVision});
    if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)return;
    if(typeof data?.response!=="string"||!data.response.trim())throw Error("SHANE returned no response.");
    aiReply.textContent=data.response;
    // Keep the full endeavor journey available independently of optional resource drafts.
-   const endeavorJourney=journeyFor({vision:plan?.vision||request,latestRequest:request,endeavorId});
+   const endeavorJourney=journeyFor({vision:originalVision,latestRequest:request,endeavorId});
    if(endeavorJourney.steps.length){
     const journeyView=document.createElement("details");
     const heading=document.createElement("summary");
