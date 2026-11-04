@@ -71,7 +71,7 @@ form.addEventListener("submit",event=>{
   sessionStorage.setItem(key,text);
   sessionStorage.setItem("shane-creative-handoff-v1",JSON.stringify({text,created}));
   sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination:"builder.html",text,endeavorId:null,created}));
-  location.assign("builder.html#vision-first");
+  location.assign("start-endeavor.html");
  }catch{
   status.textContent="Browser session storage is unavailable. Copy your idea before opening the builder.";
  }
