@@ -1000,6 +1000,37 @@ function init(){
   finally{resumeEndeavor.disabled=false}
  };
  conversation.append(askAI,resumeEndeavor,restorePlan,findPlans);
+ const livingNotes=document.createElement("details");
+ const notesHeading=document.createElement("summary");notesHeading.textContent="Living endeavor notes";
+ const notesEditor=document.createElement("textarea");notesEditor.rows=6;
+ notesEditor.placeholder="Current decisions, progress, priorities, open questions, and next actions.";
+ const notesSave=document.createElement("button");notesSave.type="button";notesSave.textContent="Save updated notes";
+ const notesStatus=document.createElement("span");notesStatus.setAttribute("role","status");
+ const loadNotes=async()=>{
+  const id=window.SHANECurrentEndeavor?.read?.();
+  if(!id){notesStatus.textContent="Select an endeavor to view its notes.";return}
+  notesStatus.textContent="Loading saved notes…";
+  try{
+   const rows=await window.SHANEConversationStore.list({endeavorId:id,limit:1,kinds:["endeavor-note"]});
+   if(window.SHANECurrentEndeavor?.read?.()!==id)return;
+   notesEditor.value=rows[0]?.body||"";
+   notesStatus.textContent=rows.length?"Latest saved notes loaded. Earlier versions remain in endeavor history.":"No notes yet. Start a living record for this endeavor.";
+  }catch(error){notesStatus.textContent=String(error?.message||error)}
+ };
+ livingNotes.addEventListener("toggle",()=>{if(livingNotes.open)void loadNotes()});
+ notesSave.onclick=async()=>{
+  const id=window.SHANECurrentEndeavor?.read?.();
+  if(!id||!notesEditor.value.trim()){notesStatus.textContent="Select an endeavor and write notes first.";return}
+  notesSave.disabled=true;
+  try{
+   const result=await window.SHANEConversationStore.saveTurn(notesEditor.value,{endeavorId:id,kind:"endeavor-note",page:location.pathname.split("/").pop()||"dashboard.html"});
+   notesStatus.textContent=result.saved?"Living notes saved. Previous versions remain in history.":"Sign in to save your notes.";
+  }catch(error){notesStatus.textContent=String(error?.message||error)}
+  finally{notesSave.disabled=false}
+ };
+ livingNotes.append(notesHeading,notesEditor,notesSave,notesStatus);
+ conversation.append(livingNotes);
+
  const explainVision=()=>{
   const text=sharedComposerText();
   conversationReply.hidden=!text;
