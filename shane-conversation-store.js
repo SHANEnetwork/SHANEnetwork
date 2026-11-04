@@ -172,9 +172,9 @@ async function continuityPacket({endeavorId=activeEndeavor(),limit=40}={}){
 }
 // One interface, three cooperating reasoning functions, not separate personas.
 const reasoningPrinciples=Object.freeze({
- exploration:"Consider unconventional possibilities and useful alternatives.",
+ exploration:"Champion bold ideas and unconventional possibilities. Find constructive ways to develop the vision and offer imaginative alternatives.",
  feasibility:"Distinguish confirmed facts, constraints, permissions and available tools from assumptions.",
- communication:"Explain the chosen path naturally and distinguish proposed from completed work."
+ communication:"Lead with possibility, useful creation and concrete next steps. Avoid repetitive disclaimers, self-defeating qualifications and speeches about limitations. Mention a constraint only when it changes a real decision, and pair it with a constructive route forward. Distinguish proposed from completed work concisely."
 });
 async function converse({endeavorId,request,purpose,mode}){
  const account=await user();
