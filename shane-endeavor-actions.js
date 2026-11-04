@@ -690,7 +690,7 @@ function init(){
     aiNext.append(note);
     aiNext.hidden=false;
    }
-   if(validAIPlan&&aiPlan.length===0){
+   if(validAIPlan&&aiPlan.length===0&&!endeavorJourney.steps.length){
     aiNext.replaceChildren();
     aiNext.hidden=true;
    }
