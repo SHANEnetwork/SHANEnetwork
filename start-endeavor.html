@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Begin an Endeavor | SHANEnetwork</title>
+<style>
+:root{font:17px/1.6 system-ui,sans-serif;color:#fff7eb;background:#21182f}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(115deg,#24192fdd,#3d2544c9),url("assets/shane-network-connected-world.svg") center/cover fixed}
+main{width:min(850px,92vw);margin:8vh auto;padding:clamp(24px,5vw,55px);background:#251b35df;border:1px solid #e3b88d;border-radius:26px}
+h1{font:700 clamp(2rem,5vw,3.5rem)/1.15 Georgia,serif}p{max-width:680px}
+textarea{display:block;width:100%;min-height:155px;padding:18px;border-radius:16px;font:inherit;background:#fffaf5;color:#30243c}
+button,a.option{display:inline-block;margin:14px 10px 0 0;padding:12px 22px;border:1px solid #dcb99a;border-radius:22px;font:600 1rem system-ui;cursor:pointer;text-decoration:none;background:#ffe5c2;color:#30223a}
+a.option{background:transparent;color:#fff4e5}
+small{display:block;margin-top:18px}
+</style></head><body><main>
+<a href="index.html" style="color:#ffe5c2">SHANEnetwork</a>
+<h1>What would you love to bring to life?</h1>
+<p>Tell SHANE about a business, club, community, event, association, collaboration or any other endeavor. Start with your vision, not a choice of software.</p>
+<form id="start"><label for="vision">Your vision</label><textarea id="vision" required minlength="8" placeholder="Describe what you want to establish, develop or grow..."></textarea><button type="submit">Begin my endeavor</button></form>
+<p id="status" role="status"></p>
+<p>Working specifically on a website? <a class="option" href="builder.html#vision-first">Open website creation</a></p>
+<small>Your vision is passed to SHANE's existing endeavor workspace. Signing in may be needed to save it to your account.</small>
+</main><script>
+(function(){
+ const form=document.getElementById("start"),field=document.getElementById("vision"),status=document.getElementById("status");
+ try{const draft=sessionStorage.getItem("shane-shared-idea-draft-v2:personal");if(draft)field.value=draft}catch{}
+ form.addEventListener("submit",function(event){
+  event.preventDefault();const text=field.value.trim();if(text.length<8){status.textContent="Please describe your idea in a little more detail.";return}
+  try{
+   const created=Date.now();
+   sessionStorage.setItem("shane-shared-idea-draft-v2:personal",text);
+   sessionStorage.setItem("shane-creative-handoff-v1",JSON.stringify({text,created}));
+   sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination:"dashboard.html",text,endeavorId:null,created}));
+   location.href="dashboard.html#shane-endeavor-conversation";
+  }catch(error){status.textContent="Browser session storage is unavailable. Copy your vision before continuing."}
+ });
+})();
+</script></body></html>
