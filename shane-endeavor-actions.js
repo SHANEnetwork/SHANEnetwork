@@ -88,7 +88,14 @@ const intentRules=[
  ["builder.html",/website|webpage|storefront|online shop|create a site|build a site|portfolio|landing page|online presence/i],
  // Everyday descriptions should connect to the working network modules without
  // requiring members to know product names or configure a workflow first.
- ["builder.html",/bakery|baker|restaurant|food truck|cafe|small business|sell my|sell our|shop|boutique|craft business|artist portfolio|musician website|photography business|freelance business/i],
+ ["dashboard.html",/bakery|baker|restaurant|food truck|cafe|small business|start a business|launch a business|start a company|sell my|sell our|shop|boutique|craft business|photography business|freelance business|startup|new enterprise/i],
+ ["workspace.html",/start a business|launch a business|start a company|bakery|food truck|restaurant|farmers market|concert|festival|trade show|joint advertising|cooperative advertising|coalition|organize a market|organize a gathering/i],
+ ["my-network.html",/joint advertising|cooperative advertising|coalition|cooperative|trade association|organize a market|organize a festival|organize a concert/i],
+ ["campaigns.html",/joint advertising|cooperative advertising|concert series|music festival|street market|farmers market|vendor market|trade show|community gathering/i],
+ ["communities.html",/coalition|cooperative|trade association|organize a group|organize a gathering/i],
+ ["growth.html",/joint advertising|cooperative advertising|marketing partnership|promotional coalition/i],
+ ["payments.html",/vendor fees|ticket sales|sell tickets|market stalls|paid booths/i],
+ ["builder.html",/artist portfolio|musician website/i],
  ["campaigns.html",/wedding|reunion|meetup|workshop|class registration|conference|seminar|performance|recital|fundraising dinner|ticketed show|open house|farmers market/i],
  ["communities.html",/book club|parent group|neighborhood group|hobby group|fan club|church group|support group|alumni group|local chapter/i],
  ["community-conversations.html",/message board|discussion forum|group chat|member discussion|talk with members|conversation room/i],
@@ -115,10 +122,10 @@ function interpretVision(text){
  // A new, unfamiliar kind of endeavor still has a place to begin: SHANE's
  // conversational creator. The original vision remains unchanged.
  if(!capabilities.length){
-  const startingPoint=capabilityCatalog.find(item=>item.path==="builder.html");
+  const startingPoint=capabilityCatalog.find(item=>item.path==="dashboard.html");
   if(startingPoint)capabilities.push(startingPoint);
  }
- return {version:1,vision,capabilities,preferredDestination:suggest(vision)||"builder.html",status:"proposed",execution:"not-started"};
+ return {version:2,vision,capabilities,preferredDestination:capabilities[0]?.path||"dashboard.html",status:"proposed",execution:"not-started"};
 }
 // One controlled bridge for preparing existing module workflows. It never
 // publishes, pays, messages, invites, or modifies third-party data.
