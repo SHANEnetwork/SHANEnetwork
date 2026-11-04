@@ -127,7 +127,16 @@ function enableInPlaceConversation(page,target,field){
 }
 function init(){
  const page=location.pathname.split("/").pop(),target=destinations[page];if(!target)return;
- const field=document.getElementById(target.field);if(!field)return;
+ const field=document.getElementById(target.field);
+ if(!field){
+  if(page==="dashboard.html"){
+   const observer=new MutationObserver(()=>{
+    if(document.getElementById(target.field)){observer.disconnect();init()}
+   });
+   observer.observe(document.body,{childList:true,subtree:true});
+  }
+  return;
+ }
  if(!target.private)enableInPlaceConversation(page,target,field);
  if(target.private){try{sessionStorage.removeItem("shane-intent-handoff-v1")}catch{}return} // Do not import general creative visions into confidential incident reports.
  // Endeavor selection is resolved by the account-verified journey receiver.
