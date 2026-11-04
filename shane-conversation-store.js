@@ -928,6 +928,7 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
   }catch(error){
    creation.historySaved=false;
   }
+  try{await rememberConfirmedMilestone({endeavorId,receiptId:id,description:"Private "+type+" created"});}catch{}
  }
  return {saved:true,published:false,type,id,url,result,endeavorLink,receipt:{operation:type,resource:computerCapabilities.find(x=>x.id===type).resource,id,verifiedSaved:true,published:false,at:new Date().toISOString()}};
 }
