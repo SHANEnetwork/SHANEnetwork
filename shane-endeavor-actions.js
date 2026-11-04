@@ -153,12 +153,16 @@ function journeyFor({vision,latestRequest="",endeavorId=null}={}){
  const request=String(latestRequest||"").trim();
  const primary=interpretVision(request||purpose);
  const original=purpose&&request&&request!==purpose?interpretVision(purpose):null;
+ const operationalOrder=["workspace.html","communities.html","campaigns.html","my-network.html","network.html","growth.html","payments.html","members.html","builder.html","dashboard.html"];
  const ordered=new Map();
  for(const item of primary.capabilities)ordered.set(item.id,item);
  for(const item of original?.capabilities||[])if(!ordered.has(item.id))ordered.set(item.id,item);
  return {
   version:1,endeavorId,purpose,latestRequest:request||purpose,
-  steps:[...ordered.values()].map((item,index)=>({
+  steps:[...ordered.values()].sort((a,b)=>{
+   const rank=path=>{const i=operationalOrder.indexOf(path);return i<0?operationalOrder.length:i;};
+   return rank(a.path)-rank(b.path);
+  }).map((item,index)=>({
    capabilityId:item.id,path:item.path,label:item.label,order:index+1,
    status:"proposed",requiresConfirmation:true
   })),
