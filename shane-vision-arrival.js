@@ -12,7 +12,7 @@ const destinations={
  "growth.html":{field:"shaneGrowthGoal",status:"shaneGrowthReply"},
  "request-build.html":{field:"shaneBuildRequestGoal",status:"shaneBuildRequestReply"},
  "sports-district.html":{field:"shaneSportsGoal",status:"shaneSportsResponse"},
- "dashboard.html":{field:"goalInput",status:"goalHint"},
+ "dashboard.html":{field:"shane-shared-vision-input",status:"goalHint"},
  "payments.html":{field:"paymentVision",status:"paymentResponse"},
  "community-feed.html":{field:"communityUpdateIdea",status:"communityUpdateDraftStatus"},
  "community-conversations.html":{field:"shaneCommunityIdea",status:"shaneCommunityReply"},
