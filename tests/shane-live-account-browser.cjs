@@ -65,13 +65,27 @@ const sb=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false
   console.log('PASS dedicated account create, revise, sign-out, return and reopen');
   console.log('Publication NOT tested: requires separately verified site publication flow and explicit test authorization');
  }finally{
+  // A failed sign-in/return assertion can leave the client signed out.
+  // Restore the dedicated test session before cleanup so test data is not orphaned.
+  if(id||listingId){
+   const {data:{user:cleanupUser},error:cleanupAuthError}=await sb.auth.getUser();
+   if(cleanupAuthError||cleanupUser?.id!==user.id){
+    const {data:{user:restored},error:restoreError}=await sb.auth.signInWithPassword({email,password});
+    assert.ifError(restoreError);
+    assert.equal(restored?.id,user.id,'Cleanup must use the original test account');
+   }
+  }
   if(listingId){
-   const {error}=await sb.from('shane_listings').delete().eq('id',listingId).eq('owner_id',user.id);
-   if(error)console.error('Dedicated test listing cleanup failed:',error.message);
+   const {data:deleted,error}=await sb.from('shane_listings').delete()
+    .eq('id',listingId).eq('owner_id',user.id).select('id');
+   assert.ifError(error);
+   assert.equal(deleted.length,1,'Dedicated test listing cleanup must remove exactly one row');
   }
   if(id){
-   const {error}=await sb.from('shane_endeavors').delete().eq('id',id).eq('owner_id',user.id);
-   if(error)console.error('Dedicated test record cleanup failed:',error.message);
+   const {data:deleted,error}=await sb.from('shane_endeavors').delete()
+    .eq('id',id).eq('owner_id',user.id).select('id');
+   assert.ifError(error);
+   assert.equal(deleted.length,1,'Dedicated test endeavor cleanup must remove exactly one row');
   }
   await sb.auth.signOut();
  }
