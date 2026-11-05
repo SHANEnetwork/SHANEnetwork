@@ -825,13 +825,13 @@ async function collaborationContext({endeavorId,limit=12}={}){
  const requests=[];
  for(let offset=0;offset<ids.length;offset+=50){
   for(let page=0;page<1000;page+=100){
-   const {data,error}=await db.from("shane_collaboration_requests").select("id,listing_id,sender_id,recipient_id,status").in("listing_id",ids.slice(offset,offset+50)).eq("status","accepted").order("id").range(page,page+99);
+   const {data,error}=await db.from("shane_collaboration_requests").select("id,listing_id,sender_id,recipient_id,status,created_at").in("listing_id",ids.slice(offset,offset+50)).eq("status","accepted").order("created_at",{ascending:false}).range(page,page+99);
    if(error)throw error;
    requests.push(...(data||[]));
    if((data||[]).length<100)break;
   }
  }
- const accepted=(requests||[]).filter(item=>item.sender_id===account.id||item.recipient_id===account.id).sort((a,b)=>String(b.id).localeCompare(String(a.id))).slice(0,max);
+ const accepted=(requests||[]).filter(item=>item.sender_id===account.id||item.recipient_id===account.id).sort((a,b)=>String(b.created_at||"").localeCompare(String(a.created_at||""))||String(b.id).localeCompare(String(a.id))).slice(0,max);
  const titles=new Map(listings.map(item=>[item.id,item.title]));
  const collaborations=await Promise.all(accepted.map(async item=>{
   const {data,error}=await db.from("shane_collaboration_messages").select("sender_id,body,created_at").eq("request_id",item.id).order("created_at",{ascending:false}).limit(3);
