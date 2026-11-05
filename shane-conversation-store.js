@@ -1013,7 +1013,18 @@ async function endeavorSnapshot({endeavorId}={}){
   recentCreations({limit:40}),collaborationContext({endeavorId,limit:20}),list({endeavorId,limit:200,includeArchived:true,kinds:["creation-summary","creation","ai-request","ai-response","idea","reasoning-cycle","creation-plan","creation-outcome"]})
  ]);
  const creationItems=creations.status==="fulfilled"?creations.value:[];
- const receipts=history.status==="fulfilled"?history.value.filter(row=>["creation-summary","creation","creation-outcome"].includes(row.entry_kind)):[];
+ // Read creation evidence independently of the recent conversation window.
+ // A long-running endeavor must not lose artifact associations after 200 turns.
+ const receipts=[];
+ let receiptHistoryComplete=true;
+ try{
+  for(let offset=0;offset<10000;offset+=500){
+   const page=await list({endeavorId,limit:500,offset,includeArchived:true,kinds:["creation-summary","creation","creation-outcome"]});
+   receipts.push(...page);
+   if(page.length<500)break;
+   if(offset===9500)receiptHistoryComplete=false;
+  }
+ }catch(error){receiptHistoryComplete=false;console.warn("Endeavor creation evidence unavailable",error)};
  // Include verified plan outcomes as endeavor-linked evidence, not unrelated account creations.
  const confirmedIds=new Set();
  for(const row of receipts.filter(row=>row.entry_kind==="creation-outcome")){
@@ -1061,7 +1072,7 @@ async function endeavorSnapshot({endeavorId}={}){
   collaborations:collaborations.status==="fulfilled"?collaborations.value.collaborations:[],
   creationPlan:plan?{steps:plan.steps.length,types:plan.steps.map(step=>step.type),remaining:progress?.remaining??null,completed:progress?.completed||[],nextStep:progress?.nextStep||null,complete:progress?.complete===true}:null,planError,
   recentHistory:history.status==="fulfilled"?history.value.slice(0,12).map(row=>({kind:row.entry_kind,text:String(row.body||"").slice(0,900),at:row.created_at})):[],
-  availability:{creations:creations.status==="fulfilled",collaborations:collaborations.status==="fulfilled",history:history.status==="fulfilled"},
+  availability:{creations:creations.status==="fulfilled"&&receiptHistoryComplete,collaborations:collaborations.status==="fulfilled",history:history.status==="fulfilled"},
   readOnly:true};
 }
 async function executeApprovedSequence({steps,endeavorId,approved=false,completed=[]}={}){
