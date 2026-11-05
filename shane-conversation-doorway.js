@@ -51,6 +51,7 @@ function init(){
  form.addEventListener("submit",async event=>{
   event.preventDefault();const vision=input.value.trim();
   if(vision.length<20){input.setCustomValidity("Please describe your idea in at least 20 characters.");input.reportValidity();return}input.setCustomValidity("");
+  try{const pending=JSON.parse(sessionStorage.getItem(retryKey)||"null");retryEndeavorId=pending?.vision===vision&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(pending?.endeavorId||"")?pending.endeavorId:null;if(!retryEndeavorId)sessionStorage.removeItem(retryKey)}catch{retryEndeavorId=null}
   submit.disabled=true;status.textContent="Establishing your private endeavor and Network presence…";
   try{
    // Import the same account-backed creator used by the rest of SHANE. No builder detour.
