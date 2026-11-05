@@ -39,10 +39,17 @@ async function recoverChapters(){
   const memory=window.SHANEFractalMemory.create(window.shaneAccountDb,id);
   const summary=await memory.listChapters();
   const completed=Math.floor(summary.turns/20);
-  for(let chapter=Math.max(1,completed-2);chapter<=completed;chapter++){
+  // Scan every completed chapter, not only the last three. A missed older
+  // chapter must remain recoverable after an extended offline period.
+  for(let chapter=1;chapter<=completed;chapter++){
    if(endeavorId!==id)break;
    const turns=await memory.readChapter(chapter);
-   if(turns.length===20)await window.SHANEConversationStore.consolidateVortexChapter({endeavorId:id,chapter,turns});
+   if(turns.length!==20)continue;
+   const result=await window.SHANEConversationStore.consolidateVortexChapter({endeavorId:id,chapter,turns});
+   if(result?.saved===false&&result.reason!=="already-consolidated"){
+    console.warn("Vortex recovery paused at chapter",chapter,result.reason);
+    break;
+   }
   }
  }catch(error){console.warn("Completed Vortex chapters await recovery:",error)}
  finally{checkingChapters=false}
