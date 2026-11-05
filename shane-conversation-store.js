@@ -217,11 +217,21 @@ async function reasonAndCreate({endeavorId,request}={}){
   review=await analyzeWithCompasses({endeavorId,request:critique,purpose:"Independent Mirror Cat adversarial review. Return concrete defects and validation tests; no actions or invented completions."});
   reviewStatus="completed";
  }catch(error){console.warn("Independent review unavailable",error)}
- const record={request:vision,compassRecommendation:analysis.recommendation,alternatives:analysis.alternatives,response:result.response,independentReview:review?{recommendation:review.recommendation,contradictions:review.contradictions,validationTests:review.validationTests}:null,reviewStatus,executed:false};
+ // Maximizer applies the independent findings to produce a stronger
+ // candidate. Preserve the original and review for later comparison.
+ let improved=null,improvementStatus="not-run";
+ if(reviewStatus==="completed"){
+  try{
+   const improvementPurpose="Ponderer Harmonizer Maximizer: improve the original response by addressing every supported Mirror Cat concern, comparing the Compass alternatives and retaining the strongest defensible elements. Do not claim implementation, deployment, or testing. Original proposal: "+String(result.response||"").slice(0,5200)+"; Independent review: "+JSON.stringify({recommendation:review.recommendation,contradictions:review.contradictions,validationTests:review.validationTests,alternatives:review.alternatives}).slice(0,6500);
+   improved=await converse({endeavorId,request:vision,purpose:improvementPurpose});
+   improvementStatus=typeof improved?.response==="string"&&improved.response.trim()?"completed":"invalid";
+  }catch(error){improvementStatus="unavailable";console.warn("Maximizer improvement unavailable",error)}
+ }
+ const record={request:vision,compassRecommendation:analysis.recommendation,alternatives:analysis.alternatives,response:result.response,improvedResponse:improved?.response||null,improvementStatus,independentReview:review?{recommendation:review.recommendation,contradictions:review.contradictions,validationTests:review.validationTests}:null,reviewStatus,executed:false};
  const serialized=JSON.stringify(record);
  const saved=await saveTurn(serialized.length<=20000?serialized:JSON.stringify({request:vision.slice(0,3000),compassRecommendation:String(analysis.recommendation||"").slice(0,2000),response:String(result.response||"").slice(0,9000),reviewStatus,reviewRecommendation:String(review?.recommendation||"").slice(0,2500),note:"Complete analyses retained as separate Compass entries"}),{endeavorId,kind:"reasoning-cycle",page:"endeavor-intelligence"});
  if(!saved?.saved)throw Error("Reasoning result could not be archived. Please retry before relying on its continuity.");
- return {analysis,response:result.response,review,reviewStatus,creationPlan:result.creationPlan||null,executed:false};
+ return {analysis,response:improvementStatus==="completed"?improved.response:result.response,originalResponse:result.response,review,reviewStatus,improvementStatus,creationPlan:result.creationPlan||null,executed:false};
 }
 async function converse({endeavorId,request,purpose,mode}){
  const account=await user();
