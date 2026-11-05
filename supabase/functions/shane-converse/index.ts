@@ -40,7 +40,19 @@ Deno.serve(async req=>{
      turns.some((t,i)=>t?.turn_number!==(chapter-1)*20+i+1||!["you","shane"].includes(t?.role)||typeof t?.body!=="string"||t.body.length>12000)||
      candidates.length>24||candidates.some(c=>typeof c?.idea!=="string"||c.idea.length>2000))
    return reply({error:"Invalid chapter or candidate evidence"},400);
-  const evidence=turns.map(t=>({turn:t.turn_number,role:t.role,text:t.body.slice(0,5000)}));
+  // Compare supplied chapter against its durable, owner-scoped archive.
+  // A browser must never be able to forge a chapter and have it become memory.
+  const archiveQuery=base+"/rest/v1/shane_memory_turns?endeavor_id=eq."+encodeURIComponent(endeavorId)+
+    "&turn_number=gte."+encodeURIComponent(String((chapter-1)*20+1))+
+    "&turn_number=lte."+encodeURIComponent(String(chapter*20))+
+    "&select=turn_number,role,body&order=turn_number.asc&limit=20";
+  const archived=await fetch(archiveQuery,{headers});
+  if(!archived.ok)return reply({error:"Archived chapter could not be verified"},409);
+  const verified=await archived.json();
+  if(!Array.isArray(verified)||verified.length!==20||
+     verified.some((t,i)=>t.turn_number!==turns[i].turn_number||t.role!==turns[i].role||t.body!==turns[i].body))
+   return reply({error:"Chapter evidence does not match saved history"},409);
+  const evidence=verified.map(t=>({turn:t.turn_number,role:t.role,text:t.body.slice(0,5000)}));
   const prior=candidates.map(c=>({idea:c.idea,reason:String(c.reason||"").slice(0,500),status:c.status}));
   const instruction=`You are SHANE's cooperating Ponderer, Harmonizer, Maximizer, Analyst and Mirror Cat.
 Work on an endeavor's real conversation chapter. Extract substantive new ideas even without trigger phrases. Compare new ideas with established candidates, explore at least two alternative approaches when warranted, find tensions and dependencies, synthesize a materially improved proposal ONLY when justified, then challenge it independently. Do not simply concatenate or paraphrase two ideas. Do not confuse proposals with executed achievements. Return JSON with:
