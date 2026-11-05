@@ -122,10 +122,15 @@ async function init(){
      item.linked_site_id=orphanedWebsite.id;
      const option=choice.querySelector('option[value="new-website"]');
      if(option){option.disabled=false;option.value="website";option.textContent="Revise this endeavor's primary website";}
-     sessionStorage.removeItem(draftKey);
+     // Reconnecting an existing artifact must not erase unrelated unfinished creation work.
+     try{const draft=JSON.parse(sessionStorage.getItem(draftKey)||"null");if(draft?.type==="new-website")sessionStorage.removeItem(draftKey)}catch{}
      sessionStorage.removeItem("shane-website-link-recovery-v1:"+item.id);
+     try{
+      const saved=await window.SHANEConversationStore.saveTurn(JSON.stringify({version:1,endeavorId:item.id,id:orphanedWebsite.id,type:"new-website",changeKind:"link-recovery",url:orphanedWebsite.url||"builder.html?site="+encodeURIComponent(orphanedWebsite.id)+"&endeavor="+encodeURIComponent(item.id),vision:String(orphanedWebsite.vision||"").slice(0,1200),saved:true,endeavorLinked:true}),{page:"shane-dashboard",kind:"creation-summary",endeavorId:item.id});
+      if(!saved?.saved)reconnectStatus.textContent="Website connected. Its history record still needs verification.";
+     }catch(error){reconnectStatus.textContent="Website connected, but its history record could not be confirmed."}
      try{const latest=JSON.parse(sessionStorage.getItem("shane-last-created-artifact-v1")||"null");if(latest?.id===orphanedWebsite.id)sessionStorage.removeItem("shane-last-created-artifact-v1")}catch{}
-     reconnectStatus.textContent="Your existing website is now linked to this endeavor. No duplicate was created.";
+     if(!reconnectStatus.textContent.includes("history record"))reconnectStatus.textContent="Your existing website is now linked to this endeavor. No duplicate was created.";
      reconnect.remove();
      document.dispatchEvent(new CustomEvent("shane:endeavor-creation-saved",{detail:{endeavorId:item.id,type:"website",artifactId:item.linked_site_id,changeKind:"link-recovery",endeavorLinked:true}}));
     }catch(error){reconnectStatus.textContent="Website connection was not confirmed: "+String(error?.message||error);reconnect.disabled=false}
