@@ -40,6 +40,9 @@ async function init(){
     if(!window.SHANEConversationStore?.reasonAndCreate)await import("./shane-conversation-store.js");
     const result=await window.SHANEConversationStore.reasonAndCreate({endeavorId:item.id,request:conversationInput.value.trim()});
     conversationAnswer.textContent=String(result.response||"No response returned.");
+    const createNext=document.createElement("button");createNext.type="button";createNext.textContent="Use this conversation to create a private draft";
+    createNext.addEventListener("click",()=>{const studio=document.getElementById("shane-endeavor-creation-studio");const draft=studio?.querySelector("textarea");if(!draft)return;draft.value=conversationInput.value.trim();studio.scrollIntoView({behavior:"smooth",block:"start"});draft.focus();});
+    conversationAnswer.append(createNext);
     conversationStatus.textContent=result.selectionProvisional?"Reasoning saved to this endeavor. The comparison is provisional; no action was executed.":"Reasoning saved to this endeavor. No action was executed.";
     if(result.creationPlan){
      const plan=result.creationPlan;
