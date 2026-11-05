@@ -1259,7 +1259,16 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
   }
   if(endeavorLink.reason)console.warn(endeavorLink.reason);
  }
- const creation={type,id,url,vision:request,endeavorId:endeavorId||null,endeavorLink,operation:type==="website"?"revision":"creation",created:Date.now()};
+ // Persist the creation-to-endeavor relationship separately from conversation history.
+ let artifactLink={attempted:false,linked:false,reason:null};
+ if(endeavorId&&(type!=="new-website"||endeavorLink.linked)){
+  artifactLink.attempted=true;
+  const artifactType=type==="new-website"?"website":type;
+  const {error:artifactError}=await db.from("shane_endeavor_artifacts").upsert({endeavor_id:endeavorId,artifact_id:id,artifact_type:artifactType,owner_id:account.id},{onConflict:"endeavor_id,artifact_type,artifact_id",ignoreDuplicates:true});
+  if(artifactError)artifactLink.reason="Creation saved, but its durable endeavor relationship needs recovery: "+artifactError.message;
+  else artifactLink.linked=true;
+ }
+ const creation={type,id,url,vision:request,endeavorId:endeavorId||null,endeavorLink,artifactLink,operation:type==="website"?"revision":"creation",created:Date.now()};
  if(endeavorId&&activeEndeavor()!==endeavorId)creation.contextChanged=true;
  try{sessionStorage.setItem("shane-last-created-artifact-v1",JSON.stringify(creation));if(type==="new-website"&&endeavorId&&!endeavorLink.linked)sessionStorage.setItem("shane-website-link-recovery-v1:"+endeavorId,JSON.stringify(creation));else if(type==="new-website"&&endeavorId&&endeavorLink.linked)sessionStorage.removeItem("shane-website-link-recovery-v1:"+endeavorId)}catch{}
  document.dispatchEvent(new CustomEvent("shane:artifact-created",{detail:creation}));
@@ -1277,7 +1286,7 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
   }
   try{await rememberConfirmedMilestone({endeavorId,receiptId:id,description:type==="website"?"Endeavor website revised":"Private "+type+" created"});}catch{}
  }
- return {saved:true,historySaved,published:type==="website"?(result.published??null):false,type,id,url,result,endeavorLink,receipt:{operation:type,changeKind:type==="website"?"revision":"creation",resource:computerCapabilities.find(x=>x.id===type).resource,id,verifiedSaved:true,published:type==="website"?(result.published??null):false,at:new Date().toISOString()}};
+ return {saved:true,historySaved,artifactLink,published:type==="website"?(result.published??null):false,type,id,url,result,endeavorLink,receipt:{operation:type,changeKind:type==="website"?"revision":"creation",resource:computerCapabilities.find(x=>x.id===type).resource,id,verifiedSaved:true,published:type==="website"?(result.published??null):false,at:new Date().toISOString()}};
 }
 async function recoverVerifiedCreationHistory({endeavorId,record}={}){
  const account=await user();if(!account)throw Error("Sign in to recover endeavor history.");
