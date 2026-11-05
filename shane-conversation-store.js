@@ -195,6 +195,9 @@ async function reasonAndCreate({endeavorId,request}={}){
  const analysis=await analyzeWithCompasses({endeavorId,request});
  const purpose="Use this whole-to-parts analysis as context, challenge its assumptions and integrate the strongest alternatives into a concrete endeavor response. Analysis is not execution: "+JSON.stringify(analysis).slice(0,11000);
  const result=await converse({endeavorId,request,purpose});
+ const record=JSON.stringify({request,compassRecommendation:analysis.recommendation,alternatives:analysis.alternatives,response:result.response,creationPlan:result.creationPlan||null,executed:false});
+ if(record.length<=20000)await saveTurn(record,{endeavorId,kind:"reasoning-cycle",page:"endeavor-intelligence"});
+ else await saveTurn(JSON.stringify({request:String(request).slice(0,3000),compassRecommendation:String(analysis.recommendation||"").slice(0,3000),response:String(result.response||"").slice(0,10000),note:"Full Compass evidence retained in separate compass-analysis entry"}),{endeavorId,kind:"reasoning-cycle",page:"endeavor-intelligence"});
  return {analysis,response:result.response,creationPlan:result.creationPlan||null,executed:false};
 }
 async function converse({endeavorId,request,purpose,mode}){
