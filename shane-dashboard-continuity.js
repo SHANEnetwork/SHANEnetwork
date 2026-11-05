@@ -89,6 +89,11 @@ async function init(){
   if(item.linked_site_id){const option=document.createElement("option");option.value="website";option.textContent="Revise this endeavor\u0027s primary website";choice.append(option)}
   const request=document.createElement("textarea");request.rows=4;request.maxLength=12000;request.required=true;request.minLength=8;request.placeholder="Describe the outcome you want, the people it serves, and what should be created…";request.style.cssText="width:100%;box-sizing:border-box;padding:12px;border-radius:12px";
   const usePurpose=document.createElement("button");usePurpose.type="button";usePurpose.textContent="Create from this endeavor\u0027s original vision";usePurpose.addEventListener("click",()=>{request.value=String(item.idea||"").slice(0,12000);request.focus()});
+  const draftKey="shane-endeavor-creation-draft-v1:"+item.id;
+  try{const pending=JSON.parse(sessionStorage.getItem(draftKey)||"null");if(pending&&typeof pending.vision==="string"){request.value=pending.vision.slice(0,12000);if([...choice.options].some(option=>option.value===pending.type))choice.value=pending.type}}catch{}
+  const preserveDraft=()=>{try{sessionStorage.setItem(draftKey,JSON.stringify({vision:request.value,type:choice.value,updatedAt:Date.now()}))}catch{}};
+  request.addEventListener("input",preserveDraft);
+  choice.addEventListener("change",preserveDraft);
   const deadline=document.createElement("input");deadline.type="datetime-local";deadline.setAttribute("aria-label","Interest deadline for event or campaign");deadline.hidden=true;
   choice.addEventListener("change",()=>{deadline.hidden=choice.value!=="campaign";deadline.required=choice.value==="campaign"});
   const create=document.createElement("button");create.type="submit";create.textContent="Create and save private draft";
@@ -235,6 +240,7 @@ async function init(){
      request.value="";request.placeholder="Describe what should change on this endeavor\u0027s saved website…";
     }
     if(result.url){const link=document.createElement("a");link.href=result.url;link.textContent="Open saved creation";outcome.append(" ",link)}
+    try{sessionStorage.removeItem(draftKey)}catch{}
     document.dispatchEvent(new CustomEvent("shane:endeavor-creation-saved",{detail:{endeavorId:item.id,type:choice.value,artifactId:result.id,changeKind:result.receipt?.changeKind||"creation",endeavorLinked:result.endeavorLink?.linked??null}}));
    }catch(error){outcome.textContent="Creation was not confirmed: "+String(error?.message||error)+". Your description remains available."}
    finally{create.disabled=false}
