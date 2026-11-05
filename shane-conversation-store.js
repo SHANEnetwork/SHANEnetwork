@@ -1207,7 +1207,7 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
   const title=request.split(/[.!?]/)[0].trim().slice(0,150);
   result=await createPrivateListing({vision:request,title,description:request,endeavorId});
  }
- if(!result?.saved||result.published===true)throw Error("The private creation was not confirmed.");
+ if(!result?.saved||(type!=="website"&&result.published===true))throw Error("The creation was not confirmed as saved.");
  if(type==="website"&&result.siteId!==siteId)throw Error("The revision result does not match the selected website.");
  if(type==="website"&&result.saved!==true)throw Error("The website revision was not confirmed.");
  const id=type==="community"?result.organizationId:type==="campaign"?result.campaignId:type==="listing"?result.listingId:result.siteId;
