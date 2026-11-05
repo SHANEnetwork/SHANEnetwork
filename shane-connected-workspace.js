@@ -162,6 +162,7 @@ function init(){
   try{
    const result=await store.reasonAndCreate({endeavorId,request});
    if(currentId()!==originalId||(reply.value.trim()||vision.value.trim())!==originalRequest){status.textContent="The selected endeavor changed. Earlier analysis was saved to its original endeavor.";return}
+   invalidatePlan();
    const panel=host.querySelector("#shane-connected-plan-review");
    if(panel){
     panel.replaceChildren();
@@ -176,7 +177,7 @@ function init(){
      panel.append(item);
     }
    }
-   status.textContent="Analysis completed and saved with the endeavor. Review the result before creating anything.";
+   status.textContent=result.comparisonStatus==="b"?"The improved proposal was selected and archived. Review it before planning creation.":result.comparisonStatus==="a"?"The original proposal was retained after independent comparison. Review it before planning creation.":"Reasoning saved, but the comparison did not establish an improved candidate. Review before planning creation.";
   }catch(error){status.textContent="Integrated analysis unavailable: "+(error?.message||"Please retry.");}
   finally{reasonButton.disabled=false}
  });
