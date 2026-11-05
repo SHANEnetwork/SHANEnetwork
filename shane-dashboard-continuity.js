@@ -106,7 +106,7 @@ async function init(){
   form.append(choice,request,usePurpose,deadline,create,outcome);studio.append(heading,explanation,form);host.append(studio);
   // Recover the original saved website instead of creating a duplicate if linking failed.
   let orphanedWebsite=null;
-  try{const prior=JSON.parse(sessionStorage.getItem("shane-last-created-artifact-v1")||"null");if(prior?.type==="new-website"&&prior.endeavorId===item.id&&prior.endeavorLink?.linked===false&&valid(prior.id))orphanedWebsite=prior}catch{}
+  try{const prior=JSON.parse(sessionStorage.getItem("shane-website-link-recovery-v1:"+item.id)||sessionStorage.getItem("shane-last-created-artifact-v1")||"null");if(prior?.type==="new-website"&&prior.endeavorId===item.id&&prior.endeavorLink?.linked===false&&valid(prior.id))orphanedWebsite=prior}catch{}
   if(orphanedWebsite&&!item.linked_site_id){
    const pendingOption=choice.querySelector('option[value="new-website"]');
    if(pendingOption){pendingOption.disabled=true;pendingOption.textContent="Reconnect existing website before creating another";if(choice.value==="new-website"){choice.value="listing";choice.dispatchEvent(new Event("change"))}}
@@ -123,7 +123,8 @@ async function init(){
      const option=choice.querySelector('option[value="new-website"]');
      if(option){option.disabled=false;option.value="website";option.textContent="Revise this endeavor's primary website";}
      sessionStorage.removeItem(draftKey);
-     sessionStorage.removeItem("shane-last-created-artifact-v1");
+     sessionStorage.removeItem("shane-website-link-recovery-v1:"+item.id);
+     try{const latest=JSON.parse(sessionStorage.getItem("shane-last-created-artifact-v1")||"null");if(latest?.id===orphanedWebsite.id)sessionStorage.removeItem("shane-last-created-artifact-v1")}catch{}
      reconnectStatus.textContent="Your existing website is now linked to this endeavor. No duplicate was created.";
      reconnect.remove();
      document.dispatchEvent(new CustomEvent("shane:endeavor-creation-saved",{detail:{endeavorId:item.id,type:"website",artifactId:item.linked_site_id,changeKind:"link-recovery",endeavorLinked:true}}));
