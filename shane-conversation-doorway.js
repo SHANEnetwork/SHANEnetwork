@@ -75,7 +75,11 @@ function init(){
    }
    const destination=document.createElement("a");destination.href="dashboard.html?endeavor="+encodeURIComponent(result.endeavorId);
    destination.textContent="Open my saved endeavor";status.append(" ",destination);
-   if(result.networkDraftSaved){try{sessionStorage.removeItem(retryKey)}catch{}location.assign(destination.href);}
+   // A Network listing is an optional creation, never a prerequisite for continuing the endeavor.
+   // Preserve a retry receipt when listing creation fails, but always enter the saved endeavor.
+   if(result.networkDraftSaved){try{sessionStorage.removeItem(retryKey)}catch{}}
+   else{try{sessionStorage.setItem("shane-endeavor-listing-pending-v1",JSON.stringify({endeavorId:result.endeavorId,vision,error:result.error||null}))}catch{}}
+   location.assign(destination.href);
   }catch(error){status.textContent="SHANE could not establish the endeavor: "+String(error?.message||error)+". Your description remains here for retry."}
   finally{submit.disabled=false}
  });
