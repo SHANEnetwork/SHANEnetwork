@@ -27,7 +27,7 @@ const api = createClient(url,key,{auth:{persistSession:false,autoRefreshToken:fa
   await page.waitForFunction(()=>document.body.innerText.includes('Signed in'),null,{timeout:20000});
   await page.goto(base+'/builder.html#vision-first',{waitUntil:'domcontentloaded'});
   await page.locator('#visionPrompt').fill(vision);
-  await page.locator('#shaneSaveVisionEndeavor').click();
+  await page.locator('#shaneBuildVisionNow').click();
   await page.waitForFunction(()=>document.querySelector('#shaneReturnSavedEndeavor')?.hidden===false,null,{timeout:25000});
   const link=await page.locator('#shaneReturnSavedEndeavor').getAttribute('href');
   id=new URL(link,base).searchParams.get('endeavor');
@@ -36,6 +36,15 @@ const api = createClient(url,key,{auth:{persistSession:false,autoRefreshToken:fa
   assert.ifError(createError);
   assert.equal(created.owner_id,user.id);
   assert.equal(created.idea,vision,'UI must persist the exact original vision');
+  await page.waitForFunction(() => /linked to your endeavor/i.test(document.querySelector('#aiStatus')?.textContent || ''),null,{timeout:120000});
+  const {data:joined,error:joinError}=await api.from('shane_endeavors').select('linked_site_id').eq('id',id).single();
+  assert.ifError(joinError);
+  assert(joined.linked_site_id,'EJ-05: created website must be linked to its endeavor');
+  const {data:site,error:siteError}=await api.from('shane_sites').select('owner_id,status,content').eq('id',joined.linked_site_id).single();
+  assert.ifError(siteError);
+  assert.equal(site.owner_id,user.id);
+  assert.equal(site.status,'draft');
+  assert(site.content && Object.keys(site.content).length>2,'Website draft must contain editable content');
   await page.goto(base+'/'+link,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(expected=>document.querySelector('#visionPrompt')?.value===expected,vision,{timeout:25000});
   assert.equal(await page.locator('#visionPrompt').inputValue(),vision,'Returning by saved link must restore the vision');
