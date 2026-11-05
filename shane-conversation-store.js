@@ -1188,6 +1188,7 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
   if(existing.error||!existing.data)throw Error("The endeavor website relationship could not be checked.");
   if(existing.data.linked_site_id)throw Error("This endeavor already has a primary website. Revise that website from the endeavor dashboard.");
  }
+ if(endeavorId&&activeEndeavor()!==endeavorId)throw Error("The selected endeavor changed before creation began.");
  const context=ownedEndeavor?("Endeavor: "+String(ownedEndeavor.title||"").slice(0,150)+". Purpose: "+String(ownedEndeavor.idea||"").slice(0,1800)+". This creation must serve that endeavor; do not replace its purpose. Requested creation: "):"";
  const groundedRequest=context?(context.slice(0,Math.max(0,12000-request.length))+request):request;
  let result;
