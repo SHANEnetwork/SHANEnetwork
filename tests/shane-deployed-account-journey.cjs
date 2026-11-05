@@ -48,6 +48,13 @@ const api = createClient(url,key,{auth:{persistSession:false,autoRefreshToken:fa
   await page.goto(base+'/'+link,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(expected=>document.querySelector('#visionPrompt')?.value===expected,vision,{timeout:25000});
   assert.equal(await page.locator('#visionPrompt').inputValue(),vision,'Returning by saved link must restore the vision');
+  await page.waitForFunction(expected=>{
+   const editor=document.querySelector('#business')?.value||'';
+   const saved=document.querySelector('#savedSites')?.value||'';
+   return Boolean(editor.trim())&&saved===expected;
+  },joined.linked_site_id,{timeout:25000});
+  assert.equal(await page.locator('#savedSites').inputValue(),joined.linked_site_id,
+   'Returning to an endeavor must restore its linked website editor, not only its vision');
   await page.locator('#visionPrompt').fill(revision);
   await page.locator('#shaneSaveVisionEndeavor').click();
   await page.waitForFunction(()=>document.querySelector('#planRecoveryStatus')?.textContent?.includes('saved privately'),null,{timeout:25000});
