@@ -268,6 +268,18 @@ async function init(){
     section("Creations belonging to this endeavor",snapshot.creations||[],(row,creation)=>{
      row.append(document.createTextNode((creation.type||"Creation")+": "+(creation.title||"Untitled")+" "));
      if(creation.url){const link=document.createElement("a");link.href=creation.url;link.textContent="Open";row.append(link)}
+     if(creation.durableLinkConfirmed===false&&snapshot.availability?.creations&&["website","community","campaign","listing"].includes(creation.type)){
+      const repair=document.createElement("button");repair.type="button";repair.textContent="Preserve endeavor connection";
+      row.append(" ",repair);
+      repair.addEventListener("click",async()=>{
+       repair.disabled=true;
+       try{
+        if(!window.SHANEConversationStore?.repairEndeavorArtifactLink)await import("./shane-conversation-store.js");
+        await window.SHANEConversationStore.repairEndeavorArtifactLink({endeavorId:item.id,artifactId:creation.id,artifactType:creation.type});
+        repair.replaceWith(document.createTextNode("Connection preserved"));
+       }catch(error){repair.disabled=false;repair.textContent="Retry connection";evolutionStatus.textContent="Connection not confirmed: "+String(error?.message||error)}
+      });
+     }
     });
     section("Accepted collaborators",snapshot.collaborations||[],(row,connection)=>{
      row.append(document.createTextNode(connection.listingTitle||"Collaboration"));
