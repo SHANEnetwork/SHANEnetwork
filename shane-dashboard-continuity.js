@@ -203,7 +203,7 @@ async function init(){
     if(choice.value==="new-website"&&!result.endeavorLink?.linked)outcome.textContent="The website was saved, but its connection to this endeavor is not confirmed.";
     if(result.endeavorLink?.reason)outcome.textContent=result.endeavorLink.reason;
     if(result.url){const link=document.createElement("a");link.href=result.url;link.textContent="Open saved creation";outcome.append(" ",link)}
-    document.dispatchEvent(new CustomEvent("shane:endeavor-creation-saved",{detail:{endeavorId:item.id,type:choice.value,artifactId:result.id,changeKind:result.receipt?.changeKind||"creation"}}));
+    document.dispatchEvent(new CustomEvent("shane:endeavor-creation-saved",{detail:{endeavorId:item.id,type:choice.value,artifactId:result.id,changeKind:result.receipt?.changeKind||"creation",endeavorLinked:result.endeavorLink?.linked??null}}));
    }catch(error){outcome.textContent="Creation was not confirmed: "+String(error?.message||error)+". Your description remains available."}
    finally{create.disabled=false}
   });
