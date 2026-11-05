@@ -266,6 +266,7 @@ async function init(){
     outcome.textContent=submittedType==="website"?"Your endeavor website revision was saved. Publication status was not changed here.":"Saved privately for your endeavor. Nothing was published."; 
     if(submittedType==="new-website"&&!result.endeavorLink?.linked)outcome.textContent="The website was saved, but its connection to this endeavor is not confirmed.";
     if(result.endeavorLink?.reason)outcome.textContent=result.endeavorLink.reason;
+    if(result.historySaved===false)outcome.append(" The creation was saved, but its conversation-history record could not be confirmed. You can still open the saved creation.");
     if(submittedType==="new-website"&&result.endeavorLink?.linked&&result.id){
      item.linked_site_id=result.id;
      const websiteOption=choice.querySelector('option[value="new-website"]');
