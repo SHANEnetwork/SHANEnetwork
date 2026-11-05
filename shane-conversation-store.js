@@ -1075,7 +1075,7 @@ async function executeApprovedSequence({steps,endeavorId,approved=false,complete
  if(error||!data)throw Error("The selected endeavor is not available to this account.");
  if(steps.some(step=>step.endeavorId&&step.endeavorId!==endeavorId))throw Error("All steps must belong to the same endeavor.");
  if(completed.length)await verifySequenceProgress({steps,completed});
- if(window.SHANECurrentEndeavor?.read?.()!==endeavorId)throw Error("Return to the selected endeavor before creating.");
+ if(activeEndeavor()!==endeavorId)throw Error("Return to the selected endeavor before creating.");
  // Reconcile with durable receipts before executing, including when a member
  // returns after a refresh. Never replay already-confirmed creations.
  const recovered=await recoverCreationProgress({endeavorId,steps});
@@ -1105,12 +1105,12 @@ async function executeVisionSequence({steps,endeavorId,startIndex=0}={}){
   if(ownerError||!owned)throw Error("This endeavor does not belong to your account.");
  }
  if(steps.some(step=>step.endeavorId&&step.endeavorId!==endeavorId))throw Error("Creation steps must belong to the selected endeavor.");
- if(endeavorId&&window.SHANECurrentEndeavor?.read?.()!==endeavorId)throw Error("The active endeavor changed. Return to the original endeavor before creating.");
+ if(endeavorId&&activeEndeavor()!==endeavorId)throw Error("The active endeavor changed. Return to the original endeavor before creating.");
  for(let index=0;index<steps.length;index++){
   const step=steps[index];
   if(!step||typeof step!=="object"||Array.isArray(step))throw Error("Invalid creation step "+(index+1));
   try{
-   if(endeavorId&&window.SHANECurrentEndeavor?.read?.()!==endeavorId)throw Error("The active endeavor changed during creation. Remaining steps were not started.");
+   if(endeavorId&&activeEndeavor()!==endeavorId)throw Error("The active endeavor changed during creation. Remaining steps were not started.");
    const result=await executeVision({...step,endeavorId:step.endeavorId||endeavorId});
    completed.push(result);
    const historyEndeavor=step.endeavorId||endeavorId;
