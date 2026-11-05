@@ -82,6 +82,7 @@ async function init(){
   const form=document.createElement("form");form.style.cssText="display:grid;gap:12px";
   const choice=document.createElement("select");choice.setAttribute("aria-label","What should SHANE create?");
   for(const [value,label] of [["listing","Network opportunity or collaboration listing"],["community","Community or association"],["campaign","Event or campaign"],["new-website","Website for this endeavor"]]){const option=document.createElement("option");option.value=value;option.textContent=label;choice.append(option)}
+  if(item.linked_site_id){const option=document.createElement("option");option.value="website";option.textContent="Revise this endeavor\u0027s primary website";choice.append(option)}
   const request=document.createElement("textarea");request.rows=4;request.maxLength=12000;request.required=true;request.minLength=8;request.placeholder="Describe the outcome you want, the people it serves, and what should be created…";request.style.cssText="width:100%;box-sizing:border-box;padding:12px;border-radius:12px";
   const deadline=document.createElement("input");deadline.type="datetime-local";deadline.setAttribute("aria-label","Interest deadline for event or campaign");deadline.hidden=true;
   choice.addEventListener("change",()=>{deadline.hidden=choice.value!=="campaign";deadline.required=choice.value==="campaign"});
