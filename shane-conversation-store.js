@@ -1043,8 +1043,30 @@ async function endeavorSnapshot({endeavorId}={}){
    }
   }catch{}
  }
+ // Resolve older confirmed artifacts by their actual owner-scoped database records.
+ // Recent account activity alone is not an endeavor's complete creation inventory.
+ const recoveredCreations=[];
+ const unresolvedIds=[...confirmedIds].filter(id=>/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(id)&&!creationItems.some(item=>item.id===id));
+ const artifactSources=[
+  {table:"shane_sites",type:"website",title:"name",page:"builder.html",param:"site"},
+  {table:"shane_organizations",type:"community",title:"name",page:"communities.html",param:"organization"},
+  {table:"shane_campaigns",type:"campaign",title:"title",page:"campaigns.html",param:"campaign"},
+  {table:"shane_listings",type:"listing",title:"title",page:"members.html",param:"listing"}
+ ];
+ let recoveredArtifactsComplete=true;
+ for(let offset=0;offset<unresolvedIds.length;offset+=100){
+  const batch=unresolvedIds.slice(offset,offset+100);
+  const results=await Promise.allSettled(artifactSources.map(async source=>{
+   const {data,error}=await db.from(source.table).select("id,"+source.title).eq("owner_id",account.id).in("id",batch);
+   if(error)throw error;
+   return (data||[]).map(row=>({id:row.id,type:source.type,title:String(row[source.title]||"Untitled"),url:source.page+"?"+source.param+"="+encodeURIComponent(row.id),linkedToEndeavor:true}));
+  }));
+  if(results.some(result=>result.status==="rejected"))recoveredArtifactsComplete=false;
+  for(const result of results)if(result.status==="fulfilled")recoveredCreations.push(...result.value);
+ }
  const linked=creationItems.filter(item=>confirmedIds.has(item.id));
  const allCreations=creationItems.map(item=>({...item,linkedToEndeavor:linked.some(found=>found.id===item.id)||confirmedIds.has(item.id)||item.type==="website"&&item.id===endeavor.linked_site_id}));
+ for(const artifact of recoveredCreations)if(!allCreations.some(item=>item.id===artifact.id))allCreations.push(artifact);
  // The direct relationship survives conversation archival and result limits.
  if(endeavor.linked_site_id&&!allCreations.some(item=>item.id===endeavor.linked_site_id)){
   const {data:site}=await db.from("shane_sites").select("id,name,status").eq("id",endeavor.linked_site_id).eq("owner_id",account.id).maybeSingle();
@@ -1072,7 +1094,7 @@ async function endeavorSnapshot({endeavorId}={}){
   collaborations:collaborations.status==="fulfilled"?collaborations.value.collaborations:[],
   creationPlan:plan?{steps:plan.steps.length,types:plan.steps.map(step=>step.type),remaining:progress?.remaining??null,completed:progress?.completed||[],nextStep:progress?.nextStep||null,complete:progress?.complete===true}:null,planError,
   recentHistory:history.status==="fulfilled"?history.value.slice(0,12).map(row=>({kind:row.entry_kind,text:String(row.body||"").slice(0,900),at:row.created_at})):[],
-  availability:{creations:creations.status==="fulfilled"&&receiptHistoryComplete,collaborations:collaborations.status==="fulfilled",history:history.status==="fulfilled"},
+  availability:{creations:creations.status==="fulfilled"&&receiptHistoryComplete&&recoveredArtifactsComplete,collaborations:collaborations.status==="fulfilled",history:history.status==="fulfilled"},
   readOnly:true};
 }
 async function executeApprovedSequence({steps,endeavorId,approved=false,completed=[]}={}){
