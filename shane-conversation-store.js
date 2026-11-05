@@ -825,12 +825,14 @@ async function collaborationContext({endeavorId,limit=12}={}){
  if(!listings?.length)return {endeavorId,listings:[],collaborations:[],confirmed:true};
  const ids=listings.map(item=>item.id);
  const requests=[];
+ let requestsComplete=true;
  for(let offset=0;offset<ids.length;offset+=50){
   for(let page=0;page<1000;page+=100){
    const {data,error}=await db.from("shane_collaboration_requests").select("id,listing_id,sender_id,recipient_id,status,created_at").in("listing_id",ids.slice(offset,offset+50)).eq("status","accepted").order("created_at",{ascending:false}).range(page,page+99);
    if(error)throw error;
    requests.push(...(data||[]));
    if((data||[]).length<100)break;
+   if(page===900)requestsComplete=false;
   }
  }
  const accepted=(requests||[]).filter(item=>item.sender_id===account.id||item.recipient_id===account.id).sort((a,b)=>String(b.created_at||"").localeCompare(String(a.created_at||""))||String(b.id).localeCompare(String(a.id))).slice(0,max);
@@ -843,7 +845,7 @@ async function collaborationContext({endeavorId,limit=12}={}){
     fromSelf:message.sender_id===account.id,body:String(message.body||"").slice(0,500),at:message.created_at
    }))};
  }));
- return {endeavorId,listings:listings.map(item=>({id:item.id,title:item.title})),collaborations,confirmed:true,listingsComplete};
+ return {endeavorId,listings:listings.map(item=>({id:item.id,title:item.title})),collaborations,confirmed:true,listingsComplete,requestsComplete};
 }
 async function coordinateEndeavor({vision,endeavorId,aiSteps=[]}={}){
  const goal=String(vision||"").trim();
