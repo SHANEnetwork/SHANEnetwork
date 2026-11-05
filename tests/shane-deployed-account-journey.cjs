@@ -49,8 +49,8 @@ const api = createClient(url,key,{auth:{persistSession:false,autoRefreshToken:fa
   assert.ifError(matchError);
   assert.deepEqual(matches.map(x=>x.id),[id],'Save and revision must not create duplicate endeavors');
   await page.goto(base+'/members.html',{waitUntil:'domcontentloaded'});
-  const logout=page.locator('#logout');
-  if(await logout.count()) await logout.click();
+  await page.locator('#signout').click();
+  await page.waitForFunction(()=>document.querySelector('#session')?.textContent?.includes('Not signed in'),null,{timeout:15000});
   await page.goto(base+'/members.html',{waitUntil:'domcontentloaded'});
   await page.locator('#email').fill(email);
   await page.locator('#password').fill(password);
