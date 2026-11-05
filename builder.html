@@ -277,6 +277,14 @@ async function persistConversationRevision(){
   .select("id,status,content").eq("id",siteId).eq("owner_id",user.id).single();
  if(readError||!existing)return "AI revision ready, but the saved draft could not be verified.";
  if(existing.status!=="draft")return "AI revision ready. This website is public; review and explicitly save changes before publishing.";
+ const endeavorId=window.SHANECurrentEndeavor?.read?.()||null;
+ if(endeavorId){
+  const {data:endeavor,error:endeavorError}=await sb.from("shane_endeavors")
+   .select("linked_site_id").eq("id",endeavorId).eq("owner_id",user.id).single();
+  if(endeavorError||endeavor?.linked_site_id!==siteId)
+   return "AI revision ready. This website is not the linked website of your current endeavor; review before saving.";
+ }
+
  if(loadedAccountContent!==null&&JSON.stringify(existing.content)!==JSON.stringify(loadedAccountContent))
   return "AI revision ready. Your account's saved version changed elsewhere; review before overwriting.";
  const content=getSite(),snapshot=JSON.stringify(content);
