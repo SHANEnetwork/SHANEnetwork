@@ -50,6 +50,13 @@ const pages = [
   assert.equal(await page.locator('#goalInput').inputValue(), vision,
    'Dashboard must display the exact incoming vision in its editable composer');
   console.log('PASS deployed primary vision handoff: homepage -> endeavor entry -> dashboard');
+  // Empty submissions must not abandon the endeavor journey.
+  await page.locator('#goalInput').fill('');
+  await page.locator('#pathFinder button[type="submit"]').click();
+  assert(new URL(page.url()).pathname.endsWith('/dashboard.html'),
+   'An empty vision must not navigate to creation');
+  assert.match(await page.locator('#goalHint').innerText(), /describe your endeavor/i);
+  await page.locator('#goalInput').fill(vision);
   // Continuing an arriving endeavor from the dashboard must open creation,
   // not silently leave the person on a page without a conversation composer.
   await page.locator('#pathFinder button[type="submit"]').click();
