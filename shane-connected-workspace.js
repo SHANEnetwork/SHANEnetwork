@@ -179,7 +179,7 @@ function init(){
      panel.append(item);
     }
    }
-   status.textContent=result.comparisonStatus==="b"?"The improved proposal was selected and archived. Review it before planning creation.":result.comparisonStatus==="a"?"The original proposal was retained after independent comparison. Review it before planning creation.":"Reasoning saved, but the comparison did not establish an improved candidate. Review before planning creation.";
+   status.textContent=result.selectionProvisional?"Competing paths remain open. The current proposal is provisional; review alternatives and evidence before creating.":result.comparisonStatus==="b"?"The improved proposal was selected and archived. Review it before planning creation.":result.comparisonStatus==="a"?"The original proposal was retained after independent comparison. Review it before planning creation.":"Reasoning saved, but the comparison did not establish an improved candidate. Review before planning creation.";
   }catch(error){status.textContent="Integrated analysis unavailable: "+(error?.message||"Please retry.");}
   finally{reasonButton.disabled=false}
  });
