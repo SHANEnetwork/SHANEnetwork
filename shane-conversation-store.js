@@ -233,7 +233,7 @@ async function reasonAndCreate({endeavorId,request}={}){
   try{
    const comparePrompt="Evaluate TWO candidate responses to the same original vision, using the same evidence and requirements. Decide which is stronger, or whether neither is sufficiently supported. Explicitly identify defects and tests; do not assume candidate B is better because it is newer. Vision: "+vision.slice(0,3000)+"; Candidate A: "+String(result.response||"").slice(0,4500)+"; Candidate B: "+String(improved.response||"").slice(0,4500)+"; Prior review: "+String(review?.recommendation||"").slice(0,2500);
    comparison=await analyzeWithCompasses({endeavorId,request:comparePrompt.slice(0,11500),purpose:"Independent comparison gate. Begin recommendation with exactly WINNER:A, WINNER:B, or WINNER:NEITHER, followed by evidence and outstanding tests. Choose B only with concrete justification."});
-   const verdict=String(comparison?.recommendation||"").trim().match(/^WINNER:(A|B|NEITHER)\\b/);
+   const verdict=String(comparison?.recommendation||"").trim().match(/^WINNER:(A|B|NEITHER)\b/);
    comparisonStatus=verdict?verdict[1].toLowerCase():"unresolved";
    if(comparisonStatus==="b")selectedResponse=improved.response;
   }catch(error){comparisonStatus="unavailable";console.warn("Comparative review unavailable",error)}
