@@ -169,6 +169,7 @@ function init(){
     const summary=document.createElement("p");summary.textContent=String(result.response||"");
     const recommendation=document.createElement("p");recommendation.textContent="Compass recommendation: "+String(result.analysis?.recommendation||"Review the alternatives.");
     panel.append(heading,summary,recommendation);
+    const reviewLine=document.createElement("p");reviewLine.textContent="Independent review: "+result.reviewStatus+"; comparative verdict: "+result.comparisonStatus+".";panel.append(reviewLine);
     for(const alternative of (result.analysis?.alternatives||[]).slice(0,4)){
      const item=document.createElement("p");
      item.textContent="Alternative: "+String(alternative.name||"Unnamed path");
