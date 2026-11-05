@@ -38,6 +38,10 @@ const pages = [
   const handoff = await page.evaluate(() =>
    JSON.parse(sessionStorage.getItem('shane-intent-handoff-v1') || 'null'));
   assert.equal(handoff?.text, vision, 'Endeavor dashboard must receive the original intent');
+  await page.waitForFunction(expected => document.querySelector('#goalInput')?.value === expected,
+   vision, {timeout:15000});
+  assert.equal(await page.locator('#goalInput').inputValue(), vision,
+   'Dashboard must display the exact incoming vision in its editable composer');
   console.log('PASS deployed primary vision handoff: homepage -> endeavor entry -> dashboard');
   // Prove that actual visible homepage navigation works, not just direct URLs.
   for (const destination of ['builder.html', 'my-network.html', 'network.html']) {
