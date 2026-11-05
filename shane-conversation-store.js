@@ -831,7 +831,7 @@ async function collaborationContext({endeavorId,limit=12}={}){
    if((data||[]).length<100)break;
   }
  }
- const accepted=(requests||[]).filter(item=>item.sender_id===account.id||item.recipient_id===account.id).slice(0,max);
+ const accepted=(requests||[]).filter(item=>item.sender_id===account.id||item.recipient_id===account.id).sort((a,b)=>String(b.id).localeCompare(String(a.id))).slice(0,max);
  const titles=new Map(listings.map(item=>[item.id,item.title]));
  const collaborations=await Promise.all(accepted.map(async item=>{
   const {data,error}=await db.from("shane_collaboration_messages").select("sender_id,body,created_at").eq("request_id",item.id).order("created_at",{ascending:false}).limit(3);
