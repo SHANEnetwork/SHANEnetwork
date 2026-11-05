@@ -90,11 +90,12 @@ async function init(){
   const request=document.createElement("textarea");request.rows=4;request.maxLength=12000;request.required=true;request.minLength=8;request.placeholder="Describe the outcome you want, the people it serves, and what should be created…";request.style.cssText="width:100%;box-sizing:border-box;padding:12px;border-radius:12px";
   const usePurpose=document.createElement("button");usePurpose.type="button";usePurpose.textContent="Create from this endeavor\u0027s original vision";usePurpose.addEventListener("click",()=>{request.value=String(item.idea||"").slice(0,12000);request.dispatchEvent(new Event("input",{bubbles:true}));request.focus()});
   const draftKey="shane-endeavor-creation-draft-v1:"+item.id;
-  try{const pending=JSON.parse(sessionStorage.getItem(draftKey)||"null");if(pending&&typeof pending.vision==="string"){request.value=pending.vision.slice(0,12000);if([...choice.options].some(option=>option.value===pending.type))choice.value=pending.type}}catch{}
-  const preserveDraft=()=>{try{sessionStorage.setItem(draftKey,JSON.stringify({vision:request.value,type:choice.value,updatedAt:Date.now()}))}catch{}};
+  let pendingDeadline="";
+  try{const pending=JSON.parse(sessionStorage.getItem(draftKey)||"null");if(pending&&typeof pending.vision==="string"){request.value=pending.vision.slice(0,12000);if([...choice.options].some(option=>option.value===pending.type))choice.value=pending.type;if(typeof pending.deadline==="string")pendingDeadline=pending.deadline}}catch{}
+  const preserveDraft=()=>{try{sessionStorage.setItem(draftKey,JSON.stringify({vision:request.value,type:choice.value,deadline:deadline.value,updatedAt:Date.now()}))}catch{}};
   request.addEventListener("input",preserveDraft);
   choice.addEventListener("change",preserveDraft);
-  const deadline=document.createElement("input");deadline.type="datetime-local";deadline.setAttribute("aria-label","Interest deadline for event or campaign");deadline.hidden=choice.value!=="campaign";deadline.required=choice.value==="campaign";
+  const deadline=document.createElement("input");deadline.type="datetime-local";deadline.setAttribute("aria-label","Interest deadline for event or campaign");deadline.value=pendingDeadline;deadline.hidden=choice.value!=="campaign";deadline.required=choice.value==="campaign";deadline.addEventListener("input",preserveDraft);
   choice.addEventListener("change",()=>{deadline.hidden=choice.value!=="campaign";deadline.required=choice.value==="campaign"});
   const create=document.createElement("button");create.type="submit";create.textContent="Create and save private draft";
   const outcome=document.createElement("p");outcome.setAttribute("role","status");
