@@ -207,14 +207,19 @@ async function reasonAndCreate({endeavorId,request}={}){
   ]);
   networkEvidence={acceptedCollaborations:(collaborations.collaborations||[]).map(c=>({listingTitle:c.listingTitle,listingId:c.listingId,status:"accepted"})),recentCreations:creations.map(c=>({title:c.title,type:c.type,id:c.id}))};
  }catch(error){console.warn("Network coordination context unavailable",error)}
- const outcomes=await list({endeavorId,kinds:["creation-outcome"],limit:8,includeArchived:true}).catch(()=>[]);
+ const [outcomes,revisions]=await Promise.all([
+  list({endeavorId,kinds:["creation-outcome"],limit:8,includeArchived:true}).catch(()=>[]),
+  list({endeavorId,kinds:["creation-revision-outcome"],limit:12,includeArchived:true}).catch(()=>[])
+ ]);
+ const verifiedRevisions=revisions.map(row=>{try{return JSON.parse(row.body)}catch{return null}}).filter(x=>x&&x.verifiedPersistence===true&&x.verifiedFunctionality===false&&typeof x.creationId==="string"&&typeof x.revisionId==="string").map(x=>({creationId:x.creationId,revisionId:x.revisionId,request:String(x.request||"").slice(0,1000),verifiedPersistence:true,verifiedFunctionality:false}));
+ networkEvidence.savedRevisionsAwaitingFunctionalVerification=verifiedRevisions;
  networkEvidence.verifiedCreationOutcomes=outcomes.map(row=>{try{return JSON.parse(row.body)}catch{return null}}).filter(x=>x?.verified===true&&x?.complete===true&&Array.isArray(x.receipts));
  networkEvidence.outcomeReviewRule="Compare recorded original requirements to verified creation receipts. Identify gaps and tests; a saved record does not prove feature quality or usability.";
  const gapFollowThrough="For every gap between original requirements and verified receipts, identify the missing capability, the smallest reversible implementation step, its acceptance test, and what evidence would close the gap. Distinguish an unverified requirement from a proven failure. Never mark a gap resolved by analysis alone.";
  const gapAction={instruction:gapFollowThrough,source:"original-requirements-and-verified-receipts",executionRequiresApproval:true};
  // Keep the original vision and its verified outcomes in the review context.
  // Do not let a large collection of receipts crowd out the member's requirements.
- const requirementEvidence={originalVision:vision.slice(0,4500),verifiedOutcomes:networkEvidence.verifiedCreationOutcomes.map(outcome=>({requirements:outcome.requirements||outcome.originalRequirements||null,receipts:outcome.receipts,verified:true})).slice(0,5)};
+ const requirementEvidence={originalVision:vision.slice(0,4500),verifiedOutcomes:networkEvidence.verifiedCreationOutcomes.map(outcome=>({requirements:outcome.requirements||outcome.originalRequirements||null,receipts:outcome.receipts,verified:true})).slice(0,5),savedRevisionsAwaitingFunctionalVerification:verifiedRevisions.slice(0,8)};
  const purpose="Use this whole-to-parts analysis as context, challenge its assumptions and integrate the strongest alternatives into a concrete endeavor response. Compare existing saved creations and accepted collaborators when relevant. Never claim an operation occurred without a receipt. "+gapFollowThrough+" Analysis is not execution: "+JSON.stringify({requirementEvidence,analysis,networkEvidence}).slice(0,15500);
  const result=await converse({endeavorId,request:vision,purpose});
  // Mirror Cat runs as a separate model call over the actual proposal, not
