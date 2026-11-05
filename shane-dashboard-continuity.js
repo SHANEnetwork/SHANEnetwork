@@ -103,6 +103,7 @@ async function init(){
     const context=await window.SHANEConversationStore.collaborationContext({endeavorId:item.id,limit:20});
     if(context.endeavorId!==item.id||!context.confirmed)throw Error("Could not verify the endeavor's connections.");
     collabStatus.textContent=context.listings.length+" saved Network listing(s), "+context.collaborations.length+" accepted collaboration(s).";
+    if(context.listingsComplete===false||context.requestsComplete===false)collabStatus.textContent+=" More endeavor connections may exist beyond the current retrieval limit.";
     for(const listing of context.listings){const p=document.createElement("p");p.textContent="Opportunity: "+listing.title+" ";const link=document.createElement("a");link.href="members.html?listing="+encodeURIComponent(listing.id)+"&endeavor="+encodeURIComponent(item.id);link.textContent="Review listing";p.append(link);collabList.append(p)}
     for(const connection of context.collaborations){const p=document.createElement("p");p.textContent="Accepted collaboration for "+connection.listingTitle+" ";const link=document.createElement("a");link.href=connection.url;link.textContent="Coordinate together";p.append(link);collabList.append(p)}
     if(!context.listings.length){const p=document.createElement("p");p.textContent="No Network listings are attached yet. Create a private opportunity above to begin.";collabList.append(p)}
