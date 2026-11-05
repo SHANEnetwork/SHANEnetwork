@@ -295,7 +295,7 @@ async function persistConversationRevision(){
  const {data:{user},error:authError}=await sb.auth.getUser();
  if(authError||!user)return "AI revision ready, but sign in to save the changes.";
  const {data:existing,error:readError}=await sb.from("shane_sites")
-  .select("id,status,content").eq("id",siteId).eq("owner_id",user.id).single();
+  .select("id,status,content,updated_at").eq("id",siteId).eq("owner_id",user.id).single();
  if(readError||!existing)return "AI revision ready, but the saved draft could not be verified.";
  if(existing.status!=="draft")return "AI revision ready. This website is public; review and explicitly save changes before publishing.";
  const endeavorId=window.SHANECurrentEndeavor?.read?.()||null;
@@ -311,8 +311,9 @@ async function persistConversationRevision(){
  const content=getSite(),snapshot=JSON.stringify(content);
  const {data:updated,error:updateError}=await sb.from("shane_sites")
   .update({content,name:content.name.trim()||"Untitled website",updated_at:new Date().toISOString()})
-  .eq("id",siteId).eq("owner_id",user.id).eq("status","draft").select("id").maybeSingle();
- if(updateError||!updated)return "AI revision ready, but saving the private website revision failed.";
+  .eq("id",siteId).eq("owner_id",user.id).eq("status","draft")
+  .eq("updated_at",existing.updated_at).select("id").maybeSingle();
+ if(updateError||!updated)return "AI revision ready, but the saved website changed during this request or the save failed. Your generated edits remain in the editor; review before retrying.";
  if(selectedSiteId===siteId&&JSON.stringify(getSite())===snapshot){
   loadedAccountContent=content;updateUnsavedState();
  }
