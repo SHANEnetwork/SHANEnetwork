@@ -241,7 +241,7 @@ async function converse({endeavorId,request,purpose,mode}){
   if(creatorMemory?.directionHistory?.length)groundedPurpose+="\\nCreator direction evolution: "+creatorMemory.directionHistory.slice(-6).map(item=>item.text).join(" -> ").slice(0,3000);
   if(creatorMemory?.currentDirection)groundedPurpose+="\\nCreator direction: "+creatorMemory.currentDirection;
   if(analystMemory?.latestPerspective)groundedPurpose+="\\nAnalyst perspective: "+analystMemory.latestPerspective;
-  if(creatorMemory?.concepts?.length)groundedPurpose+="\\nPonderer Harmonizer synthesized concepts: "+creatorMemory.concepts.slice(-4).map(item=>item.concept+" ("+item.rationale+")").join("; ").slice(0,4000);
+  if(creatorMemory?.concepts?.length)groundedPurpose+="\\nPreviously proposed Ponderer Harmonizer concepts, not confirmed outcomes: "+creatorMemory.concepts.slice(-4).map(item=>item.concept+" ("+item.rationale+")").join("; ").slice(0,4000);
   // Surface durable, source-linked candidate ideas and independent critiques during decisions.
   // Avoid claiming that a proposed synthesis is a verified accomplishment.
   const memoryIdeas=[...(creatorMemory?.betterIdeas||[]),...(analystMemory?.betterIdeas||[])];
