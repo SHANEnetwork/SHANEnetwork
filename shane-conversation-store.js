@@ -1049,7 +1049,7 @@ async function endeavorSnapshot({endeavorId}={}){
     if(entry.endeavorId&&entry.endeavorId!==endeavorId)continue;
     if(entry.endeavorLinked===false)continue;
     const id=entry.id||entry.creationId||entry.listingId||entry.siteId||entry.organizationId||entry.campaignId;
-    if(typeof id==="string"&&entry.endeavorId===endeavorId)confirmedIds.add(id);
+    if(typeof id==="string"&&entry.endeavorId===endeavorId&&entry.saved!==false)confirmedIds.add(id);
    }
   }catch{}
  }
