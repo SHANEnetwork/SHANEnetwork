@@ -12,7 +12,20 @@ const config=settings[path];if(!config)return;
 // An existing endeavor has its own continuation conversation on the dashboard.
 // Do not offer a second form that silently establishes a different endeavor.
 const selectedEndeavor=new URLSearchParams(location.search).get("endeavor");
-if(path==="dashboard.html"&&selectedEndeavor&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(selectedEndeavor))return;
+if(selectedEndeavor&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(selectedEndeavor)){
+ if(path==="dashboard.html")return;
+ // Network and workspace pages may already be working within an endeavor.
+ // Offer a direct return to its conversation, never a misleading new-endeavor form.
+ const addContinuation=()=>{
+  if(document.getElementById("shane-selected-endeavor-return"))return;
+  const main=document.querySelector("main");if(!main)return;
+  const p=document.createElement("p");p.id="shane-selected-endeavor-return";
+  const link=document.createElement("a");link.href="dashboard.html?endeavor="+encodeURIComponent(selectedEndeavor);
+  link.textContent="Continue this endeavor with SHANE";p.append(link);main.prepend(p);
+ };
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",addContinuation,{once:true});else addContinuation();
+ return;
+}
 function init(){
  if(document.getElementById("shane-conversation-doorway"))return;
  const main=document.querySelector("main"),firstHeading=document.querySelector("h1");
