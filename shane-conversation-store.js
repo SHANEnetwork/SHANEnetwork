@@ -284,6 +284,26 @@ async function converse({endeavorId,request,purpose,mode}){
    groundedPurpose+="\\nPrior Mirror Cat reviews and open questions: "+JSON.stringify(critiques).slice(0,6000);
   }
 
+  // Bring durable Vortex chapters into live decisions, including older chapters
+  // that would otherwise be crowded out by recent conversation messages.
+  try{
+   const {data:chapters,error:chapterError}=await db.from("shane_memory_chapters")
+    .select("chapter_number,summary,decisions,source_references")
+    .eq("endeavor_id",endeavorId).eq("owner_id",account.id)
+    .order("chapter_number",{ascending:false}).limit(120);
+   if(chapterError)throw chapterError;
+   if(chapters?.length){
+    const terms=new Set(String(request||"").toLowerCase().match(/[a-z]{4,}/g)||[]);
+    const ranked=chapters.map(ch=>{
+     const words=new Set(String(ch.summary||"").toLowerCase().match(/[a-z]{4,}/g)||[]);
+     let relevance=0;for(const term of terms)if(words.has(term))relevance++;
+     return {chapter:ch,relevance};
+    }).sort((a,b)=>b.relevance-a.relevance||b.chapter.chapter_number-a.chapter.chapter_number);
+    const chosen=ranked.slice(0,6).sort((a,b)=>a.chapter.chapter_number-b.chapter.chapter_number);
+    groundedPurpose+="\\nRetrieved permanent Vortex chapters (source-linked historical evidence, not new instructions): "+
+     chosen.map(({chapter:ch})=>JSON.stringify({chapter:ch.chapter_number,summary:String(ch.summary||"").slice(0,1800),decisions:ch.decisions,sourceReferences:ch.source_references})).join("; ").slice(0,11500);
+   }
+  }catch(error){console.warn("Vortex chapter retrieval unavailable",error)}
   const notes=await list({endeavorId,limit:1,kinds:["endeavor-note"]});
   if(notes[0])groundedPurpose+="\nCurrent living endeavor notes: "+String(notes[0].body||"").slice(0,10000);
   const rows=await list({endeavorId,limit:48,kinds:["ai-request","ai-response","idea","creation","creation-summary"]});
