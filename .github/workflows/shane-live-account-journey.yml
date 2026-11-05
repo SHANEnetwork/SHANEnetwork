@@ -1,6 +1,9 @@
 name: SHANE live account journey (explicit test account only)
 on:
   workflow_dispatch:
+concurrency:
+  group: shane-dedicated-live-account-journey
+  cancel-in-progress: false
 jobs:
   account-journey:
     if: ${{ vars.SHANE_ENABLE_LIVE_E2E == 'true' }}
