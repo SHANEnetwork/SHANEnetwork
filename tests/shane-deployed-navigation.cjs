@@ -3,15 +3,23 @@
 const { chromium } = require('playwright');
 const assert = require('node:assert/strict');
 const base = (process.env.SHANE_E2E_URL || 'https://shanenetwork.org').replace(/\/$/, '');
-const paths = ['/', '/builder.html', '/my-network.html', '/network.html', '/workspace.html'];
+const pages = [
+ ['/', 'SHANEnetwork | Create, Discover, Grow'],
+ ['/builder.html', 'Create with SHANE | From Idea to Endeavor'],
+ ['/my-network.html', 'Shane Network | SHANEnetwork'],
+ ['/network.html', 'Explore the Network | SHANEnetwork'],
+ ['/workspace.html', 'Collaboration Workspace | SHANEnetwork']
+];
 (async () => {
  const browser = await chromium.launch({headless:true});
  try {
   const page = await browser.newPage();
-  for (const path of paths) {
+  for (const [path, expectedTitle] of pages) {
    const response = await page.goto(base + path, {waitUntil:'domcontentloaded',timeout:30000});
    assert(response && response.status() >= 200 && response.status() < 400,
     'Navigation failed: ' + path + ' HTTP ' + (response?.status() ?? 'no response'));
+   assert.equal(await page.title(), expectedTitle,
+    'Wrong page content (possible host fallback) for ' + path);
    assert((await page.locator('body').innerText()).trim().length > 20,
     'Page rendered no meaningful content: ' + path);
    console.log('PASS deployed browser route: ' + path);
