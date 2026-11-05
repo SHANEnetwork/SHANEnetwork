@@ -80,7 +80,7 @@ async function init(){
    ["Find collaborators","members.html?endeavor="+encodeURIComponent(id)],
    ["Develop a community","communities.html?endeavor="+encodeURIComponent(id)],
    ["Organize an event","campaigns.html?endeavor="+encodeURIComponent(id)],
-   ["Create its website","builder.html?endeavor="+encodeURIComponent(id)+"#vision-first"]
+   [item.linked_site_id?"Open endeavor website":"Create its website",item.linked_site_id?"builder.html?site="+encodeURIComponent(item.linked_site_id)+"&endeavor="+encodeURIComponent(id):"builder.html?endeavor="+encodeURIComponent(id)+"#vision-first"]
   ];
   for(const [label,url] of actions){const link=document.createElement("a");link.href=url;link.textContent=label;host.append(link)}
   const studio=document.createElement("section");studio.id="shane-endeavor-creation-studio";studio.style.cssText="margin-top:20px;padding:22px;border:1px solid #dec6c0;border-radius:20px;background:#fffaf3";
