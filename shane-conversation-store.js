@@ -1047,6 +1047,7 @@ async function endeavorSnapshot({endeavorId}={}){
    const entries=[record,record?.receipt,record?.result].filter(value=>value&&typeof value==="object");
    for(const entry of entries){
     if(entry.endeavorId&&entry.endeavorId!==endeavorId)continue;
+    if(entry.endeavorLinked===false)continue;
     const id=entry.id||entry.creationId||entry.listingId||entry.siteId||entry.organizationId||entry.campaignId;
     if(typeof id==="string"&&entry.endeavorId===endeavorId)confirmedIds.add(id);
    }
