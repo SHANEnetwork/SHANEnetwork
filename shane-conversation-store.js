@@ -1265,16 +1265,19 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
  document.dispatchEvent(new CustomEvent("shane:artifact-created",{detail:creation}));
  // Save a readable creation memory for the shared AI conversation, regardless
  // of which page or execution route produced the private artifact.
+ let historySaved=endeavorId?false:null;
  if(endeavorId){
   try{
-   await saveTurn(JSON.stringify({version:1,endeavorId,id,type,changeKind:type==="website"?"revision":"creation",url,vision:request.slice(0,1200),saved:true,endeavorLinked:type==="new-website"?endeavorLink.linked:true}),
+   const savedHistory=await saveTurn(JSON.stringify({version:1,endeavorId,id,type,changeKind:type==="website"?"revision":"creation",url,vision:request.slice(0,1200),saved:true,endeavorLinked:type==="new-website"?endeavorLink.linked:true}),
     {page:"shane-computer",kind:"creation-summary",endeavorId});
+   historySaved=savedHistory?.saved===true;
+   creation.historySaved=historySaved;
   }catch(error){
    creation.historySaved=false;
   }
   try{await rememberConfirmedMilestone({endeavorId,receiptId:id,description:type==="website"?"Endeavor website revised":"Private "+type+" created"});}catch{}
  }
- return {saved:true,published:type==="website"?(result.published??null):false,type,id,url,result,endeavorLink,receipt:{operation:type,changeKind:type==="website"?"revision":"creation",resource:computerCapabilities.find(x=>x.id===type).resource,id,verifiedSaved:true,published:type==="website"?(result.published??null):false,at:new Date().toISOString()}};
+ return {saved:true,historySaved,published:type==="website"?(result.published??null):false,type,id,url,result,endeavorLink,receipt:{operation:type,changeKind:type==="website"?"revision":"creation",resource:computerCapabilities.find(x=>x.id===type).resource,id,verifiedSaved:true,published:type==="website"?(result.published??null):false,at:new Date().toISOString()}};
 }
 async function repairEndeavorWebsiteLink({endeavorId,siteId}={}){
  const account=await user();if(!account)throw Error("Sign in to reconnect your saved website.");
