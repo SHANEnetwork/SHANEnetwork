@@ -564,7 +564,7 @@ async function proposeAICreationSequence({vision,endeavorId,reasoningContext=""}
  if(request.length<8)return {ready:false,steps:[],reason:"Describe your endeavor first."};
  if(!endeavorId)return {ready:false,steps:[],reason:"Save and select your endeavor before asking SHANE to plan its creation."};
  const purpose="Interpret this endeavor into a practical creation sequence. Return only a JSON object with steps (array of objects with type and vision) and explanation (brief rationale). Supported types: new-website, community, campaign, listing. Include only necessary capabilities, at most 8 steps. No publishing, invitations, payments, or claims of execution. Never invent details. The person reviews and approves before creating private drafts.";
- const result=await converse({endeavorId,request,purpose,mode:"creation-plan"});
+ const result=await converse({endeavorId,request,purpose:purpose+" Reviewed analysis context (not execution authorization): "+String(reasoningContext||"").slice(0,6000),mode:"creation-plan"});
  if(result?.endeavorId!==endeavorId||result?.executed!==false||result?.saved!==false||result?.requiresConfirmation!==true)return {ready:false,steps:[],reason:"SHANE could not verify that this is an unexecuted proposal for your saved endeavor."};
  let parsed;
  try{
