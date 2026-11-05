@@ -199,7 +199,7 @@ async function init(){
     if(!window.SHANEConversationStore?.executeVision)await import("./shane-conversation-store.js");
     const store=window.SHANEConversationStore;if(!store?.executeVision)throw Error("Creation engine unavailable.");
     const result=await store.executeVision({type:choice.value,vision:request.value.trim(),endeavorId:item.id,siteId:choice.value==="website"?item.linked_site_id:undefined,deadline:choice.value==="campaign"?deadline.value:undefined});
-    outcome.textContent="Saved privately for your endeavor. Nothing was published.";
+    outcome.textContent=choice.value==="website"?"Your endeavor website revision was saved. Publication status was not changed here.":"Saved privately for your endeavor. Nothing was published.";
     if(result.url){const link=document.createElement("a");link.href=result.url;link.textContent="Open saved creation";outcome.append(" ",link)}
     document.dispatchEvent(new CustomEvent("shane:endeavor-creation-saved",{detail:{endeavorId:item.id,type:choice.value}}));
    }catch(error){outcome.textContent="Creation was not confirmed: "+String(error?.message||error)+". Your description remains available."}
