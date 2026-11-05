@@ -972,7 +972,7 @@ async function recoverCreationProgress({endeavorId,steps}={}){
  if(!endeavorId||!Array.isArray(steps))throw Error("An endeavor and its creation steps are required.");
  const history=[];
  for(let offset=0;offset<10000;offset+=500){
-  const page=await list({endeavorId,kinds:["creation"],limit:500,offset});
+  const page=await list({endeavorId,kinds:["creation"],includeArchived:true,limit:500,offset});
   history.push(...page);
   if(page.length<500)break;
   if(offset===9500)throw Error("Creation history exceeds the supported recovery range.");
