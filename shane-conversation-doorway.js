@@ -43,8 +43,10 @@ function init(){
  actions.append(submit,saved);form.append(label,input,actions,note);
  section.append(title,subtitle,form);
  if(main)main.insertAdjacentElement("afterbegin",section);else firstHeading.insertAdjacentElement("afterend",section);
+ const retryKey="shane-endeavor-establishment-retry-v1";
  let retryEndeavorId=null;
  try{const draft=sessionStorage.getItem("shane_welcome_draft");if(draft&&!input.value)input.value=draft}catch{}
+ try{const pending=JSON.parse(sessionStorage.getItem(retryKey)||"null");if(pending&&pending.vision===input.value.trim()&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(pending.endeavorId))retryEndeavorId=pending.endeavorId}catch{}
  const status=document.createElement("p");status.setAttribute("role","status");status.className="shane-doorway-note";form.append(status);
  form.addEventListener("submit",async event=>{
   event.preventDefault();const vision=input.value.trim();
@@ -64,15 +66,15 @@ function init(){
    const result=await store.establishEndeavor({vision,approved:true,endeavorId:retryEndeavorId});
    if(!result.endeavorSaved)throw Error("The endeavor could not be saved.");
    retryEndeavorId=result.endeavorId;
-   try{sessionStorage.removeItem("shane_welcome_draft")}catch{}
+   try{sessionStorage.setItem(retryKey,JSON.stringify({vision,endeavorId:result.endeavorId}));sessionStorage.removeItem("shane_welcome_draft")}catch{}
    if(result.networkDraftSaved){
     status.textContent=result.published?"Your existing Network listing was already published; no new publication occurred.":"Your endeavor and private Network draft are saved. Nothing has been published.";
    }else{
     status.textContent="Your endeavor was saved, but its Network draft needs another attempt: "+(result.error||"Unknown error");
    }
-   const destination=document.createElement("a");destination.href="my-endeavors.html?endeavor="+encodeURIComponent(result.endeavorId);
+   const destination=document.createElement("a");destination.href="dashboard.html?endeavor="+encodeURIComponent(result.endeavorId);
    destination.textContent="Open my saved endeavor";status.append(" ",destination);
-   if(result.networkDraftSaved)location.assign(destination.href);
+   if(result.networkDraftSaved){try{sessionStorage.removeItem(retryKey)}catch{}location.assign(destination.href);}
   }catch(error){status.textContent="SHANE could not establish the endeavor: "+String(error?.message||error)+". Your description remains here for retry."}
   finally{submit.disabled=false}
  });
