@@ -148,7 +148,15 @@ async function init(){
     if(snapshot.planError){const p=document.createElement("p");p.textContent="Saved plan unavailable: "+snapshot.planError;evolutionContent.append(p)}
     section("Recent conversation and creation history",snapshot.recentHistory||[],(row,entry)=>{
      const time=entry.at?new Date(entry.at):null;
-     row.textContent=(time&&!Number.isNaN(time.getTime())?time.toLocaleDateString()+" · ":"")+(entry.kind||"Update")+": "+(entry.text||"");
+     let message=entry.text||"";
+     if(["reasoning-cycle","creation-plan","creation-outcome"].includes(entry.kind)){
+      try{const data=JSON.parse(message);
+       if(entry.kind==="reasoning-cycle")message="Request: "+String(data.request||"").slice(0,260)+" | SHANE: "+String(data.selectedResponse||data.response||"Analysis saved").slice(0,440);
+       else if(entry.kind==="creation-plan")message="Reviewed plan: "+(Array.isArray(data.steps)?data.steps.map(step=>step.type).join(", "):"Saved steps");
+       else message="Creation outcome: "+(data.complete?"complete":"in progress")+", "+(Array.isArray(data.receipts)?data.receipts.length:0)+" confirmed receipts";
+      }catch{message="Saved "+entry.kind+" record"}
+     }
+     row.textContent=(time&&!Number.isNaN(time.getTime())?time.toLocaleDateString()+" · ":"")+(entry.kind||"Update")+": "+message;
     });
    }catch(error){evolutionStatus.textContent="Unable to load this endeavor's history: "+String(error?.message||error)}
    finally{evolutionRefresh.disabled=false}
