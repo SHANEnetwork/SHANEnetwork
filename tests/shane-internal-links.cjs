@@ -12,7 +12,7 @@ for(const file of html){
  for(const match of source.matchAll(/\b(href|src)\s*=\s*(["'])(.*?)\2/gi)){
   const value=match[3].trim();
   if(!value||value.startsWith('#')||/^(?:https?:|mailto:|tel:|data:|blob:|javascript:|\/\/)/i.test(value))continue;
-  if(/[<>{}$]/.test(value)||/\b(?:encodeURIComponent|location\.)\b/.test(value)){skipped.push({file,value,reason:'dynamic'});continue;}
+  if(/[<>{}$]/.test(value)||value.includes("\u0027+")||value.includes("+\u0027")||/\b(?:encodeURIComponent|location\.)\b/.test(value)){skipped.push({file,value,reason:'dynamic'});continue;}
   let target;
   try{target=decodeURIComponent(value.split(/[?#]/)[0]);}catch{errors.push({file,value,reason:'invalid URI encoding'});continue;}
   if(!target)continue;
