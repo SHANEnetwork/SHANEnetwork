@@ -20,16 +20,13 @@ jobs:
           node-version: '22'
       - name: Install Supabase test client (not a browser)
         run: |
-          npm install --no-save --no-package-lock @supabase/supabase-js@2.57.0 playwright@1.56.1
-          npx playwright install --with-deps chromium
+          npm install --no-save --no-package-lock @supabase/supabase-js@2.57.0
       - name: Verify dedicated account is configured
         run: |
           test -n "$SHANE_E2E_EMAIL" || { echo 'Dedicated test email secret is missing'; exit 1; }
           test -n "$SHANE_E2E_PASSWORD" || { echo 'Dedicated test password secret is missing'; exit 1; }
       - name: Run signed-in database persistence checks (not browser E2E)
         run: node tests/shane-live-account-browser.cjs
-      - name: Check deployed navigation in Chromium (not signed-in journey)
-        run: node tests/shane-deployed-navigation.cjs
       - name: Upload safe diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
@@ -37,3 +34,19 @@ jobs:
           name: shane-live-e2e-diagnostics
           path: test-artifacts/live-e2e/
           if-no-files-found: ignore
+  deployed-navigation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      SHANE_E2E_URL: https://shanenetwork.org
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated browser test dependencies
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Check deployed navigation in real Chromium
+        run: node tests/shane-deployed-navigation.cjs
