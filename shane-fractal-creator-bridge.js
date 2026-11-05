@@ -2,7 +2,12 @@
    The ledger is additive; failures never delete the current browser/account history. */
 (()=>{"use strict";
 const queueKey="shane-fractal-pending-v1",draftKey="shane-fractal-unsaved-v1",statusId="shane-fractal-status";
-let pending=[],draft=[],endeavorId=null,flushing=false,ready=false;const droplets=()=>window.SHANEMemoryDroplets;const writes=new Map();
+let pending=[],draft=[],endeavorId=null,flushing=false,ready=false;
+try{
+ const selected=JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null");
+ if(typeof selected?.id==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(selected.id))endeavorId=selected.id;
+}catch{}
+const droplets=()=>window.SHANEMemoryDroplets;const writes=new Map();
 const validId=id=>typeof id==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(id);
 try{const saved=JSON.parse(sessionStorage.getItem(queueKey)||"[]");if(Array.isArray(saved))pending=saved.filter(x=>x&&validId(x.id)&&validId(x.endeavorId)&&["you","shane"].includes(x.role)&&typeof x.text==="string")}catch{}
 try{const stored=JSON.parse(sessionStorage.getItem(draftKey)||"[]");if(Array.isArray(stored))draft=stored.filter(t=>t&&["you","shane"].includes(t.role)&&typeof t.text==="string")}catch{}
