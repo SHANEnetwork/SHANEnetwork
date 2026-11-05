@@ -1276,6 +1276,22 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
  }
  return {saved:true,published:type==="website"?(result.published??null):false,type,id,url,result,endeavorLink,receipt:{operation:type,changeKind:type==="website"?"revision":"creation",resource:computerCapabilities.find(x=>x.id===type).resource,id,verifiedSaved:true,published:type==="website"?(result.published??null):false,at:new Date().toISOString()}};
 }
+async function repairEndeavorWebsiteLink({endeavorId,siteId}={}){
+ const account=await user();if(!account)throw Error("Sign in to reconnect your saved website.");
+ if(!/^[0-9a-f-]{36}$/i.test(String(endeavorId||""))||!/^[0-9a-f-]{36}$/i.test(String(siteId||"")))throw Error("Choose a saved endeavor and website.");
+ const {data:endeavor,error:endeavorError}=await db.from("shane_endeavors").select("id,linked_site_id").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
+ if(endeavorError||!endeavor)throw Error("The endeavor is unavailable to your account.");
+ const {data:site,error:siteError}=await db.from("shane_sites").select("id").eq("id",siteId).eq("owner_id",account.id).maybeSingle();
+ if(siteError||!site)throw Error("The website is unavailable to your account.");
+ if(endeavor.linked_site_id&&endeavor.linked_site_id!==siteId)throw Error("This endeavor already has a different primary website. No link was changed.");
+ if(endeavor.linked_site_id===siteId)return {linked:true,alreadyLinked:true,endeavorId,siteId};
+ const {data:updated,error:updateError}=await db.from("shane_endeavors").update({linked_site_id:siteId}).eq("id",endeavorId).eq("owner_id",account.id).is("linked_site_id",null).select("id,linked_site_id").maybeSingle();
+ if(updateError)throw Error("Website link could not be saved: "+updateError.message);
+ if(updated?.linked_site_id===siteId)return {linked:true,alreadyLinked:false,endeavorId,siteId};
+ const {data:current,error:readError}=await db.from("shane_endeavors").select("linked_site_id").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
+ if(readError||current?.linked_site_id!==siteId)throw Error("The website link was not confirmed. No additional website was created.");
+ return {linked:true,alreadyLinked:true,endeavorId,siteId};
+}
 async function ownedSites(){
  const account=await user();if(!account)throw Error("Sign in to access your websites.");
  const {data,error}=await db.from("shane_sites").select("id,name,status,updated_at").eq("owner_id",account.id).order("updated_at",{ascending:false}).limit(100);
@@ -1414,6 +1430,6 @@ async function getEndeavorVision({endeavorId}={}){
  if(error||!data)throw Error(error?.message||"Saved endeavor not found.");
  return String(data.idea||"").trim();
 }
-window.SHANEConversationStore=Object.freeze({reasonAndCreate,analyzeWithCompasses,consolidateVortexChapter,agentWorkingMemory,updateAgentWorkingMemory,rememberConfirmedMilestone,saveBetterIdea,getEndeavorVision,beginEndeavor,converse,evaluateCreationPlan,synthesizeEndeavor,compassReview,harmonizeEndeavorPlan,coordinateEndeavor,collaborationContext,joinedCollaborations,endeavorSnapshot,reviseSavedCreation,pendingRevisionVerification,proposeRevisionCorrections,verifySavedRevisionPersistence,applyReviewedCorrection,establishEndeavor,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,computerCapabilities,inspectOperation,previewVisionSequence,proposeCreationSequence,proposeAICreationSequence,prepareCreationSequence,executeVision,executeVisionSequence,executeApprovedSequence,verifySequenceProgress,saveCreationPlan,loadCreationPlan,listSavedCreationPlans,searchSavedCreationPlans,recallEndeavor,describeSavedCreationPlan,recoverCreationProgress,inspectSavedEndeavor,continueSavedEndeavor,resumeVisionSequence,recentCreations,findSavedCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
+window.SHANEConversationStore=Object.freeze({reasonAndCreate,analyzeWithCompasses,consolidateVortexChapter,agentWorkingMemory,updateAgentWorkingMemory,rememberConfirmedMilestone,saveBetterIdea,getEndeavorVision,beginEndeavor,converse,evaluateCreationPlan,synthesizeEndeavor,compassReview,harmonizeEndeavorPlan,coordinateEndeavor,collaborationContext,joinedCollaborations,endeavorSnapshot,reviseSavedCreation,pendingRevisionVerification,proposeRevisionCorrections,verifySavedRevisionPersistence,applyReviewedCorrection,establishEndeavor,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,computerCapabilities,inspectOperation,previewVisionSequence,proposeCreationSequence,proposeAICreationSequence,prepareCreationSequence,executeVision,repairEndeavorWebsiteLink,executeVisionSequence,executeApprovedSequence,verifySequenceProgress,saveCreationPlan,loadCreationPlan,listSavedCreationPlans,searchSavedCreationPlans,recallEndeavor,describeSavedCreationPlan,recoverCreationProgress,inspectSavedEndeavor,continueSavedEndeavor,resumeVisionSequence,recentCreations,findSavedCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
 document.dispatchEvent(new Event("shane:conversation-store-ready"));
 void flush();
