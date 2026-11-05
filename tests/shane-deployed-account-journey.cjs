@@ -71,8 +71,13 @@ const api = createClient(url,key,{auth:{persistSession:false,autoRefreshToken:fa
  } finally {
   await browser.close();
   if(id){
+   const {data:record}=await api.from('shane_endeavors').select('linked_site_id').eq('id',id).eq('owner_id',user.id).maybeSingle();
    const {error:deleteError}=await api.from('shane_endeavors').delete().eq('id',id).eq('owner_id',user.id);
    if(deleteError) console.error('TEST CLEANUP REQUIRED for endeavor '+id+': '+deleteError.message);
+   if(!deleteError&&record?.linked_site_id){
+    const {error:siteDeleteError}=await api.from('shane_sites').delete().eq('id',record.linked_site_id).eq('owner_id',user.id).eq('status','draft');
+    if(siteDeleteError) console.error('TEST CLEANUP REQUIRED for private site '+record.linked_site_id+': '+siteDeleteError.message);
+   }
   }
   await api.auth.signOut();
  }
