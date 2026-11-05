@@ -1019,7 +1019,20 @@ async function endeavorSnapshot({endeavorId}={}){
  for(const row of receipts.filter(row=>row.entry_kind==="creation-outcome")){
   try{const record=JSON.parse(row.body);if(record.verified===true&&record.complete===true&&Array.isArray(record.receipts))for(const receipt of record.receipts)if(typeof receipt.id==="string")confirmedIds.add(receipt.id)}catch{}
  }
- const linked=creationItems.filter(item=>receipts.some(row=>new RegExp("(^|[^0-9a-f-])"+item.id+"([^0-9a-f-]|$)","i").test(String(row.body||""))));
+ // Only explicit structured creation records may establish ownership of an endeavor artifact.
+ // Mentioning another creation's ID in a conversation is not evidence of association.
+ for(const row of receipts.filter(row=>["creation-summary","creation"].includes(row.entry_kind))){
+  try{
+   const record=JSON.parse(row.body);
+   const entries=[record,record?.receipt,record?.result].filter(value=>value&&typeof value==="object");
+   for(const entry of entries){
+    if(entry.endeavorId&&entry.endeavorId!==endeavorId)continue;
+    const id=entry.id||entry.creationId||entry.listingId||entry.siteId||entry.organizationId||entry.campaignId;
+    if(typeof id==="string"&&entry.endeavorId===endeavorId)confirmedIds.add(id);
+   }
+  }catch{}
+ }
+ const linked=creationItems.filter(item=>confirmedIds.has(item.id));
  const allCreations=creationItems.map(item=>({...item,linkedToEndeavor:linked.some(found=>found.id===item.id)||confirmedIds.has(item.id)||item.type==="website"&&item.id===endeavor.linked_site_id}));
  // The direct relationship survives conversation archival and result limits.
  if(endeavor.linked_site_id&&!allCreations.some(item=>item.id===endeavor.linked_site_id)){
