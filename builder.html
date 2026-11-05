@@ -158,7 +158,8 @@ main iframe{border-radius:16px;border:1px solid #d6bdd0}
  button.disabled=true;status.textContent="Saving your endeavor…";
  try{await document.getElementById("saveEndeavorAccount").onclick();
   status.textContent=document.getElementById("planRecoveryStatus").textContent;
- }finally{button.disabled=false}
+ }catch(error){status.textContent="Unable to save your endeavor: "+(error?.message||String(error))}
+ finally{button.disabled=false}
 });
 document.getElementById("saveEndeavorAccount").onclick=async()=>{const out=document.getElementById("planRecoveryStatus");const assessmentField=document.getElementById("assessmentIdea"),visionField=document.getElementById("visionPrompt");const idea=(visionField?.value.trim()||assessmentField.value.trim());if(idea.length<20){out.textContent="Describe your vision before saving it.";return}if(idea.length>12000){out.textContent="Your vision is longer than the 12,000-character creator limit. Shorten it before saving so it can be fully restored.";return}const {data:{user},error:authError}=await sb.auth.getUser();if(authError||!user){out.textContent="To save your ambition privately across devices, sign in on the Members page. Your draft remains here.";return}const payload={owner_id:user.id,title:idea.split(/[.!?]/)[0].slice(0,90)||"My endeavor",idea,region:document.getElementById("assessmentPlace").value.trim(),audience:document.getElementById("assessmentAudience").value.trim(),resources:document.getElementById("assessmentResources").value.trim(),plan:document.getElementById("assessmentResult").textContent.slice(0,40000)};const saveButton=document.getElementById("saveEndeavorAccount");
 if(saveButton.disabled)return;
