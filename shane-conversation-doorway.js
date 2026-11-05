@@ -9,6 +9,10 @@ const settings={
  "dashboard.html":{title:"Your next chapter starts here.",subtitle:"Return to saved work or tell SHANE what you'd like to make next. Your creation stays private until you decide to share.",placeholder:"I want to improve my project's website and plan a new gathering…"}
 };
 const config=settings[path];if(!config)return;
+// An existing endeavor has its own continuation conversation on the dashboard.
+// Do not offer a second form that silently establishes a different endeavor.
+const selectedEndeavor=new URLSearchParams(location.search).get("endeavor");
+if(path==="dashboard.html"&&selectedEndeavor&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(selectedEndeavor))return;
 function init(){
  if(document.getElementById("shane-conversation-doorway"))return;
  const main=document.querySelector("main"),firstHeading=document.querySelector("h1");
