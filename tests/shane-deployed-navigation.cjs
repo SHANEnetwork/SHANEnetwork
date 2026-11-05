@@ -24,6 +24,18 @@ const pages = [
     'Page rendered no meaningful content: ' + path);
    console.log('PASS deployed browser route: ' + path);
   }
+  // Exercise the real first step of an endeavor without creating public content.
+  // This is an anonymous handoff test, not proof of authenticated persistence.
+  await page.goto(base + '/', {waitUntil:'domcontentloaded'});
+  const vision = 'Build a community astronomy club with a welcoming website and stargazing events.';
+  await page.locator('#welcomeIdea').fill(vision);
+  await page.locator('#shaneWelcome button[type="submit"]').click();
+  await page.waitForURL(url => url.pathname.endsWith('/builder.html'), {timeout:15000});
+  await page.waitForFunction(expected =>
+   document.querySelector('#visionPrompt')?.value === expected, vision, {timeout:15000});
+  assert.equal(await page.locator('#visionPrompt').inputValue(), vision,
+   'First endeavor vision must survive homepage-to-builder handoff');
+  console.log('PASS deployed vision handoff: homepage to builder');
   // Prove that actual visible homepage navigation works, not just direct URLs.
   for (const destination of ['builder.html', 'my-network.html', 'network.html']) {
    await page.goto(base + '/', {waitUntil:'domcontentloaded'});
