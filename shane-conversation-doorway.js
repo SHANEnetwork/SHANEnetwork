@@ -26,16 +26,34 @@ function init(){
  actions.append(submit,saved);form.append(label,input,actions,note);
  section.append(title,subtitle,form);
  if(main)main.insertAdjacentElement("afterbegin",section);else firstHeading.insertAdjacentElement("afterend",section);
- form.addEventListener("submit",event=>{
-  event.preventDefault();const vision=input.value.trim();if(vision.length<20){input.setCustomValidity("Please describe your idea in at least 20 characters.");input.reportValidity();return}input.setCustomValidity("");
+ const status=document.createElement("p");status.setAttribute("role","status");status.className="shane-doorway-note";form.append(status);
+ form.addEventListener("submit",async event=>{
+  event.preventDefault();const vision=input.value.trim();
+  if(vision.length<20){input.setCustomValidity("Please describe your idea in at least 20 characters.");input.reportValidity();return}input.setCustomValidity("");
+  submit.disabled=true;status.textContent="Establishing your private endeavor and Network presence…";
   try{
-   const destination=window.SHANEEndeavorCore?.handoff(vision,path);
-   if(destination){location.assign(destination);return}
-   const created=Date.now();
-   sessionStorage.setItem("shane-creative-handoff-v1",JSON.stringify({text:vision,created}));
-   sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination:"builder.html",text:vision,endeavorId:null,created,origin:path,visibility:"private"}));
-  }catch{note.textContent="This browser could not preserve your vision for the creator. Copy your text before continuing.";return}
-  location.assign("builder.html#vision-first");
+   // Import the same account-backed creator used by the rest of SHANE. No builder detour.
+   if(!window.SHANEConversationStore?.establishEndeavor)await import("./shane-conversation-store.js");
+   const store=window.SHANEConversationStore;
+   if(!store?.establishEndeavor)throw Error("The endeavor creator is not available.");
+   const account=await store.connectedUser();
+   if(!account){
+    try{sessionStorage.setItem("shane_welcome_draft",vision)}catch{}
+    status.textContent="Your vision is kept in this browser. Sign in through Members, then return here to establish it.";
+    return;
+   }
+   const result=await store.establishEndeavor({vision,approved:true});
+   if(!result.endeavorSaved)throw Error("The endeavor could not be saved.");
+   if(result.networkDraftSaved){
+    status.textContent="Your endeavor and private Network draft are saved. Nothing has been published.";
+   }else{
+    status.textContent="Your endeavor was saved, but its Network draft needs another attempt: "+(result.error||"Unknown error");
+   }
+   const destination=document.createElement("a");destination.href="my-endeavors.html?endeavor="+encodeURIComponent(result.endeavorId);
+   destination.textContent="Open my saved endeavor";status.append(" ",destination);
+   if(result.networkDraftSaved)location.assign(destination.href);
+  }catch(error){status.textContent="SHANE could not establish the endeavor: "+String(error?.message||error)+". Your description remains here for retry."}
+  finally{submit.disabled=false}
  });
  input.addEventListener("input",()=>input.setCustomValidity(""));
 }
