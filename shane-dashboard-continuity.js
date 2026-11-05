@@ -266,7 +266,21 @@ async function init(){
     outcome.textContent=submittedType==="website"?"Your endeavor website revision was saved. Publication status was not changed here.":"Saved privately for your endeavor. Nothing was published."; 
     if(submittedType==="new-website"&&!result.endeavorLink?.linked)outcome.textContent="The website was saved, but its connection to this endeavor is not confirmed.";
     if(result.endeavorLink?.reason)outcome.textContent=result.endeavorLink.reason;
-    if(result.historySaved===false)outcome.append(" The creation was saved, but its conversation-history record could not be confirmed. You can still open the saved creation.");
+    if(result.historySaved===false){
+     outcome.append(" The creation was saved, but its conversation-history record could not be confirmed.");
+     const retryMemory=document.createElement("button");retryMemory.type="button";retryMemory.textContent="Save this creation to endeavor history";
+     outcome.append(" ",retryMemory);
+     retryMemory.addEventListener("click",async()=>{
+      retryMemory.disabled=true;
+      try{
+       const record={version:1,endeavorId:item.id,id:result.id,type:submittedType,changeKind:result.receipt?.changeKind||"creation",url:result.url||null,vision:request.value.trim().slice(0,1200),saved:true,endeavorLinked:submittedType==="new-website"?result.endeavorLink?.linked===true:true};
+       const saved=await store.saveTurn(JSON.stringify(record),{page:"shane-dashboard",kind:"creation-summary",endeavorId:item.id});
+       if(!saved?.saved)throw Error("History was not confirmed.");
+       retryMemory.replaceWith(document.createTextNode("Creation recorded in endeavor history."));
+       document.dispatchEvent(new CustomEvent("shane:endeavor-creation-saved",{detail:{endeavorId:item.id,type:submittedType,artifactId:result.id}}));
+      }catch(error){retryMemory.disabled=false;outcome.append(" History retry failed: "+String(error?.message||error))}
+     });
+    }
     if(submittedType==="new-website"&&result.endeavorLink?.linked&&result.id){
      item.linked_site_id=result.id;
      const websiteOption=choice.querySelector('option[value="new-website"]');
