@@ -250,12 +250,21 @@ const shaneModuleIds=["shaneModuleCommunity","shaneModuleConversation","shaneMod
  const {data:linked,error:linkError}=await sb.from("shane_endeavors")
   .update({linked_site_id:saved.id,updated_at:new Date().toISOString()})
   .eq("id",job.endeavorId).eq("owner_id",user.id).is("linked_site_id",null).select("id").maybeSingle();
+ if(linkError||!linked){
+  // Do not leave an unassociated draft that looks like a completed creation.
+  const {error:cleanupError}=await sb.from("shane_sites").delete()
+   .eq("id",saved.id).eq("owner_id",user.id).eq("status","draft");
+  return cleanupError
+   ?"Website creation could not be connected to its endeavor. An unlinked private draft remains in Saved Websites for recovery."
+   :"Website creation could not be connected to its endeavor. No orphan draft was retained; retry from this endeavor.";
+ }
  if(selectedSiteId===null&&JSON.stringify(getSite())===snapshot){
   selectedSiteId=saved.id;loadedAccountContent=content;
   updateWorkspacePublicLink(null);updateWorkspace();updateUnsavedState();
  }
  void refreshSites();
- return linkError||!linked?"Private website saved, but the endeavor link needs review.":"Private website saved and linked to your endeavor. Nothing was published.";
+ document.dispatchEvent(new CustomEvent("shane:endeavor-website-saved",{detail:{endeavorId:job.endeavorId,siteId:saved.id}}));
+ return "Private website saved and linked to your endeavor. Nothing was published.";
 }
 document.getElementById("generateAI").onclick=async()=>{const status=document.getElementById("aiStatus"),btn=document.getElementById("generateAI");btn.disabled=true;status.textContent="Checking account and provider…";try{const {data:{session}}=await sb.auth.getSession();if(!session){status.textContent="Sign in on the Members page, then return here.";return}const mode=document.getElementById("aiMode").value;
  if(mode==="revise"){
