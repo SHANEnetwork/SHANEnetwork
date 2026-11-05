@@ -40,7 +40,28 @@ async function init(){
     const result=await window.SHANEConversationStore.reasonAndCreate({endeavorId:item.id,request:conversationInput.value.trim()});
     conversationAnswer.textContent=String(result.response||"No response returned.");
     conversationStatus.textContent=result.selectionProvisional?"Reasoning saved to this endeavor. The comparison is provisional; no action was executed.":"Reasoning saved to this endeavor. No action was executed.";
-    if(result.creationPlan){const note=document.createElement("p");note.textContent="A creation plan was proposed for review, not automatically executed.";conversationAnswer.append(note)}
+    if(result.creationPlan){
+     const plan=result.creationPlan;
+     const steps=Array.isArray(plan)?plan:Array.isArray(plan.steps)?plan.steps:[];
+     const review=document.createElement("section");review.style.cssText="padding:14px;margin-top:16px;border:1px solid #dec6c0;border-radius:14px";
+     const heading=document.createElement("h4");heading.textContent="Review SHANE's proposed endeavor creations";review.append(heading);
+     if(!steps.length){const note=document.createElement("p");note.textContent="SHANE proposed a plan but did not provide reviewable creation steps. No action was taken.";review.append(note)}
+     else{
+      const list=document.createElement("ol");
+      for(const step of steps){const entry=document.createElement("li");entry.textContent=(step.type||"Unspecified creation")+": "+String(step.vision||"").slice(0,800);list.append(entry)}
+      review.append(list);
+      const preview=window.SHANEConversationStore.evaluateCreationPlan({steps});
+      const validation=document.createElement("p");validation.textContent=preview.ready?"These steps are ready to save as a private endeavor plan. Saving does not create or publish them.":"This proposal needs more information before it can be saved: "+(preview.reason||"Incomplete steps");review.append(validation);
+      const save=document.createElement("button");save.type="button";save.textContent="Save reviewed plan to this endeavor";save.disabled=!preview.ready;
+      const saveStatus=document.createElement("p");saveStatus.setAttribute("role","status");review.append(save,saveStatus);
+      save.addEventListener("click",async()=>{
+       save.disabled=true;saveStatus.textContent="Saving the reviewed plan to this endeavor…";
+       try{const result=await window.SHANEConversationStore.saveCreationPlan({endeavorId:item.id,steps});if(!result.saved)throw Error("Plan save not confirmed.");saveStatus.textContent="Plan saved to this endeavor. No creations were executed.";document.dispatchEvent(new CustomEvent("shane:endeavor-reasoning-saved",{detail:{endeavorId:item.id}}))}
+       catch(error){saveStatus.textContent="Could not save plan: "+String(error?.message||error);save.disabled=false}
+      });
+     }
+     conversationAnswer.append(review);
+    }
     document.dispatchEvent(new CustomEvent("shane:endeavor-reasoning-saved",{detail:{endeavorId:item.id}}));
    }catch(error){conversationStatus.textContent="Could not confirm the reasoning was saved: "+String(error?.message||error)+". Your request remains available."}
    finally{think.disabled=false}
