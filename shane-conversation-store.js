@@ -1175,11 +1175,17 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
  const account=await user();if(!account)throw Error("Sign in to create with SHANE.");
  if(endeavorId){
   if(!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(String(endeavorId)))throw Error("Invalid endeavor identifier.");
-  const {data:owned,error:ownerError}=await db.from("shane_endeavors").select("id").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
+  const {data:owned,error:ownerError}=await db.from("shane_endeavors").select("id,title,idea").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
   if(ownerError||!owned)throw Error("The selected endeavor does not belong to your account.");
  }
+ // Creation generators receive the endeavor's verified purpose, not an isolated task.
+ // Keep the original request intact for saved receipts and revision history.
+ const purpose=endeavorId?await db.from("shane_endeavors").select("title,idea").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle():null;
+ if(purpose?.error)throw purpose.error;
+ const context=purpose?.data?("Endeavor: "+String(purpose.data.title||"").slice(0,150)+". Purpose: "+String(purpose.data.idea||"").slice(0,1800)+". This creation must serve that endeavor; do not replace its purpose. Requested creation: "):"";
+ const groundedRequest=context?(context+request).slice(0,12000):request;
  let result;
- if(type==="new-website")result=await createPrivateWebsite({vision:request});
+ if(type==="new-website")result=await createPrivateWebsite({vision:groundedRequest});
  else if(type==="website"){
   if(!siteId)throw Error("Choose the saved website to revise.");
   if(endeavorId){
@@ -1191,11 +1197,11 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
   }
   result=await reviseSite({siteId,request});
  }else if(type==="community"){
-  const draft=await interpretVision({capability:"community",vision:request});
+  const draft=await interpretVision({capability:"community",vision:groundedRequest});
   result=await createPrivateCommunity({vision:request,name:draft.name,description:draft.description||request,category:draft.category});
  }else if(type==="campaign"){
   if(!deadline)throw Error("Choose the interest deadline before creating a campaign.");
-  const draft=await interpretVision({capability:"campaign",vision:request});
+  const draft=await interpretVision({capability:"campaign",vision:groundedRequest});
   result=await createPrivateCampaign({vision:request,title:draft.title,description:draft.description||request,category:draft.category,location:draft.location,deadline});
  }else{
   const title=request.split(/[.!?]/)[0].trim().slice(0,150);
