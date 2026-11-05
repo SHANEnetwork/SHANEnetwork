@@ -34,7 +34,7 @@ export function recordAgentMilestone({agent,endeavorId,previous,description,rece
 export function rememberBetterIdea({agent,endeavorId,previous,idea,reason,comparedWith="",at=new Date().toISOString()}){
  const text=clip(idea,2000);
  if(!text)throw Error("An improvement idea is required.");
- const ideas=Array.isArray(previous?.betterIdeas)?previous.betterIdeas.slice(-39):[];
+ const ideas=Array.isArray(previous?.betterIdeas)?previous.betterIdeas.slice():[];
  if(!ideas.some(item=>item.idea===text)){
   ideas.push({at,idea:text,reason:clip(reason,1200),comparedWith:clip(comparedWith,1200),status:"candidate"});
  }
@@ -78,7 +78,7 @@ export function ponderHarmonize({agent,endeavorId,previous,criteria=["impact","f
   evaluation:"Provisional synthesis hypothesis from recorded text; not an AI-validated breakthrough."
  };
  concepts.push(concept);
- const evolvedIdeas=ideas.slice(-39);
+ const evolvedIdeas=ideas.slice();
  if(!evolvedIdeas.some(x=>x.idea===hypothesis))evolvedIdeas.push({at,idea:hypothesis,reason:"Derived from comparison of two archived improvement candidates; evaluate against both source ideas.",comparedWith:sources.join(" | ").slice(0,1200),status:"candidate",source:{type:"ponder-harmonizer",sources}});
  return {snapshot:{...(previous||{}),version:6,agent,endeavorId,betterIdeas:evolvedIdeas,concepts,updatedAt:at},comparison:concept};
 
