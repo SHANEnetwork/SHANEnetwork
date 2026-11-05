@@ -15,14 +15,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Install browser
+      - name: Install Supabase test client (not a browser)
         run: |
           npm install --no-save --no-package-lock @supabase/supabase-js@2.57.0
       - name: Verify dedicated account is configured
         run: |
           test -n "$SHANE_E2E_EMAIL" || { echo 'Dedicated test email secret is missing'; exit 1; }
           test -n "$SHANE_E2E_PASSWORD" || { echo 'Dedicated test password secret is missing'; exit 1; }
-      - name: Run signed-in persistence checks
+      - name: Run signed-in database persistence checks (not browser E2E)
         run: node tests/shane-live-account-browser.cjs
       - name: Upload safe diagnostics
         if: failure()
