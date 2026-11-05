@@ -82,16 +82,18 @@ async function init(){
   const studio=document.createElement("section");studio.id="shane-endeavor-creation-studio";studio.style.cssText="margin-top:20px;padding:22px;border:1px solid #dec6c0;border-radius:20px;background:#fffaf3";
   const heading=document.createElement("h3");heading.textContent="Create something for this endeavor";
   const explanation=document.createElement("p");explanation.textContent="Describe what this endeavor needs next. SHANE creates a private, saved draft linked to this endeavor's ongoing work. You decide whether to publish or invite anyone.";
+  const purpose=document.createElement("p");purpose.textContent="Endeavor purpose: "+String(item.idea||"").slice(0,1800);studio.append(purpose);
   const form=document.createElement("form");form.style.cssText="display:grid;gap:12px";
   const choice=document.createElement("select");choice.setAttribute("aria-label","What should SHANE create?");
   for(const [value,label] of [["listing","Network opportunity or collaboration listing"],["community","Community or association"],["campaign","Event or campaign"],...(item.linked_site_id?[]:[["new-website","Website for this endeavor"]])]){const option=document.createElement("option");option.value=value;option.textContent=label;choice.append(option)}
   if(item.linked_site_id){const option=document.createElement("option");option.value="website";option.textContent="Revise this endeavor\u0027s primary website";choice.append(option)}
   const request=document.createElement("textarea");request.rows=4;request.maxLength=12000;request.required=true;request.minLength=8;request.placeholder="Describe the outcome you want, the people it serves, and what should be created…";request.style.cssText="width:100%;box-sizing:border-box;padding:12px;border-radius:12px";
+  const usePurpose=document.createElement("button");usePurpose.type="button";usePurpose.textContent="Create from this endeavor\u0027s original vision";usePurpose.addEventListener("click",()=>{request.value=String(item.idea||"").slice(0,12000);request.focus()});
   const deadline=document.createElement("input");deadline.type="datetime-local";deadline.setAttribute("aria-label","Interest deadline for event or campaign");deadline.hidden=true;
   choice.addEventListener("change",()=>{deadline.hidden=choice.value!=="campaign";deadline.required=choice.value==="campaign"});
   const create=document.createElement("button");create.type="submit";create.textContent="Create and save private draft";
   const outcome=document.createElement("p");outcome.setAttribute("role","status");
-  form.append(choice,request,deadline,create,outcome);studio.append(heading,explanation,form);host.append(studio);
+  form.append(choice,request,usePurpose,deadline,create,outcome);studio.append(heading,explanation,form);host.append(studio);
   // A failed optional listing must not strand the saved endeavor outside its conversation.
   let pendingListing=null;
   try{const pending=JSON.parse(sessionStorage.getItem("shane-endeavor-listing-pending-v1")||"null");if(pending?.endeavorId===item.id&&typeof pending.vision==="string")pendingListing=pending}catch{}
