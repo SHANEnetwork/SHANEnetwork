@@ -1183,7 +1183,7 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
  const purpose=endeavorId?await db.from("shane_endeavors").select("title,idea").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle():null;
  if(purpose?.error)throw purpose.error;
  const context=purpose?.data?("Endeavor: "+String(purpose.data.title||"").slice(0,150)+". Purpose: "+String(purpose.data.idea||"").slice(0,1800)+". This creation must serve that endeavor; do not replace its purpose. Requested creation: "):"";
- const groundedRequest=context?(context+request).slice(0,12000):request;
+ const groundedRequest=context?(context.slice(0,Math.max(0,12000-request.length))+request):request;
  let result;
  if(type==="new-website")result=await createPrivateWebsite({vision:groundedRequest});
  else if(type==="website"){
