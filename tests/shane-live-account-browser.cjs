@@ -18,6 +18,7 @@ const sb=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false
    .select('id,title,idea,owner_id').single();
   assert.ifError(insertError);
   assert.equal(created.owner_id,user.id);
+  assert.equal(created.idea,'Private initial vision '+token,'Original endeavor intent must be saved exactly');
   id=created.id;
   const anonymous=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
   const {data:exposed,error:anonymousError}=await anonymous.from('shane_endeavors')
