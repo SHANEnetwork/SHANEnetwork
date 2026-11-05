@@ -1179,6 +1179,7 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
   const {data:owned,error:ownerError}=await db.from("shane_endeavors").select("id,title,idea").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
   if(ownerError||!owned)throw Error("The selected endeavor does not belong to your account.");
   ownedEndeavor=owned;
+  if(activeEndeavor()!==endeavorId)throw Error("The active endeavor changed. Return to the selected endeavor before creating.");
  }
  // Creation generators receive the endeavor's verified purpose, not an isolated task.
  // Keep the original request intact for saved receipts and revision history.
