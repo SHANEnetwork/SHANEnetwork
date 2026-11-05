@@ -164,6 +164,7 @@ function init(){
    const result=await store.reasonAndCreate({endeavorId,request});
    if(currentId()!==originalId||(reply.value.trim()||vision.value.trim())!==originalRequest){status.textContent="The selected endeavor changed. Earlier analysis was saved to its original endeavor.";return}
    invalidatePlan();
+   reviewedReasoning={endeavorId:originalId,request:originalRequest,response:String(result.response||"").slice(0,6000)};
    const panel=host.querySelector("#shane-connected-plan-review");
    if(panel){
     panel.replaceChildren();
