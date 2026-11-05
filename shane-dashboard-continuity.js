@@ -93,6 +93,30 @@ async function init(){
   if(item.linked_site_id){const option=document.createElement("option");option.value="website";option.textContent="Revise this endeavor\u0027s primary website";choice.append(option)}
   const request=document.createElement("textarea");request.rows=4;request.maxLength=12000;request.required=true;request.minLength=8;request.placeholder="Describe the outcome you want, the people it serves, and what should be created…";request.style.cssText="width:100%;box-sizing:border-box;padding:12px;border-radius:12px";
   const usePurpose=document.createElement("button");usePurpose.type="button";usePurpose.textContent="Create from this endeavor\u0027s original vision";usePurpose.addEventListener("click",()=>{request.value=String(item.idea||"").slice(0,12000);request.dispatchEvent(new Event("input",{bubbles:true}));request.focus()});
+  const historyRecoveryKey="shane-endeavor-history-recovery-v1:"+item.id;
+  const historyRecovery=document.createElement("div");historyRecovery.setAttribute("role","status");studio.append(historyRecovery);
+  async function recoverHistoryRecord(record){
+   if(!window.SHANEConversationStore?.saveTurn)await import("./shane-conversation-store.js");
+   const account=await window.SHANEConversationStore.connectedUser();
+   if(!account)throw Error("Sign in before recovering endeavor history.");
+   if(record.endeavorId!==item.id||!valid(record.id))throw Error("Recovery record does not belong to this endeavor.");
+   const saved=await window.SHANEConversationStore.saveTurn(JSON.stringify(record),{page:"shane-dashboard",kind:"creation-summary",endeavorId:item.id});
+   if(!saved?.saved)throw Error("History was not confirmed.");
+   try{sessionStorage.removeItem(historyRecoveryKey)}catch{}
+   document.dispatchEvent(new CustomEvent("shane:endeavor-creation-saved",{detail:{endeavorId:item.id,type:record.type,artifactId:record.id}}));
+  }
+  function showHistoryRecovery(record){
+   historyRecovery.replaceChildren();
+   const message=document.createElement("p");message.textContent="A saved creation still needs its endeavor-history record. No new creation is necessary.";
+   const retry=document.createElement("button");retry.type="button";retry.textContent="Recover saved creation history";
+   historyRecovery.append(message,retry);
+   retry.addEventListener("click",async()=>{
+    retry.disabled=true;message.textContent="Recording the existing creation…";
+    try{await recoverHistoryRecord(record);historyRecovery.textContent="Saved creation recorded in this endeavor's history."}
+    catch(error){retry.disabled=false;message.textContent="History recovery not confirmed: "+String(error?.message||error)}
+   });
+  }
+  try{const pending=JSON.parse(sessionStorage.getItem(historyRecoveryKey)||"null");if(pending?.endeavorId===item.id&&valid(pending.id))showHistoryRecovery(pending)}catch{}
   const draftKey="shane-endeavor-creation-draft-v1:"+item.id;
   let pendingDeadline="";
   try{const pending=JSON.parse(sessionStorage.getItem(draftKey)||"null");if(pending&&typeof pending.vision==="string"){request.value=pending.vision.slice(0,12000);if([...choice.options].some(option=>option.value===pending.type))choice.value=pending.type;if(typeof pending.deadline==="string")pendingDeadline=pending.deadline}}catch{}
@@ -286,6 +310,9 @@ async function init(){
     if(submittedType==="new-website"&&!result.endeavorLink?.linked)outcome.textContent="The website was saved, but its connection to this endeavor is not confirmed.";
     if(result.endeavorLink?.reason)outcome.textContent=result.endeavorLink.reason;
     if(result.historySaved===false){
+     const pendingRecord={version:1,endeavorId:item.id,id:result.id,type:submittedType,changeKind:result.receipt?.changeKind||"creation",url:result.url||null,vision:submittedVision.slice(0,1200),saved:true,endeavorLinked:submittedType==="new-website"?result.endeavorLink?.linked===true:true};
+     try{sessionStorage.setItem(historyRecoveryKey,JSON.stringify(pendingRecord))}catch{}
+     showHistoryRecovery(pendingRecord);
      outcome.append(" The creation was saved, but its conversation-history record could not be confirmed.");
      const retryMemory=document.createElement("button");retryMemory.type="button";retryMemory.textContent="Save this creation to endeavor history";
      outcome.append(" ",retryMemory);
@@ -293,9 +320,9 @@ async function init(){
       retryMemory.disabled=true;
       try{
        const record={version:1,endeavorId:item.id,id:result.id,type:submittedType,changeKind:result.receipt?.changeKind||"creation",url:result.url||null,vision:submittedVision.slice(0,1200),saved:true,endeavorLinked:submittedType==="new-website"?result.endeavorLink?.linked===true:true};
-       const saved=await store.saveTurn(JSON.stringify(record),{page:"shane-dashboard",kind:"creation-summary",endeavorId:item.id});
-       if(!saved?.saved)throw Error("History was not confirmed.");
+       await recoverHistoryRecord(record);
        retryMemory.replaceWith(document.createTextNode("Creation recorded in endeavor history."));
+       historyRecovery.replaceChildren();
        document.dispatchEvent(new CustomEvent("shane:endeavor-creation-saved",{detail:{endeavorId:item.id,type:submittedType,artifactId:result.id}}));
       }catch(error){retryMemory.disabled=false;outcome.append(" History retry failed: "+String(error?.message||error))}
      });
