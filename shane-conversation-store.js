@@ -412,10 +412,22 @@ async function reviseSavedCreation({endeavorId,creationId,request}={}){
  if(!account)throw Error("Sign in to revise a saved creation.");
  if(!/^[0-9a-f-]{36}$/i.test(String(endeavorId||""))||!/^[0-9a-f-]{36}$/i.test(String(creationId||"")))throw Error("A saved endeavor and creation are required.");
  const instruction=String(request||"").trim();
- if(!instruction)throw Error("Describe the change you want.");
+ if(instruction.length<3||instruction.length>12000)throw Error("Describe a specific revision in 3 to 12000 characters.");
+ // Confirm ownership of the selected endeavor and the exact creation before
+ // sending a revision request. A saved receipt must refer to that creation.
+ const {data:owned,error:ownershipError}=await db.from("shane_endeavors").select("id,linked_site_id").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
+ if(ownershipError||!owned)throw Error("The selected endeavor is unavailable to this account.");
+ const {data:site,error:siteError}=await db.from("shane_sites").select("id").eq("id",creationId).eq("owner_id",account.id).maybeSingle();
+ if(siteError||!site)throw Error("The saved website is unavailable to this account.");
+ if(owned.linked_site_id&&owned.linked_site_id!==creationId)throw Error("This creation is not the selected endeavor's linked website.");
  const {data,error}=await db.functions.invoke("shane-converse",{body:{endeavorId,creationId,request:instruction,purpose:"revise-saved-creation"}});
  if(error||data?.error)throw Error(data?.error||error?.message||"Revision service unavailable.");
- if(!data?.savedCreationId||!data?.revisionId)throw Error("Revision was not confirmed as saved. Your previous creation remains the authoritative version.");
+ if(!data?.savedCreationId||!data?.revisionId||data.savedCreationId!==creationId)throw Error("Revision was not confirmed for the requested creation. Your previous creation remains the authoritative version.");
+ // A revision receipt is evidence of persistence, not proof that every
+ // requested visual or functional change works. Keep that distinction durable.
+ try{
+  await saveTurn(JSON.stringify({creationId,revisionId:data.revisionId,request:instruction,verifiedPersistence:true,verifiedFunctionality:false}),{endeavorId,kind:"creation-revision-outcome",page:"endeavor-intelligence"});
+ }catch(archiveError){console.warn("Revision saved but evidence archive unavailable",archiveError)}
  return data;
 }
 
