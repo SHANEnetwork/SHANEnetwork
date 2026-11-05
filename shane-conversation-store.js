@@ -1241,6 +1241,7 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
   if(endeavorLink.reason)console.warn(endeavorLink.reason);
  }
  const creation={type,id,url,vision:request,endeavorId:endeavorId||null,endeavorLink,operation:type==="website"?"revision":"creation",created:Date.now()};
+ if(endeavorId&&activeEndeavor()!==endeavorId)creation.contextChanged=true;
  try{sessionStorage.setItem("shane-last-created-artifact-v1",JSON.stringify(creation))}catch{}
  document.dispatchEvent(new CustomEvent("shane:artifact-created",{detail:creation}));
  // Save a readable creation memory for the shared AI conversation, regardless
