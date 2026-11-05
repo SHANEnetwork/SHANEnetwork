@@ -157,7 +157,7 @@ async function init(){
       const check=store.evaluateCreationPlan({steps:saved.steps});
       saved.steps.forEach((step,index)=>{const li=document.createElement("li");li.textContent=(index<plan.completed.length?"Completed: ":"Pending: ")+(step.type||"Creation")+" | "+String(step.vision||"").slice(0,500);details.append(li)});
       if(!check.ready)note.textContent="The plan needs revision: "+(check.reason||"Incomplete creation details");
-      else if(window.SHANECurrentEndeavor?.read?.()!==item.id)note.textContent="Creation is paused until the active-endeavor confirmation is available. Your plan remains saved.";
+      else if(JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id!==item.id)note.textContent="Creation is paused until the active-endeavor confirmation is available. Your plan remains saved.";
       else{
        note.textContent="Only private drafts will be created. Nothing will be published or invitations sent.";approve.disabled=false;
        approve.addEventListener("click",async()=>{
