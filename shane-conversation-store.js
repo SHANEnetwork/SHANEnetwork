@@ -186,7 +186,9 @@ async function analyzeWithCompasses({endeavorId,request,purpose}={}){
  const {data,error}=await db.functions.invoke("shane-converse",{body:{mode:"compass-analysis",endeavorId,request:prompt,purpose:String(purpose||"").slice(0,12000)}});
  if(error||data?.error)throw Error(data?.error||error?.message||"Compass analysis unavailable.");
  if(!data?.analysis||!Array.isArray(data.analysis.components)||!Array.isArray(data.analysis.alternatives))throw Error("Compass analysis incomplete.");
- await saveTurn(JSON.stringify({request:prompt,analysis:data.analysis}),{endeavorId,kind:"compass-analysis",page:"compass"});
+ const record=JSON.stringify({request:prompt,analysis:data.analysis});
+ if(record.length>20000)throw Error("Compass result exceeds archive record limit; refusing to silently truncate evidence.");
+ await saveTurn(record,{endeavorId,kind:"compass-analysis",page:"compass"});
  return data.analysis;
 }
 async function converse({endeavorId,request,purpose,mode}){
