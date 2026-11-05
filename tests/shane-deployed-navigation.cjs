@@ -19,9 +19,9 @@ const paths = ['/', '/builder.html', '/my-network.html', '/network.html', '/work
   // Prove that actual visible homepage navigation works, not just direct URLs.
   for (const destination of ['builder.html', 'my-network.html', 'network.html']) {
    await page.goto(base + '/', {waitUntil:'domcontentloaded'});
-   const link = page.locator('a[href="' + destination + '"]').first();
-   assert(await link.count(), 'Homepage lacks a navigation link to ' + destination);
-   await link.click();
+   const link = page.locator('a[href="' + destination + '"]:visible').first();
+   assert(await link.count(), 'Homepage lacks a visible navigation link to ' + destination);
+   await link.click({timeout:15000});
    await page.waitForURL(url => url.pathname.endsWith('/' + destination), {timeout:15000});
    assert((await page.locator('body').innerText()).trim().length > 20,
     'Homepage navigation landed on an empty page: ' + destination);
