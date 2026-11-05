@@ -25,11 +25,30 @@ async function flush(){if(flushing||!ready||!window.SHANEFractalMemory||!window.
  }
  if(droplets())await droplets().remove(item.id);pending.shift();saveQueue()}report("Your conversation turns are archived in SHANE's chapter memory.")}catch(error){report("Your conversation remains available. Chapter archiving is pending until memory storage is ready.");console.warn("SHANE chapter archive pending:",error?.message||error)}finally{flushing=false}}
 document.addEventListener("shane:fractal-turn",event=>{const d=event.detail||{};if(endeavorId)add(d.role,d.text,endeavorId);else if(["you","shane"].includes(d.role)&&typeof d.text==="string"&&d.text.trim()){draft.push({role:d.role,text:d.text});saveDraft()}});
-document.addEventListener("shane:endeavor-changed",event=>{endeavorId=validId(event.detail?.id)?event.detail.id:null;flush()});
-document.addEventListener("shane:endeavor-account-saved",event=>{endeavorId=validId(event.detail?.id)?event.detail.id:endeavorId;flush()});
+document.addEventListener("shane:endeavor-changed",event=>{endeavorId=validId(event.detail?.id)?event.detail.id:null;flush();recoverChapters()});
+document.addEventListener("shane:endeavor-account-saved",event=>{endeavorId=validId(event.detail?.id)?event.detail.id:endeavorId;flush();recoverChapters()});
 document.addEventListener("shane:fractal-history-snapshot",event=>{const d=event.detail||{};if(!validId(d.id)||!Array.isArray(d.history))return;const combined=draft.length?draft:d.history;const existing=new Map();for(const x of pending.filter(x=>x.endeavorId===d.id)){const k=x.role+"\u0000"+x.text;existing.set(k,(existing.get(k)||0)+1)}for(const t of combined){if(!t||!["you","shane"].includes(t.role)||typeof t.text!=="string")continue;const key=t.role+"\u0000"+t.text;if(existing.get(key)>0){existing.set(key,existing.get(key)-1)}else add(t.role,t.text,d.id)}if(draft.length){draft=[];saveDraft()}});
-document.addEventListener("shane:account-db-ready",flush);
+// Recover chapter reasoning after a refresh, including when no new turns arrive.
+// Keep original turns immutable and rely on durable consolidation checkpoints.
+let checkingChapters=false;
+async function recoverChapters(){
+ if(checkingChapters||!ready||!endeavorId||!window.shaneAccountDb||!window.SHANEFractalMemory||!window.SHANEConversationStore?.consolidateVortexChapter)return;
+ checkingChapters=true;
+ try{
+  const id=endeavorId;
+  const memory=window.SHANEFractalMemory.create(window.shaneAccountDb,id);
+  const summary=await memory.listChapters();
+  const completed=Math.floor(summary.turns/20);
+  for(let chapter=Math.max(1,completed-2);chapter<=completed;chapter++){
+   if(endeavorId!==id)break;
+   const turns=await memory.readChapter(chapter);
+   if(turns.length===20)await window.SHANEConversationStore.consolidateVortexChapter({endeavorId:id,chapter,turns});
+  }
+ }catch(error){console.warn("Completed Vortex chapters await recovery:",error)}
+ finally{checkingChapters=false}
+}
+document.addEventListener("shane:account-db-ready",()=>{flush();recoverChapters()});
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",flush,{once:true});
 else flush();
-async function hydrate(){try{if(droplets()){const saved=await droplets().all();const ids=new Set(pending.map(t=>t.id));for(const item of saved){if(validId(item.id)&&validId(item.endeavorId)&&!ids.has(item.id)){pending.push(item);ids.add(item.id)}}for(const item of pending){await droplets().put(item)}saveQueue()}}catch(error){console.warn("SHANE memory droplets unavailable:",error)}finally{ready=true;flush()}}hydrate();
+async function hydrate(){try{if(droplets()){const saved=await droplets().all();const ids=new Set(pending.map(t=>t.id));for(const item of saved){if(validId(item.id)&&validId(item.endeavorId)&&!ids.has(item.id)){pending.push(item);ids.add(item.id)}}for(const item of pending){await droplets().put(item)}saveQueue()}}catch(error){console.warn("SHANE memory droplets unavailable:",error)}finally{ready=true;flush();recoverChapters()}}hydrate();
 })();
