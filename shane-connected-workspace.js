@@ -188,6 +188,7 @@ function init(){
   const store=window.SHANEConversationStore;
   if(typeof store?.proposeAICreationSequence!=="function"&&typeof store?.proposeCreationSequence!=="function"){status.textContent="The creation planner is not ready yet.";return}
   try{
+   const reasoningForPlan=reviewedReasoning;
    invalidatePlan();
    const thisPlanVersion=planningVersion;
    planButton.disabled=true;
@@ -197,7 +198,7 @@ function init(){
    status.textContent="Preparing your creation plan…";
    const aiAvailable=typeof store.proposeAICreationSequence==="function";
    const planner=aiAvailable?store.proposeAICreationSequence:store.proposeCreationSequence;
-   const proposal=await planner({vision:idea,endeavorId:initialEndeavor,reasoningContext:reviewedReasoning?.endeavorId===initialEndeavor&&reviewedReasoning?.request===idea?reviewedReasoning.response:""});
+   const proposal=await planner({vision:idea,endeavorId:initialEndeavor,reasoningContext:reasoningForPlan?.endeavorId===initialEndeavor&&reasoningForPlan?.request===idea?reasoningForPlan.response:""});
    if(planningVersion!==thisPlanVersion||currentId()!==initialEndeavor||vision.value!==initialVision||reply.value!==initialReply){status.textContent="Your vision or selected endeavor changed while planning. Review a fresh plan for the current conversation.";return}
    if(!proposal||!proposal.ready||!Array.isArray(proposal.steps)||!proposal.steps.length){
     const missing=Array.isArray(proposal?.missing)?proposal.missing.map(item=>item?.issue).filter(Boolean).slice(0,3):[];
