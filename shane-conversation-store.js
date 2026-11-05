@@ -242,7 +242,7 @@ async function reasonAndCreate({endeavorId,request}={}){
  const serialized=JSON.stringify(record);
  const saved=await saveTurn(serialized.length<=20000?serialized:JSON.stringify({request:vision.slice(0,2000),compassRecommendation:String(analysis.recommendation||"").slice(0,1200),response:String(result.response||"").slice(0,3200),improvedResponse:String(improved?.response||"").slice(0,3200),improvementStatus,comparisonStatus,selectedResponse:String(selectedResponse||"").slice(0,2200),comparisonRecommendation:String(comparison?.recommendation||"").slice(0,900),reviewStatus,reviewRecommendation:String(review?.recommendation||"").slice(0,900),note:"Complete analyses retained as separate Compass entries"}),{endeavorId,kind:"reasoning-cycle",page:"endeavor-intelligence"});
  if(!saved?.saved)throw Error("Reasoning result could not be archived. Please retry before relying on its continuity.");
- return {analysis,response:selectedResponse,comparison,comparisonStatus,originalResponse:result.response,review,reviewStatus,improvementStatus,creationPlan:result.creationPlan||null,executed:false};
+ return {analysis,response:selectedResponse,comparison,comparisonStatus,selectionProvisional:comparisonStatus!=="a"&&comparisonStatus!=="b",originalResponse:result.response,review,reviewStatus,improvementStatus,creationPlan:result.creationPlan||null,executed:false};
 }
 async function converse({endeavorId,request,purpose,mode}){
  const account=await user();
