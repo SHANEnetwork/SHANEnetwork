@@ -241,7 +241,8 @@ async function init(){
      request.value="";request.placeholder="Describe what should change on this endeavor\u0027s saved website…";
     }
     if(result.url){const link=document.createElement("a");link.href=result.url;link.textContent="Open saved creation";outcome.append(" ",link)}
-    try{sessionStorage.removeItem(draftKey)}catch{}
+    // Keep the original request available when a website exists but its endeavor link failed.
+    if(choice.value!=="new-website"||result.endeavorLink?.linked===true){try{sessionStorage.removeItem(draftKey)}catch{}}
     document.dispatchEvent(new CustomEvent("shane:endeavor-creation-saved",{detail:{endeavorId:item.id,type:choice.value,artifactId:result.id,changeKind:result.receipt?.changeKind||"creation",endeavorLinked:result.endeavorLink?.linked??null}}));
    }catch(error){outcome.textContent="Creation was not confirmed: "+String(error?.message||error)+". Your description remains available."}
    finally{create.disabled=false}
