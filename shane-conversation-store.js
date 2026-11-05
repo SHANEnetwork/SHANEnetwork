@@ -1252,7 +1252,7 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
   }catch(error){
    creation.historySaved=false;
   }
-  try{await rememberConfirmedMilestone({endeavorId,receiptId:id,description:"Private "+type+" created"});}catch{}
+  try{await rememberConfirmedMilestone({endeavorId,receiptId:id,description:type==="website"?"Endeavor website revised":"Private "+type+" created"});}catch{}
  }
  return {saved:true,published:type==="website"?(result.published??null):false,type,id,url,result,endeavorLink,receipt:{operation:type,resource:computerCapabilities.find(x=>x.id===type).resource,id,verifiedSaved:true,published:type==="website"?(result.published??null):false,at:new Date().toISOString()}};
 }
