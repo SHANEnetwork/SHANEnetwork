@@ -1176,7 +1176,7 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
  let ownedEndeavor=null;
  if(endeavorId){
   if(!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(String(endeavorId)))throw Error("Invalid endeavor identifier.");
-  const {data:owned,error:ownerError}=await db.from("shane_endeavors").select("id,title,idea").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
+  const {data:owned,error:ownerError}=await db.from("shane_endeavors").select("id,title,idea,linked_site_id").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
   if(ownerError||!owned)throw Error("The selected endeavor does not belong to your account.");
   ownedEndeavor=owned;
   if(activeEndeavor()!==endeavorId)throw Error("The active endeavor changed. Return to the selected endeavor before creating.");
@@ -1184,9 +1184,7 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
  // Creation generators receive the endeavor's verified purpose, not an isolated task.
  // Keep the original request intact for saved receipts and revision history.
  if(type==="new-website"&&ownedEndeavor){
-  const existing=await db.from("shane_endeavors").select("linked_site_id").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
-  if(existing.error||!existing.data)throw Error("The endeavor website relationship could not be checked.");
-  if(existing.data.linked_site_id)throw Error("This endeavor already has a primary website. Revise that website from the endeavor dashboard.");
+  if(ownedEndeavor.linked_site_id)throw Error("This endeavor already has a primary website. Revise that website from the endeavor dashboard.");
  }
  if(endeavorId&&activeEndeavor()!==endeavorId)throw Error("The selected endeavor changed before creation began.");
  const context=ownedEndeavor?("Endeavor: "+String(ownedEndeavor.title||"").slice(0,150)+". Purpose: "+String(ownedEndeavor.idea||"").slice(0,1800)+". This creation must serve that endeavor; do not replace its purpose. Requested creation: "):"";
