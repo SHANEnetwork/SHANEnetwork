@@ -145,6 +145,40 @@ function init(){
   finally{planButton.disabled=false}
  });
 
+ const reasonButton=document.createElement("button");
+ reasonButton.type="button";
+ reasonButton.textContent="Explore and improve this endeavor";
+ planButton.parentElement.insertBefore(reasonButton,planButton);
+ reasonButton.addEventListener("click",async()=>{
+  const store=window.SHANEConversationStore;
+  const endeavorId=currentId();
+  const request=reply.value.trim()||vision.value.trim();
+  if(!endeavorId){status.textContent="Save or select an endeavor before exploring its possibilities.";return}
+  if(request.length<8){status.textContent="Describe what you want to explore first.";return}
+  if(typeof store?.reasonAndCreate!=="function"){status.textContent="The integrated reasoning service is not ready.";return}
+  reasonButton.disabled=true;
+  const originalId=endeavorId,originalRequest=request;
+  status.textContent="Examining alternatives, dependencies and opportunities…";
+  try{
+   const result=await store.reasonAndCreate({endeavorId,request});
+   if(currentId()!==originalId||(reply.value.trim()||vision.value.trim())!==originalRequest){status.textContent="The selected endeavor changed. Earlier analysis was saved to its original endeavor.";return}
+   const panel=host.querySelector("#shane-connected-plan-review");
+   if(panel){
+    panel.replaceChildren();
+    const heading=document.createElement("h3");heading.textContent="SHANE's integrated endeavor analysis";
+    const summary=document.createElement("p");summary.textContent=String(result.response||"");
+    const recommendation=document.createElement("p");recommendation.textContent="Compass recommendation: "+String(result.analysis?.recommendation||"Review the alternatives.");
+    panel.append(heading,summary,recommendation);
+    for(const alternative of (result.analysis?.alternatives||[]).slice(0,4)){
+     const item=document.createElement("p");
+     item.textContent="Alternative: "+String(alternative.name||"Unnamed path");
+     panel.append(item);
+    }
+   }
+   status.textContent="Analysis completed and saved with the endeavor. Review the result before creating anything.";
+  }catch(error){status.textContent="Integrated analysis unavailable: "+(error?.message||"Please retry.");}
+  finally{reasonButton.disabled=false}
+ });
  planButton.addEventListener("click",async()=>{
   const idea=reply.value.trim()||vision.value.trim();
   const store=window.SHANEConversationStore;
