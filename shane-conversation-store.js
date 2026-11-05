@@ -931,7 +931,7 @@ async function executeApprovedSequence({steps,endeavorId,approved=false,complete
  try{await verifySequenceProgress({steps,completed:outcome.completed})}
  catch(error){return {...outcome,complete:false,verified:false,verificationError:String(error.message||error)}}
  if(outcome.complete){
-  const evidence=JSON.stringify({verified:true,complete:true,stepCount:steps.length,receipts:outcome.completed.map((item,index)=>({type:item.type,id:item.id,stepIndex:index,fingerprint:endeavorStepFingerprint(steps[index],index)}))});
+  const evidence=JSON.stringify({verified:true,complete:true,stepCount:steps.length,requirements:steps.map((step,index)=>({index,type:step.type,vision:String(step.vision||"").slice(0,1000)})),receipts:outcome.completed.map((item,index)=>({type:item.type,id:item.id,stepIndex:index,fingerprint:endeavorStepFingerprint(steps[index],index)}))});
   try{await saveTurn(evidence,{endeavorId,kind:"creation-outcome",page:"endeavor-intelligence"})}
   catch(error){console.warn("Creation verified but outcome archive unavailable",error)}
  }
