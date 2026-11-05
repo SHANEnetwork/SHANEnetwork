@@ -103,6 +103,7 @@ async function init(){
    const saved=await window.SHANEConversationStore.saveTurn(JSON.stringify(record),{page:"shane-dashboard",kind:"creation-summary",endeavorId:item.id});
    if(!saved?.saved)throw Error("History was not confirmed.");
    try{sessionStorage.removeItem(historyRecoveryKey)}catch{}
+   try{const queue=JSON.parse(sessionStorage.getItem("shane-endeavor-history-recovery-queue-v1:"+item.id)||"[]");if(Array.isArray(queue))sessionStorage.setItem("shane-endeavor-history-recovery-queue-v1:"+item.id,JSON.stringify(queue.filter(entry=>entry?.id!==record.id)))}catch{}
    document.dispatchEvent(new CustomEvent("shane:endeavor-creation-saved",{detail:{endeavorId:item.id,type:record.type,artifactId:record.id}}));
   }
   function showHistoryRecovery(record){
@@ -117,6 +118,31 @@ async function init(){
    });
   }
   try{const pending=JSON.parse(sessionStorage.getItem(historyRecoveryKey)||"null");if(pending?.endeavorId===item.id&&valid(pending.id))showHistoryRecovery(pending)}catch{}
+  // Multiple creations can occur before a missing history entry is recovered.
+  // Preserve older recovery records instead of replacing them with the newest one.
+  const historyQueueKey="shane-endeavor-history-recovery-queue-v1:"+item.id;
+  const readHistoryQueue=()=>{try{const value=JSON.parse(sessionStorage.getItem(historyQueueKey)||"[]");return Array.isArray(value)?value.filter(record=>record?.endeavorId===item.id&&valid(record.id)):[]}catch{return []}};
+  const writeHistoryQueue=queue=>{try{if(queue.length)sessionStorage.setItem(historyQueueKey,JSON.stringify(queue));else sessionStorage.removeItem(historyQueueKey)}catch{}};
+  const queueHistoryRecord=record=>{const queue=readHistoryQueue().filter(entry=>entry.id!==record.id);queue.push(record);writeHistoryQueue(queue);};
+  const queuedRecovery=document.createElement("div");studio.append(queuedRecovery);
+  function renderQueuedRecovery(){
+   queuedRecovery.replaceChildren();
+   const queue=readHistoryQueue();
+   if(!queue.length)return;
+   const heading=document.createElement("p");heading.textContent=queue.length+" saved creation(s) still need endeavor-history recovery.";queuedRecovery.append(heading);
+   for(const record of queue){
+    const row=document.createElement("div"),label=document.createElement("span"),retry=document.createElement("button");
+    label.textContent=(record.type||"Creation")+" · "+String(record.vision||"").slice(0,110)+" ";
+    retry.type="button";retry.textContent="Recover this creation's history";
+    row.append(label,retry);queuedRecovery.append(row);
+    retry.addEventListener("click",async()=>{
+     retry.disabled=true;
+     try{await recoverHistoryRecord(record);writeHistoryQueue(readHistoryQueue().filter(entry=>entry.id!==record.id));renderQueuedRecovery()}
+     catch(error){retry.disabled=false;label.textContent="History recovery failed: "+String(error?.message||error)+" "}
+    });
+   }
+  }
+  renderQueuedRecovery();
   const draftKey="shane-endeavor-creation-draft-v1:"+item.id;
   let pendingDeadline="";
   try{const pending=JSON.parse(sessionStorage.getItem(draftKey)||"null");if(pending&&typeof pending.vision==="string"){request.value=pending.vision.slice(0,12000);if([...choice.options].some(option=>option.value===pending.type))choice.value=pending.type;if(typeof pending.deadline==="string")pendingDeadline=pending.deadline}}catch{}
@@ -312,6 +338,7 @@ async function init(){
     if(result.historySaved===false){
      const pendingRecord={version:1,endeavorId:item.id,id:result.id,type:submittedType,changeKind:result.receipt?.changeKind||"creation",url:result.url||null,vision:submittedVision.slice(0,1200),saved:true,endeavorLinked:submittedType==="new-website"?result.endeavorLink?.linked===true:true};
      try{sessionStorage.setItem(historyRecoveryKey,JSON.stringify(pendingRecord))}catch{}
+     queueHistoryRecord(pendingRecord);renderQueuedRecovery();
      showHistoryRecovery(pendingRecord);
      outcome.append(" The creation was saved, but its conversation-history record could not be confirmed.");
      const retryMemory=document.createElement("button");retryMemory.type="button";retryMemory.textContent="Save this creation to endeavor history";
