@@ -1,6 +1,7 @@
 /* Endeavor-centered dashboard continuity. A session ID is never proof of ownership. */
 (()=>{"use strict";
 const valid=id=>typeof id==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(id);
+const isActiveEndeavor=id=>{try{return JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id===id}catch{return false}};
 async function init(){
  const status=document.getElementById("shaneActiveStatus"),host=document.getElementById("shaneActiveActions");
  if(!status||!host)return;
@@ -158,7 +159,7 @@ async function init(){
       const check=store.evaluateCreationPlan({steps:saved.steps});
       saved.steps.forEach((step,index)=>{const li=document.createElement("li");li.textContent=(index<plan.completed.length?"Completed: ":"Pending: ")+(step.type||"Creation")+" | "+String(step.vision||"").slice(0,500);details.append(li)});
       if(!check.ready)note.textContent="The plan needs revision: "+(check.reason||"Incomplete creation details");
-      else if(JSON.parse(sessionStorage.getItem("shane-active-endeavor-v1")||"null")?.id!==item.id)note.textContent="Creation is paused until the active-endeavor confirmation is available. Your plan remains saved.";
+      else if(!isActiveEndeavor(item.id))note.textContent="Creation is paused until the active-endeavor confirmation is available. Your plan remains saved.";
       else{
        note.textContent="Only private drafts will be created. Nothing will be published or invitations sent.";approve.disabled=false;
        approve.addEventListener("click",async()=>{
