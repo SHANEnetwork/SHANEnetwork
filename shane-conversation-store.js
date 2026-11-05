@@ -824,9 +824,12 @@ async function collaborationContext({endeavorId,limit=12}={}){
  const ids=listings.map(item=>item.id);
  const requests=[];
  for(let offset=0;offset<ids.length;offset+=50){
-  const {data,error}=await db.from("shane_collaboration_requests").select("id,listing_id,sender_id,recipient_id,status").in("listing_id",ids.slice(offset,offset+50)).eq("status","accepted").limit(100);
-  if(error)throw error;
-  requests.push(...(data||[]));
+  for(let page=0;page<1000;page+=100){
+   const {data,error}=await db.from("shane_collaboration_requests").select("id,listing_id,sender_id,recipient_id,status").in("listing_id",ids.slice(offset,offset+50)).eq("status","accepted").order("id").range(page,page+99);
+   if(error)throw error;
+   requests.push(...(data||[]));
+   if((data||[]).length<100)break;
+  }
  }
  const accepted=(requests||[]).filter(item=>item.sender_id===account.id||item.recipient_id===account.id).slice(0,max);
  const titles=new Map(listings.map(item=>[item.id,item.title]));
