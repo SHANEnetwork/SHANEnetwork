@@ -559,7 +559,7 @@ function proposeCreationSequence({vision,endeavorId}={}){
 }
 // Use the existing authenticated conversational AI to interpret an endeavor into
 // supported, reviewable operations. This only proposes private drafts.
-async function proposeAICreationSequence({vision,endeavorId}={}){
+async function proposeAICreationSequence({vision,endeavorId,reasoningContext=""}={}){
  const request=String(vision||"").trim();
  if(request.length<8)return {ready:false,steps:[],reason:"Describe your endeavor first."};
  if(!endeavorId)return {ready:false,steps:[],reason:"Save and select your endeavor before asking SHANE to plan its creation."};
