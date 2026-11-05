@@ -29,6 +29,9 @@ async function init(){
   const conversationNote=document.createElement("p");conversationNote.textContent="Discuss the endeavor's direction, decisions, problems, and next creations. SHANE examines alternatives and saves its reasoning to this endeavor's history. Nothing is published or executed automatically.";
   const conversationForm=document.createElement("form");conversationForm.style.cssText="display:grid;gap:12px";
   const conversationInput=document.createElement("textarea");conversationInput.rows=4;conversationInput.required=true;conversationInput.minLength=8;conversationInput.maxLength=12000;conversationInput.placeholder="What should we develop, reconsider, or accomplish next for this endeavor?";conversationInput.style.cssText="width:100%;box-sizing:border-box;padding:12px;border-radius:12px";
+  const conversationDraftKey="shane-endeavor-conversation-draft-v1:"+item.id;
+  try{const draft=sessionStorage.getItem(conversationDraftKey);if(draft)conversationInput.value=draft.slice(0,12000)}catch{}
+  conversationInput.addEventListener("input",()=>{try{sessionStorage.setItem(conversationDraftKey,conversationInput.value)}catch{}});
   const think=document.createElement("button");think.type="submit";think.textContent="Develop this endeavor with SHANE";
   const conversationStatus=document.createElement("p");conversationStatus.setAttribute("role","status");
   const conversationAnswer=document.createElement("div");conversationAnswer.setAttribute("aria-live","polite");conversationAnswer.style.whiteSpace="pre-wrap";
@@ -39,6 +42,7 @@ async function init(){
    try{
     if(!window.SHANEConversationStore?.reasonAndCreate)await import("./shane-conversation-store.js");
     const result=await window.SHANEConversationStore.reasonAndCreate({endeavorId:item.id,request:conversationInput.value.trim()});
+    try{sessionStorage.removeItem(conversationDraftKey)}catch{}
     conversationAnswer.textContent=String(result.response||"No response returned.");
     const createNext=document.createElement("button");createNext.type="button";createNext.textContent="Use this conversation to create a private draft";
     createNext.addEventListener("click",()=>{const studio=document.getElementById("shane-endeavor-creation-studio");const draft=studio?.querySelector("textarea");if(!draft)return;draft.value=conversationInput.value.trim();draft.dispatchEvent(new Event("input",{bubbles:true}));studio.scrollIntoView({behavior:"smooth",block:"start"});draft.focus();});
