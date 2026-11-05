@@ -1144,7 +1144,7 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
    const {data:endeavor,error:associationError}=await db.from("shane_endeavors")
     .select("linked_site_id").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
    if(associationError||!endeavor)throw Error("Could not verify the endeavor's saved website.");
-   if(endeavor.linked_site_id&&endeavor.linked_site_id!==siteId)
+   if(endeavor.linked_site_id!==siteId)
     throw Error("This website is not the endeavor's linked website. Open its own saved project before revising.");
   }
   result=await reviseSite({siteId,request});
