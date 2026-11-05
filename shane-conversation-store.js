@@ -916,7 +916,7 @@ async function loadCreationPlan({endeavorId}={}){
 }
 async function listSavedCreationPlans({limit=20}={}){
  const account=await user();if(!account)throw Error("Sign in to see saved plans.");
- const rows=await list({kinds:["creation-plan"],limit:500});
+ const rows=await list({kinds:["creation-plan"],includeArchived:true,limit:500});
  const seen=new Set();
  return rows.map(row=>{
   try{
