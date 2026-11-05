@@ -92,6 +92,26 @@ async function init(){
   const create=document.createElement("button");create.type="submit";create.textContent="Create and save private draft";
   const outcome=document.createElement("p");outcome.setAttribute("role","status");
   form.append(choice,request,deadline,create,outcome);studio.append(heading,explanation,form);host.append(studio);
+  // A failed optional listing must not strand the saved endeavor outside its conversation.
+  let pendingListing=null;
+  try{const pending=JSON.parse(sessionStorage.getItem("shane-endeavor-listing-pending-v1")||"null");if(pending?.endeavorId===item.id&&typeof pending.vision==="string")pendingListing=pending}catch{}
+  if(pendingListing){
+   const retry=document.createElement("button");retry.type="button";retry.textContent="Retry this endeavor's private Network listing";
+   const retryStatus=document.createElement("p");retryStatus.setAttribute("role","status");
+   retryStatus.textContent="Your endeavor is saved. Its optional Network listing was not confirmed; you can continue developing the endeavor or retry that listing.";
+   studio.append(retryStatus,retry);
+   retry.addEventListener("click",async()=>{
+    retry.disabled=true;retryStatus.textContent="Checking for an existing listing and retrying the private draft…";
+    try{
+     if(!window.SHANEConversationStore?.establishEndeavor)await import("./shane-conversation-store.js");
+     const result=await window.SHANEConversationStore.establishEndeavor({vision:pendingListing.vision,endeavorId:item.id,approved:true});
+     if(!result.networkDraftSaved)throw Error(result.error||"The Network listing is still pending.");
+     sessionStorage.removeItem("shane-endeavor-listing-pending-v1");
+     retryStatus.textContent="The endeavor's Network listing is saved. No publication or invitations occurred.";
+     retry.remove();document.dispatchEvent(new CustomEvent("shane:endeavor-creation-saved",{detail:{endeavorId:item.id,type:"listing",artifactId:result.listingId}}));
+    }catch(error){retryStatus.textContent="Your endeavor remains saved. The listing could not be confirmed: "+String(error?.message||error);retry.disabled=false}
+   });
+  }
   // Show actual account-authorized collaboration records, not guessed matches.
   const collaboration=document.createElement("section");collaboration.id="shane-endeavor-collaboration";collaboration.style.cssText="margin-top:18px;padding:20px;border:1px solid #dec6c0;border-radius:18px;background:#fffaf3";
   const collabTitle=document.createElement("h3");collabTitle.textContent="People and opportunities connected to this endeavor";
