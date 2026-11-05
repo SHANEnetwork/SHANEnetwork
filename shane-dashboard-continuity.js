@@ -17,7 +17,7 @@ async function init(){
   const {data:{user},error:authError}=await sb.auth.getUser();
   if(authError)throw authError;
   if(!user){status.textContent="Sign in to continue this private endeavor.";return}
-  const {data:item,error}=await sb.from("shane_endeavors").select("id,title,idea").eq("id",id).eq("owner_id",user.id).maybeSingle();
+  const {data:item,error}=await sb.from("shane_endeavors").select("id,title,idea,linked_site_id").eq("id",id).eq("owner_id",user.id).maybeSingle();
   if(error)throw error;
   if(!item){status.textContent="This endeavor is not available to your account. Choose another from My Endeavors.";return}
   sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:item.id,updated:Date.now()}));
