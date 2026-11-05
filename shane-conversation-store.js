@@ -920,6 +920,7 @@ async function loadCreationPlan({endeavorId}={}){
  if(!rows.length)return null;
  const plan=JSON.parse(rows[0].body);
  if(plan.version!==1||!Array.isArray(plan.steps))throw Error("Unsupported saved creation plan.");
+ if(plan.steps.some(step=>step?.endeavorId&&step.endeavorId!==endeavorId))throw Error("Saved creation plan references a different endeavor.");
  return {steps:plan.steps,endeavorId};
 }
 async function listSavedCreationPlans({limit=20}={}){
