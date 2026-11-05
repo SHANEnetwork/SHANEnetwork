@@ -520,6 +520,28 @@ async function applyReviewedCorrection({endeavorId,creationId,revisionId,request
  const result=await reviseSavedCreation({endeavorId,creationId,request:instruction});
  return {saved:true,creationId,revisionId:result.revisionId,verified:false};
 }
+// Establish a real endeavor and its first Network presence in one approved action.
+// Both records are private drafts; collaboration and publication remain separate choices.
+async function establishEndeavor({vision,title,description,category="project",approved=false,endeavorId=null}={}){
+ if(approved!==true)throw Error("Approve creating the endeavor and its private Network listing first.");
+ const idea=String(vision||"").trim();
+ if(idea.length<8||idea.length>12000)throw Error("Describe the endeavor in 8 to 12000 characters.");
+ let saved;
+ if(endeavorId){
+  const account=await user();if(!account)throw Error("Sign in to continue.");
+  const {data,error}=await db.from("shane_endeavors").select("id,title").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
+  if(error||!data)throw Error("The existing endeavor is unavailable to your account.");
+  saved=data;
+ }else saved=await beginEndeavor({vision:idea});
+ const name=String(title||saved.title||"").trim().slice(0,150);
+ const details=String(description||idea).trim().slice(0,4000);
+ try{
+  const listing=await createPrivateListing({vision:idea,title:name,description:details,category,endeavorId:saved.id});
+  return {endeavorId:saved.id,listingId:listing.listingId,endeavorSaved:true,networkDraftSaved:true,published:false,readyForCollaborationDiscovery:true};
+ }catch(error){
+  return {endeavorId:saved.id,endeavorSaved:true,networkDraftSaved:false,published:false,partial:true,error:String(error?.message||error),retryWithEndeavorId:saved.id};
+ }
+}
 async function createPrivateListing({vision,title,description,category="project",endeavorId=null}={}){
  const account=await user();if(!account)throw Error("Sign in to save a Network listing.");
  const name=String(title||"").trim().slice(0,150),details=String(description||vision||"").trim().slice(0,4000);
@@ -1301,6 +1323,6 @@ async function getEndeavorVision({endeavorId}={}){
  if(error||!data)throw Error(error?.message||"Saved endeavor not found.");
  return String(data.idea||"").trim();
 }
-window.SHANEConversationStore=Object.freeze({reasonAndCreate,analyzeWithCompasses,consolidateVortexChapter,agentWorkingMemory,updateAgentWorkingMemory,rememberConfirmedMilestone,saveBetterIdea,getEndeavorVision,beginEndeavor,converse,evaluateCreationPlan,synthesizeEndeavor,compassReview,harmonizeEndeavorPlan,coordinateEndeavor,collaborationContext,joinedCollaborations,endeavorSnapshot,reviseSavedCreation,pendingRevisionVerification,proposeRevisionCorrections,verifySavedRevisionPersistence,applyReviewedCorrection,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,computerCapabilities,inspectOperation,previewVisionSequence,proposeCreationSequence,proposeAICreationSequence,prepareCreationSequence,executeVision,executeVisionSequence,executeApprovedSequence,verifySequenceProgress,saveCreationPlan,loadCreationPlan,listSavedCreationPlans,searchSavedCreationPlans,recallEndeavor,describeSavedCreationPlan,recoverCreationProgress,inspectSavedEndeavor,continueSavedEndeavor,resumeVisionSequence,recentCreations,findSavedCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
+window.SHANEConversationStore=Object.freeze({reasonAndCreate,analyzeWithCompasses,consolidateVortexChapter,agentWorkingMemory,updateAgentWorkingMemory,rememberConfirmedMilestone,saveBetterIdea,getEndeavorVision,beginEndeavor,converse,evaluateCreationPlan,synthesizeEndeavor,compassReview,harmonizeEndeavorPlan,coordinateEndeavor,collaborationContext,joinedCollaborations,endeavorSnapshot,reviseSavedCreation,pendingRevisionVerification,proposeRevisionCorrections,verifySavedRevisionPersistence,applyReviewedCorrection,establishEndeavor,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,computerCapabilities,inspectOperation,previewVisionSequence,proposeCreationSequence,proposeAICreationSequence,prepareCreationSequence,executeVision,executeVisionSequence,executeApprovedSequence,verifySequenceProgress,saveCreationPlan,loadCreationPlan,listSavedCreationPlans,searchSavedCreationPlans,recallEndeavor,describeSavedCreationPlan,recoverCreationProgress,inspectSavedEndeavor,continueSavedEndeavor,resumeVisionSequence,recentCreations,findSavedCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
 document.dispatchEvent(new Event("shane:conversation-store-ready"));
 void flush();
