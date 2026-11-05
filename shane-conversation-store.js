@@ -1013,9 +1013,14 @@ async function endeavorSnapshot({endeavorId}={}){
   recentCreations({limit:40}),collaborationContext({endeavorId,limit:20}),list({endeavorId,limit:200,kinds:["creation-summary","creation","ai-request","ai-response","idea","reasoning-cycle","creation-plan","creation-outcome"]})
  ]);
  const creationItems=creations.status==="fulfilled"?creations.value:[];
- const receipts=history.status==="fulfilled"?history.value.filter(row=>["creation-summary","creation"].includes(row.entry_kind)):[];
+ const receipts=history.status==="fulfilled"?history.value.filter(row=>["creation-summary","creation","creation-outcome"].includes(row.entry_kind)):[];
+ // Include verified plan outcomes as endeavor-linked evidence, not unrelated account creations.
+ const confirmedIds=new Set();
+ for(const row of receipts.filter(row=>row.entry_kind==="creation-outcome")){
+  try{const record=JSON.parse(row.body);if(record.verified===true&&record.complete===true&&Array.isArray(record.receipts))for(const receipt of record.receipts)if(typeof receipt.id==="string")confirmedIds.add(receipt.id)}catch{}
+ }
  const linked=creationItems.filter(item=>receipts.some(row=>new RegExp("(^|[^0-9a-f-])"+item.id+"([^0-9a-f-]|$)","i").test(String(row.body||""))));
- const allCreations=creationItems.map(item=>({...item,linkedToEndeavor:linked.some(found=>found.id===item.id)||item.type==="website"&&item.id===endeavor.linked_site_id}));
+ const allCreations=creationItems.map(item=>({...item,linkedToEndeavor:linked.some(found=>found.id===item.id)||confirmedIds.has(item.id)||item.type==="website"&&item.id===endeavor.linked_site_id}));
  // The direct relationship survives conversation archival and result limits.
  if(endeavor.linked_site_id&&!allCreations.some(item=>item.id===endeavor.linked_site_id)){
   const {data:site}=await db.from("shane_sites").select("id,name,status").eq("id",endeavor.linked_site_id).eq("owner_id",account.id).maybeSingle();
