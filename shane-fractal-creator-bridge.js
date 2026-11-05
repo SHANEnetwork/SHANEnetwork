@@ -11,10 +11,16 @@ function saveQueue(){try{sessionStorage.setItem(queueKey,JSON.stringify(pending)
 function report(message){let node=document.getElementById(statusId);if(!node){const host=document.getElementById("shane-journey-save")||document.getElementById("vision-first");if(!host)return;node=document.createElement("p");node.id=statusId;node.setAttribute("role","status");node.setAttribute("aria-live","polite");host.append(node)}node.textContent=message}
 async function add(role,text,id){if(!validId(id)||!["you","shane"].includes(role)||typeof text!=="string"||!text.trim())return;const turn={id:crypto.randomUUID(),endeavorId:id,role,text:text.slice(0,12000)};pending.push(turn);saveQueue();const write=droplets()?droplets().put(turn):Promise.resolve();writes.set(turn.id,write);try{await write}catch(error){report("Memory droplet could not be stored locally. Keep this page open until archive sync completes.");console.warn("SHANE memory droplet save failed:",error)}finally{writes.delete(turn.id)}flush()}
 async function flush(){if(flushing||!ready||!window.SHANEFractalMemory||!window.shaneAccountDb||!pending.length)return;flushing=true;try{while(pending.length){const item=pending[0];if(writes.has(item.id))await writes.get(item.id);const memory=window.SHANEFractalMemory.create(window.shaneAccountDb,item.endeavorId);const archived=await memory.append(item.role,item.text,item.id);
- if(archived.turnNumber%20===0){
+ // Retry the latest completed chapter on later turns when AI consolidation was unavailable.
+ // The store's durable checkpoint makes repeated attempts idempotent.
+ const completedChapter=Math.floor(archived.turnNumber/20);
+ if(completedChapter>0){
   try{
-   const turns=await memory.readChapter(archived.chapter);
-   await window.SHANEConversationStore?.consolidateVortexChapter?.({endeavorId:item.endeavorId,chapter:archived.chapter,turns});
+   const turns=await memory.readChapter(completedChapter);
+   if(turns.length===20){
+    const result=await window.SHANEConversationStore?.consolidateVortexChapter?.({endeavorId:item.endeavorId,chapter:completedChapter,turns});
+    if(result?.saved===false&&result.reason!=="already-consolidated")console.warn("Vortex consolidation pending:",result.reason);
+   }
   }catch(error){console.warn("Vortex idea consolidation will need retry:",error)}
  }
  if(droplets())await droplets().remove(item.id);pending.shift();saveQueue()}report("Your conversation turns are archived in SHANE's chapter memory.")}catch(error){report("Your conversation remains available. Chapter archiving is pending until memory storage is ready.");console.warn("SHANE chapter archive pending:",error?.message||error)}finally{flushing=false}}
