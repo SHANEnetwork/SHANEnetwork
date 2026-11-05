@@ -49,7 +49,7 @@ async function init(){
    try{
     if(!window.SHANEConversationStore?.executeVision)await import("./shane-conversation-store.js");
     const store=window.SHANEConversationStore;if(!store?.executeVision)throw Error("Creation engine unavailable.");
-    const result=await store.executeVision({type:choice.value,vision:request.value.trim(),endeavorId:item.id,deadline:choice.value==="campaign"?new Date(deadline.value).toISOString():undefined});
+    const result=await store.executeVision({type:choice.value,vision:request.value.trim(),endeavorId:item.id,deadline:choice.value==="campaign"?deadline.value:undefined});
     outcome.textContent="Saved privately for your endeavor. Nothing was published.";
     if(result.url){const link=document.createElement("a");link.href=result.url;link.textContent="Open saved creation";outcome.append(" ",link)}
     document.dispatchEvent(new CustomEvent("shane:endeavor-creation-saved",{detail:{endeavorId:item.id,type:choice.value}}));
