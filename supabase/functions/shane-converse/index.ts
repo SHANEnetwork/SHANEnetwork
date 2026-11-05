@@ -56,7 +56,7 @@ If there is no meaningful novel insight, return comparison:null. Every claim mus
    const ideas=parsed.ideas.filter(x=>x&&typeof x.idea==="string"&&x.idea.trim().length>=12&&x.idea.length<=2000&&typeof x.reason==="string"&&Array.isArray(x.sourceTurns)&&x.sourceTurns.every(n=>Number.isSafeInteger(n)&&n>=(chapter-1)*20+1&&n<=chapter*20)).map(x=>({idea:x.idea.trim(),reason:x.reason.slice(0,1200),sourceTurns:x.sourceTurns,status:"candidate"}));
    let comparison=null;
    const c=parsed.comparison;
-   if(c&&typeof c.concept==="string"&&c.concept.trim().length>=20&&c.concept.length<=3000&&Array.isArray(c.sources)&&c.sources.length>=2&&Array.isArray(c.alternatives)&&c.alternatives.length>=2&&c.mirrorCat&&c.evaluation){
+   if(c&&typeof c.concept==="string"&&c.concept.trim().length>=20&&c.concept.length<=3000&&Array.isArray(c.sources)&&c.sources.length>=2&&Array.isArray(c.alternatives)&&c.alternatives.length>=2&&c.mirrorCat&&c.evaluation&&c.sources.every(x=>typeof x==="string"&&x.length<=2000)&&c.alternatives.every(x=>x&&typeof x.idea==="string"&&x.idea.length<=2000&&Array.isArray(x.strengths)&&Array.isArray(x.weaknesses))){
     comparison={sources:c.sources.slice(0,8).map(x=>String(x).slice(0,2000)),alternatives:c.alternatives.slice(0,6),concept:c.concept.trim(),rationale:String(c.rationale||"").slice(0,2000),tradeoffs:Array.isArray(c.tradeoffs)?c.tradeoffs.slice(0,8):[],openQuestions:Array.isArray(c.openQuestions)?c.openQuestions.slice(0,8):[],mirrorCat:c.mirrorCat,evaluation:c.evaluation};
    }
    return reply({endeavorId,chapter,ideas,comparison,saved:false,executed:false,reasoning:"model-reviewed"});
