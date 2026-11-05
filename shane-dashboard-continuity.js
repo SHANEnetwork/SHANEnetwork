@@ -154,6 +154,7 @@ async function init(){
       const store=window.SHANEConversationStore;
       const saved=await store.loadCreationPlan({endeavorId:item.id});
       if(!saved?.steps?.length)throw Error("The saved plan has no steps.");
+      if(saved.endeavorId!==item.id)throw Error("The saved plan belongs to another endeavor.");
       const check=store.evaluateCreationPlan({steps:saved.steps});
       saved.steps.forEach((step,index)=>{const li=document.createElement("li");li.textContent=(index<plan.completed.length?"Completed: ":"Pending: ")+(step.type||"Creation")+" | "+String(step.vision||"").slice(0,500);details.append(li)});
       if(!check.ready)note.textContent="The plan needs revision: "+(check.reason||"Incomplete creation details");
