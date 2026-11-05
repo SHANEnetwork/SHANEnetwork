@@ -43,6 +43,15 @@ const pages = [
   assert.equal(await page.locator('#goalInput').inputValue(), vision,
    'Dashboard must display the exact incoming vision in its editable composer');
   console.log('PASS deployed primary vision handoff: homepage -> endeavor entry -> dashboard');
+  // Continuing an arriving endeavor from the dashboard must open creation,
+  // not silently leave the person on a page without a conversation composer.
+  await page.locator('#pathFinder button[type="submit"]').click();
+  await page.waitForURL(url => url.pathname.endsWith('/builder.html'), {timeout:15000});
+  await page.waitForFunction(expected => document.querySelector('#visionPrompt')?.value === expected,
+   vision, {timeout:15000});
+  assert.equal(await page.locator('#visionPrompt').inputValue(), vision,
+   'Dashboard Continue must preserve the original endeavor vision in the builder');
+  console.log('PASS deployed endeavor continuation: dashboard -> builder');
   // Prove that actual visible homepage navigation works, not just direct URLs.
   for (const destination of ['builder.html', 'my-network.html', 'network.html']) {
    await page.goto(base + '/', {waitUntil:'domcontentloaded'});
