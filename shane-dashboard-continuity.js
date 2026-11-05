@@ -108,6 +108,8 @@ async function init(){
   let orphanedWebsite=null;
   try{const prior=JSON.parse(sessionStorage.getItem("shane-last-created-artifact-v1")||"null");if(prior?.type==="new-website"&&prior.endeavorId===item.id&&prior.endeavorLink?.linked===false&&valid(prior.id))orphanedWebsite=prior}catch{}
   if(orphanedWebsite&&!item.linked_site_id){
+   const pendingOption=choice.querySelector('option[value="new-website"]');
+   if(pendingOption){pendingOption.disabled=true;pendingOption.textContent="Reconnect existing website before creating another";if(choice.value==="new-website"){choice.value="listing";choice.dispatchEvent(new Event("change"))}}
    const reconnect=document.createElement("button");reconnect.type="button";reconnect.textContent="Reconnect saved website to this endeavor";
    const reconnectStatus=document.createElement("p");reconnectStatus.setAttribute("role","status");reconnectStatus.textContent="A website was saved but its endeavor connection was not confirmed. Reconnect that existing website before creating another.";
    studio.append(reconnectStatus,reconnect);
@@ -119,7 +121,7 @@ async function init(){
      if(!result.linked)throw Error("The link was not confirmed.");
      item.linked_site_id=orphanedWebsite.id;
      const option=choice.querySelector('option[value="new-website"]');
-     if(option){option.value="website";option.textContent="Revise this endeavor's primary website";}
+     if(option){option.disabled=false;option.value="website";option.textContent="Revise this endeavor's primary website";}
      sessionStorage.removeItem(draftKey);
      sessionStorage.removeItem("shane-last-created-artifact-v1");
      reconnectStatus.textContent="Your existing website is now linked to this endeavor. No duplicate was created.";
