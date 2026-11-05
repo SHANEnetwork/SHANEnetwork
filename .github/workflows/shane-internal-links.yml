@@ -4,9 +4,13 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+concurrency:
+  group: shane-internal-links-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   local-links:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
