@@ -453,7 +453,24 @@ async function pendingRevisionVerification({endeavorId,limit=20}={}){
   if(item.verifiedPersistence!==true||item.verifiedFunctionality!==false)continue;
   pending.push({creationId:item.creationId,revisionId:item.revisionId,request:String(item.request||"").slice(0,1200),status:"functional-verification-required",saved:true,functionalityVerified:false});
  }
- return {endeavorId,pending,count:pending.length,complete:pending.length===0,scope:"recorded-revisions-only"};
+ // A missing queue is not evidence that an endeavor works. Cross-check the
+ // current saved creation and version receipts before offering follow-through.
+ const siteIds=[...new Set(pending.map(item=>item.creationId))];
+ const checked=[];
+ for(const siteId of siteIds){
+  const {data:site,error:siteError}=await db.from("shane_sites").select("id,updated_at").eq("id",siteId).eq("owner_id",account.id).maybeSingle();
+  if(siteError)throw siteError;
+  const {data:versions,error:versionError}=await db.from("shane_site_versions").select("id").eq("site_id",siteId).eq("owner_id",account.id).limit(100);
+  if(versionError)throw versionError;
+  checked.push({creationId:siteId,creationExists:!!site,hasSavedVersion:Array.isArray(versions)&&versions.length>0});
+ }
+ for(const item of pending){
+  const evidence=checked.find(row=>row.creationId===item.creationId);
+  item.creationExists=evidence?.creationExists===true;
+  item.hasSavedVersion=evidence?.hasSavedVersion===true;
+  item.status=!item.creationExists?"saved-creation-missing":!item.hasSavedVersion?"version-history-missing":"functional-verification-required";
+ }
+ return {endeavorId,pending,count:pending.length,queueEmpty:pending.length===0,fullyVerified:false,scope:"recorded-revisions-only",note:"An empty queue does not establish functional completeness; each recorded revision requires independent functional evidence."};
 }
 async function createPrivateListing({vision,title,description,category="project",endeavorId=null}={}){
  const account=await user();if(!account)throw Error("Sign in to save a Network listing.");
