@@ -242,6 +242,25 @@ async function converse({endeavorId,request,purpose,mode}){
   if(creatorMemory?.currentDirection)groundedPurpose+="\\nCreator direction: "+creatorMemory.currentDirection;
   if(analystMemory?.latestPerspective)groundedPurpose+="\\nAnalyst perspective: "+analystMemory.latestPerspective;
   if(creatorMemory?.concepts?.length)groundedPurpose+="\\nPonderer Harmonizer synthesized concepts: "+creatorMemory.concepts.slice(-4).map(item=>item.concept+" ("+item.rationale+")").join("; ").slice(0,4000);
+  // Surface durable, source-linked candidate ideas and independent critiques during decisions.
+  // Avoid claiming that a proposed synthesis is a verified accomplishment.
+  const memoryIdeas=[...(creatorMemory?.betterIdeas||[]),...(analystMemory?.betterIdeas||[])];
+  if(memoryIdeas.length){
+   const terms=new Set(String(request||"").toLowerCase().match(/[a-z]{4,}/g)||[]);
+   const scored=memoryIdeas.map(item=>{
+    const idea=String(item.idea||"");
+    const tokens=new Set(idea.toLowerCase().match(/[a-z]{4,}/g)||[]);
+    let relevance=0;for(const token of terms)if(tokens.has(token))relevance++;
+    return {item,relevance};
+   }).sort((a,b)=>b.relevance-a.relevance);
+   const selected=scored.slice(0,8).map(x=>x.item);
+   groundedPurpose+="\\nEarlier improvement candidates (not verified achievements; examine and improve, do not automatically accept): "+selected.map(x=>JSON.stringify({idea:x.idea,reason:x.reason,status:x.status,source:x.source||null})).join("; ").slice(0,7000);
+  }
+  if(creatorMemory?.concepts?.length){
+   const critiques=creatorMemory.concepts.slice(-6).map(x=>({concept:x.concept,status:x.status,independentReview:x.mirrorCat?.independent||null,questions:x.openQuestions||[]}));
+   groundedPurpose+="\\nPrior Mirror Cat reviews and open questions: "+JSON.stringify(critiques).slice(0,6000);
+  }
+
   const notes=await list({endeavorId,limit:1,kinds:["endeavor-note"]});
   if(notes[0])groundedPurpose+="\nCurrent living endeavor notes: "+String(notes[0].body||"").slice(0,10000);
   const rows=await list({endeavorId,limit:48,kinds:["ai-request","ai-response","idea","creation","creation-summary"]});
