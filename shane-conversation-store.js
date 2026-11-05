@@ -207,7 +207,7 @@ async function reasonAndCreate({endeavorId,request}={}){
   ]);
   networkEvidence={acceptedCollaborations:(collaborations.collaborations||[]).map(c=>({listingTitle:c.listingTitle,listingId:c.listingId,status:"accepted"})),recentCreations:creations.map(c=>({title:c.title,type:c.type,id:c.id}))};
  }catch(error){console.warn("Network coordination context unavailable",error)}
- const outcomes=await list({endeavorId,kinds:["creation-outcome"],limit:8}).catch(()=>[]);
+ const outcomes=await list({endeavorId,kinds:["creation-outcome"],limit:8,includeArchived:true}).catch(()=>[]);
  networkEvidence.verifiedCreationOutcomes=outcomes.map(row=>{try{return JSON.parse(row.body)}catch{return null}}).filter(x=>x?.verified===true);
  const purpose="Use this whole-to-parts analysis as context, challenge its assumptions and integrate the strongest alternatives into a concrete endeavor response. Compare existing saved creations and accepted collaborators when relevant. Never claim an operation occurred without a receipt. Analysis is not execution: "+JSON.stringify({analysis,networkEvidence}).slice(0,15500);
  const result=await converse({endeavorId,request:vision,purpose});
