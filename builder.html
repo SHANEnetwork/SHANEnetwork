@@ -298,7 +298,7 @@ async function persistConversationRevision(){
   .select("id,status,content,updated_at").eq("id",siteId).eq("owner_id",user.id).single();
  if(readError||!existing)return "AI revision ready, but the saved draft could not be verified.";
  if(existing.status!=="draft")return "AI revision ready. This website is public; review and explicitly save changes before publishing.";
- const endeavorId=window.SHANECurrentEndeavor?.read?.()||null;
+ const endeavorId=window.SHANECurrentEndeavor?.read?.()||activeEndeavorId||null;
  if(endeavorId){
   const {data:endeavor,error:endeavorError}=await sb.from("shane_endeavors")
    .select("linked_site_id").eq("id",endeavorId).eq("owner_id",user.id).single();
@@ -318,7 +318,7 @@ async function persistConversationRevision(){
   loadedAccountContent=content;updateUnsavedState();
  }
  document.dispatchEvent(new CustomEvent("shane:saved-website-revised",{
-  detail:{saved:true,siteId,endeavorId:window.SHANECurrentEndeavor?.read?.()||null}
+  detail:{saved:true,siteId,endeavorId}
  }));
  return "AI revision saved privately to your existing website. Nothing was published.";
 }
