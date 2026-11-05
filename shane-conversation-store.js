@@ -285,7 +285,7 @@ async function converse({endeavorId,request,purpose,mode}){
   }catch(error){console.warn("Collaboration context not available",error)}
   try{
    const history=await list({endeavorId,kinds:["creation-outcome"],limit:6,includeArchived:true});
-   groundedPurpose+="\nSaved creation outcome evidence (receipts do not prove usability): "+history.map(x=>x.body).join("; ").slice(0,2400);
+   groundedPurpose+="\nSaved creation outcome evidence (receipts do not prove usability): "+history.map(x=>x.body).filter(x=>{try{const r=JSON.parse(x);return r.verified===true&&r.complete===true}catch{return false}}).join("; ").slice(0,2400);
   }catch(error){console.warn("Outcome history unavailable",error)}
   // Give SHANE a grounded cross-program view before it proposes new work.
   // This is contextual information, never authority to edit or publish.
