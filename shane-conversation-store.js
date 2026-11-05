@@ -924,7 +924,11 @@ async function executeApprovedSequence({steps,endeavorId,approved=false,complete
  const outcome=await resumeVisionSequence({steps,completed:recovered.completed,endeavorId});
  try{await verifySequenceProgress({steps,completed:outcome.completed})}
  catch(error){return {...outcome,complete:false,verified:false,verificationError:String(error.message||error)}}
- void 0;
+ if(outcome.complete){
+  const evidence=JSON.stringify({verified:true,stepCount:steps.length,receipts:outcome.completed.map(item=>({type:item.type,id:item.id}))});
+  try{await saveTurn(evidence,{endeavorId,kind:"creation-outcome",page:"endeavor-intelligence"})}
+  catch(error){console.warn("Creation verified but outcome archive unavailable",error)}
+ }
  return {...outcome,verified:true};
 }
 async function executeVisionSequence({steps,endeavorId,startIndex=0}={}){
