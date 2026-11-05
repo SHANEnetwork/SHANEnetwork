@@ -1195,7 +1195,7 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
    if(endeavor.linked_site_id!==siteId)
     throw Error("This website is not the endeavor's linked website. Open its own saved project before revising.");
   }
-  result=await reviseSite({siteId,request});
+  result=await reviseSite({siteId,request:groundedRequest});
  }else if(type==="community"){
   const draft=await interpretVision({capability:"community",vision:groundedRequest});
   result=await createPrivateCommunity({vision:request,name:draft.name,description:draft.description||request,category:draft.category});
