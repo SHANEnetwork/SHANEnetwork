@@ -335,6 +335,21 @@ async function init(){
     outcome.textContent=submittedType==="website"?"Your endeavor website revision was saved. Publication status was not changed here.":"Saved privately for your endeavor. Nothing was published."; 
     if(submittedType==="new-website"&&!result.endeavorLink?.linked)outcome.textContent="The website was saved, but its connection to this endeavor is not confirmed.";
     if(result.endeavorLink?.reason)outcome.textContent=result.endeavorLink.reason;
+    if(result.artifactLink?.attempted&&result.artifactLink.linked===false){
+     const artifactType=submittedType==="new-website"?"website":submittedType;
+     const artifactId=result.id;
+     const repair=document.createElement("button");repair.type="button";repair.textContent="Reconnect saved creation to this endeavor";
+     outcome.append(" The creation was saved, but its durable endeavor connection needs verification. ",repair);
+     repair.addEventListener("click",async()=>{
+      repair.disabled=true;
+      try{
+       const confirmed=await store.repairEndeavorArtifactLink({endeavorId:item.id,artifactId,artifactType});
+       if(!confirmed.linked)throw Error("Connection not confirmed.");
+       repair.replaceWith(document.createTextNode("Creation linked to endeavor."));
+       document.dispatchEvent(new CustomEvent("shane:endeavor-creation-saved",{detail:{endeavorId:item.id,type:artifactType,artifactId}}));
+      }catch(error){repair.disabled=false;outcome.append(" Reconnection failed: "+String(error?.message||error))}
+     });
+    }
     if(result.historySaved===false){
      const pendingRecord={version:1,endeavorId:item.id,id:result.id,type:submittedType,changeKind:result.receipt?.changeKind||"creation",url:result.url||null,vision:submittedVision.slice(0,1200),saved:true,endeavorLinked:submittedType==="new-website"?result.endeavorLink?.linked===true:true};
      try{sessionStorage.setItem(historyRecoveryKey,JSON.stringify(pendingRecord))}catch{}
