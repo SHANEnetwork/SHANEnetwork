@@ -20,6 +20,10 @@ const sb=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false
   assert.equal(created.owner_id,user.id);
   assert.equal(created.idea,'Private initial vision '+token,'Original endeavor intent must be saved exactly');
   id=created.id;
+  const {data:matching,error:matchingError}=await sb.from('shane_endeavors')
+   .select('id').eq('owner_id',user.id).eq('title',token);
+  assert.ifError(matchingError);
+  assert.equal(matching.length,1,'One initial vision must produce one owned endeavor');
   const anonymous=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
   const {data:exposed,error:anonymousError}=await anonymous.from('shane_endeavors')
    .select('id,idea').eq('id',id);
