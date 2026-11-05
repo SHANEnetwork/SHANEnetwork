@@ -16,5 +16,16 @@ const paths = ['/', '/builder.html', '/my-network.html', '/network.html', '/work
     'Page rendered no meaningful content: ' + path);
    console.log('PASS deployed browser route: ' + path);
   }
+  // Prove that actual visible homepage navigation works, not just direct URLs.
+  for (const destination of ['builder.html', 'my-network.html', 'network.html']) {
+   await page.goto(base + '/', {waitUntil:'domcontentloaded'});
+   const link = page.locator('a[href="' + destination + '"]').first();
+   assert(await link.count(), 'Homepage lacks a navigation link to ' + destination);
+   await link.click();
+   await page.waitForURL(url => url.pathname.endsWith('/' + destination), {timeout:15000});
+   assert((await page.locator('body').innerText()).trim().length > 20,
+    'Homepage navigation landed on an empty page: ' + destination);
+   console.log('PASS homepage navigation click: ' + destination);
+  }
  } finally { await browser.close(); }
 })().catch(error => { console.error('Deployed navigation smoke failed:', error.message); process.exitCode = 1; });
