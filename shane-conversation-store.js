@@ -907,6 +907,7 @@ async function saveCreationPlan({endeavorId,steps}={}){
  const account=await user();if(!account)throw Error("Sign in to save the plan.");
  const ownership=await db.from("shane_endeavors").select("id").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
  if(ownership.error||!ownership.data)throw Error("The endeavor is unavailable to this account.");
+ if(steps.some(step=>step?.endeavorId&&step.endeavorId!==endeavorId))throw Error("Every creation step must serve the selected endeavor.");
  const preview=previewVisionSequence({steps});
  if(!preview.ready)throw Error(preview.reason||"The creation plan is incomplete.");
  const saved=await saveTurn(JSON.stringify({version:1,steps}),{page:"shane-computer",kind:"creation-plan",endeavorId});
