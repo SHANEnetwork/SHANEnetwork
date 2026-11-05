@@ -539,7 +539,7 @@ async function establishEndeavor({vision,title,description,category="project",ap
   const account=await user();
   const lookup=await db.from("shane_listings").select("id,status").eq("endeavor_id",saved.id).eq("owner_id",account.id).limit(1);
   if(lookup.error)throw lookup.error;
-  if(lookup.data?.length){sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:saved.id,updated:Date.now()}));return {endeavorId:saved.id,listingId:lookup.data[0].id,endeavorSaved:true,networkDraftSaved:true,published:lookup.data[0].status==="published",reusedExisting:true};}
+  if(lookup.data?.length){sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:saved.id,updated:Date.now()}));document.dispatchEvent(new CustomEvent("shane:active-endeavor-changed",{detail:{id:saved.id}}));return {endeavorId:saved.id,listingId:lookup.data[0].id,endeavorSaved:true,networkDraftSaved:true,published:lookup.data[0].status==="published",reusedExisting:true,readyForCollaborationDiscovery:true};}
   const listing=await createPrivateListing({vision:idea,title:name,description:details,category,endeavorId:saved.id});
   return {endeavorId:saved.id,listingId:listing.listingId,endeavorSaved:true,networkDraftSaved:true,published:false,readyForCollaborationDiscovery:true};
  }catch(error){
