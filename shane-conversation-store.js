@@ -193,7 +193,15 @@ async function analyzeWithCompasses({endeavorId,request,purpose}={}){
 }
 async function reasonAndCreate({endeavorId,request}={}){
  const analysis=await analyzeWithCompasses({endeavorId,request});
- const purpose="Use this whole-to-parts analysis as context, challenge its assumptions and integrate the strongest alternatives into a concrete endeavor response. Analysis is not execution: "+JSON.stringify(analysis).slice(0,11000);
+ let networkEvidence={acceptedCollaborations:[],recentCreations:[]};
+ try{
+  const [collaborations,creations]=await Promise.all([
+   collaborationContext({endeavorId,limit:12}),
+   recentCreations({limit:20})
+  ]);
+  networkEvidence={acceptedCollaborations:(collaborations.collaborations||[]).map(c=>({listingTitle:c.listingTitle,listingId:c.listingId,status:"accepted"})),recentCreations:creations.map(c=>({title:c.title,type:c.type,id:c.id}))};
+ }catch(error){console.warn("Network coordination context unavailable",error)}
+ const purpose="Use this whole-to-parts analysis as context, challenge its assumptions and integrate the strongest alternatives into a concrete endeavor response. Compare with existing saved creations and accepted collaborators when relevant; never claim a collaboration or creation was initiated. Analysis is not execution: "+JSON.stringify({analysis,networkEvidence}).slice(0,15500);
  const result=await converse({endeavorId,request,purpose});
  const record=JSON.stringify({request,compassRecommendation:analysis.recommendation,alternatives:analysis.alternatives,response:result.response,creationPlan:result.creationPlan||null,executed:false});
  if(record.length<=20000)await saveTurn(record,{endeavorId,kind:"reasoning-cycle",page:"endeavor-intelligence"});
