@@ -100,7 +100,7 @@ async function init(){
    const account=await window.SHANEConversationStore.connectedUser();
    if(!account)throw Error("Sign in before recovering endeavor history.");
    if(record.endeavorId!==item.id||!valid(record.id))throw Error("Recovery record does not belong to this endeavor.");
-   const saved=await window.SHANEConversationStore.saveTurn(JSON.stringify(record),{page:"shane-dashboard",kind:"creation-summary",endeavorId:item.id});
+   const saved=await window.SHANEConversationStore.recoverVerifiedCreationHistory({endeavorId:item.id,record});
    if(!saved?.saved)throw Error("History was not confirmed.");
    try{sessionStorage.removeItem(historyRecoveryKey)}catch{}
    try{const queue=JSON.parse(sessionStorage.getItem("shane-endeavor-history-recovery-queue-v1:"+item.id)||"[]");if(Array.isArray(queue))sessionStorage.setItem("shane-endeavor-history-recovery-queue-v1:"+item.id,JSON.stringify(queue.filter(entry=>entry?.id!==record.id)))}catch{}
