@@ -145,6 +145,29 @@ async function init(){
      const steps=document.createElement("p");steps.textContent="Creation sequence: "+plan.types.join(", ")+(plan.nextStep?". Next: "+plan.nextStep:"");evolutionContent.append(steps);
      for(const receipt of plan.completed){const line=document.createElement("p");line.textContent="Confirmed creation: "+receipt.type+" ";if(receipt.url){const link=document.createElement("a");link.href=receipt.url;link.textContent="Open";line.append(link)}evolutionContent.append(line)}
     }
+    if(plan&&plan.remaining>0){
+     const review=document.createElement("section");review.style.cssText="margin-top:12px;padding:14px;border:1px solid #dec6c0;border-radius:14px";
+     const heading=document.createElement("h4");heading.textContent="Review the endeavor's unfinished work";review.append(heading);
+     const details=document.createElement("ol"),note=document.createElement("p"),approve=document.createElement("button");approve.type="button";approve.textContent="Approve remaining private creations";approve.disabled=true;
+     review.append(details,note,approve);evolutionContent.append(review);
+     try{
+      const store=window.SHANEConversationStore;
+      const saved=await store.loadCreationPlan({endeavorId:item.id});
+      if(!saved?.steps?.length)throw Error("The saved plan has no steps.");
+      const check=store.evaluateCreationPlan({steps:saved.steps});
+      saved.steps.forEach((step,index)=>{const li=document.createElement("li");li.textContent=(index<plan.completed.length?"Completed: ":"Pending: ")+(step.type||"Creation")+" | "+String(step.vision||"").slice(0,500);details.append(li)});
+      if(!check.ready)note.textContent="The plan needs revision: "+(check.reason||"Incomplete creation details");
+      else if(window.SHANECurrentEndeavor?.read?.()!==item.id)note.textContent="Creation is paused until the active-endeavor confirmation is available. Your plan remains saved.";
+      else{
+       note.textContent="Only private drafts will be created. Nothing will be published or invitations sent.";approve.disabled=false;
+       approve.addEventListener("click",async()=>{
+        approve.disabled=true;note.textContent="Checking prior receipts and creating approved drafts…";
+        try{const result=await store.executeApprovedSequence({endeavorId:item.id,steps:saved.steps,approved:true});note.textContent=result.complete&&result.verified?"All steps completed and verified.":"Some steps remain unfinished. Confirmed progress is retained.";await refreshConnections();await refreshEvolution()}
+        catch(error){note.textContent="Execution stopped: "+String(error?.message||error)+". Review the saved progress before trying again.";approve.disabled=false}
+       });
+      }
+     }catch(error){note.textContent="Unable to inspect the saved plan: "+String(error?.message||error)}
+    }
     if(snapshot.planError){const p=document.createElement("p");p.textContent="Saved plan unavailable: "+snapshot.planError;evolutionContent.append(p)}
     section("Recent conversation and creation history",snapshot.recentHistory||[],(row,entry)=>{
      const time=entry.at?new Date(entry.at):null;
