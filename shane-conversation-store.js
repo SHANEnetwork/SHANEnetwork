@@ -1010,7 +1010,7 @@ async function endeavorSnapshot({endeavorId}={}){
  const {data:endeavor,error}=await db.from("shane_endeavors").select("id,title,idea,linked_site_id,updated_at").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
  if(error||!endeavor)throw Error("The selected endeavor is unavailable to this account.");
  const [creations,collaborations,history]=await Promise.allSettled([
-  recentCreations({limit:40}),collaborationContext({endeavorId,limit:20}),list({endeavorId,limit:200,kinds:["creation-summary","creation","ai-request","ai-response","idea","reasoning-cycle","creation-plan","creation-outcome"]})
+  recentCreations({limit:40}),collaborationContext({endeavorId,limit:20}),list({endeavorId,limit:200,includeArchived:true,kinds:["creation-summary","creation","ai-request","ai-response","idea","reasoning-cycle","creation-plan","creation-outcome"]})
  ]);
  const creationItems=creations.status==="fulfilled"?creations.value:[];
  const receipts=history.status==="fulfilled"?history.value.filter(row=>["creation-summary","creation","creation-outcome"].includes(row.entry_kind)):[];
