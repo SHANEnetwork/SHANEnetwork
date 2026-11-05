@@ -19,7 +19,7 @@ Deno.serve(async req=>{
  if(!record.ok)return reply({error:"This endeavor is not available in your account"},404);
  const endeavor=await record.json();if(!endeavor?.id)return reply({error:"Endeavor not found"},404);
  const request=String(input?.request||"").trim(),purpose=String(input?.purpose||endeavor.idea||"");
- if(request.length<2||request.length>30000||purpose.length>30000)return reply({error:"Request must contain 2 to 30000 characters; nothing was shortened"},413);
+ if((input?.mode!=="concept-evolution"&&request.length<2)||request.length>30000||purpose.length>30000)return reply({error:"Request must contain 2 to 30000 characters for conversation; nothing was shortened"},413);
  const secret=Deno.env.get("SHANE_OPENAI_API_KEY")||Deno.env.get("OPENAI_API_KEY");
  if(!secret)return reply({error:"SHANE conversational AI provider is not configured"},503);
  let history=[];
