@@ -442,7 +442,9 @@ $("aiMode").value=(draftReady||Boolean($("savedSites")?.value&&$("aiMode").value
     if(![...select.options].some(option=>option.value===siteId))select.add(new Option("Linked endeavor website",siteId));
     select.value=siteId;
     await $("loadSite").onclick();
-    if(select.value!==siteId){status.textContent="Linked website selection changed. No revision started.";return}
+    if(select.value!==siteId||!/project loaded/i.test($("status")?.textContent||"")){
+     status.textContent="Linked website was not loaded. No revision started.";return;
+    }
     $("aiMode").value="revise";
     try{sessionStorage.removeItem("shane-ai-build-persist-v1")}catch{}
    }else{
