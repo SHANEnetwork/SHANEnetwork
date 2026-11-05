@@ -141,7 +141,10 @@ async function init(){
      if(connection.url){const link=document.createElement("a");link.href=connection.url;link.textContent=" Coordinate";row.append(link)}
     });
     const plan=snapshot.creationPlan;
-    if(plan){const p=document.createElement("p");p.textContent="Saved creation plan: "+plan.completed.length+" completed step(s), "+(plan.remaining===null?"unknown":plan.remaining)+" remaining.";evolutionContent.append(p)}
+    if(plan){const p=document.createElement("p");p.textContent="Saved creation plan: "+plan.completed.length+" completed step(s), "+(plan.remaining===null?"unknown":plan.remaining)+" remaining.";evolutionContent.append(p);
+     const steps=document.createElement("p");steps.textContent="Creation sequence: "+plan.types.join(", ")+(plan.nextStep?". Next: "+plan.nextStep:"");evolutionContent.append(steps);
+     for(const receipt of plan.completed){const line=document.createElement("p");line.textContent="Confirmed creation: "+receipt.type+" ";if(receipt.url){const link=document.createElement("a");link.href=receipt.url;link.textContent="Open";line.append(link)}evolutionContent.append(line)}
+    }
     if(snapshot.planError){const p=document.createElement("p");p.textContent="Saved plan unavailable: "+snapshot.planError;evolutionContent.append(p)}
     section("Recent conversation and creation history",snapshot.recentHistory||[],(row,entry)=>{
      const time=entry.at?new Date(entry.at):null;
