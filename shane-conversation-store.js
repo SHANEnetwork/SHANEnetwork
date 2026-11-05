@@ -209,6 +209,7 @@ async function reasonAndCreate({endeavorId,request}={}){
  }catch(error){console.warn("Network coordination context unavailable",error)}
  const outcomes=await list({endeavorId,kinds:["creation-outcome"],limit:8,includeArchived:true}).catch(()=>[]);
  networkEvidence.verifiedCreationOutcomes=outcomes.map(row=>{try{return JSON.parse(row.body)}catch{return null}}).filter(x=>x?.verified===true&&x?.complete===true&&Array.isArray(x.receipts));
+ networkEvidence.outcomeReviewRule="Compare recorded original requirements to verified creation receipts. Identify gaps and tests; a saved record does not prove feature quality or usability.";
  const purpose="Use this whole-to-parts analysis as context, challenge its assumptions and integrate the strongest alternatives into a concrete endeavor response. Compare existing saved creations and accepted collaborators when relevant. Never claim an operation occurred without a receipt. Analysis is not execution: "+JSON.stringify({analysis,networkEvidence}).slice(0,15500);
  const result=await converse({endeavorId,request:vision,purpose});
  // Mirror Cat runs as a separate model call over the actual proposal, not
