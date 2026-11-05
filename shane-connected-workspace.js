@@ -197,7 +197,7 @@ function init(){
    status.textContent="Preparing your creation plan…";
    const aiAvailable=typeof store.proposeAICreationSequence==="function";
    const planner=aiAvailable?store.proposeAICreationSequence:store.proposeCreationSequence;
-   const proposal=await planner({vision:idea,endeavorId:initialEndeavor});
+   const proposal=await planner({vision:idea,endeavorId:initialEndeavor,reasoningContext:reviewedReasoning?.endeavorId===initialEndeavor&&reviewedReasoning?.request===idea?reviewedReasoning.response:""});
    if(planningVersion!==thisPlanVersion||currentId()!==initialEndeavor||vision.value!==initialVision||reply.value!==initialReply){status.textContent="Your vision or selected endeavor changed while planning. Review a fresh plan for the current conversation.";return}
    if(!proposal||!proposal.ready||!Array.isArray(proposal.steps)||!proposal.steps.length){
     const missing=Array.isArray(proposal?.missing)?proposal.missing.map(item=>item?.issue).filter(Boolean).slice(0,3):[];
