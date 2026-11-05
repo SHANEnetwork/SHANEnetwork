@@ -1290,9 +1290,15 @@ async function recoverVerifiedCreationHistory({endeavorId,record}={}){
  if(artifactError||!artifact)throw Error("This saved creation is unavailable to your account.");
  if(source.kind==="website"&&endeavor.linked_site_id!==record.id)throw Error("This website is not linked to the selected endeavor.");
  if(source.kind!=="website"&&record.endeavorLinked===false)throw Error("This creation's endeavor connection is not confirmed.");
- const history=await list({endeavorId,limit:500,includeArchived:true,kinds:["creation-summary"]});
- for(const row of history){
-  try{const existing=JSON.parse(row.body);if(existing.id===record.id&&existing.type===record.type&&existing.endeavorId===endeavorId&&existing.saved===true)return {saved:true,alreadyRecorded:true}}catch{}
+ // Scan archived as well as recent history so an old recovery cannot duplicate
+ // an already-confirmed artifact merely because the endeavor has grown.
+ for(let offset=0;offset<10000;offset+=500){
+  const history=await list({endeavorId,limit:500,offset,includeArchived:true,kinds:["creation-summary"]});
+  for(const row of history){
+   try{const existing=JSON.parse(row.body);if(existing.id===record.id&&existing.type===record.type&&existing.endeavorId===endeavorId&&existing.saved===true)return {saved:true,alreadyRecorded:true}}catch{}
+  }
+  if(history.length<500)break;
+  if(offset===9500)throw Error("History verification reached its limit; recovery was not repeated.");
  }
  const verified={version:1,endeavorId,id:artifact.id,type:record.type,changeKind:record.changeKind||"creation",url:typeof record.url==="string"?record.url.slice(0,1000):null,vision:String(record.vision||"").slice(0,1200),saved:true,endeavorLinked:true};
  return saveTurn(JSON.stringify(verified),{page:"shane-dashboard",kind:"creation-summary",endeavorId});
