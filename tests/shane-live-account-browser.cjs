@@ -65,6 +65,11 @@ const sb=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false
   assert.equal(reopenedListing.endeavor_id,id,'Component link must survive sign-out and return');
   assert.equal(reopenedListing.owner_id,user.id);
   assert.equal(reopenedListing.status,'draft');
+  const {data:inventory,error:inventoryError}=await sb.from('shane_listings')
+   .select('id,endeavor_id,owner_id,status').eq('owner_id',user.id).eq('endeavor_id',id);
+  assert.ifError(inventoryError);
+  assert.equal(inventory.filter(item=>item.id===listingId).length,1,
+   'Returning owner must find the saved component once in its endeavor inventory');
   console.log('PASS dedicated account private component creation, association, privacy and return');
 
   console.log('PASS dedicated account create, revise, sign-out, return and reopen');
