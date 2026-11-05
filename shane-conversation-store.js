@@ -177,6 +177,18 @@ const reasoningPrinciples=Object.freeze({
  feasibility:"Distinguish confirmed facts, constraints, permissions and available tools from assumptions.",
  communication:"Lead with possibility, useful creation and concrete next steps. Avoid repetitive disclaimers, self-defeating qualifications and speeches about limitations. Mention a constraint only when it changes a real decision, and pair it with a constructive route forward. Distinguish proposed from completed work concisely."
 });
+async function analyzeWithCompasses({endeavorId,request,purpose}={}){
+ const account=await user();
+ if(!account)throw Error("Sign in to examine an endeavor.");
+ if(!/^[0-9a-f-]{36}$/i.test(String(endeavorId||"")))throw Error("Select a saved endeavor.");
+ const prompt=String(request||purpose||"Analyze the endeavor's coherence and alternatives").trim();
+ if(prompt.length<2||prompt.length>12000)throw Error("Compass request length invalid.");
+ const {data,error}=await db.functions.invoke("shane-converse",{body:{mode:"compass-analysis",endeavorId,request:prompt,purpose:String(purpose||"").slice(0,12000)}});
+ if(error||data?.error)throw Error(data?.error||error?.message||"Compass analysis unavailable.");
+ if(!data?.analysis||!Array.isArray(data.analysis.components)||!Array.isArray(data.analysis.alternatives))throw Error("Compass analysis incomplete.");
+ await saveTurn({endeavorId,kind:"compass-analysis",text:JSON.stringify({request:prompt,analysis:data.analysis}),page:"compass"});
+ return data.analysis;
+}
 async function converse({endeavorId,request,purpose,mode}){
  const account=await user();
  if(!account)throw Error("Sign in to continue your endeavor with SHANE AI.");
