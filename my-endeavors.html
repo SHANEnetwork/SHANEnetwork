@@ -32,7 +32,21 @@ a.action.secondary{background:#f3e6df;color:#483344}#status{margin-top:24px}.con
 <script type="module">
 import {createClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/+esm";
 const status=document.getElementById("status"),projects=document.getElementById("projects"),search=document.getElementById("endeavorSearch"),sort=document.getElementById("endeavorSort"),searchStatus=document.getElementById("endeavorSearchStatus");let savedCards=[];function showSaved(){const q=search.value.trim().toLocaleLowerCase();const rows=savedCards.filter(x=>!q||x.search.includes(q)).sort((a,b)=>sort.value==="title"?a.title.localeCompare(b.title):sort.value==="oldest"?a.time-b.time:b.time-a.time);projects.replaceChildren(...rows.map(x=>x.card));searchStatus.textContent=rows.length+" of "+savedCards.length+" saved endeavors shown."}search.addEventListener("input",showSaved);sort.addEventListener("change",showSaved);
-document.getElementById("start-vision").addEventListener("submit",event=>{event.preventDefault();const idea=document.getElementById("vision").value.trim(),status=document.getElementById("vision-status");if(idea.length<20){status.textContent="Tell me a little more about your vision so we can begin.";return}try{const destination=window.SHANEEndeavorCore?.handoff(idea,"my-endeavors");if(!destination)throw new Error("Shared endeavor foundation is not ready");status.textContent="Your vision is ready. Opening SHANE’s creator…";location.assign(destination)}catch(error){status.textContent="Your browser did not permit saving the handoff. Copy your description before opening SHANE."}});
+document.getElementById("start-vision").addEventListener("submit",async event=>{
+ event.preventDefault();const input=document.getElementById("vision"),idea=input.value.trim(),notice=document.getElementById("vision-status");
+ if(idea.length<20){notice.textContent="Describe your endeavor in a little more detail.";return}
+ const button=event.currentTarget.querySelector('[type="submit"]');if(button)button.disabled=true;
+ try{
+  const {data:{user}}=await sb.auth.getUser();
+  if(!user){sessionStorage.setItem("shane_welcome_draft",idea);notice.textContent="Your vision is preserved in this browser. Sign in through Members and return to create it.";return}
+  if(!window.SHANEConversationStore?.establishEndeavor)await import("./shane-conversation-store.js");
+  const result=await window.SHANEConversationStore.establishEndeavor({vision:idea,approved:true});
+  notice.textContent=result.networkDraftSaved?"Endeavor and private Network draft saved. Opening your endeavor…":"Endeavor saved. Network draft needs attention: "+result.error;
+  if(result.networkDraftSaved)location.assign("my-endeavors.html?endeavor="+encodeURIComponent(result.endeavorId));
+  else{const open=link("Open saved endeavor","dashboard.html?endeavor="+encodeURIComponent(result.endeavorId));notice.append(" ",open)}
+ }catch(error){notice.textContent="Could not save your endeavor: "+String(error?.message||error)+". Your description remains available."}
+ finally{if(button)button.disabled=false}
+});
 const sb=createClient("https://ufxzogeixdwvbpdypojb.supabase.co","sb_publishable_iR9kxdCfQ7850VleEUx7mA_nHS4WZpB");
 function link(text,url,secondary=false){const a=document.createElement("a");a.textContent=text;a.href=url;a.className="action"+(secondary?" secondary":"");return a}
 try{
@@ -47,10 +61,10 @@ status.textContent=rows.length?("Your saved endeavors ("+rows.length+(rows.lengt
 for(const item of rows){
 const card=document.createElement("article"),h=document.createElement("h2"),p=document.createElement("p");
 h.textContent=item.title||"Untitled endeavor";p.textContent=(item.idea||"").slice(0,350);card.append(h,p);if(item.updated_at){const stamp=document.createElement("small");const date=new Date(item.updated_at);if(!Number.isNaN(date.getTime())){stamp.textContent="Last updated "+date.toLocaleDateString();card.append(stamp)}}
-const url="builder.html?endeavor="+encodeURIComponent(item.id)+"#vision-first";
+const url="dashboard.html?endeavor="+encodeURIComponent(item.id);
 const resume=link("Continue creating",url);
-resume.addEventListener("click",()=>{try{window.SHANEEndeavorCore?.update({id:item.id,vision:item.idea||"",source:"account-library"},"resume-selected");sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:item.id,origin:"account-library"}));sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination:"builder.html",endeavorId:item.id,origin:"account-library",visibility:"private",created:Date.now()}))}catch{}});
-card.append(resume,link("Find collaborators","members.html?endeavor="+encodeURIComponent(item.id),true));savedCards.push({card,title:(item.title||"Untitled endeavor").toLocaleLowerCase(),search:((item.title||"")+" "+(item.idea||"")).toLocaleLowerCase(),time:Date.parse(item.updated_at)||0});
+resume.addEventListener("click",()=>{try{window.SHANEEndeavorCore?.update({id:item.id,vision:item.idea||"",source:"account-library"},"resume-selected");sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:item.id,origin:"account-library"}));sessionStorage.setItem("shane-intent-handoff-v1",JSON.stringify({destination:"dashboard.html",endeavorId:item.id,origin:"account-library",visibility:"private",created:Date.now()}))}catch{}});
+card.append(resume,link("Find collaborators","members.html?endeavor="+encodeURIComponent(item.id),true),link("Coordinate work","workspace.html?endeavor="+encodeURIComponent(item.id),true),link("Create a website","builder.html?endeavor="+encodeURIComponent(item.id)+"#vision-first",true));savedCards.push({card,title:(item.title||"Untitled endeavor").toLocaleLowerCase(),search:((item.title||"")+" "+(item.idea||"")).toLocaleLowerCase(),time:Date.parse(item.updated_at)||0});
 }showSaved();
 }
 }catch(error){status.textContent="Unable to load saved endeavors. Nothing has been changed. Please try again after signing in.";console.warn("SHANE endeavor library:",error)}
