@@ -908,7 +908,7 @@ async function saveCreationPlan({endeavorId,steps}={}){
 }
 async function loadCreationPlan({endeavorId}={}){
  if(!endeavorId)throw Error("Select an endeavor to restore its creation plan.");
- const rows=await list({endeavorId,kinds:["creation-plan"],limit:1});
+ const rows=await list({endeavorId,kinds:["creation-plan"],includeArchived:true,limit:1});
  if(!rows.length)return null;
  const plan=JSON.parse(rows[0].body);
  if(plan.version!==1||!Array.isArray(plan.steps))throw Error("Unsupported saved creation plan.");
