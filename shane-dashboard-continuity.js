@@ -262,7 +262,8 @@ async function init(){
     if(!window.SHANEConversationStore?.executeVision)await import("./shane-conversation-store.js");
     const store=window.SHANEConversationStore;if(!store?.executeVision)throw Error("Creation engine unavailable.");
     const submittedType=choice.value;
-    const result=await store.executeVision({type:submittedType,vision:request.value.trim(),endeavorId:item.id,siteId:submittedType==="website"?item.linked_site_id:undefined,deadline:submittedType==="campaign"?deadline.value:undefined});
+    const submittedVision=request.value.trim();
+    const result=await store.executeVision({type:submittedType,vision:submittedVision,endeavorId:item.id,siteId:submittedType==="website"?item.linked_site_id:undefined,deadline:submittedType==="campaign"?deadline.value:undefined});
     outcome.textContent=submittedType==="website"?"Your endeavor website revision was saved. Publication status was not changed here.":"Saved privately for your endeavor. Nothing was published."; 
     if(submittedType==="new-website"&&!result.endeavorLink?.linked)outcome.textContent="The website was saved, but its connection to this endeavor is not confirmed.";
     if(result.endeavorLink?.reason)outcome.textContent=result.endeavorLink.reason;
@@ -273,7 +274,7 @@ async function init(){
      retryMemory.addEventListener("click",async()=>{
       retryMemory.disabled=true;
       try{
-       const record={version:1,endeavorId:item.id,id:result.id,type:submittedType,changeKind:result.receipt?.changeKind||"creation",url:result.url||null,vision:request.value.trim().slice(0,1200),saved:true,endeavorLinked:submittedType==="new-website"?result.endeavorLink?.linked===true:true};
+       const record={version:1,endeavorId:item.id,id:result.id,type:submittedType,changeKind:result.receipt?.changeKind||"creation",url:result.url||null,vision:submittedVision.slice(0,1200),saved:true,endeavorLinked:submittedType==="new-website"?result.endeavorLink?.linked===true:true};
        const saved=await store.saveTurn(JSON.stringify(record),{page:"shane-dashboard",kind:"creation-summary",endeavorId:item.id});
        if(!saved?.saved)throw Error("History was not confirmed.");
        retryMemory.replaceWith(document.createTextNode("Creation recorded in endeavor history."));
