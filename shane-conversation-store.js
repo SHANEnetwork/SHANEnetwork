@@ -1093,11 +1093,12 @@ async function endeavorSnapshot({endeavorId}={}){
  // Direct database relationships are authoritative even if the creation
  // predates the current conversation window or its receipt was never saved.
  let durableLinksComplete=true;
+ const durableIds=new Set();
  try{
   for(let offset=0;offset<10000;offset+=500){
    const {data,error:linksError}=await db.from("shane_endeavor_artifacts").select("artifact_id,artifact_type").eq("endeavor_id",endeavorId).eq("owner_id",account.id).range(offset,offset+499);
    if(linksError)throw linksError;
-   for(const link of data||[])if(link?.artifact_id)confirmedIds.add(link.artifact_id);
+   for(const link of data||[])if(link?.artifact_id){confirmedIds.add(link.artifact_id);durableIds.add(link.artifact_id)}
    if((data||[]).length<500)break;
    if(offset===9500)durableLinksComplete=false;
   }
@@ -1117,6 +1118,7 @@ async function endeavorSnapshot({endeavorId}={}){
  }
  const linkedCreations=allCreations.filter(item=>item.linkedToEndeavor).map(item=>({
   ...item,
+  durableLinkConfirmed:durableIds.has(item.id),
   url:item.url?(new URL(item.url,location.href).searchParams.has("endeavor")?item.url:item.url+(item.url.includes("?")?"&":"?")+"endeavor="+encodeURIComponent(endeavorId)):null
  }));
  // Saved creation plans are shared across pages. Recovery is read-only here:
@@ -1132,7 +1134,7 @@ async function endeavorSnapshot({endeavorId}={}){
   collaborations:collaborations.status==="fulfilled"?collaborations.value.collaborations:[],
   creationPlan:plan?{steps:plan.steps.length,types:plan.steps.map(step=>step.type),remaining:progress?.remaining??null,completed:progress?.completed||[],nextStep:progress?.nextStep||null,complete:progress?.complete===true}:null,planError,
   recentHistory:history.status==="fulfilled"?history.value.slice(0,12).map(row=>({kind:row.entry_kind,text:String(row.body||"").slice(0,900),at:row.created_at})):[],
-  availability:{creations:creations.status==="fulfilled"&&receiptHistoryComplete&&recoveredArtifactsComplete,collaborations:collaborations.status==="fulfilled",history:history.status==="fulfilled"},
+  availability:{creations:creations.status==="fulfilled"&&receiptHistoryComplete&&recoveredArtifactsComplete&&durableLinksComplete,collaborations:collaborations.status==="fulfilled",history:history.status==="fulfilled"},
   readOnly:true};
 }
 async function executeApprovedSequence({steps,endeavorId,approved=false,completed=[]}={}){
