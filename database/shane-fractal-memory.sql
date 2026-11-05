@@ -27,7 +27,7 @@ create table if not exists public.shane_memory_chapters (
  chapter_number bigint not null check(chapter_number>0),
  summary text not null default '',
  decisions jsonb not null default '[]'::jsonb check(jsonb_typeof(decisions)='array'),
- references jsonb not null default '[]'::jsonb check(jsonb_typeof(references)='array'),
+ source_references jsonb not null default '[]'::jsonb check(jsonb_typeof(source_references)='array'),
  updated_at timestamptz not null default now(),
  primary key(endeavor_id,chapter_number)
 );
