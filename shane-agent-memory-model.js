@@ -78,9 +78,9 @@ export function ponderHarmonize({agent,endeavorId,previous,criteria=["impact","f
   evaluation:"Provisional synthesis hypothesis from recorded text; not an AI-validated breakthrough."
  };
  concepts.push(concept);
- const ideas=Array.isArray(previous?.betterIdeas)?previous.betterIdeas.slice(-39):[];
- if(!ideas.some(x=>x.idea===hypothesis))ideas.push({at,idea:hypothesis,reason:"Derived from comparison of two archived improvement candidates; evaluate against both source ideas.",comparedWith:sources.join(" | ").slice(0,1200),status:"candidate",source:{type:"ponder-harmonizer",sources}});
- return {snapshot:{...(previous||{}),version:6,agent,endeavorId,betterIdeas:ideas,concepts,updatedAt:at},comparison:concept};
+ const evolvedIdeas=ideas.slice(-39);
+ if(!evolvedIdeas.some(x=>x.idea===hypothesis))evolvedIdeas.push({at,idea:hypothesis,reason:"Derived from comparison of two archived improvement candidates; evaluate against both source ideas.",comparedWith:sources.join(" | ").slice(0,1200),status:"candidate",source:{type:"ponder-harmonizer",sources}});
+ return {snapshot:{...(previous||{}),version:6,agent,endeavorId,betterIdeas:evolvedIdeas,concepts,updatedAt:at},comparison:concept};
 
 }
 
