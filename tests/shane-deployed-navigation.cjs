@@ -35,9 +35,7 @@ const pages = [
    'Primary homepage vision must reach the endeavor entry page');
   await page.locator('#start button[type="submit"]').click();
   await page.waitForURL(url => url.pathname.endsWith('/dashboard.html'), {timeout:15000});
-  const handoff = await page.evaluate(() =>
-   JSON.parse(sessionStorage.getItem('shane-intent-handoff-v1') || 'null'));
-  assert.equal(handoff?.text, vision, 'Endeavor dashboard must receive the original intent');
+  // The arrival receiver consumes its one-time handoff; assert the visible result instead.
   await page.waitForFunction(expected => document.querySelector('#goalInput')?.value === expected,
    vision, {timeout:15000});
   assert.equal(await page.locator('#goalInput').inputValue(), vision,
