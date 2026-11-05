@@ -1019,16 +1019,45 @@ async function consolidateVortexChapter({endeavorId,chapter,turns}={}){
  const expected=(chapter-1)*20+1;
  if(turns.some((t,i)=>t.turn_number!==expected+i))return {saved:false,reason:"noncontiguous-chapter"};
  const marker="vortex:"+chapter;
- const prior=await list({endeavorId,limit:100,kinds:["vortex-idea-checkpoint"]});
- if(prior.some(x=>x.body===marker))return {saved:false,reason:"already-consolidated"};
+ // Checkpoint records are durable, not restricted to the latest hundred chapters.
+ const {data:existing,error:markerError}=await db.from(table).select("id").eq("owner_id",account.id).eq("endeavor_id",endeavorId).eq("entry_kind","vortex-idea-checkpoint").eq("body",marker).limit(1);
+ if(markerError)throw markerError;
+ if(existing?.length)return {saved:false,reason:"already-consolidated"};
  const previous=await agentWorkingMemory({endeavorId,agent:"creator"});
- const harvested=harvestChapterIdeas({agent:"creator",endeavorId,previous,chapter,turns});
- const {snapshot,comparison}=ponderHarmonize({agent:"creator",endeavorId,previous:harvested.snapshot});
- if(harvested.harvested.length||comparison){
+ // Prefer contextual model reasoning over phrase harvesting and lexical pairings.
+ const candidates=(previous?.betterIdeas||[]).filter(x=>x&&typeof x.idea==="string").slice(-24);
+ const {data,error}=await db.functions.invoke("shane-converse",{body:{mode:"concept-evolution",endeavorId,chapter,turns:turns.map(t=>({turn_number:t.turn_number,role:t.role,body:t.body})),candidates}});
+ if(error||data?.error||data?.endeavorId!==endeavorId||data?.chapter!==chapter||data?.reasoning!=="model-reviewed")
+  return {saved:false,reason:"reasoning-unavailable",error:String(data?.error||error?.message||"Unverified response")};
+ let snapshot=previous||{agent:"creator",endeavorId};
+ const added=[];
+ for(const item of data.ideas||[]){
+  if(!item||typeof item.idea!=="string"||!item.idea.trim())continue;
+  if(snapshot.betterIdeas?.some(x=>x.idea===item.idea))continue;
+  snapshot=rememberBetterIdea({agent:"creator",endeavorId,previous:snapshot,idea:item.idea,reason:item.reason});
+  const saved=snapshot.betterIdeas[snapshot.betterIdeas.length-1];
+  saved.source={type:"vortex-chapter",chapter,turnNumbers:item.sourceTurns||[],method:"model-reviewed"};
+  added.push(saved);
+ }
+ let concept=null;
+ const c=data.comparison;
+ if(c&&typeof c.concept==="string"&&Array.isArray(c.sources)&&c.sources.length>=2){
+  concept={...c,at:new Date().toISOString(),kind:"harmonized-concept",status:"proposed",method:"model-reviewed",chapter};
+  const concepts=Array.isArray(snapshot.concepts)?snapshot.concepts.slice():[];
+  if(!concepts.some(x=>x.concept===concept.concept))concepts.push(concept);
+  snapshot={...snapshot,concepts,version:7,updatedAt:concept.at};
+  // Synthesis competes with its predecessors in subsequent chapters.
+  if(!snapshot.betterIdeas?.some(x=>x.idea===concept.concept)){
+   snapshot=rememberBetterIdea({agent:"creator",endeavorId,previous:snapshot,idea:concept.concept,reason:concept.rationale,comparedWith:c.sources.join(" | ").slice(0,1200)});
+   snapshot.betterIdeas[snapshot.betterIdeas.length-1].source={type:"model-synthesis",chapter,sources:c.sources};
+  }
+ }
+ if(added.length||concept){
   const written=await saveTurn(JSON.stringify(snapshot),{endeavorId,kind:"agent-memory-creator",page:"vortex-consolidation"});
   if(!written.saved)return written;
  }
- return saveTurn(marker,{endeavorId,kind:"vortex-idea-checkpoint",page:"vortex-consolidation"});
+ const recorded=await saveTurn(marker,{endeavorId,kind:"vortex-idea-checkpoint",page:"vortex-consolidation"});
+ return {...recorded,ideas:added.length,concept:concept?.concept||null,method:"model-reviewed"};
 }
 async function getEndeavorVision({endeavorId}={}){
  const account=await user();
