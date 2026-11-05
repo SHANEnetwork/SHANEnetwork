@@ -227,11 +227,22 @@ async function reasonAndCreate({endeavorId,request}={}){
    improvementStatus=typeof improved?.response==="string"&&improved.response.trim()?"completed":"invalid";
   }catch(error){improvementStatus="unavailable";console.warn("Maximizer improvement unavailable",error)}
  }
- const record={request:vision,compassRecommendation:analysis.recommendation,alternatives:analysis.alternatives,response:result.response,improvedResponse:improved?.response||null,improvementStatus,independentReview:review?{recommendation:review.recommendation,contradictions:review.contradictions,validationTests:review.validationTests}:null,reviewStatus,executed:false};
+ // Independent comparative gate: later is not automatically better.
+ let comparison=null,comparisonStatus="not-run",selectedResponse=result.response;
+ if(improvementStatus==="completed"){
+  try{
+   const comparePrompt="Evaluate TWO candidate responses to the same original vision, using the same evidence and requirements. Decide which is stronger, or whether neither is sufficiently supported. Explicitly identify defects and tests; do not assume candidate B is better because it is newer. Vision: "+vision.slice(0,3000)+"; Candidate A: "+String(result.response||"").slice(0,4500)+"; Candidate B: "+String(improved.response||"").slice(0,4500)+"; Prior review: "+String(review?.recommendation||"").slice(0,2500);
+   comparison=await analyzeWithCompasses({endeavorId,request:comparePrompt,purpose:"Independent comparison gate. Begin recommendation with exactly WINNER:A, WINNER:B, or WINNER:NEITHER, followed by evidence and outstanding tests. Choose B only with concrete justification."});
+   const verdict=String(comparison?.recommendation||"").trim().match(/^WINNER:(A|B|NEITHER)\\b/);
+   comparisonStatus=verdict?verdict[1].toLowerCase():"unresolved";
+   if(comparisonStatus==="b")selectedResponse=improved.response;
+  }catch(error){comparisonStatus="unavailable";console.warn("Comparative review unavailable",error)}
+ }
+ const record={request:vision,compassRecommendation:analysis.recommendation,alternatives:analysis.alternatives,response:result.response,improvedResponse:improved?.response||null,improvementStatus,comparisonStatus,comparisonRecommendation:comparison?.recommendation||null,independentReview:review?{recommendation:review.recommendation,contradictions:review.contradictions,validationTests:review.validationTests}:null,reviewStatus,executed:false};
  const serialized=JSON.stringify(record);
- const saved=await saveTurn(serialized.length<=20000?serialized:JSON.stringify({request:vision.slice(0,3000),compassRecommendation:String(analysis.recommendation||"").slice(0,2000),response:String(result.response||"").slice(0,5500),improvedResponse:String(improved?.response||"").slice(0,5500),improvementStatus,reviewStatus,reviewRecommendation:String(review?.recommendation||"").slice(0,1500),note:"Complete analyses retained as separate Compass entries"}),{endeavorId,kind:"reasoning-cycle",page:"endeavor-intelligence"});
+ const saved=await saveTurn(serialized.length<=20000?serialized:JSON.stringify({request:vision.slice(0,3000),compassRecommendation:String(analysis.recommendation||"").slice(0,2000),response:String(result.response||"").slice(0,5500),improvedResponse:String(improved?.response||"").slice(0,5500),improvementStatus,comparisonStatus,comparisonRecommendation:String(comparison?.recommendation||"").slice(0,1200),reviewStatus,reviewRecommendation:String(review?.recommendation||"").slice(0,1500),note:"Complete analyses retained as separate Compass entries"}),{endeavorId,kind:"reasoning-cycle",page:"endeavor-intelligence"});
  if(!saved?.saved)throw Error("Reasoning result could not be archived. Please retry before relying on its continuity.");
- return {analysis,response:improvementStatus==="completed"?improved.response:result.response,originalResponse:result.response,review,reviewStatus,improvementStatus,creationPlan:result.creationPlan||null,executed:false};
+ return {analysis,response:selectedResponse,comparison,comparisonStatus,originalResponse:result.response,review,reviewStatus,improvementStatus,creationPlan:result.creationPlan||null,executed:false};
 }
 async function converse({endeavorId,request,purpose,mode}){
  const account=await user();
