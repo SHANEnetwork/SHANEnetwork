@@ -66,6 +66,50 @@ async function init(){
   collabRefresh.addEventListener("click",()=>void refreshConnections());
   document.addEventListener("shane:endeavor-creation-saved",event=>{if(event.detail?.endeavorId===item.id)void refreshConnections()});
   void refreshConnections();
+  // A single read-only account-backed view of this endeavor's evolution.
+  const timeline=document.createElement("section");timeline.id="shane-endeavor-evolution";timeline.style.cssText="margin-top:18px;padding:20px;border:1px solid #dec6c0;border-radius:18px;background:#fffaf3";
+  const evolutionTitle=document.createElement("h3");evolutionTitle.textContent="Your endeavor's continuing story";
+  const evolutionStatus=document.createElement("p");evolutionStatus.setAttribute("role","status");
+  const evolutionContent=document.createElement("div");
+  const evolutionRefresh=document.createElement("button");evolutionRefresh.type="button";evolutionRefresh.textContent="Refresh endeavor history";
+  timeline.append(evolutionTitle,evolutionStatus,evolutionContent,evolutionRefresh);host.append(timeline);
+  function section(label,items,render){
+   const wrap=document.createElement("section"),heading=document.createElement("h4");heading.textContent=label;wrap.append(heading);
+   if(!items.length){const empty=document.createElement("p");empty.textContent="Nothing recorded here yet.";wrap.append(empty)}
+   for(const entry of items){const row=document.createElement("p");render(row,entry);wrap.append(row)}
+   evolutionContent.append(wrap);
+  }
+  async function refreshEvolution(){
+   evolutionRefresh.disabled=true;evolutionStatus.textContent="Reading this endeavor's saved creations, decisions and ongoing work…";evolutionContent.replaceChildren();
+   try{
+    if(!window.SHANEConversationStore?.endeavorSnapshot)await import("./shane-conversation-store.js");
+    const snapshot=await window.SHANEConversationStore.endeavorSnapshot({endeavorId:item.id});
+    if(snapshot.endeavor?.id!==item.id)throw Error("The returned history does not match this endeavor.");
+    const available=snapshot.availability||{};
+    evolutionStatus.textContent="Saved endeavor: "+(snapshot.endeavor.title||"Untitled")+". This view includes only records SHANE could verify.";
+    if(!available.creations||!available.history||!available.collaborations){const note=document.createElement("p");note.textContent="Some history sources are temporarily unavailable; the view may be incomplete.";evolutionContent.append(note)}
+    section("Creations belonging to this endeavor",snapshot.creations||[],(row,creation)=>{
+     row.append(document.createTextNode((creation.type||"Creation")+": "+(creation.title||"Untitled")+" "));
+     if(creation.url){const link=document.createElement("a");link.href=creation.url;link.textContent="Open";row.append(link)}
+    });
+    section("Accepted collaborators",snapshot.collaborations||[],(row,connection)=>{
+     row.append(document.createTextNode(connection.listingTitle||"Collaboration"));
+     if(connection.url){const link=document.createElement("a");link.href=connection.url;link.textContent=" Coordinate";row.append(link)}
+    });
+    const plan=snapshot.creationPlan;
+    if(plan){const p=document.createElement("p");p.textContent="Saved creation plan: "+plan.completed.length+" completed step(s), "+(plan.remaining===null?"unknown":plan.remaining)+" remaining.";evolutionContent.append(p)}
+    if(snapshot.planError){const p=document.createElement("p");p.textContent="Saved plan unavailable: "+snapshot.planError;evolutionContent.append(p)}
+    section("Recent conversation and creation history",snapshot.recentHistory||[],(row,entry)=>{
+     const time=entry.at?new Date(entry.at):null;
+     row.textContent=(time&&!Number.isNaN(time.getTime())?time.toLocaleDateString()+" · ":"")+(entry.kind||"Update")+": "+(entry.text||"");
+    });
+   }catch(error){evolutionStatus.textContent="Unable to load this endeavor's history: "+String(error?.message||error)}
+   finally{evolutionRefresh.disabled=false}
+  }
+  evolutionRefresh.addEventListener("click",()=>void refreshEvolution());
+  document.addEventListener("shane:endeavor-creation-saved",event=>{if(event.detail?.endeavorId===item.id)void refreshEvolution()});
+  void refreshEvolution();
+
   form.addEventListener("submit",async event=>{
    event.preventDefault();if(!request.reportValidity()||!deadline.reportValidity())return;
    create.disabled=true;outcome.textContent="Creating and saving for "+(item.title||"this endeavor")+"…";
