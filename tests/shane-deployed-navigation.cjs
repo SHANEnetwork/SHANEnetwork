@@ -14,6 +14,15 @@ const pages = [
  const browser = await chromium.launch({headless:true});
  try {
   const page = await browser.newPage();
+  const failures = [];
+  page.on('pageerror', error => failures.push('JavaScript error: ' + error.message));
+  page.on('response', response => {
+   const url = new URL(response.url());
+   if (url.origin === new URL(base).origin && response.status() >= 400 &&
+       /\\.(?:js|css)(?:$|\\?)/i.test(url.pathname + url.search)) {
+    failures.push('Broken application asset: HTTP ' + response.status() + ' ' + url.pathname);
+   }
+  });
   for (const [path, expectedTitle] of pages) {
    const response = await page.goto(base + path, {waitUntil:'domcontentloaded',timeout:30000});
    assert(response && response.status() >= 200 && response.status() < 400,
@@ -61,5 +70,7 @@ const pages = [
     'Homepage navigation landed on an empty page: ' + destination);
    console.log('PASS homepage navigation click: ' + destination);
   }
+  assert.deepEqual([...new Set(failures)], [],
+   'Deployed journey encountered broken scripts, stylesheets or uncaught JavaScript errors');
  } finally { await browser.close(); }
 })().catch(error => { console.error('Deployed navigation smoke failed:', error.message); process.exitCode = 1; });
