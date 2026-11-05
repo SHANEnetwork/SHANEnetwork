@@ -1095,6 +1095,15 @@ async function consolidateVortexChapter({endeavorId,chapter,turns}={}){
   const written=await saveTurn(JSON.stringify(snapshot),{endeavorId,kind:"agent-memory-creator",page:"vortex-consolidation"});
   if(!written.saved)return written;
  }
+ // Persist chapter-level meaning without replacing any of the 20 source turns.
+ // The checkpoint is written only after this durable chapter record succeeds.
+ const chapterRecord={endeavor_id:endeavorId,owner_id:account.id,chapter_number:chapter,
+  summary:String(concept?.concept||data.ideas?.map(x=>x.idea).join("; ")||"No new concepts identified").slice(0,6000),
+  decisions:concept?[{status:"proposed",concept:concept.concept,review:concept.mirrorCat?.independent||null}]:[],
+  source_references:added.map(x=>({idea:x.idea,turns:x.source?.turnNumbers||[]})).slice(0,8),
+  updated_at:new Date().toISOString()};
+ const {error:chapterError}=await db.from("shane_memory_chapters").upsert(chapterRecord,{onConflict:"endeavor_id,chapter_number"});
+ if(chapterError)return {saved:false,reason:"chapter-summary-unavailable",error:chapterError.message};
  const recorded=await saveTurn(marker,{endeavorId,kind:"vortex-idea-checkpoint",page:"vortex-consolidation"});
  return {...recorded,ideas:added.length,concept:concept?.concept||null,method:"model-reviewed"};
 }
