@@ -103,9 +103,10 @@ function init(){
  const planButton=host.querySelector("#shane-connected-plan");
  const createButton=host.querySelector("#shane-connected-create");
  let reviewedPlan=null;
+ let reviewedReasoning=null;
  const planReview=host.querySelector("#shane-connected-plan-review");
  let planningVersion=0;
- const invalidatePlan=()=>{planningVersion++;reviewedPlan=null;createButton.disabled=true;planReview.replaceChildren()};
+ const invalidatePlan=()=>{planningVersion++;reviewedPlan=null;reviewedReasoning=null;createButton.disabled=true;planReview.replaceChildren()};
  vision.addEventListener("input",invalidatePlan);
  reply.addEventListener("input",invalidatePlan);
  document.addEventListener("shane:endeavor-changed",invalidatePlan);
