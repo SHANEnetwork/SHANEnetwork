@@ -1247,7 +1247,7 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
  // of which page or execution route produced the private artifact.
  if(endeavorId){
   try{
-   await saveTurn("SHANE saved a private "+type+" from the endeavor vision. Creation ID: "+id+". Continue editing: "+url+". Requested vision: "+request.slice(0,1200),
+   await saveTurn("SHANE "+(type==="website"?"revised the endeavor website":"saved a private "+type)+" for this endeavor. Creation ID: "+id+". Continue editing: "+url+". Requested vision: "+request.slice(0,1200),
     {page:"shane-computer",kind:"creation-summary",endeavorId});
   }catch(error){
    creation.historySaved=false;
