@@ -172,7 +172,7 @@ function init(){
     const reviewLine=document.createElement("p");reviewLine.textContent="Independent review: "+result.reviewStatus+"; comparative verdict: "+result.comparisonStatus+".";panel.append(reviewLine);
     for(const alternative of (result.analysis?.alternatives||[]).slice(0,4)){
      const item=document.createElement("p");
-     item.textContent="Alternative: "+String(alternative.name||"Unnamed path");
+     item.textContent="Alternative: "+(typeof alternative==="string"?alternative:String(alternative.name||alternative.description||alternative.title||"Unnamed path"));
      panel.append(item);
     }
    }
