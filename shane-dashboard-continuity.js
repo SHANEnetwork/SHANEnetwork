@@ -41,7 +41,7 @@ async function init(){
     const result=await window.SHANEConversationStore.reasonAndCreate({endeavorId:item.id,request:conversationInput.value.trim()});
     conversationAnswer.textContent=String(result.response||"No response returned.");
     const createNext=document.createElement("button");createNext.type="button";createNext.textContent="Use this conversation to create a private draft";
-    createNext.addEventListener("click",()=>{const studio=document.getElementById("shane-endeavor-creation-studio");const draft=studio?.querySelector("textarea");if(!draft)return;draft.value=conversationInput.value.trim();studio.scrollIntoView({behavior:"smooth",block:"start"});draft.focus();});
+    createNext.addEventListener("click",()=>{const studio=document.getElementById("shane-endeavor-creation-studio");const draft=studio?.querySelector("textarea");if(!draft)return;draft.value=conversationInput.value.trim();draft.dispatchEvent(new Event("input",{bubbles:true}));studio.scrollIntoView({behavior:"smooth",block:"start"});draft.focus();});
     conversationAnswer.append(createNext);
     conversationStatus.textContent=result.selectionProvisional?"Reasoning saved to this endeavor. The comparison is provisional; no action was executed.":"Reasoning saved to this endeavor. No action was executed.";
     if(result.creationPlan){
@@ -88,13 +88,13 @@ async function init(){
   for(const [value,label] of [["listing","Network opportunity or collaboration listing"],["community","Community or association"],["campaign","Event or campaign"],...(item.linked_site_id?[]:[["new-website","Website for this endeavor"]])]){const option=document.createElement("option");option.value=value;option.textContent=label;choice.append(option)}
   if(item.linked_site_id){const option=document.createElement("option");option.value="website";option.textContent="Revise this endeavor\u0027s primary website";choice.append(option)}
   const request=document.createElement("textarea");request.rows=4;request.maxLength=12000;request.required=true;request.minLength=8;request.placeholder="Describe the outcome you want, the people it serves, and what should be created…";request.style.cssText="width:100%;box-sizing:border-box;padding:12px;border-radius:12px";
-  const usePurpose=document.createElement("button");usePurpose.type="button";usePurpose.textContent="Create from this endeavor\u0027s original vision";usePurpose.addEventListener("click",()=>{request.value=String(item.idea||"").slice(0,12000);request.focus()});
+  const usePurpose=document.createElement("button");usePurpose.type="button";usePurpose.textContent="Create from this endeavor\u0027s original vision";usePurpose.addEventListener("click",()=>{request.value=String(item.idea||"").slice(0,12000);request.dispatchEvent(new Event("input",{bubbles:true}));request.focus()});
   const draftKey="shane-endeavor-creation-draft-v1:"+item.id;
   try{const pending=JSON.parse(sessionStorage.getItem(draftKey)||"null");if(pending&&typeof pending.vision==="string"){request.value=pending.vision.slice(0,12000);if([...choice.options].some(option=>option.value===pending.type))choice.value=pending.type}}catch{}
   const preserveDraft=()=>{try{sessionStorage.setItem(draftKey,JSON.stringify({vision:request.value,type:choice.value,updatedAt:Date.now()}))}catch{}};
   request.addEventListener("input",preserveDraft);
   choice.addEventListener("change",preserveDraft);
-  const deadline=document.createElement("input");deadline.type="datetime-local";deadline.setAttribute("aria-label","Interest deadline for event or campaign");deadline.hidden=true;
+  const deadline=document.createElement("input");deadline.type="datetime-local";deadline.setAttribute("aria-label","Interest deadline for event or campaign");deadline.hidden=choice.value!=="campaign";deadline.required=choice.value==="campaign";
   choice.addEventListener("change",()=>{deadline.hidden=choice.value!=="campaign";deadline.required=choice.value==="campaign"});
   const create=document.createElement("button");create.type="submit";create.textContent="Create and save private draft";
   const outcome=document.createElement("p");outcome.setAttribute("role","status");
