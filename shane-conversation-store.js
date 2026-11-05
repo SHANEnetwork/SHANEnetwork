@@ -814,11 +814,13 @@ async function collaborationContext({endeavorId,limit=12}={}){
  if(ownerError||!owned)throw Error("The selected endeavor does not belong to your account.");
  const max=Math.max(1,Math.min(30,Number(limit)||12));
  const listings=[];
+ let listingsComplete=true;
  for(let offset=0;offset<1000;offset+=100){
   const {data,error}=await db.from("shane_listings").select("id,title").eq("endeavor_id",endeavorId).eq("owner_id",account.id).order("id").range(offset,offset+99);
   if(error)throw error;
   listings.push(...(data||[]));
   if((data||[]).length<100)break;
+  if(offset===900)listingsComplete=false;
  }
  if(!listings?.length)return {endeavorId,listings:[],collaborations:[],confirmed:true};
  const ids=listings.map(item=>item.id);
@@ -841,7 +843,7 @@ async function collaborationContext({endeavorId,limit=12}={}){
     fromSelf:message.sender_id===account.id,body:String(message.body||"").slice(0,500),at:message.created_at
    }))};
  }));
- return {endeavorId,listings:listings.map(item=>({id:item.id,title:item.title})),collaborations,confirmed:true};
+ return {endeavorId,listings:listings.map(item=>({id:item.id,title:item.title})),collaborations,confirmed:true,listingsComplete};
 }
 async function coordinateEndeavor({vision,endeavorId,aiSteps=[]}={}){
  const goal=String(vision||"").trim();
