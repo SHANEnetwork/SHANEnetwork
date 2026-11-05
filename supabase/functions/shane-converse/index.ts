@@ -84,6 +84,16 @@ If there is no meaningful novel insight, return comparison:null. Every claim mus
    return reply({endeavorId,chapter,ideas,comparison,saved:false,executed:false,reasoning:"model-reviewed"});
   }catch{return reply({error:"Concept evolution failed"},502)}
  }
+ if(input?.mode==="compass-analysis"){
+  const prompt="You are SHANE's Spiral and Fractal Compass. Analyze the entire endeavor as a system, then recursively examine its components, interfaces, dependencies, constraints, contradictions and failure modes. Generate at least two materially distinct pathways. Test each pathway against the original vision and existing resources. Distinguish verified facts from hypotheses. Return JSON with keys: wholeGoal (string), components (array of {name,purpose,dependencies,risks}), contradictions (array of strings), alternatives (array of {name,benefits,costs,risks}), hiddenOpportunities (array of strings), recommendation (string), validationTests (array of strings), confidence (low|medium|high). No fabricated outcomes, no executed actions.";
+  try{
+   const response=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+secret},body:JSON.stringify({model:"gpt-4.1-mini",temperature:0.3,max_tokens:2500,response_format:{type:"json_object"},messages:[{role:"system",content:prompt},{role:"user",content:JSON.stringify({endeavor:{title:endeavor.title,vision:endeavor.idea,plan:endeavor.plan},request,purpose,history:history.slice(-8)})}]})});
+   if(!response.ok)return reply({error:"Compass analysis unavailable"},502);
+   const data=await response.json(),analysis=JSON.parse(data.choices?.[0]?.message?.content||"{}");
+   if(typeof analysis.wholeGoal!=="string"||!Array.isArray(analysis.components)||!Array.isArray(analysis.alternatives)||analysis.alternatives.length<2||!Array.isArray(analysis.contradictions)||!Array.isArray(analysis.validationTests)||typeof analysis.recommendation!=="string")return reply({error:"Compass analysis incomplete"},502);
+   return reply({endeavorId,analysis,saved:false,executed:false,reasoning:"whole-to-parts"});
+  }catch{return reply({error:"Compass analysis failed"},502)}
+ }
  if(input?.mode==="creation-plan"){
   try{
    const provider=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+secret},body:JSON.stringify({model:"gpt-4.1-mini",temperature:0.2,max_tokens:1800,response_format:{type:"json_object"},messages:[{role:"system",content:"You are SHANE's private creation planner. Return only JSON with steps (array of objects containing type and vision) and explanation (short rationale). Allowed types: new-website, community, campaign, listing. At most eight steps. Include only what the person intends to create. No publication, messages, payments, or invitations. Do not invent dates or details. The person must approve every creation."},{role:"user",content:JSON.stringify({request,originalVision:endeavor.idea,purpose})}]})});
