@@ -22,6 +22,29 @@ async function init(){
   sessionStorage.setItem("shane-active-endeavor-v1",JSON.stringify({id:item.id,updated:Date.now()}));
   document.dispatchEvent(new CustomEvent("shane:active-endeavor-changed",{detail:{id:item.id}}));
   status.textContent="Continuing: "+(item.title||"Untitled endeavor")+". Your work remains private until you choose otherwise.";
+  // Conversation remains the primary way to develop the endeavor. Reasoning is saved, not executed without approval.
+  const conversation=document.createElement("section");conversation.id="shane-endeavor-conversation";conversation.style.cssText="margin:20px 0;padding:22px;border:1px solid #dec6c0;border-radius:20px;background:#fffaf3";
+  const conversationTitle=document.createElement("h3");conversationTitle.textContent="Continue developing "+(item.title||"this endeavor")+" with SHANE";
+  const conversationNote=document.createElement("p");conversationNote.textContent="Discuss the endeavor's direction, decisions, problems, and next creations. SHANE examines alternatives and saves its reasoning to this endeavor's history. Nothing is published or executed automatically.";
+  const conversationForm=document.createElement("form");conversationForm.style.cssText="display:grid;gap:12px";
+  const conversationInput=document.createElement("textarea");conversationInput.rows=4;conversationInput.required=true;conversationInput.minLength=8;conversationInput.maxLength=12000;conversationInput.placeholder="What should we develop, reconsider, or accomplish next for this endeavor?";conversationInput.style.cssText="width:100%;box-sizing:border-box;padding:12px;border-radius:12px";
+  const think=document.createElement("button");think.type="submit";think.textContent="Develop this endeavor with SHANE";
+  const conversationStatus=document.createElement("p");conversationStatus.setAttribute("role","status");
+  const conversationAnswer=document.createElement("div");conversationAnswer.setAttribute("aria-live","polite");conversationAnswer.style.whiteSpace="pre-wrap";
+  conversationForm.append(conversationInput,think,conversationStatus);conversation.append(conversationTitle,conversationNote,conversationForm,conversationAnswer);host.append(conversation);
+  conversationForm.addEventListener("submit",async event=>{
+   event.preventDefault();if(!conversationInput.reportValidity())return;
+   think.disabled=true;conversationStatus.textContent="Developing this endeavor and comparing possible paths…";
+   try{
+    if(!window.SHANEConversationStore?.reasonAndCreate)await import("./shane-conversation-store.js");
+    const result=await window.SHANEConversationStore.reasonAndCreate({endeavorId:item.id,request:conversationInput.value.trim()});
+    conversationAnswer.textContent=String(result.response||"No response returned.");
+    conversationStatus.textContent=result.selectionProvisional?"Reasoning saved to this endeavor. The comparison is provisional; no action was executed.":"Reasoning saved to this endeavor. No action was executed.";
+    if(result.creationPlan){const note=document.createElement("p");note.textContent="A creation plan was proposed for review, not automatically executed.";conversationAnswer.append(note)}
+    document.dispatchEvent(new CustomEvent("shane:endeavor-reasoning-saved",{detail:{endeavorId:item.id}}));
+   }catch(error){conversationStatus.textContent="Could not confirm the reasoning was saved: "+String(error?.message||error)+". Your request remains available."}
+   finally{think.disabled=false}
+  });
   const actions=[
    ["Continue the endeavor","my-endeavors.html?endeavor="+encodeURIComponent(id)],
    ["Coordinate work","workspace.html?endeavor="+encodeURIComponent(id)],
@@ -107,6 +130,7 @@ async function init(){
    finally{evolutionRefresh.disabled=false}
   }
   evolutionRefresh.addEventListener("click",()=>void refreshEvolution());
+  document.addEventListener("shane:endeavor-reasoning-saved",event=>{if(event.detail?.endeavorId===item.id)void refreshEvolution()});
   document.addEventListener("shane:endeavor-creation-saved",event=>{if(event.detail?.endeavorId===item.id)void refreshEvolution()});
   void refreshEvolution();
 
