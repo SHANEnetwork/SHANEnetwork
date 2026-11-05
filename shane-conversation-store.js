@@ -443,13 +443,23 @@ async function pendingRevisionVerification({endeavorId,limit=20}={}){
  if(!/^[0-9a-f-]{36}$/i.test(String(endeavorId||"")))throw Error("Select a saved endeavor.");
  const {data:owned,error}=await db.from("shane_endeavors").select("id").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
  if(error||!owned)throw Error("The selected endeavor is unavailable to this account.");
- const rows=await list({endeavorId,kinds:["creation-revision-outcome"],limit:Math.min(100,Math.max(1,Number(limit)||20)),includeArchived:true});
+ const rows=await list({endeavorId,kinds:["creation-revision-outcome","creation-revision-verification"],limit:Math.min(500,Math.max(40,(Number(limit)||20)*5)),includeArchived:true});
+ // Verification records must be backed by explicit evidence; a model's
+ // unsupported claim or a mere save receipt never closes a revision.
+ const validated=new Set();
+ for(const row of rows){
+  if(row.entry_kind!=="creation-revision-verification")continue;
+  let record;try{record=JSON.parse(row.body)}catch{continue}
+  if(record?.passed===true&&record?.method==="independent-test"&&typeof record?.evidence==="string"&&record.evidence.trim().length>=12&&typeof record.creationId==="string"&&typeof record.revisionId==="string")validated.add(record.creationId+":"+record.revisionId);
+ }
  const seen=new Set(),pending=[];
  for(const row of rows){
+  if(row.entry_kind!=="creation-revision-outcome")continue;
   let item;try{item=JSON.parse(row.body)}catch{continue}
   if(!item||typeof item.creationId!=="string"||typeof item.revisionId!=="string")continue;
   const key=item.creationId+":"+item.revisionId;
   if(seen.has(key))continue;seen.add(key);
+  if(validated.has(key))continue;
   if(item.verifiedPersistence!==true||item.verifiedFunctionality!==false)continue;
   pending.push({creationId:item.creationId,revisionId:item.revisionId,request:String(item.request||"").slice(0,1200),status:"functional-verification-required",saved:true,functionalityVerified:false});
  }
@@ -470,7 +480,7 @@ async function pendingRevisionVerification({endeavorId,limit=20}={}){
   item.hasSavedVersion=evidence?.hasSavedVersion===true;
   item.status=!item.creationExists?"saved-creation-missing":!item.hasSavedVersion?"version-history-missing":"functional-verification-required";
  }
- return {endeavorId,pending,count:pending.length,queueEmpty:pending.length===0,fullyVerified:false,scope:"recorded-revisions-only",note:"An empty queue does not establish functional completeness; each recorded revision requires independent functional evidence."};
+ return {endeavorId,pending,count:pending.length,verifiedRevisionCount:validated.size,queueEmpty:pending.length===0,fullyVerified:false,scope:"recorded-revisions-only",note:"An empty queue does not establish functional completeness; each recorded revision requires independent functional evidence."};
 }
 async function createPrivateListing({vision,title,description,category="project",endeavorId=null}={}){
  const account=await user();if(!account)throw Error("Sign in to save a Network listing.");
