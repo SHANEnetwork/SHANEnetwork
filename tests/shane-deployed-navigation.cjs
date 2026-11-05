@@ -66,6 +66,16 @@ const pages = [
   assert.equal(await page.locator('#visionPrompt').inputValue(), vision,
    'Dashboard Continue must preserve the original endeavor vision in the builder');
   console.log('PASS deployed endeavor continuation: dashboard -> builder');
+  // Starting another endeavor must discard the previous URL selection too.
+  await page.evaluate(() => history.replaceState(history.state, '',
+   'builder.html?endeavor=previous-project#vision-first'));
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('#shaneNewVisionEndeavor').click();
+  assert.equal(new URL(page.url()).searchParams.has('endeavor'), false,
+   'Starting a new endeavor must clear the old account-project URL');
+  assert.equal(await page.locator('#visionPrompt').inputValue(), '',
+   'Starting a separate endeavor must clear the previous vision');
+  console.log('PASS new endeavor isolation: previous project URL and draft cleared');
   // Prove that actual visible homepage navigation works, not just direct URLs.
   for (const destination of ['builder.html', 'my-network.html', 'network.html']) {
    await page.goto(base + '/', {waitUntil:'domcontentloaded'});
