@@ -202,7 +202,7 @@ function init(){
    if(aiAvailable&&!selectedReasoning&&typeof store.reasonAndCreate==="function"){
     status.textContent="Evaluating alternatives before preparing creation steps…";
     const evaluated=await store.reasonAndCreate({endeavorId:initialEndeavor,request:idea});
-    if(planningVersion!==thisPlanVersion||currentId()!==initialEndeavor)return;
+    if(planningVersion!==thisPlanVersion||currentId()!==initialEndeavor||vision.value!==initialVision||reply.value!==initialReply)return;
     selectedReasoning=String(evaluated.response||"").slice(0,6000);
    }
    const proposal=await planner({vision:idea,endeavorId:initialEndeavor,reasoningContext:selectedReasoning});
