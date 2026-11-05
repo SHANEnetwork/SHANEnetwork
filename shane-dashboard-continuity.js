@@ -100,6 +100,30 @@ async function init(){
   const create=document.createElement("button");create.type="submit";create.textContent="Create and save private draft";
   const outcome=document.createElement("p");outcome.setAttribute("role","status");
   form.append(choice,request,usePurpose,deadline,create,outcome);studio.append(heading,explanation,form);host.append(studio);
+  // Recover the original saved website instead of creating a duplicate if linking failed.
+  let orphanedWebsite=null;
+  try{const prior=JSON.parse(sessionStorage.getItem("shane-last-created-artifact-v1")||"null");if(prior?.type==="new-website"&&prior.endeavorId===item.id&&prior.endeavorLink?.linked===false&&valid(prior.id))orphanedWebsite=prior}catch{}
+  if(orphanedWebsite&&!item.linked_site_id){
+   const reconnect=document.createElement("button");reconnect.type="button";reconnect.textContent="Reconnect saved website to this endeavor";
+   const reconnectStatus=document.createElement("p");reconnectStatus.setAttribute("role","status");reconnectStatus.textContent="A website was saved but its endeavor connection was not confirmed. Reconnect that existing website before creating another.";
+   studio.append(reconnectStatus,reconnect);
+   reconnect.addEventListener("click",async()=>{
+    reconnect.disabled=true;reconnectStatus.textContent="Verifying website ownership and reconnecting…";
+    try{
+     if(!window.SHANEConversationStore?.repairEndeavorWebsiteLink)await import("./shane-conversation-store.js");
+     const result=await window.SHANEConversationStore.repairEndeavorWebsiteLink({endeavorId:item.id,siteId:orphanedWebsite.id});
+     if(!result.linked)throw Error("The link was not confirmed.");
+     item.linked_site_id=orphanedWebsite.id;
+     const option=choice.querySelector('option[value="new-website"]');
+     if(option){option.value="website";option.textContent="Revise this endeavor's primary website";}
+     sessionStorage.removeItem(draftKey);
+     sessionStorage.removeItem("shane-last-created-artifact-v1");
+     reconnectStatus.textContent="Your existing website is now linked to this endeavor. No duplicate was created.";
+     reconnect.remove();
+     document.dispatchEvent(new CustomEvent("shane:endeavor-creation-saved",{detail:{endeavorId:item.id,type:"website",artifactId:item.linked_site_id,changeKind:"link-recovery",endeavorLinked:true}}));
+    }catch(error){reconnectStatus.textContent="Website connection was not confirmed: "+String(error?.message||error);reconnect.disabled=false}
+   });
+  }
   // A failed optional listing must not strand the saved endeavor outside its conversation.
   let pendingListing=null;
   try{const pending=JSON.parse(sessionStorage.getItem("shane-endeavor-listing-pending-v1")||"null");if(pending?.endeavorId===item.id&&typeof pending.vision==="string")pendingListing=pending}catch{}
