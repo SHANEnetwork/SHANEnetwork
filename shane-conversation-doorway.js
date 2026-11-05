@@ -66,7 +66,7 @@ function init(){
    retryEndeavorId=result.endeavorId;
    try{sessionStorage.removeItem("shane_welcome_draft")}catch{}
    if(result.networkDraftSaved){
-    status.textContent="Your endeavor and private Network draft are saved. Nothing has been published.";
+    status.textContent=result.published?"Your existing Network listing was already published; no new publication occurred.":"Your endeavor and private Network draft are saved. Nothing has been published.";
    }else{
     status.textContent="Your endeavor was saved, but its Network draft needs another attempt: "+(result.error||"Unknown error");
    }
