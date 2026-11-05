@@ -436,6 +436,25 @@ async function reviseSavedCreation({endeavorId,creationId,request}={}){
  return data;
 }
 
+// Read-only, owner-scoped verification queue. Persistence is not functional proof.
+// The queue is deliberately deterministic so an AI answer cannot mark its own work verified.
+async function pendingRevisionVerification({endeavorId,limit=20}={}){
+ const account=await user();if(!account)throw Error("Sign in to inspect revision verification.");
+ if(!/^[0-9a-f-]{36}$/i.test(String(endeavorId||"")))throw Error("Select a saved endeavor.");
+ const {data:owned,error}=await db.from("shane_endeavors").select("id").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
+ if(error||!owned)throw Error("The selected endeavor is unavailable to this account.");
+ const rows=await list({endeavorId,kinds:["creation-revision-outcome"],limit:Math.min(100,Math.max(1,Number(limit)||20)),includeArchived:true});
+ const seen=new Set(),pending=[];
+ for(const row of rows){
+  let item;try{item=JSON.parse(row.body)}catch{continue}
+  if(!item||typeof item.creationId!=="string"||typeof item.revisionId!=="string")continue;
+  const key=item.creationId+":"+item.revisionId;
+  if(seen.has(key))continue;seen.add(key);
+  if(item.verifiedPersistence!==true||item.verifiedFunctionality!==false)continue;
+  pending.push({creationId:item.creationId,revisionId:item.revisionId,request:String(item.request||"").slice(0,1200),status:"functional-verification-required",saved:true,functionalityVerified:false});
+ }
+ return {endeavorId,pending,count:pending.length,complete:pending.length===0,scope:"recorded-revisions-only"};
+}
 async function createPrivateListing({vision,title,description,category="project",endeavorId=null}={}){
  const account=await user();if(!account)throw Error("Sign in to save a Network listing.");
  const name=String(title||"").trim().slice(0,150),details=String(description||vision||"").trim().slice(0,4000);
@@ -1217,6 +1236,6 @@ async function getEndeavorVision({endeavorId}={}){
  if(error||!data)throw Error(error?.message||"Saved endeavor not found.");
  return String(data.idea||"").trim();
 }
-window.SHANEConversationStore=Object.freeze({reasonAndCreate,analyzeWithCompasses,consolidateVortexChapter,agentWorkingMemory,updateAgentWorkingMemory,rememberConfirmedMilestone,saveBetterIdea,getEndeavorVision,beginEndeavor,converse,evaluateCreationPlan,synthesizeEndeavor,compassReview,harmonizeEndeavorPlan,coordinateEndeavor,collaborationContext,joinedCollaborations,endeavorSnapshot,reviseSavedCreation,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,computerCapabilities,inspectOperation,previewVisionSequence,proposeCreationSequence,proposeAICreationSequence,prepareCreationSequence,executeVision,executeVisionSequence,executeApprovedSequence,verifySequenceProgress,saveCreationPlan,loadCreationPlan,listSavedCreationPlans,searchSavedCreationPlans,recallEndeavor,describeSavedCreationPlan,recoverCreationProgress,inspectSavedEndeavor,continueSavedEndeavor,resumeVisionSequence,recentCreations,findSavedCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
+window.SHANEConversationStore=Object.freeze({reasonAndCreate,analyzeWithCompasses,consolidateVortexChapter,agentWorkingMemory,updateAgentWorkingMemory,rememberConfirmedMilestone,saveBetterIdea,getEndeavorVision,beginEndeavor,converse,evaluateCreationPlan,synthesizeEndeavor,compassReview,harmonizeEndeavorPlan,coordinateEndeavor,collaborationContext,joinedCollaborations,endeavorSnapshot,reviseSavedCreation,pendingRevisionVerification,createPrivateListing,createPrivateCampaign,createPrivateCommunity,interpretVision,createPrivateWebsite,computerCapabilities,inspectOperation,previewVisionSequence,proposeCreationSequence,proposeAICreationSequence,prepareCreationSequence,executeVision,executeVisionSequence,executeApprovedSequence,verifySequenceProgress,saveCreationPlan,loadCreationPlan,listSavedCreationPlans,searchSavedCreationPlans,recallEndeavor,describeSavedCreationPlan,recoverCreationProgress,inspectSavedEndeavor,continueSavedEndeavor,resumeVisionSequence,recentCreations,findSavedCreations,creationContext,ownedSites,reviseSite,siteVersions,restoreSiteVersion,saveTurn,list,continuityPacket,searchHistory,endeavors,endeavorContext:async(id,limit=40)=>id?(await list({endeavorId:id,limit})).reverse():[],setArchived,remove,exportHistory,flush,connectedUser:user,context:async(options={})=>(await list(options)).slice().reverse(),recent:async(limit=20,endeavorId=null)=>{const rows=await list({limit,endeavorId});return rows.map(row=>({text:row.body,page:row.source_page,kind:row.entry_kind,at:row.created_at,endeavorId:row.endeavor_id}))}});
 document.dispatchEvent(new Event("shane:conversation-store-ready"));
 void flush();
