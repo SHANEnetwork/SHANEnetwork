@@ -1183,6 +1183,11 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
  }
  // Creation generators receive the endeavor's verified purpose, not an isolated task.
  // Keep the original request intact for saved receipts and revision history.
+ if(type==="new-website"&&ownedEndeavor){
+  const existing=await db.from("shane_endeavors").select("linked_site_id").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
+  if(existing.error||!existing.data)throw Error("The endeavor website relationship could not be checked.");
+  if(existing.data.linked_site_id)throw Error("This endeavor already has a primary website. Revise that website from the endeavor dashboard.");
+ }
  const context=ownedEndeavor?("Endeavor: "+String(ownedEndeavor.title||"").slice(0,150)+". Purpose: "+String(ownedEndeavor.idea||"").slice(0,1800)+". This creation must serve that endeavor; do not replace its purpose. Requested creation: "):"";
  const groundedRequest=context?(context.slice(0,Math.max(0,12000-request.length))+request):request;
  let result;
