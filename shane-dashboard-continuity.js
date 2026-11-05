@@ -43,6 +43,29 @@ async function init(){
   const create=document.createElement("button");create.type="submit";create.textContent="Create and save private draft";
   const outcome=document.createElement("p");outcome.setAttribute("role","status");
   form.append(choice,request,deadline,create,outcome);studio.append(heading,explanation,form);host.append(studio);
+  // Show actual account-authorized collaboration records, not guessed matches.
+  const collaboration=document.createElement("section");collaboration.id="shane-endeavor-collaboration";collaboration.style.cssText="margin-top:18px;padding:20px;border:1px solid #dec6c0;border-radius:18px;background:#fffaf3";
+  const collabTitle=document.createElement("h3");collabTitle.textContent="People and opportunities connected to this endeavor";
+  const collabStatus=document.createElement("p");collabStatus.setAttribute("role","status");
+  const collabList=document.createElement("div");
+  const collabRefresh=document.createElement("button");collabRefresh.type="button";collabRefresh.textContent="Refresh connections";
+  collaboration.append(collabTitle,collabStatus,collabList,collabRefresh);host.append(collaboration);
+  async function refreshConnections(){
+   collabRefresh.disabled=true;collabStatus.textContent="Checking saved opportunities and accepted collaborations…";collabList.replaceChildren();
+   try{
+    if(!window.SHANEConversationStore?.collaborationContext)await import("./shane-conversation-store.js");
+    const context=await window.SHANEConversationStore.collaborationContext({endeavorId:item.id,limit:20});
+    if(context.endeavorId!==item.id||!context.confirmed)throw Error("Could not verify the endeavor's connections.");
+    collabStatus.textContent=context.listings.length+" saved Network listing(s), "+context.collaborations.length+" accepted collaboration(s).";
+    for(const listing of context.listings){const p=document.createElement("p");p.textContent="Opportunity: "+listing.title+" ";const link=document.createElement("a");link.href="members.html?listing="+encodeURIComponent(listing.id)+"&endeavor="+encodeURIComponent(item.id);link.textContent="Review listing";p.append(link);collabList.append(p)}
+    for(const connection of context.collaborations){const p=document.createElement("p");p.textContent="Accepted collaboration for "+connection.listingTitle+" ";const link=document.createElement("a");link.href=connection.url;link.textContent="Coordinate together";p.append(link);collabList.append(p)}
+    if(!context.listings.length){const p=document.createElement("p");p.textContent="No Network listings are attached yet. Create a private opportunity above to begin.";collabList.append(p)}
+   }catch(error){collabStatus.textContent="Could not load verified connections: "+String(error?.message||error)}
+   finally{collabRefresh.disabled=false}
+  }
+  collabRefresh.addEventListener("click",()=>void refreshConnections());
+  document.addEventListener("shane:endeavor-creation-saved",event=>{if(event.detail?.endeavorId===item.id)void refreshConnections()});
+  void refreshConnections();
   form.addEventListener("submit",async event=>{
    event.preventDefault();if(!request.reportValidity()||!deadline.reportValidity())return;
    create.disabled=true;outcome.textContent="Creating and saving for "+(item.title||"this endeavor")+"…";
