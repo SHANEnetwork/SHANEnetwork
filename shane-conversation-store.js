@@ -924,6 +924,7 @@ async function executeApprovedSequence({steps,endeavorId,approved=false,complete
  const outcome=await resumeVisionSequence({steps,completed:recovered.completed,endeavorId});
  try{await verifySequenceProgress({steps,completed:outcome.completed})}
  catch(error){return {...outcome,complete:false,verified:false,verificationError:String(error.message||error)}}
+ await recordVerifiedCreationOutcome({endeavorId,steps,outcome});
  return {...outcome,verified:true};
 }
 async function executeVisionSequence({steps,endeavorId,startIndex=0}={}){
