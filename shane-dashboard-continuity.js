@@ -130,7 +130,20 @@ async function init(){
       if(!saved?.saved)reconnectStatus.textContent="Website connected. Its history record still needs verification.";
      }catch(error){reconnectStatus.textContent="Website connected, but its history record could not be confirmed."}
      try{const latest=JSON.parse(sessionStorage.getItem("shane-last-created-artifact-v1")||"null");if(latest?.id===orphanedWebsite.id)sessionStorage.removeItem("shane-last-created-artifact-v1")}catch{}
-     if(!reconnectStatus.textContent.includes("history record"))reconnectStatus.textContent="Your existing website is now linked to this endeavor. No duplicate was created.";
+     if(reconnectStatus.textContent.includes("history record")){
+      const retry=document.createElement("button");retry.type="button";retry.textContent="Retry saving website connection to endeavor history";
+      studio.append(retry);
+      retry.addEventListener("click",async()=>{
+       retry.disabled=true;
+       try{
+        const saved=await window.SHANEConversationStore.saveTurn(JSON.stringify({version:1,endeavorId:item.id,id:orphanedWebsite.id,type:"new-website",changeKind:"link-recovery",url:orphanedWebsite.url||"builder.html?site="+encodeURIComponent(orphanedWebsite.id)+"&endeavor="+encodeURIComponent(item.id),vision:String(orphanedWebsite.vision||"").slice(0,1200),saved:true,endeavorLinked:true}),{page:"shane-dashboard",kind:"creation-summary",endeavorId:item.id});
+        if(!saved?.saved)throw Error("History was not confirmed.");
+        reconnectStatus.textContent="Website connected and recorded in this endeavor's history.";
+        retry.remove();
+        document.dispatchEvent(new CustomEvent("shane:endeavor-creation-saved",{detail:{endeavorId:item.id,type:"website",artifactId:orphanedWebsite.id}}));
+       }catch(error){retry.disabled=false;reconnectStatus.textContent="Website remains connected. History retry failed: "+String(error?.message||error)}
+      });
+     }else reconnectStatus.textContent="Your existing website is now linked to this endeavor. No duplicate was created.";
      reconnect.remove();
      document.dispatchEvent(new CustomEvent("shane:endeavor-creation-saved",{detail:{endeavorId:item.id,type:"website",artifactId:item.linked_site_id,changeKind:"link-recovery",endeavorLinked:true}}));
     }catch(error){reconnectStatus.textContent="Website connection was not confirmed: "+String(error?.message||error);reconnect.disabled=false}
