@@ -1072,7 +1072,7 @@ async function endeavorSnapshot({endeavorId}={}){
  // Resolve older confirmed artifacts by their actual owner-scoped database records.
  // Recent account activity alone is not an endeavor's complete creation inventory.
  const recoveredCreations=[];
- const unresolvedIds=[...confirmedIds].filter(id=>/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(id)&&!creationItems.some(item=>item.id===id));
+ let unresolvedIds=[...confirmedIds].filter(id=>/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(id)&&!creationItems.some(item=>item.id===id));
  const artifactSources=[
   {table:"shane_sites",type:"website",title:"name",page:"builder.html",param:"site"},
   {table:"shane_organizations",type:"community",title:"name",page:"communities.html",param:"organization"},
@@ -1090,6 +1090,18 @@ async function endeavorSnapshot({endeavorId}={}){
   if(results.some(result=>result.status==="rejected"))recoveredArtifactsComplete=false;
   for(const result of results)if(result.status==="fulfilled")recoveredCreations.push(...result.value);
  }
+ // Direct database relationships are authoritative even if the creation
+ // predates the current conversation window or its receipt was never saved.
+ let durableLinksComplete=true;
+ try{
+  for(let offset=0;offset<10000;offset+=500){
+   const {data,error:linksError}=await db.from("shane_endeavor_artifacts").select("artifact_id,artifact_type").eq("endeavor_id",endeavorId).eq("owner_id",account.id).range(offset,offset+499);
+   if(linksError)throw linksError;
+   for(const link of data||[])if(link?.artifact_id)confirmedIds.add(link.artifact_id);
+   if((data||[]).length<500)break;
+   if(offset===9500)durableLinksComplete=false;
+  }
+ }catch(error){durableLinksComplete=false;console.warn("Durable endeavor relationships unavailable",error)}
  const linked=creationItems.filter(item=>confirmedIds.has(item.id));
  const allCreations=creationItems.map(item=>({...item,linkedToEndeavor:linked.some(found=>found.id===item.id)||confirmedIds.has(item.id)||item.type==="website"&&item.id===endeavor.linked_site_id}));
  for(const artifact of recoveredCreations)if(!allCreations.some(item=>item.id===artifact.id))allCreations.push(artifact);
