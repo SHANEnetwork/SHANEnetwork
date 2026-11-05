@@ -26,6 +26,8 @@ function init(){
  actions.append(submit,saved);form.append(label,input,actions,note);
  section.append(title,subtitle,form);
  if(main)main.insertAdjacentElement("afterbegin",section);else firstHeading.insertAdjacentElement("afterend",section);
+ let retryEndeavorId=null;
+ try{const draft=sessionStorage.getItem("shane_welcome_draft");if(draft&&!input.value)input.value=draft}catch{}
  const status=document.createElement("p");status.setAttribute("role","status");status.className="shane-doorway-note";form.append(status);
  form.addEventListener("submit",async event=>{
   event.preventDefault();const vision=input.value.trim();
@@ -42,8 +44,10 @@ function init(){
     status.textContent="Your vision is kept in this browser. Sign in through Members, then return here to establish it.";
     return;
    }
-   const result=await store.establishEndeavor({vision,approved:true});
+   const result=await store.establishEndeavor({vision,approved:true,endeavorId:retryEndeavorId});
    if(!result.endeavorSaved)throw Error("The endeavor could not be saved.");
+   retryEndeavorId=result.endeavorId;
+   try{sessionStorage.removeItem("shane_welcome_draft")}catch{}
    if(result.networkDraftSaved){
     status.textContent="Your endeavor and private Network draft are saved. Nothing has been published.";
    }else{
@@ -55,7 +59,7 @@ function init(){
   }catch(error){status.textContent="SHANE could not establish the endeavor: "+String(error?.message||error)+". Your description remains here for retry."}
   finally{submit.disabled=false}
  });
- input.addEventListener("input",()=>input.setCustomValidity(""));
+ input.addEventListener("input",()=>{input.setCustomValidity("");retryEndeavorId=null});
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
