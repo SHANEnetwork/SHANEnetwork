@@ -422,9 +422,35 @@ $("aiMode").value=draftReady?"revise":"new";busy=true;send.disabled=true;message
     status.textContent="Open or save an endeavor before generating its connected website.";return;
    }
    if(vision.value.trim()!==idea){status.textContent="Your vision changed while saving. Review it and try again.";return}
-   try{sessionStorage.setItem("shane-ai-build-persist-v1",JSON.stringify({
-    endeavorId,vision:idea,created:Date.now()
-   }))}catch(error){status.textContent="Cannot preserve the creation handoff in this browser: "+error.message;return}
+   // If this endeavor already owns a website, continue THAT creation instead
+   // of generating an unrelated new draft that cannot be attached.
+   const db=window.shaneAccountDb;
+   if(!db){status.textContent="Account database is not ready. Your vision is unchanged.";return}
+   const {data:{user},error:authError}=await db.auth.getUser();
+   if(authError||!user){status.textContent="Sign in before creating or revising your endeavor.";return}
+   const {data:owned,error:ownedError}=await db.from("shane_endeavors")
+    .select("linked_site_id").eq("id",endeavorId).eq("owner_id",user.id).single();
+   if(ownedError||!owned){status.textContent="This endeavor could not be verified in your account.";return}
+   if(owned.linked_site_id){
+    const siteId=owned.linked_site_id;
+    const {data:site,error:siteError}=await db.from("shane_sites")
+     .select("id,content,status").eq("id",siteId).eq("owner_id",user.id).single();
+    if(siteError||!site?.content){status.textContent="The linked website could not be opened. No unrelated website was created.";return}
+    if(site.status!=="draft"){status.textContent="This endeavor's website is published. Open and review it before changing public content.";return}
+    const select=$("savedSites");
+    if(!select){status.textContent="The saved website selector is unavailable.";return}
+    if(![...select.options].some(option=>option.value===siteId))select.add(new Option("Linked endeavor website",siteId));
+    select.value=siteId;
+    await $("loadSite").onclick();
+    if(select.value!==siteId){status.textContent="Linked website selection changed. No revision started.";return}
+    $("aiMode").value="revise";
+    try{sessionStorage.removeItem("shane-ai-build-persist-v1")}catch{}
+   }else{
+    $("aiMode").value="new";
+    try{sessionStorage.setItem("shane-ai-build-persist-v1",JSON.stringify({
+     endeavorId,vision:idea,created:Date.now()
+    }))}catch(error){status.textContent="Cannot preserve the creation handoff in this browser: "+error.message;return}
+   }
    reply.value=idea;
    status.textContent="Endeavor established. Creating its private website draft and connecting it to your endeavor…";
    send.click();
