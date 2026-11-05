@@ -1173,16 +1173,16 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
  const inspection=inspectOperation({type,vision:request,siteId,deadline});
  if(!inspection.ready)throw Error(inspection.reason);
  const account=await user();if(!account)throw Error("Sign in to create with SHANE.");
+ let ownedEndeavor=null;
  if(endeavorId){
   if(!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(String(endeavorId)))throw Error("Invalid endeavor identifier.");
   const {data:owned,error:ownerError}=await db.from("shane_endeavors").select("id,title,idea").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
   if(ownerError||!owned)throw Error("The selected endeavor does not belong to your account.");
+  ownedEndeavor=owned;
  }
  // Creation generators receive the endeavor's verified purpose, not an isolated task.
  // Keep the original request intact for saved receipts and revision history.
- const purpose=endeavorId?await db.from("shane_endeavors").select("title,idea").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle():null;
- if(purpose?.error)throw purpose.error;
- const context=purpose?.data?("Endeavor: "+String(purpose.data.title||"").slice(0,150)+". Purpose: "+String(purpose.data.idea||"").slice(0,1800)+". This creation must serve that endeavor; do not replace its purpose. Requested creation: "):"";
+ const context=ownedEndeavor?("Endeavor: "+String(ownedEndeavor.title||"").slice(0,150)+". Purpose: "+String(ownedEndeavor.idea||"").slice(0,1800)+". This creation must serve that endeavor; do not replace its purpose. Requested creation: "):"";
  const groundedRequest=context?(context.slice(0,Math.max(0,12000-request.length))+request):request;
  let result;
  if(type==="new-website")result=await createPrivateWebsite({vision:groundedRequest});
