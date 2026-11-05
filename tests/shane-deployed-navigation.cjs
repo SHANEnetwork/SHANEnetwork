@@ -19,7 +19,7 @@ const pages = [
   page.on('response', response => {
    const url = new URL(response.url());
    if (url.origin === new URL(base).origin && response.status() >= 400 &&
-       /\\.(?:js|css)(?:$|\\?)/i.test(url.pathname + url.search)) {
+       /\.(?:js|css)$/i.test(url.pathname)) {
     failures.push('Broken application asset: HTTP ' + response.status() + ' ' + url.pathname);
    }
   });
