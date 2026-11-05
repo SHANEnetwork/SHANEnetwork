@@ -199,6 +199,11 @@ function init(){
    const aiAvailable=typeof store.proposeAICreationSequence==="function";
    const planner=aiAvailable?store.proposeAICreationSequence:store.proposeCreationSequence;
    let selectedReasoning=reasoningForPlan?.endeavorId===initialEndeavor&&reasoningForPlan?.request===idea?reasoningForPlan.response:"";
+   if(aiAvailable&&!selectedReasoning&&typeof store.reasonAndCreate==="function"){
+    status.textContent="Evaluating alternatives before preparing creation steps…";
+    const evaluated=await store.reasonAndCreate({endeavorId:initialEndeavor,request:idea});
+    selectedReasoning=String(evaluated.response||"").slice(0,6000);
+   }
    const proposal=await planner({vision:idea,endeavorId:initialEndeavor,reasoningContext:selectedReasoning});
    if(planningVersion!==thisPlanVersion||currentId()!==initialEndeavor||vision.value!==initialVision||reply.value!==initialReply){status.textContent="Your vision or selected endeavor changed while planning. Review a fresh plan for the current conversation.";return}
    if(!proposal||!proposal.ready||!Array.isArray(proposal.steps)||!proposal.steps.length){
