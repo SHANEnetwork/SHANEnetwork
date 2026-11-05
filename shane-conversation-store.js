@@ -1039,6 +1039,11 @@ async function endeavorSnapshot({endeavorId}={}){
   const {data:site}=await db.from("shane_sites").select("id,name,status").eq("id",endeavor.linked_site_id).eq("owner_id",account.id).maybeSingle();
   if(site)allCreations.unshift({id:site.id,title:site.name,type:"website",url:"builder.html?site="+encodeURIComponent(site.id)+"&endeavor="+encodeURIComponent(endeavorId),linkedToEndeavor:true,status:site.status});
  }
+ // Direct endeavor-linked listings must survive account-wide recent-creation limits.
+ if(collaborations.status==="fulfilled")for(const listing of collaborations.value.listings||[]){
+  if(!listing?.id||allCreations.some(item=>item.id===listing.id))continue;
+  allCreations.push({id:listing.id,title:String(listing.title||"Untitled opportunity"),type:"listing",url:"members.html?listing="+encodeURIComponent(listing.id),linkedToEndeavor:true,status:listing.status||"draft"});
+ }
  const linkedCreations=allCreations.filter(item=>item.linkedToEndeavor).map(item=>({
   ...item,
   url:item.url?(new URL(item.url,location.href).searchParams.has("endeavor")?item.url:item.url+(item.url.includes("?")?"&":"?")+"endeavor="+encodeURIComponent(endeavorId)):null
