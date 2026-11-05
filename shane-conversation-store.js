@@ -992,8 +992,9 @@ async function saveBetterIdea({endeavorId,agent="creator",idea,reason,comparedWi
  const kind="agent-memory-"+String(agent).toLowerCase().replace(/[^a-z0-9-]/g,"").slice(0,20);
  const previous=await agentWorkingMemory({endeavorId,agent});
  const remembered=rememberBetterIdea({agent,endeavorId,previous,idea,reason,comparedWith});
- const {snapshot}=ponderHarmonize({agent,endeavorId,previous:remembered});
- return saveTurn(JSON.stringify(snapshot),{endeavorId,kind,page:"agent-working-memory"});
+ // Save the proposal without inventing a synthesis from lexical similarity.
+ // Model-reviewed synthesis runs against full chapter evidence at consolidation.
+ return saveTurn(JSON.stringify(remembered),{endeavorId,kind,page:"agent-working-memory"});
 }
 async function consolidateIdeaCheckpoint({endeavorId,agent="creator"}={}){
  if(!endeavorId)return {saved:false,reason:"no-endeavor"};
@@ -1004,14 +1005,10 @@ async function consolidateIdeaCheckpoint({endeavorId,agent="creator"}={}){
  if(!count||count%20!==0)return {saved:false,reason:"not-checkpoint",turns:count};
  const checkpoint=await list({endeavorId,limit:1,kinds:["idea-checkpoint"]});
  if(checkpoint[0]?.body===String(count))return {saved:false,reason:"already-processed",turns:count};
- const previous=await agentWorkingMemory({endeavorId,agent});
- const {snapshot,comparison}=ponderHarmonize({agent,endeavorId,previous});
- if(comparison){
-  const result=await saveTurn(JSON.stringify(snapshot),{endeavorId,kind:"agent-memory-"+agent,page:"idea-consolidation"});
-  if(!result.saved)return result;
- }
+ // An AI-response count is not a complete 20-turn Vortex chapter.
+ // Never manufacture a concept here; chapter consolidation performs the actual review.
  const recorded=await saveTurn(String(count),{endeavorId,kind:"idea-checkpoint",page:"idea-consolidation"});
- return {...recorded,turns:count,concept:comparison?.concept||null};
+ return {...recorded,turns:count,concept:null};
 }
 async function consolidateVortexChapter({endeavorId,chapter,turns}={}){
  if(!endeavorId||!Number.isSafeInteger(chapter)||chapter<1||!Array.isArray(turns)||turns.length!==20)return {saved:false,reason:"incomplete-chapter"};
