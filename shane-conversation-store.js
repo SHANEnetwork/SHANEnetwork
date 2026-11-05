@@ -1261,7 +1261,7 @@ async function executeVision({type,vision,siteId,deadline,endeavorId}={}){
  }
  const creation={type,id,url,vision:request,endeavorId:endeavorId||null,endeavorLink,operation:type==="website"?"revision":"creation",created:Date.now()};
  if(endeavorId&&activeEndeavor()!==endeavorId)creation.contextChanged=true;
- try{sessionStorage.setItem("shane-last-created-artifact-v1",JSON.stringify(creation))}catch{}
+ try{sessionStorage.setItem("shane-last-created-artifact-v1",JSON.stringify(creation));if(type==="new-website"&&endeavorId&&!endeavorLink.linked)sessionStorage.setItem("shane-website-link-recovery-v1:"+endeavorId,JSON.stringify(creation));else if(type==="new-website"&&endeavorId&&endeavorLink.linked)sessionStorage.removeItem("shane-website-link-recovery-v1:"+endeavorId)}catch{}
  document.dispatchEvent(new CustomEvent("shane:artifact-created",{detail:creation}));
  // Save a readable creation memory for the shared AI conversation, regardless
  // of which page or execution route produced the private artifact.
