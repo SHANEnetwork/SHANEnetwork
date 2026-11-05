@@ -822,7 +822,7 @@ async function collaborationContext({endeavorId,limit=12}={}){
   if((data||[]).length<100)break;
   if(offset===900)listingsComplete=false;
  }
- if(!listings?.length)return {endeavorId,listings:[],collaborations:[],confirmed:true};
+ if(!listings.length)return {endeavorId,listings:[],collaborations:[],confirmed:true,listingsComplete,requestsComplete:true};
  const ids=listings.map(item=>item.id);
  const requests=[];
  let requestsComplete=true;
