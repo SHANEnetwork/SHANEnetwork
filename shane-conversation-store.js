@@ -212,7 +212,10 @@ async function reasonAndCreate({endeavorId,request}={}){
  networkEvidence.outcomeReviewRule="Compare recorded original requirements to verified creation receipts. Identify gaps and tests; a saved record does not prove feature quality or usability.";
  const gapFollowThrough="For every gap between original requirements and verified receipts, identify the missing capability, the smallest reversible implementation step, its acceptance test, and what evidence would close the gap. Distinguish an unverified requirement from a proven failure. Never mark a gap resolved by analysis alone.";
  const gapAction={instruction:gapFollowThrough,source:"original-requirements-and-verified-receipts",executionRequiresApproval:true};
- const purpose="Use this whole-to-parts analysis as context, challenge its assumptions and integrate the strongest alternatives into a concrete endeavor response. Compare existing saved creations and accepted collaborators when relevant. Never claim an operation occurred without a receipt. "+gapFollowThrough+" Analysis is not execution: "+JSON.stringify({analysis,networkEvidence}).slice(0,15500);
+ // Keep the original vision and its verified outcomes in the review context.
+ // Do not let a large collection of receipts crowd out the member's requirements.
+ const requirementEvidence={originalVision:vision.slice(0,4500),verifiedOutcomes:networkEvidence.verifiedCreationOutcomes.map(outcome=>({requirements:outcome.requirements||outcome.originalRequirements||null,receipts:outcome.receipts,verified:true})).slice(0,5)};
+ const purpose="Use this whole-to-parts analysis as context, challenge its assumptions and integrate the strongest alternatives into a concrete endeavor response. Compare existing saved creations and accepted collaborators when relevant. Never claim an operation occurred without a receipt. "+gapFollowThrough+" Analysis is not execution: "+JSON.stringify({requirementEvidence,analysis,networkEvidence}).slice(0,15500);
  const result=await converse({endeavorId,request:vision,purpose});
  // Mirror Cat runs as a separate model call over the actual proposal, not
  // as an adjective applied to the Creator's own answer.
