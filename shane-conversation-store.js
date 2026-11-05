@@ -1028,7 +1028,7 @@ async function endeavorSnapshot({endeavorId}={}){
  // Include verified plan outcomes as endeavor-linked evidence, not unrelated account creations.
  const confirmedIds=new Set();
  for(const row of receipts.filter(row=>row.entry_kind==="creation-outcome")){
-  try{const record=JSON.parse(row.body);if(record.verified===true&&record.complete===true&&Array.isArray(record.receipts))for(const receipt of record.receipts)if(typeof receipt.id==="string")confirmedIds.add(receipt.id)}catch{}
+  try{const record=JSON.parse(row.body);if(record.verified===true&&Array.isArray(record.receipts))for(const receipt of record.receipts)if(typeof receipt.id==="string")confirmedIds.add(receipt.id)}catch{}
  }
  // Only explicit structured creation records may establish ownership of an endeavor artifact.
  // Mentioning another creation's ID in a conversation is not evidence of association.
