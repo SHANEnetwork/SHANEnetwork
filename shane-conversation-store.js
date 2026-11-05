@@ -813,12 +813,21 @@ async function collaborationContext({endeavorId,limit=12}={}){
  const {data:owned,error:ownerError}=await db.from("shane_endeavors").select("id").eq("id",endeavorId).eq("owner_id",account.id).maybeSingle();
  if(ownerError||!owned)throw Error("The selected endeavor does not belong to your account.");
  const max=Math.max(1,Math.min(30,Number(limit)||12));
- const {data:listings,error:listingError}=await db.from("shane_listings").select("id,title").eq("endeavor_id",endeavorId).eq("owner_id",account.id).limit(100);
- if(listingError)throw listingError;
+ const listings=[];
+ for(let offset=0;offset<1000;offset+=100){
+  const {data,error}=await db.from("shane_listings").select("id,title").eq("endeavor_id",endeavorId).eq("owner_id",account.id).order("id").range(offset,offset+99);
+  if(error)throw error;
+  listings.push(...(data||[]));
+  if((data||[]).length<100)break;
+ }
  if(!listings?.length)return {endeavorId,listings:[],collaborations:[],confirmed:true};
  const ids=listings.map(item=>item.id);
- const {data:requests,error:requestError}=await db.from("shane_collaboration_requests").select("id,listing_id,sender_id,recipient_id,status").in("listing_id",ids).eq("status","accepted").limit(100);
- if(requestError)throw requestError;
+ const requests=[];
+ for(let offset=0;offset<ids.length;offset+=50){
+  const {data,error}=await db.from("shane_collaboration_requests").select("id,listing_id,sender_id,recipient_id,status").in("listing_id",ids.slice(offset,offset+50)).eq("status","accepted").limit(100);
+  if(error)throw error;
+  requests.push(...(data||[]));
+ }
  const accepted=(requests||[]).filter(item=>item.sender_id===account.id||item.recipient_id===account.id).slice(0,max);
  const titles=new Map(listings.map(item=>[item.id,item.title]));
  const collaborations=await Promise.all(accepted.map(async item=>{
