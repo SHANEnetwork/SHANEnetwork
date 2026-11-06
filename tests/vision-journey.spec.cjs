@@ -309,8 +309,10 @@ test('account save lock covers delayed authentication as well as database writes
     window.__writeCalls = [];
     window.shaneAccountDb = {
       auth: {getUser: () => {
+        const stack = new Error("getUser caller").stack;
+        if(!stack.includes("syncRemote"))return Promise.resolve({data:{user:{id:'11111111-1111-4111-8111-111111111111'}}});
         window.__authCalls++;
-        window.__authCallStacks.push(new Error("getUser caller").stack);
+        window.__authCallStacks.push(stack);
         if(window.__authPending && !window.__releaseAuth)
           return new Promise(resolve => {window.__releaseAuth = () => resolve({data:{user:{id:'11111111-1111-4111-8111-111111111111'}}})});
         return Promise.resolve({data:{user:{id:'11111111-1111-4111-8111-111111111111'}}});
