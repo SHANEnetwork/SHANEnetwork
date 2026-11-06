@@ -476,6 +476,9 @@ test('connected Network tools follow endeavor switches without losing the conver
   await page.goto('http://127.0.0.1:8765/builder.html');
   const hub = page.locator('#shane-connected-workspace');
   await expect(hub).toHaveCount(1);
+  await expect(hub.locator('[data-kind="messages"]')).toBeVisible();
+  await expect(hub.locator('#shane-connected-collaborations')).toBeVisible();
+  await expect(hub.locator('#shane-connected-save-vision')).toBeVisible();
   const first = '11111111-1111-4111-8111-111111111111';
   const second = '22222222-2222-4222-8222-222222222222';
   await page.evaluate(id => document.dispatchEvent(new CustomEvent('shane:endeavor-changed', { detail: { id } })), first);
