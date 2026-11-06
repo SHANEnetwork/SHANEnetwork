@@ -3,6 +3,15 @@ const { test, expect } = require('@playwright/test');
 test('welcome vision reaches the conversation-first creator intact', async ({ page }) => {
   const vision = 'I want to create a welcoming neighborhood makers network where people can share ideas, find collaborators, and launch small community events.';
   await page.goto('http://127.0.0.1:8765/index.html');
+  const entryDiagnostics = await page.locator('#shaneWelcome').evaluate(node => {
+    const ancestors=[];
+    for(let el=node;el&&ancestors.length<12;el=el.parentElement){
+      const css=getComputedStyle(el),rect=el.getBoundingClientRect();
+      ancestors.push({tag:el.tagName,id:el.id,display:css.display,visibility:css.visibility,opacity:css.opacity,width:rect.width,height:rect.height,hidden:el.hidden});
+    }
+    return ancestors;
+  });
+  console.log('SHANE welcome visibility diagnostics:',JSON.stringify(entryDiagnostics));
   await expect(page.locator('#shaneWelcome')).toBeVisible();
   await page.locator('#welcomeIdea').fill(vision);
   await page.locator('#shaneWelcome button[type="submit"]').click();
@@ -973,7 +982,7 @@ test('created website stays reachable through messaging and return, with drafts 
  await page.locator('#shane-connected-create').click();
  await expect(page.locator('#shane-connected-frame iframe')).toHaveAttribute('src',new RegExp('builder\\.html\\?site='+siteId));
  await page.locator('button[data-kind="messages"]').click();
- await expect(page.locator('#shane-connected-frame iframe')).toHaveAttribute('src',/my-network\\.html/);
+ await expect(page.locator('#shane-connected-frame iframe')).toHaveAttribute('src',/my-network\.html/);
  await expect(page.getByRole('button',{name:'Return to my website'})).toBeVisible();
  await page.getByRole('button',{name:'Return to my website'}).click();
  await expect(page.locator('#shane-connected-frame iframe')).toHaveAttribute('src',new RegExp('builder\\.html\\?site='+siteId));
