@@ -272,7 +272,7 @@ const shaneModuleIds=["shaneModuleCommunity","shaneModuleConversation","shaneMod
   const {data:existingSite,error:siteError}=await sb.from("shane_sites")
    .select("id,owner_id,status").eq("id",endeavor.linked_site_id).eq("owner_id",user.id).maybeSingle();
   if(siteError||!existingSite)return "Draft ready. A website link already exists, but the linked draft could not be verified. No duplicate was created.";
-  return "Private website saved and linked to your endeavor. Nothing was published.";
+  return existingSite.status==="draft"?"Private website saved and linked to your endeavor. Nothing was published.":"Website already linked to this endeavor; no new website was created.";
  }
  const content=getSite(),snapshot=JSON.stringify(content);
  const {data:saved,error:saveError}=await sb.from("shane_sites")
