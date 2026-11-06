@@ -215,6 +215,12 @@ if(data.linked_site_id){
    out.textContent="Endeavor restored. Your unsaved website edits were preserved.";
   }else{
    putSite(site.content);selectedSiteId=site.id;loadedAccountContent=site.content;
+   const savedSelector=document.getElementById("savedSites");
+   if(savedSelector){
+    if(!Array.from(savedSelector.options).some(option=>option.value===site.id))
+     savedSelector.add(new Option("Linked endeavor website",site.id));
+    savedSelector.value=site.id;
+   }
    updateWorkspacePublicLink(site.status==="published"&&site.slug?site.slug:null);
    updateWorkspace();updateUnsavedState();
    document.getElementById("preview").click();
