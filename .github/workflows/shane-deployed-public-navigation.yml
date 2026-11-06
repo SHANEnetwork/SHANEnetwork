@@ -1,5 +1,13 @@
 name: SHANE deployed public navigation (no account)
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'detangler.html'
+      - 'index.html'
+      - 'builder.html'
+      - 'tests/shane-deployed-public-navigation.cjs'
+      - '.github/workflows/shane-deployed-public-navigation.yml'
   workflow_dispatch:
   schedule:
     - cron: '23 12 * * 1'
