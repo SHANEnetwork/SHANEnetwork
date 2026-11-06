@@ -303,12 +303,14 @@ test('account save lock covers delayed authentication as well as database writes
   await page.goto('http://127.0.0.1:8765/builder.html');
   await page.evaluate(() => {
     window.__authCalls = 0;
+    window.__authCallStacks = [];
     window.__releaseAuth = null;
     window.__authPending = false;
     window.__writeCalls = [];
     window.shaneAccountDb = {
       auth: {getUser: () => {
         window.__authCalls++;
+        window.__authCallStacks.push(new Error("getUser caller").stack);
         if(window.__authPending && !window.__releaseAuth)
           return new Promise(resolve => {window.__releaseAuth = () => resolve({data:{user:{id:'11111111-1111-4111-8111-111111111111'}}})});
         return Promise.resolve({data:{user:{id:'11111111-1111-4111-8111-111111111111'}}});
@@ -330,7 +332,8 @@ test('account save lock covers delayed authentication as well as database writes
   await page.locator('#visionPrompt').fill('Add volunteer mentors.');
   await page.locator('#visionGuide').click();
   await page.waitForTimeout(1500);
-  expect(await page.evaluate(() => window.__authCalls)).toBe(1);
+  const authEvidence = await page.evaluate(() => ({count:window.__authCalls,stacks:window.__authCallStacks.slice(-8)}));
+  expect(authEvidence.count, JSON.stringify(authEvidence.stacks,null,2)).toBe(1);
   await page.evaluate(() => {window.__authPending=false;window.__releaseAuth()});
   await expect.poll(() => page.evaluate(() => window.__writeCalls.length), {timeout:6000}).toBeGreaterThan(1);
 });
