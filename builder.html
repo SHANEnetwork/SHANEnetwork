@@ -467,14 +467,18 @@ $("aiMode").value=(draftReady||Boolean($("savedSites")?.value&&$("aiMode").value
    const existing=$("shaneReturnSavedEndeavor")?.hidden===false
      ?new URL($("shaneReturnSavedEndeavor").href,location.href).searchParams.get("endeavor"):null;
    const current=$("savedEndeavors")?.value||null;
-   if(!existing&&!current){
-    status.textContent="Establishing your private endeavor before creating its website…";
-    await $("saveEndeavorAccount").onclick();
-    const saved=$("shaneReturnSavedEndeavor");
-    if(saved?.hidden!==false){
-     status.textContent=$("planRecoveryStatus")?.textContent||"Sign in to save the endeavor before creating.";
-     return;
-    }
+   // Save the exact current vision even when an endeavor is already open.
+   // Otherwise a changed vision could generate a website under an older purpose.
+   status.textContent=existing||current
+    ?"Saving your updated endeavor vision before creating…"
+    :"Establishing your private endeavor before creating its website…";
+   const saveButton=$("saveEndeavorAccount");
+   if(!saveButton||saveButton.disabled){status.textContent="An endeavor save is already in progress. Try again when it finishes.";return}
+   await saveButton.onclick();
+   const saved=$("shaneReturnSavedEndeavor");
+   const saveResult=$("planRecoveryStatus")?.textContent||"";
+   if(saved?.hidden!==false||!/Your ambition is saved privately|Your ambition was saved, but the saved-endeavor list could not refresh/.test(saveResult)){
+    status.textContent=saveResult||"Sign in to save the endeavor before creating.";return;
    }
    const savedLink=$("shaneReturnSavedEndeavor");
    const endeavorId=savedLink?.hidden===false
