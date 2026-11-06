@@ -65,6 +65,16 @@ const api = createClient(url,key,{auth:{persistSession:false,autoRefreshToken:fa
   assert.ifError(matchError);
   assert.deepEqual(matches.map(x=>x.id),[id],'Save and revision must not create duplicate endeavors');
   await page.goto(base+'/members.html',{waitUntil:'domcontentloaded'});
+  // Exercise the actual signed-in dashboard link, not just a constructed builder URL.
+  await page.goto(base+'/dashboard.html',{waitUntil:'domcontentloaded'});
+  const savedLink=page.locator('#endeavors a[href*="endeavor="]').filter({hasText:token}).first();
+  await savedLink.waitFor({state:'visible',timeout:30000});
+  const savedHref=await savedLink.getAttribute('href');
+  assert.equal(new URL(savedHref,base).searchParams.get('endeavor'),id);
+  await savedLink.click();
+  await page.waitForFunction(expected=>document.querySelector('#visionPrompt')?.value===expected,revision,{timeout:25000});
+  console.log('PASS real-account dashboard navigation to the same saved endeavor');
+  await page.goto(base+'/members.html',{waitUntil:'domcontentloaded'});
   await page.locator('#signout').click();
   await page.waitForFunction(()=>document.querySelector('#session')?.textContent?.includes('Not signed in'),null,{timeout:15000});
   await page.goto(base+'/members.html',{waitUntil:'domcontentloaded'});
