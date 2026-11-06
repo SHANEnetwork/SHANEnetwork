@@ -3,6 +3,9 @@ on:
   push:
     paths:
       - 'index.html'
+      - 'detangler.html'
+      - 'shane-detangler-core.js'
+      - 'tests/detangler-core.test.cjs'
       - 'workspace.html'
       - 'members.html'
       - 'my-network.html'
@@ -32,6 +35,8 @@ jobs:
           node-version: '22'
       - name: Validate inline JavaScript
         run: node scripts/check-page-syntax.cjs
+      - name: Verify Detangler diagnostics and safe exports
+        run: node --test tests/detangler-core.test.cjs
       - name: Install browser test runner
         run: npm install --no-save @playwright/test@1.58.2
       - name: Install Chromium
