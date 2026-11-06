@@ -1,0 +1,12 @@
+const assert=require('node:assert/strict');
+const {test}=require('node:test');
+const {analyze,toText}=require('../shane-detangler-core.js');
+const base={name:'Example organization',problem:'The entry form is not visible',mode:'standalone'};
+test('identifies a hidden form within a collapsed details element',()=>{const r=analyze({...base,kind:'html',evidence:'<details><summary>More</summary><form id="entry"><textarea></textarea></form></details>'});assert.ok(r.findings.some(f=>f.id==='html-collapsed-details'));assert.equal(r.security.changesApplied,false);});
+test('identifies duplicate IDs',()=>{const r=analyze({...base,kind:'html',evidence:'<div id="welcome"></div><form id="welcome"></form>'});assert.ok(r.findings.some(f=>f.id==='html-duplicate-id'));});
+test('does not flag an explicitly open details element',()=>{const r=analyze({...base,kind:'html',evidence:'<details open><form><textarea></textarea></form></details>'});assert.ok(!r.findings.some(f=>f.id==='html-collapsed-details'));});
+test('identifies authorization errors without recommending weaker security',()=>{const r=analyze({...base,kind:'logs',evidence:'403 permission denied'});assert.ok(r.findings.some(f=>f.id==='log-unauthorized'));});
+test('identifies dangerous code patterns as hypotheses',()=>{const r=analyze({...base,kind:'javascript',evidence:'element.innerHTML = userInput;'});assert.ok(r.findings.some(f=>f.id==='js-unsafe-html'));assert.ok(r.findings.every(f=>f.verified===false));});
+test('redacts raw evidence from portable reports',()=>{const r=analyze({...base,kind:'logs',evidence:'secret-not-for-export 404'});assert.ok(!JSON.stringify(r).includes('secret-not-for-export'));assert.ok(!toText(r).includes('secret-not-for-export'));});
+test('validates required input and exports structured reports',()=>{assert.throws(()=>analyze({problem:'something'}));const r=analyze({...base,kind:'notes',evidence:''});assert.equal(r.schema,'shane.detangler.report');assert.equal(r.version,1);assert.match(toText(r),/Evidence needed/);});
+test('supports standalone, endeavor, and developer modes',()=>{for(const mode of ['standalone','endeavor','developer'])assert.equal(analyze({...base,mode}).mode,mode);});
