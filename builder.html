@@ -407,7 +407,25 @@ $("aiMode").value=(draftReady||Boolean($("savedSites")?.value&&$("aiMode").value
   if(link&&!link.hidden){try{return new URL(link.href,location.href).searchParams.get("endeavor")}catch{}}
   return new URLSearchParams(location.search).get("endeavor");
  };
- document.addEventListener("shane:endeavor-changed",()=>{offset=0;loadedFor=null;output.replaceChildren();button.hidden=false;status.textContent=""});
+ document.addEventListener("shane:endeavor-changed",()=>{offset=0;loadedFor=null;output.replaceChildren();button.hidden=false;status.textContent=""});document.addEventListener("shane:fractal-history-snapshot",event=>{
+  const id=event.detail?.id,turns=event.detail?.history;
+  if(!id||!Array.isArray(turns)||!turns.length)return;
+  void (async()=>{
+   const store=window.SHANEConversationStore;
+   if(!store?.list||!store?.saveTurn)return;
+   try{
+    const existing=await store.list({endeavorId:id,limit:100,includeArchived:true});
+    // Only backfill the original conversation when no archived turns exist.
+    // Subsequent turns are individually archived by the live conversation listener.
+    if(existing.some(item=>item.entry_kind==="vision-turn"||item.entry_kind==="ai-response"))return;
+    for(const turn of turns){
+     if(!["you","shane"].includes(turn?.role)||typeof turn.text!=="string"||!turn.text.trim())continue;
+     const result=await store.saveTurn(turn.text,{page:"builder.html",kind:turn.role==="you"?"vision-turn":"ai-response",endeavorId:id});
+     if(!result?.saved)break;
+    }
+   }catch(error){console.warn("Initial endeavor conversation archive unavailable",error)}
+  })();
+ });
  button.addEventListener("click",async()=>{
   if(working)return;
   const id=endeavor(),store=window.SHANEConversationStore;
