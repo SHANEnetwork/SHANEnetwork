@@ -4,6 +4,7 @@ on:
     paths:
       - 'shane-detangler-core.js'
       - 'shane-detangler-acquisition.cjs'
+      - 'shane-detangler-engineering.cjs'
       - 'tests/detangler-*.test.cjs'
       - '.github/workflows/detangler-regression.yml'
   workflow_dispatch:
@@ -17,4 +18,4 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --test tests/detangler-core.test.cjs tests/detangler-source-audit.test.cjs tests/detangler-acquisition.test.cjs
+      - run: node --test tests/detangler-core.test.cjs tests/detangler-source-audit.test.cjs tests/detangler-acquisition.test.cjs tests/detangler-engineering.test.cjs
