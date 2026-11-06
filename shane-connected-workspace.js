@@ -19,7 +19,7 @@ function init(){
  nextActions.className="shane-next-actions";
  nextActions.setAttribute("role","group");
  nextActions.setAttribute("aria-label","Continue creating with SHANE");
- for(const id of ["shane-connected-plan","shane-connected-create","shane-connected-recent"]){
+ for(const id of ["shane-connected-save-vision","shane-connected-plan","shane-connected-create","shane-connected-recent","shane-connected-collaborations"]){
   const button=actions.querySelector("#"+id);
   if(button)nextActions.append(button);
  }
