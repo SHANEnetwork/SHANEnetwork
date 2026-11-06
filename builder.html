@@ -279,8 +279,8 @@ const shaneModuleIds=["shaneModuleCommunity","shaneModuleConversation","shaneMod
   const {data:recovered,error:recoverError}=await sb.from("shane_sites")
    .select("id,content").eq("id",existingSite.id).eq("owner_id",user.id).eq("status","draft").single();
   if(recoverError||!recovered?.content)return "Website link recovered, but its draft could not be restored to the editor.";
-  if(loadedAccountContent!==null&&JSON.stringify(getSite())!==JSON.stringify(loadedAccountContent))
-   return "Private website recovered in Saved Websites. Your newer unsaved editor changes were preserved; load the linked website when ready.";
+  if(JSON.stringify(getSite())!==JSON.stringify(recovered.content))
+   return "Private website recovered in Saved Websites. Your current editor changes were preserved; load the linked website when ready.";
   putSite(recovered.content);
   selectedSiteId=recovered.id;loadedAccountContent=recovered.content;
   const select=document.getElementById("savedSites");
