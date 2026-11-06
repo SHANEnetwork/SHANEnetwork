@@ -67,7 +67,7 @@ const api = createClient(url,key,{auth:{persistSession:false,autoRefreshToken:fa
   await page.goto(base+'/members.html',{waitUntil:'domcontentloaded'});
   // Exercise the actual signed-in dashboard link, not just a constructed builder URL.
   await page.goto(base+'/dashboard.html',{waitUntil:'domcontentloaded'});
-  const savedLink=page.locator('#endeavors a[href*="endeavor="]').filter({hasText:token}).first();
+  const savedLink=page.locator('#endeavors a[href*="endeavor="+encodeURIComponent(id)+""]').first();
   await savedLink.waitFor({state:'visible',timeout:30000});
   const savedHref=await savedLink.getAttribute('href');
   assert.equal(new URL(savedHref,base).searchParams.get('endeavor'),id);
