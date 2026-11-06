@@ -19,7 +19,7 @@ on:
   pull_request:
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
   statuses: write
 jobs:
   syntax:
@@ -42,9 +42,10 @@ jobs:
         id: browser
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/shane-http.log 2>&1 &
-          npx playwright test tests/vision-journey.spec.cjs tests/endeavor-continuity.spec.cjs --browser chromium --workers 1 --reporter line --trace retain-on-failure --timeout 30000 --global-timeout 480000 --retries 0
+          npx playwright test tests/vision-journey.spec.cjs tests/endeavor-continuity.spec.cjs --browser chromium --workers 1 --reporter line,json --trace retain-on-failure --timeout 30000 --global-timeout 480000 --retries 0
         env:
           PLAYWRIGHT_BASE_URL: http://127.0.0.1:8765
+          PLAYWRIGHT_JSON_OUTPUT_FILE: /tmp/shane-playwright-results.json
       - name: Upload browser failure evidence
         if: failure()
         uses: actions/upload-artifact@v4
@@ -77,4 +78,29 @@ jobs:
             body:JSON.stringify(body)
           }).then(async response=>{if(!response.ok)throw Error('Status publication failed: '+response.status+' '+await response.text());console.log('Published browser acceptance status:',state,process.env.RUN_URL)})
             .catch(error=>{console.error(error);process.exitCode=1});
+          NODE
+      - name: Persist browser acceptance report for connected inspection
+        if: always() && github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ github.run_id }}
+          COMMIT_SHA: ${{ github.sha }}
+          REPOSITORY: ${{ github.repository }}
+          BROWSER_OUTCOME: ${{ steps.browser.outcome }}
+        run: |
+          node <<'NODE'
+          const fs=require('node:fs');
+          const path='reports/shane-browser-acceptance-latest.json';
+          const url='https://api.github.com/repos/'+process.env.REPOSITORY+'/contents/'+path;
+          const headers={Authorization:'Bearer '+process.env.GH_TOKEN,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'};
+          const report={commit:process.env.COMMIT_SHA,run_id:process.env.RUN_ID,run_url:'https://github.com/'+process.env.REPOSITORY+'/actions/runs/'+process.env.RUN_ID,outcome:process.env.BROWSER_OUTCOME,created_at:new Date().toISOString()};
+          try{
+            const data=JSON.parse(fs.readFileSync('/tmp/shane-playwright-results.json','utf8'));
+            report.summary={expected:data.stats?.expected,passed:data.stats?.expected-data.stats?.unexpected-data.stats?.flaky-data.stats?.skipped,failed:data.stats?.unexpected,flaky:data.stats?.flaky,skipped:data.stats?.skipped};
+            const failures=[];
+            function walk(suites){for(const suite of suites||[]){for(const spec of suite.specs||[]){for(const test of spec.tests||[]){if(test.status==='unexpected'||test.results?.some(r=>r.status==='failed'||r.status==='timedOut'))failures.push({title:spec.title,file:spec.file,line:spec.line,errors:(test.results||[]).flatMap(r=>(r.errors||[]).map(e=>e.message)).slice(0,2)});}}walk(suite.suites)}}
+            walk(data.suites);report.failures=failures;
+          }catch(e){report.report_error=String(e)}
+          async function api(method,body){const res=await fetch(url,{method,headers,body:body&&JSON.stringify(body)});if(res.status===404&&method==='GET')return null;if(!res.ok)throw Error(method+' report failed '+res.status+': '+await res.text());return res.json()}
+          (async()=>{const existing=await api('GET');await api('PUT',{message:'Record latest SHANE browser acceptance result [skip ci]',content:Buffer.from(JSON.stringify(report,null,2)+'\n').toString('base64'),...(existing?.sha?{sha:existing.sha}:{})});console.log('Published browser acceptance report',JSON.stringify(report.summary||report))})().catch(e=>{console.error(e);process.exitCode=1});
           NODE
