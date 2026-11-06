@@ -272,7 +272,23 @@ const shaneModuleIds=["shaneModuleCommunity","shaneModuleConversation","shaneMod
   const {data:existingSite,error:siteError}=await sb.from("shane_sites")
    .select("id,owner_id,status").eq("id",endeavor.linked_site_id).eq("owner_id",user.id).maybeSingle();
   if(siteError||!existingSite)return "Draft ready. A website link already exists, but the linked draft could not be verified. No duplicate was created.";
-  return existingSite.status==="draft"?"Private website saved and linked to your endeavor. Nothing was published.":"Website already linked to this endeavor; no new website was created.";
+  if(existingSite.status!=="draft")return "Website already linked to this endeavor; no new website was created.";
+  // An earlier attempt may have linked successfully before its response was lost.
+  // Reattach the editor to the durable draft instead of claiming success while
+  // leaving the user with a detached, unsaved canvas.
+  const {data:recovered,error:recoverError}=await sb.from("shane_sites")
+   .select("id,content").eq("id",existingSite.id).eq("owner_id",user.id).eq("status","draft").single();
+  if(recoverError||!recovered?.content)return "Website link recovered, but its draft could not be restored to the editor.";
+  putSite(recovered.content);
+  selectedSiteId=recovered.id;loadedAccountContent=recovered.content;
+  const select=document.getElementById("savedSites");
+  if(select){
+   if(!Array.from(select.options).some(option=>option.value===recovered.id))
+    select.add(new Option("Linked endeavor website",recovered.id));
+   select.value=recovered.id;
+  }
+  updateWorkspacePublicLink(null);updateWorkspace();updateUnsavedState();
+  return "Private website saved and linked to your endeavor. Nothing was published.";
  }
  const content=getSite(),snapshot=JSON.stringify(content);
  const {data:saved,error:saveError}=await sb.from("shane_sites")
