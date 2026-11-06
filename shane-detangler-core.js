@@ -73,8 +73,8 @@ function auditSources(input){
 }
 function discrepancyCSV(report){
  const cols=['id','kind','reference','detail','severity','disposition','dependencies','verified','releaseApproved'];
- const cell=x=>'"'+String(x??'').replace(/"/g,'""').replace(/^[=+@-]/,'\'return Object.freeze({analyze,toText,rules:')+'"';
- return [cols.join(','),...report.findings.map(f=>cols.map(k=>cell(Array.isArray(f[k])?f[k].join('; '):f[k])).join(','))].join('\\n');
+ const cell=x=>{let v=String(x??'');if(/^[=+@-]/.test(v))v="'"+v;return '"'+v.replace(/"/g,'""')+'"';};
+ return [cols.join(','),...report.findings.map(f=>cols.map(k=>cell(Array.isArray(f[k])?f[k].join('; '):f[k])).join(','))].join('\n');
 }
 return Object.freeze({analyze,toText,auditSources,discrepancyCSV,sourceStatuses,discrepancyKinds,rules:rules.map(({id,title})=>({id,title}))});
 });
