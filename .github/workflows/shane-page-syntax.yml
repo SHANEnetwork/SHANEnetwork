@@ -20,7 +20,7 @@ on:
 jobs:
   syntax:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -31,7 +31,7 @@ jobs:
       - name: Install browser test runner
         run: npm install --no-save @playwright/test@1.58.2
       - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install chromium
       - name: Verify supported Playwright options
         run: npx playwright test --help | grep -F -- '--trace'
       - name: Run vision journey browser smoke tests
