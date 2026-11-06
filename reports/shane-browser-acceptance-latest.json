@@ -1,9 +1,9 @@
 {
-  "commit": "ae230def922f7fa3a118167e890e657c027a6de8",
-  "run_id": "42238231679",
-  "run_url": "https://github.com/SHANEnetwork/SHANEnetwork/actions/runs/42238231679",
+  "commit": "b029037b7fa82edf87596a9a2fabefdd98e52d31",
+  "run_id": "42238463737",
+  "run_url": "https://github.com/SHANEnetwork/SHANEnetwork/actions/runs/42238463737",
   "outcome": "failure",
-  "created_at": "2026-11-06T15:00:11.955Z",
+  "created_at": "2026-11-06T15:01:16.086Z",
   "summary": {
     "expected": 64,
     "passed": 60,
@@ -26,7 +26,7 @@
       "file": "tests/vision-journey.spec.cjs",
       "line": 3,
       "errors": [
-        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#shaneWelcome')\nExpected: visible\nReceived: hidden\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#shaneWelcome')\u001b[22m\n\u001b[2m    9 × locator resolved to <form id=\"shaneWelcome\">…</form>\u001b[22m\n\u001b[2m      - unexpected value \"hidden\"\u001b[22m\n\n\n  13 |   });\n  14 |   console.log('SHANE welcome visibility diagnostics:',JSON.stringify(entryDiagnostics));\n> 15 |   await expect(page.locator('#shaneWelcome')).toBeVisible();\n     |                                               ^\n  16 |   await page.locator('#welcomeIdea').fill(vision);\n  17 |   await page.locator('#shaneWelcome button[type=\"submit\"]').click();\n  18 |   await expect(page).toHaveURL(/builder\\.html\\?from=welcome#vision-first/);\n    at /home/runner/work/SHANEnetwork/SHANEnetwork/tests/vision-journey.spec.cjs:15:47"
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#shaneWelcome')\nExpected: visible\nReceived: hidden\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#shaneWelcome')\u001b[22m\n\u001b[2m    9 × locator resolved to <form id=\"shaneWelcome\">…</form>\u001b[22m\n\u001b[2m      - unexpected value \"hidden\"\u001b[22m\n\n\n  13 |   });\n  14 |   await page.evaluate(data => { window.__welcomeVisibilityDiagnostics = data; }, entryDiagnostics);\n> 15 |   await expect(page.locator('#shaneWelcome')).toBeVisible();\n     |                                               ^\n  16 |   await page.locator('#welcomeIdea').fill(vision);\n  17 |   await page.locator('#shaneWelcome button[type=\"submit\"]').click();\n  18 |   await expect(page).toHaveURL(/builder\\.html\\?from=welcome#vision-first/);\n    at /home/runner/work/SHANEnetwork/SHANEnetwork/tests/vision-journey.spec.cjs:15:47"
       ]
     },
     {
