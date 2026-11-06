@@ -763,6 +763,28 @@ test('new endeavor save selects a confirmed identity before the next creation st
   expect(await page.evaluate(()=>JSON.parse(sessionStorage.getItem('shane-active-endeavor-v1')).id)).toBe(id);
 });
 
+test('repeated save requests cannot create duplicate endeavors while confirmation is pending', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/builder.html');
+  await page.evaluate(() => {
+    window.__saveCalls = 0;
+    window.__releaseSave = null;
+    window.SHANEConversationStore = {
+      beginEndeavor: () => {
+        window.__saveCalls++;
+        return new Promise(resolve => { window.__releaseSave = () => resolve({id:'11111111-1111-4111-8111-111111111111'}); });
+      }
+    };
+  });
+  await page.locator('#visionPrompt').fill('Build a community makers cooperative');
+  await page.locator('#shane-connected-save-vision').click();
+  await expect(page.locator('#shane-connected-save-vision')).toBeDisabled();
+  await page.evaluate(() => document.getElementById('shane-connected-save-vision').click());
+  expect(await page.evaluate(() => window.__saveCalls)).toBe(1);
+  await page.evaluate(() => window.__releaseSave());
+  await expect(page.locator('#shane-connected-save-vision')).toBeEnabled();
+  await expect(page.locator('#shane-connected-status')).toContainText('saved to your account and selected');
+});
+
 test('unconfirmed endeavor save does not advance the active project context', async ({ page }) => {
   await page.goto('http://127.0.0.1:8765/builder.html');
   await page.evaluate(()=>{sessionStorage.removeItem('shane-active-endeavor-v1');window.SHANEConversationStore={beginEndeavor:async()=>({})}});
