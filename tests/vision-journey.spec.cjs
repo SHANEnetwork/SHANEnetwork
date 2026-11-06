@@ -11,7 +11,7 @@ test('welcome vision reaches the conversation-first creator intact', async ({ pa
     }
     return ancestors;
   });
-  console.log('SHANE welcome visibility diagnostics:',JSON.stringify(entryDiagnostics));
+  await page.evaluate(data => { window.__welcomeVisibilityDiagnostics = data; }, entryDiagnostics);
   await expect(page.locator('#shaneWelcome')).toBeVisible();
   await page.locator('#welcomeIdea').fill(vision);
   await page.locator('#shaneWelcome button[type="submit"]').click();
