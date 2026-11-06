@@ -494,8 +494,9 @@ $("aiMode").value=(draftReady||Boolean($("savedSites")?.value&&$("aiMode").value
    const {data:{user},error:authError}=await db.auth.getUser();
    if(authError||!user){status.textContent="Sign in before creating or revising your endeavor.";return}
    const {data:owned,error:ownedError}=await db.from("shane_endeavors")
-    .select("linked_site_id").eq("id",endeavorId).eq("owner_id",user.id).single();
+    .select("idea,linked_site_id").eq("id",endeavorId).eq("owner_id",user.id).single();
    if(ownedError||!owned){status.textContent="This endeavor could not be verified in your account.";return}
+   if(owned.idea!==idea){status.textContent="The saved endeavor vision differs from your request. No website was generated; save the vision again.";return}
    if(owned.linked_site_id){
     const siteId=owned.linked_site_id;
     const {data:site,error:siteError}=await db.from("shane_sites")
