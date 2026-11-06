@@ -18,6 +18,9 @@ on:
       - '.github/workflows/shane-page-syntax.yml'
   pull_request:
   workflow_dispatch:
+permissions:
+  contents: read
+  statuses: write
 jobs:
   syntax:
     runs-on: ubuntu-latest
@@ -36,6 +39,7 @@ jobs:
       - name: Verify supported Playwright options
         run: npx playwright test --help | grep -F -- '--trace'
       - name: Run vision journey browser smoke tests
+        id: browser
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/shane-http.log 2>&1 &
           npx playwright test tests/vision-journey.spec.cjs tests/endeavor-continuity.spec.cjs --browser chromium --workers 1 --reporter line --trace retain-on-failure --timeout 30000 --global-timeout 480000 --retries 0
@@ -51,3 +55,26 @@ jobs:
             /tmp/shane-http.log
           if-no-files-found: ignore
           retention-days: 7
+      - name: Publish retrievable browser acceptance status
+        if: always() && github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BROWSER_OUTCOME: ${{ steps.browser.outcome }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          COMMIT_SHA: ${{ github.sha }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          node <<'NODE'
+          const state=process.env.BROWSER_OUTCOME==='success'?'success':'failure';
+          const body={
+            state,context:'shane/browser-acceptance',
+            description:state==='success'?'Browser acceptance suite passed':'Browser suite failed or could not complete; inspect linked run',
+            target_url:process.env.RUN_URL
+          };
+          fetch('https://api.github.com/repos/'+process.env.REPOSITORY+'/statuses/'+process.env.COMMIT_SHA,{
+            method:'POST',
+            headers:{Authorization:'Bearer '+process.env.GH_TOKEN,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'},
+            body:JSON.stringify(body)
+          }).then(async response=>{if(!response.ok)throw Error('Status publication failed: '+response.status+' '+await response.text());console.log('Published browser acceptance status:',state,process.env.RUN_URL)})
+            .catch(error=>{console.error(error);process.exitCode=1});
+          NODE
