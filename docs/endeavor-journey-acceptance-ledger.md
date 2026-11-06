@@ -44,6 +44,14 @@ Build **one complete, visually coherent, AI-first endeavor journey**. A person d
 - **LINK-03:** Every actionable control in the journey has a working destination/handler and a truthful success/error state. **UNVERIFIED**.
 - **LINK-04:** External URLs and deployed dynamic links return expected responses and enforce permissions. **UNVERIFIED**.
 
+## Incremental deployed navigation verification (2026-11-06)
+
+A separate, credential-free deployed-browser probe is now defined in `tests/shane-deployed-public-navigation.cjs`, triggered by `.github/workflows/shane-deployed-public-navigation.yml` (manual dispatch and weekly schedule). It checks public route responses, same-page anchor targets, and homepage → Detangler → endeavor-builder navigation against `https://shanenetwork.org`.
+
+**Acceptance boundary:** A successful public probe provides partial LINK-02/LINK-04 evidence only. It does **not** verify saved-endeavor navigation, authenticated controls, external destinations, dynamic permissions, or any EJ gate. The 0/12 and 0/4 scores remain unchanged until each full gate has the required evidence. An unrun probe is not a PASS.
+
+**Real-account blocker:** `.github/workflows/shane-live-account-journey.yml` is explicitly gated by `SHANE_ENABLE_LIVE_E2E=true`, needs dedicated `SHANE_E2E_EMAIL` and `SHANE_E2E_PASSWORD` secrets, and requires manual dispatch. Do not use an owner's personal account or fabricate credentials. The existing deployed account script covers creation, website linking, revision and sign-out/return, not all 12 gates.
+
 ## Existing evidence and limitations
 - Latest observed commit `60a48aec`: **Validate SHANE pages** and **pages build and deployment** succeeded. These are *not* a complete broken-link or real-account journey audit.
 - `tests/shane-live-account-browser.cjs` currently verifies direct Supabase account authentication, endeavor insert/update, anonymous read isolation, sign-out/sign-in and reopening. It **does not** exercise browser UI, generated components, collaboration, or the full endeavor journey despite its filename.
