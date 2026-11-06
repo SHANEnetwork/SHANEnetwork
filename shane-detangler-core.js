@@ -22,5 +22,59 @@ if(evidence.trim()&&!findings.length)findings.push({id:'no-rule-match',title:'No
 return {schema:'shane.detangler.report',version:1,mode,name,problem,evidenceType:kind,evidenceIncluded:false,findings,status:'Unverified hypotheses; no changes made',nextActions:['Reproduce the issue in a controlled environment','Map affected components and dependencies','Test the smallest safe repair and run regression checks'],security:{remoteAccess:false,codeExecuted:false,changesApplied:false},createdAt:new Date().toISOString()};
 }
 function toText(report){return ['SHANE Detangler | Investigation report','System: '+report.name,'Mode: '+report.mode,'Problem: '+report.problem,'Status: '+report.status,'',...report.findings.flatMap(f=>[f.title,f.explanation,'Verify: '+f.nextStep,'']),'Next actions:',...report.nextActions.map(x=>'- '+x)].join('\n');}
-return Object.freeze({analyze,toText,rules:rules.map(({id,title})=>({id,title}))});
+
+/* Source-gateway and dependency review v1. Pure, deterministic, no network calls.
+   Statuses are evidence assertions supplied by an authorized reviewer, not live checks. */
+const sourceStatuses=Object.freeze(['verified','broken-link','inaccessible','outdated-revision','unverified','missing-documentation']);
+const discrepancyKinds=Object.freeze(['broken-link','inaccessible-document','outdated-revision','unsupported-technical-claim','engineering-failure','missing-documentation','unresolved-dependency']);
+function auditSources(input){
+ const sources=Array.isArray(input?.sources)?input.sources:[], claims=Array.isArray(input?.claims)?input.claims:[], gates=Array.isArray(input?.gates)?input.gates:[];
+ const sourceMap=new Map(), findings=[], gateMap=new Map();
+ const clean=(v,n=500)=>String(v??'').trim().slice(0,n);
+ function add(kind,ref,detail,severity='review',disposition='Collect and verify the controlling evidence',dependencies=[]){
+   findings.push({id:'D-'+String(findings.length+1).padStart(3,'0'),kind,reference:clean(ref),detail:clean(detail,1000),severity,disposition,dependencies:[...new Set(dependencies.map(x=>clean(x)))],verified:kind==='engineering-failure',releaseApproved:false});
+ }
+ for(const s of sources){
+  const id=clean(s.id);if(!id||sourceMap.has(id))throw Error('Source IDs must be unique and nonempty');
+  if(!sourceStatuses.includes(s.status))throw Error('Invalid source status: '+id);
+  const source={id,title:clean(s.title),url:clean(s.url,2000),revision:clean(s.revision),expectedRevision:clean(s.expectedRevision),status:s.status,evidenceRef:clean(s.evidenceRef)};
+  sourceMap.set(id,source);
+  if(s.status==='broken-link')add('broken-link',id,'Reported broken gateway: '+source.title,'high','Check the exact URL and HTTP result');
+  if(s.status==='inaccessible')add('inaccessible-document',id,'Access to source is unverified or denied: '+source.title,'review','Request authorized access; do not infer missing engineering');
+  if(s.status==='missing-documentation')add('missing-documentation',id,'Required record not supplied: '+source.title);
+  if(s.status==='outdated-revision'||(source.revision&&source.expectedRevision&&source.revision!==source.expectedRevision))add('outdated-revision',id,'Revision '+source.revision+' differs from controlling '+source.expectedRevision,'high','Reconcile the master index and preserve original revisions');
+ }
+ for(const c of claims){
+  const id=clean(c.id);if(!id)throw Error('Claim ID required');
+  const refs=Array.isArray(c.sourceIds)?c.sourceIds.map(x=>clean(x)):[];
+  const missing=refs.filter(x=>!sourceMap.has(x));
+  if(missing.length)add('unresolved-dependency',id,'Unknown source IDs: '+missing.join(', '),'review','Resolve source references',missing);
+  const evidence=refs.map(x=>sourceMap.get(x)).filter(Boolean);
+  const verifiedEvidence=evidence.some(x=>x.status==='verified'&&x.evidenceRef);
+  if(c.failureEvidenceRef){
+   add('engineering-failure',id,'Reviewer-reported failed requirement; supporting evidence: '+clean(c.failureEvidenceRef),'critical','Independent engineering review and authorized disposition',refs);
+  }else if(!verifiedEvidence){
+   add('unsupported-technical-claim',id,'No verified, cited source supports claim: '+clean(c.description),'review','Supply calculation, test or controlling record',refs);
+  }
+ }
+ for(const g of gates){
+  const id=clean(g.id);if(!id||gateMap.has(id))throw Error('Gate IDs must be unique and nonempty');
+  gateMap.set(id,{id,dependsOn:Array.isArray(g.dependsOn)?g.dependsOn.map(x=>clean(x)):[],evidenceRefs:Array.isArray(g.evidenceRefs)?g.evidenceRefs.map(x=>clean(x)):[],approved:g.approved===true});
+ }
+ for(const g of gateMap.values()){
+  const unknown=g.dependsOn.filter(x=>!gateMap.has(x));
+  const missing=g.evidenceRefs.filter(x=>!sourceMap.has(x)||sourceMap.get(x).status!=='verified'||!sourceMap.get(x).evidenceRef);
+  if(unknown.length||missing.length)add('unresolved-dependency',g.id,'Gate dependencies/evidence unresolved: '+[...unknown,...missing].join(', '),'review','Resolve source evidence and gate references before release',[...unknown,...missing]);
+ }
+ const visiting=new Set(),visited=new Set();
+ function walk(id,path){if(visiting.has(id)){add('unresolved-dependency',id,'Gate dependency cycle: '+[...path,id].join(' -> '),'high','Break cyclic gate prerequisites',path);return;}if(visited.has(id))return;visiting.add(id);for(const dep of gateMap.get(id).dependsOn)if(gateMap.has(dep))walk(dep,[...path,id]);visiting.delete(id);visited.add(id);}
+ for(const id of gateMap.keys())walk(id,[]);
+ return {schema:'shane.detangler.source-audit',version:1,status:'Evidence classification only; no access, engineering approval or changes performed',sourceCount:sourceMap.size,claimCount:claims.length,gateCount:gateMap.size,findings,releaseApproved:false,security:{networkAccess:false,changesApplied:false,sourceContentExported:false}};
+}
+function discrepancyCSV(report){
+ const cols=['id','kind','reference','detail','severity','disposition','dependencies','verified','releaseApproved'];
+ const cell=x=>'"'+String(x??'').replace(/"/g,'""').replace(/^[=+@-]/,'\'return Object.freeze({analyze,toText,rules:')+'"';
+ return [cols.join(','),...report.findings.map(f=>cols.map(k=>cell(Array.isArray(f[k])?f[k].join('; '):f[k])).join(','))].join('\\n');
+}
+return Object.freeze({analyze,toText,auditSources,discrepancyCSV,sourceStatuses,discrepancyKinds,rules:rules.map(({id,title})=>({id,title}))});
 });
