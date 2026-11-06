@@ -85,11 +85,14 @@ function init(){
  // Persist a new endeavor through the account-backed conversation store.
  // Creation is user-initiated, never inferred from merely typing an idea.
  const saveVision=host.querySelector("#shane-connected-save-vision");
+ let savingVision=false;
  saveVision.addEventListener("click",async()=>{
+  if(savingVision)return;
   const idea=vision.value.trim()||reply.value.trim();
   if(idea.length<8){status.textContent="Describe your vision first, then save it as a new endeavor.";return}
   const store=window.SHANEConversationStore;
   if(typeof store?.beginEndeavor!=="function"){status.textContent="The account-backed creation service is not ready. Please try again shortly.";return}
+  savingVision=true;
   saveVision.disabled=true;
   status.textContent="Saving your new endeavor to your account…";
   try{
@@ -99,7 +102,7 @@ function init(){
    if(currentId()!==id)document.dispatchEvent(new CustomEvent("shane:endeavor-changed",{detail:{id}}));
    status.textContent="Your new endeavor is saved to your account and selected for the next creation step. Continue refining it here or plan its website and Network capabilities.";
   }catch(error){status.textContent="Could not save the endeavor: "+(error?.message||"Please try again.");}
-  finally{saveVision.disabled=false}
+  finally{savingVision=false;saveVision.disabled=false}
  });
  // Preview a multi-capability creation plan without writing or publishing.
  const planButton=host.querySelector("#shane-connected-plan");
