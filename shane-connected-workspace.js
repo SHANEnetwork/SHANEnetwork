@@ -23,6 +23,8 @@ function init(){
   const button=actions.querySelector("#"+id);
   if(button)nextActions.append(button);
  }
+ const messagesButton=actions.querySelector('button[data-kind="messages"]');
+ if(messagesButton)nextActions.append(messagesButton);
  toolsDisclosure.before(nextActions);
  nextActions.querySelector("#shane-connected-plan")?.setAttribute("aria-label","Plan my idea with SHANE");
  nextActions.querySelector("#shane-connected-create")?.setAttribute("aria-label","Create the reviewed result");
