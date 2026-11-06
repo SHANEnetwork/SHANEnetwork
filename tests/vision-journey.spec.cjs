@@ -12,7 +12,7 @@ test('welcome vision reaches the conversation-first creator intact', async ({ pa
     return ancestors;
   });
   await page.evaluate(data => { window.__welcomeVisibilityDiagnostics = data; }, entryDiagnostics);
-  await expect(page.locator('#shaneWelcome')).toBeVisible();
+  await expect(page.locator('#shaneWelcome'), 'Homepage entry ancestor styles: '+JSON.stringify(entryDiagnostics)).toBeVisible();
   await page.locator('#welcomeIdea').fill(vision);
   await page.locator('#shaneWelcome button[type="submit"]').click();
   await expect(page).toHaveURL(/builder\.html\?from=welcome#vision-first/);
