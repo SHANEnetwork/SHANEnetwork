@@ -36,7 +36,7 @@ jobs:
       - name: Validate inline JavaScript
         run: node scripts/check-page-syntax.cjs
       - name: Verify Detangler diagnostics and safe exports
-        run: node --test tests/detangler-core.test.cjs tests/detangler-source-audit.test.cjs tests/shane-acceptance-detangler.test.cjs
+        run: node --test tests/detangler-core.test.cjs tests/detangler-source-audit.test.cjs tests/shane-acceptance-detangler.test.cjs tests/shane-endeavor-guard.test.cjs
       - name: Install browser test runner
         run: npm install --no-save @playwright/test@1.58.2
       - name: Install Chromium
