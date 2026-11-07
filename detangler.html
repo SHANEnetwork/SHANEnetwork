@@ -22,12 +22,21 @@
 <p class="muted"><strong>Privacy:</strong> This first-stage analyzer runs in your browser. Do not paste passwords, API keys, customer records, or other sensitive information. No external systems are accessed, modified, or scanned.</p>
 <div class="actions"><button class="action" type="submit">Analyze evidence</button><button class="action secondary" type="button" id="clear">Clear investigation</button></div></form></section>
 <section class="panel" id="results" aria-labelledby="results-title" hidden><h2 id="results-title">Investigation findings</h2><p id="summary" role="status"></p><div id="findings"></div><div class="actions"><button class="action" type="button" id="export-json">Export JSON report</button><button class="action secondary" type="button" id="export-text">Export readable report</button><button class="action secondary" type="button" id="continue-endeavor">Continue in SHANE Endeavor</button></div><p class="muted">Findings are hypotheses based on supplied evidence, not verified repairs. Reproduce each issue and test fixes in isolation before deploying.</p></section>
+<section class="panel" aria-labelledby="source-audit-title"><h2 id="source-audit-title">Source and dependency audit</h2><p>Paste authorized, redacted source metadata as JSON. SHANE classifies document access, revisions, unsupported claims, engineering evidence and gate dependencies locally. This does not fetch private files or approve fabrication.</p><label for="audit-input">Sources, claims and gates (JSON)</label><textarea id="audit-input" spellcheck="false" placeholder='{"sources":[{"id":"S1","title":"Drawing","status":"inaccessible"}],"claims":[],"gates":[]}'></textarea><div class="actions"><button class="action" type="button" id="run-audit">Analyze source dependencies</button><button class="action secondary" type="button" id="audit-export">Export discrepancy CSV</button></div><p id="audit-status" role="status"></p><div id="audit-findings"></div></section>
 <section class="panel"><h2>How this grows</h2><p>This is the working first-stage intake and deterministic diagnostic layer, not yet an autonomous repository, database, or production repair engine. Authorized connectors, isolated test environments, dependency graphs, security checks, approval gates, and rollback are subsequent integration layers.</p></section>
 </main><footer>SHANE Network · Preserve what works. Investigate what doesn't.</footer>
 <script src="shane-detangler-core.js"></script>
 <script>
 (function(){
 'use strict';
+let sourceReport=null;
+document.getElementById('run-audit').addEventListener('click',()=>{
+ const status=document.getElementById('audit-status'),list=document.getElementById('audit-findings');list.replaceChildren();
+ try {sourceReport=window.SHANEDetangler.auditSources(JSON.parse(document.getElementById('audit-input').value));status.textContent=sourceReport.findings.length+' discrepancies or evidence gaps identified; no release approval.';
+ for(const item of sourceReport.findings){const p=document.createElement('p');p.className='finding';p.textContent=item.id+' | '+item.kind+' | '+item.reference+' | '+item.detail+' | Disposition: '+item.disposition;list.append(p);}}
+ catch(e){sourceReport=null;status.textContent='Audit input error: '+e.message;}
+});
+document.getElementById('audit-export').addEventListener('click',()=>{if(!sourceReport){document.getElementById('audit-status').textContent='Run an audit first.';return;}const csv=window.SHANEDetangler.discrepancyCSV(sourceReport);const blob=new Blob([csv],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='shane-source-discrepancies.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
 const buttons=[...document.querySelectorAll('[data-mode]')],form=document.getElementById('investigation'),result=document.getElementById('results'),findings=document.getElementById('findings');
 let mode='standalone',report=null;
 const descriptions={standalone:'Standalone investigation: examine supplied evidence locally and export a report.',endeavor:'Endeavor integration: investigate first, then carry the problem description into SHANE’s creator.',developer:'Developer integration: produce versioned, structured findings that another authorized tool can consume.'};

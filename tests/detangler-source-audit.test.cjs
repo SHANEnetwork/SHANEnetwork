@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict');const {test}=require('node:test');const {auditSources,discrepancyCSV}=require('../shane-detangler-core.js');
+test('separates five discrepancy categories and preserves evidence boundaries',()=>{
+const r=auditSources({sources:[{id:'a',title:'Gateway',status:'broken-link'},{id:'b',title:'Restricted',status:'inaccessible'},{id:'c',title:'Drawing',status:'outdated-revision',revision:'R2',expectedRevision:'R3'},{id:'d',title:'Verified',status:'verified',evidenceRef:'Drawing sheet 4'}],claims:[{id:'water',description:'Water capacity',sourceIds:['a']},{id:'load',description:'Electrical load',sourceIds:['d'],failureEvidenceRef:'Calculation C-17'}],gates:[{id:'G1',evidenceRefs:['b']}]});
+for(const k of ['broken-link','inaccessible-document','outdated-revision','unsupported-technical-claim','engineering-failure','unresolved-dependency'])assert.ok(r.findings.some(x=>x.kind===k),k);
+assert.equal(r.releaseApproved,false);assert.equal(r.security.networkAccess,false);assert.ok(discrepancyCSV(r).includes('engineering-failure'));
+});
+test('no failure inferred from inaccessible documentation',()=>{const r=auditSources({sources:[{id:'x',status:'inaccessible'}]});assert.equal(r.findings.some(f=>f.kind==='engineering-failure'),false)});
+test('detects gate cycles and unknown sources',()=>{const r=auditSources({gates:[{id:'G1',dependsOn:['G2'],evidenceRefs:['missing']},{id:'G2',dependsOn:['G1']}]});assert.ok(r.findings.some(f=>f.detail.includes('cycle')));assert.equal(r.releaseApproved,false)});
+test('rejects duplicate source IDs and invalid status',()=>{assert.throws(()=>auditSources({sources:[{id:'a',status:'verified'},{id:'a',status:'verified'}]}));assert.throws(()=>auditSources({sources:[{id:'a',status:'passed'}]}))});
+test('repeatable reports and CSV escaping',()=>{const input={claims:[{id:'a',description:'=HYPERLINK("x")'}]};const a=auditSources(input);assert.deepEqual(a,auditSources(input));assert.ok(discrepancyCSV(a).includes('unsupported-technical-claim'))});
