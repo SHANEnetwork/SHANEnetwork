@@ -6,7 +6,7 @@ const {auditSources,discrepancyCSV}=require('../shane-detangler-core.js');
 const ledger=fs.readFileSync(path.join(__dirname,'../docs/endeavor-journey-acceptance-ledger.md'),'utf8');
 const ids=[...ledger.matchAll(/^\| (EJ-\d{2}) \|/gm)].map(x=>x[1]);
 if(ids.length!==12||new Set(ids).size!==12)throw Error('Expected exactly 12 unique EJ gates');
-const nav=[...ledger.matchAll(/\*\*(LINK-\d{2})\*\*:/g)].map(x=>x[1]);
+const nav=[...ledger.matchAll(/^\s*-\s*\*\*(LINK-\d{2})\*\*:/gm)].map(x=>x[1]);
 if(nav.length!==4||new Set(nav).size!==4)throw Error('Expected exactly four navigation gates');
 const sources=[
  {id:'live-account',title:'Dedicated signed-in deployed browser run',status:'missing-documentation'},
