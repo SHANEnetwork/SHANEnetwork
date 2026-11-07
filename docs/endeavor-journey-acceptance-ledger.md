@@ -52,6 +52,10 @@ A separate, credential-free deployed-browser probe is now defined in `tests/shan
 
 **Real-account blocker:** `.github/workflows/shane-live-account-journey.yml` is explicitly gated by `SHANE_ENABLE_LIVE_E2E=true`, needs dedicated `SHANE_E2E_EMAIL` and `SHANE_E2E_PASSWORD` secrets, and requires manual dispatch. Do not use an owner's personal account or fabricate credentials. The existing deployed account script covers creation, website linking, revision and sign-out/return, not all 12 gates.
 
+## Deployed signed-in dashboard navigation probe (2026-11-06)
+
+The dedicated-account deployed browser test now exercises dashboard → saved endeavor → restored revised vision, using the actual rendered dashboard link and the exact database-backed endeavor ID. This extends its earlier direct-URL return checks and gives stronger future evidence for EJ-03 and LINK-02. It runs only with explicit live-test activation and dedicated test credentials. **No gate is marked PASS until the deployed workflow succeeds and its evidence is recorded.**
+
 ## Existing evidence and limitations
 - Latest observed commit `60a48aec`: **Validate SHANE pages** and **pages build and deployment** succeeded. These are *not* a complete broken-link or real-account journey audit.
 - `tests/shane-live-account-browser.cjs` currently verifies direct Supabase account authentication, endeavor insert/update, anonymous read isolation, sign-out/sign-in and reopening. It **does not** exercise browser UI, generated components, collaboration, or the full endeavor journey despite its filename.
