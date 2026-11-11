@@ -2,6 +2,7 @@
 // This is NOT a substitute for artifact creation, history or two-account collaboration gates.
 const { chromium } = require('playwright');
 const assert = require('node:assert/strict');
+const {inspect}=require('../shane-endeavor-guard.cjs');
 const { createClient } = require('@supabase/supabase-js');
 const base = (process.env.SHANE_E2E_URL || 'https://shanenetwork.org').replace(/\/$/, '');
 const email = process.env.SHANE_E2E_EMAIL, password = process.env.SHANE_E2E_PASSWORD;
@@ -45,6 +46,8 @@ const api = createClient(url,key,{auth:{persistSession:false,autoRefreshToken:fa
   assert.equal(site.owner_id,user.id);
   assert.equal(site.status,'draft');
   assert(site.content && Object.keys(site.content).length>2,'Website draft must contain editable content');
+  const guard=inspect({id,ownerId:created.owner_id,originalVision:created.idea,components:[{id:joined.linked_site_id,endeavorId:id,ownerId:site.owner_id}]});
+  assert.deepEqual(guard.findings,[]);
   await page.goto(base+'/'+link,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(expected=>document.querySelector('#visionPrompt')?.value===expected,vision,{timeout:25000});
   assert.equal(await page.locator('#visionPrompt').inputValue(),vision,'Returning by saved link must restore the vision');
