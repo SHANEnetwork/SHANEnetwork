@@ -6,7 +6,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   chromium-navigation:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # Playwright 1.56.1 cannot install Chromium on Ubuntu 26.04
     timeout-minutes: 12
     env:
       SHANE_E2E_URL: https://shanenetwork.org
