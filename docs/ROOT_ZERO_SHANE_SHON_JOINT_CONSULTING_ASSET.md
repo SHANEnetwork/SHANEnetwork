@@ -2,6 +2,8 @@
 
 **Version:** 0.1 — 2026-11-23. **Status:** living strategy, not a claim that unverified product features are live. **Maintainers/reviewers:** Adam (product owner); Mirael and BrotherChat (independent research, engineering, challenge, review). Preserve source histories and contrary findings. This record is public-safe: never include member private profiles, personal archives, account secrets, or confidential Trinity customer records.
 
+**SHON independent stewardship counterpart:** [SHON v1 consulting and two-member release guide](https://github.com/SHONnetwork/shon-website/blob/strategy/rootzero-consulting-link-20261123/docs/SHON_SHANE_JOINT_CONSULTING_STEWARDSHIP.md) (SHON draft PR #3). This is a review link, never an operational dependency.
+
 **Canonical files:** SHANE product contract (SHANE-PRODUCT-CONTRACT.md); network architecture (NETWORK_ARCHITECTURE.md); deployed endeavor acceptance ledger (docs/endeavor-journey-acceptance-ledger.md); SHON's separate release audit (SHON_RELEASE_AUDIT.md in SHONnetwork/shon-website); SHON two-member acceptance plan (docs/SHON_TWO_MEMBER_RELEASE_TEST.md); SHON recovered source/mission notes (docs/SHON_SHANE_RECOVERED_SOURCE_NOTES.md). The user-supplied SHANE Unification Plan, Bakery Example, and End-to-End Tests are context, not a waiver of verification. More recent validated evidence supersedes old status, not the vision.
 
 ## 1. Joint proposition and boundaries
