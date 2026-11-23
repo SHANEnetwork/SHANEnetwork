@@ -8,6 +8,14 @@ on:
       - 'builder.html'
       - 'tests/shane-deployed-public-navigation.cjs'
       - '.github/workflows/shane-deployed-public-navigation.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'detangler.html'
+      - 'index.html'
+      - 'builder.html'
+      - 'tests/shane-deployed-public-navigation.cjs'
+      - '.github/workflows/shane-deployed-public-navigation.yml'
   workflow_dispatch:
   schedule:
     - cron: '23 12 * * 1'
