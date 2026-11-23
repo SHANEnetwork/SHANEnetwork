@@ -7,7 +7,7 @@ concurrency:
 jobs:
   account-journey:
     if: ${{ vars.SHANE_ENABLE_LIVE_E2E == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # Playwright 1.56.1 cannot install Chromium on Ubuntu 26.04
     timeout-minutes: 25
     env:
       SHANE_E2E_EMAIL: ${{ secrets.SHANE_E2E_EMAIL }}
