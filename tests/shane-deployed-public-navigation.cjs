@@ -28,10 +28,10 @@ const routes=['/','/builder.html','/dashboard.html','/members.html','/my-network
   const entry=page.locator('a[href="detangler.html"]').first();
   assert(await entry.count(),'Homepage must expose Detangler');
   await entry.click();
-  await page.waitForURL('**/detangler.html');
+  await page.waitForURL(/\/detangler(?:\.html)?(?:[?#].*)?$/,{waitUntil:'domcontentloaded',timeout:20000}).catch(error=>{throw new Error('Detangler link did not reach DOM-ready destination; actual URL '+page.url()+'; '+error.message)});
   assert(await page.getByRole('heading',{name:/Untangle what exists/i}).isVisible(),'Detangler must render after homepage navigation');
   await page.getByRole('link',{name:'Create an endeavor'}).click();
-  await page.waitForURL('**/builder.html');
+  await page.waitForURL(/\/builder(?:\.html)?(?:[?#].*)?$/,{waitUntil:'domcontentloaded',timeout:20000}).catch(error=>{throw new Error('Builder link did not reach DOM-ready destination; actual URL '+page.url()+'; '+error.message)});
   assert(await page.locator('#visionPrompt').count(),'Builder must render the endeavor vision input');
   assert.deepEqual(errors,[],'Broken deployed same-page navigation targets');
   console.log('PASS deployed homepage → Detangler → endeavor builder navigation');
